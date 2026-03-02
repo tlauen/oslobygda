@@ -1,5 +1,5 @@
+{% assign alle = (site.data.kalender | default: empty) | sort: "dato" %}
 {% assign alle = site.data.kalender | sort: "dato" %}
-{% assign no = "now" | date: "%s" %}
 
 {%- assign max = include.limit | default: 9999 -%}
 {%- assign vist = 0 -%}
