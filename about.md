@@ -1,6 +1,6 @@
 layout: page
 title: "Om laget"
-permalink: /om
+permalink: /om/
 
 
 INNHALD IKKJE SANT?
