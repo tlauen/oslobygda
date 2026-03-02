@@ -1,12 +1,17 @@
-- dato: 2026-03-25
-  tid: "19:00"
+- uid: "pobb-2026-07-25"
+  dato: 2026-07-25
+  start: "19:00"
+  slutt: "22:30"
   tittel: "Folkemusikkpøbben"
   stad: "Kaffistova, kjellaren"
   lenkje: "/pub/"
-  merknad: "Ope hus. Ta med instrument (eller berre tørste)."
+  merknad: "Ope hus."
 
-- dato: 2026-04-22
-  tid: "19:00"
+- uid: "pobb-2026-03-25"
+  dato: 2026-03-25
+  start: "19:00"
+  slutt: "22:30"
   tittel: "Folkemusikkpøbben"
   stad: "Kaffistova, kjellaren"
   lenkje: "/pub/"
+  merknad: "Ope hus."

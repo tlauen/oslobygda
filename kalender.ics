@@ -1,0 +1,28 @@
+---
+layout: null
+permalink: /kalender.ics
+---
+
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Oslobygda kulturlag//kalender//NN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Oslobygda kulturlag
+X-WR-TIMEZONE:Europe/Oslo
+{% assign alle = site.data.kalender | sort: "dato" %}
+{% for e in alle %}
+{% assign dato_ymd = e.dato | date: "%Y%m%d" %}
+{% assign start_hhmm = e.start | default: "19:00" | remove: ":" %}
+{% assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" %}
+BEGIN:VEVENT
+UID:{{ e.uid | default: forloop.index }}@oslobygda.no
+DTSTAMP:{{ "now" | date: "%Y%m%dT%H%M%SZ" }}
+DTSTART;TZID=Europe/Oslo:{{ dato_ymd }}T{{ start_hhmm }}00
+DTEND;TZID=Europe/Oslo:{{ dato_ymd }}T{{ slutt_hhmm }}00
+SUMMARY:{{ e.tittel | replace: "\n", " " }}
+{% if e.stad %}LOCATION:{{ e.stad | replace: "\n", " " }}{% endif %}
+{% if e.merknad %}DESCRIPTION:{{ e.merknad | replace: "\n", " " }}{% endif %}
+END:VEVENT
+{% endfor %}
+END:VCALENDAR

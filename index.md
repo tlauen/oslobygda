@@ -9,7 +9,7 @@ Velkomen til Oslobygda – ein frilynt møteplass for levande folkekultur i hovu
 
 <div class="card">
 ## Neste arrangement
-{% include kalenderliste.html %}
+{% include kalenderliste.html limit=5 %}
 </div>
 
 ## Kva finn du her?

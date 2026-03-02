@@ -1,15 +1,32 @@
 {% assign alle = site.data.kalender | sort: "dato" %}
 {% assign no = "now" | date: "%s" %}
 
+{%- assign max = include.limit | default: 9999 -%}
+{%- assign vist = 0 -%}
+
 <div class="kalenderliste">
   {% for e in alle %}
     {% assign es = e.dato | date: "%s" %}
-    {% if es >= no %}
+    {% if es >= no and vist < max %}
+      {% assign vist = vist | plus: 1 %}
+
+      {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
+      {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
+      {%- assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" -%}
+      {%- assign dtstart = dato_ymd | append: "T" | append: start_hhmm | append: "00" -%}
+      {%- assign dtend   = dato_ymd | append: "T" | append: slutt_hhmm | append: "00" -%}
+
+      {%- assign g_text = e.tittel | uri_escape -%}
+      {%- assign g_loc  = e.stad   | default: "" | uri_escape -%}
+      {%- assign g_det  = e.merknad | default: "" | uri_escape -%}
+      {%- assign g_dates = dtstart | append: "/" | append: dtend -%}
+      {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
+
       <div class="card kalenderkort">
         <div class="kalenderkort__dato">
-          {{ e.dato | date: "%-d. %B %Y" }}
-          {% if e.tid %} · {{ e.tid }}{% endif %}
+          {{ e.dato | date: "%-d. %B %Y" }} · {{ e.start | default: "19:00" }}
         </div>
+
         <div class="kalenderkort__tittel">
           {% if e.lenkje %}
             <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
@@ -17,8 +34,15 @@
             {{ e.tittel }}
           {% endif %}
         </div>
+
         {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
         {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+
+        <div class="kalenderkort__actions">
+          <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
+          <span class="muted">·</span>
+          <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
+        </div>
       </div>
     {% endif %}
   {% endfor %}
