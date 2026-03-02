@@ -1,5 +1,10 @@
 {% assign no = "now" | date: "%s" %}
-{% assign alle = (site.data.kalender | default: empty) | sort: "dato" %}
+
+{% if site.data.kalender %}
+  {% assign alle = site.data.kalender | sort: "dato" %}
+{% else %}
+  {% assign alle = "" | split: "" %}
+{% endif %}
 
 {%- assign max = include.limit | default: 9999 -%}
 {%- assign vist = 0 -%}
