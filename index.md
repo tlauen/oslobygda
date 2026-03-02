@@ -7,4 +7,3 @@ title: Oslobygda kulturlag
 
 Velkomen!
 
-- [Om laget]({{ site.baseurl }}/om/)
