@@ -1,6 +1,7 @@
+---
 layout: default
-title: "Om laget"
+title: Om laget
 permalink: /om/
-
+---
 
 INNHALD IKKJE SANT?
