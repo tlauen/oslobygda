@@ -10,7 +10,11 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:Oslobygda kulturlag
 X-WR-TIMEZONE:Europe/Oslo
+{% if site.data.kalender %}
 {% assign alle = site.data.kalender | sort: "dato" %}
+{% else %}
+{% assign alle = "" | split: "" %}
+{% endif %}
 {% for e in alle %}
 {% assign dato_ymd = e.dato | date: "%Y%m%d" %}
 {% assign start_hhmm = e.start | default: "19:00" | remove: ":" %}
