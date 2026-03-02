@@ -6,6 +6,7 @@
 /* Enkel meny som ikkje kolliderer med innhald */
 .site-nav {
   margin-bottom: 2rem;
+  overflow: auto; /* ryddar opp i float utan ekstra div */
 }
 
 .site-nav::after {
@@ -22,12 +23,31 @@
   color: #666;
 }
 
-/* Stoppar float-overlapping frå tema/header */
-.site-nav {
-  overflow: auto; /* ryddar opp i float utan ekstra div */
-}
-
 main,
 .site-footer {
   clear: both;
+}
+
+/* Hard stop for tema-styling som kan få header til å flyte/overlappe */
+header.site-nav {
+  float: none !important;
+  position: relative;
+  z-index: 10;
+  display: block;
+  width: 100%;
+  padding: 0.75rem 0;
+  background: #fff; /* hindrar at tekst "skin gjennom" visuelt */
+}
+
+/* Gjer menyen stabil i breie vindauge */
+header.site-nav nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Sørg for at innhald alltid startar under header */
+main {
+  display: block;
+  clear: both !important;
 }
