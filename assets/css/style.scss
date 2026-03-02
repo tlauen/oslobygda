@@ -127,3 +127,16 @@ a:hover{ text-decoration: underline; }
   padding: 1.5rem 0 2rem;
   color: var(--muted);
 }
+
+.kalenderkort__dato{
+  font-weight: 650;
+  margin-bottom: .2rem;
+}
+.kalenderkort__tittel{
+  font-size: 1.05rem;
+  margin-bottom: .15rem;
+}
+.kalenderliste{
+  display: grid;
+  gap: .9rem;
+}

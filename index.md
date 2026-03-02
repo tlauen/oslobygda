@@ -8,7 +8,8 @@ title: Framsida
 Velkomen til Oslobygda – ein frilynt møteplass for levande folkekultur i hovudstaden.
 
 <div class="card">
-<strong>Neste:</strong> (legg inn komande pøbb/arrangement her)
+## Neste arrangement
+{% include kalenderliste.html %}
 </div>
 
 ## Kva finn du her?

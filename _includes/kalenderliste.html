@@ -1,0 +1,25 @@
+{% assign alle = site.data.kalender | sort: "dato" %}
+{% assign no = "now" | date: "%s" %}
+
+<div class="kalenderliste">
+  {% for e in alle %}
+    {% assign es = e.dato | date: "%s" %}
+    {% if es >= no %}
+      <div class="card kalenderkort">
+        <div class="kalenderkort__dato">
+          {{ e.dato | date: "%-d. %B %Y" }}
+          {% if e.tid %} · {{ e.tid }}{% endif %}
+        </div>
+        <div class="kalenderkort__tittel">
+          {% if e.lenkje %}
+            <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
+          {% else %}
+            {{ e.tittel }}
+          {% endif %}
+        </div>
+        {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
+        {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
