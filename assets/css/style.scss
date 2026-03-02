@@ -21,3 +21,13 @@
   font-size: 0.9rem;
   color: #666;
 }
+
+/* Stoppar float-overlapping frå tema/header */
+.site-nav {
+  overflow: auto; /* ryddar opp i float utan ekstra div */
+}
+
+main,
+.site-footer {
+  clear: both;
+}
