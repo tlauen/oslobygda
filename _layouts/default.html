@@ -1,31 +1,39 @@
-<!DOCTYPE html>
-<html lang="nn">
-  <head>
-    <meta charset="utf-8">
-    <title>{{ page.title }} · {{ site.title }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!doctype html>
+<html lang="{{ site.lang | default: 'nn' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    {% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}
+  </title>
+  <meta name="description" content="{{ page.description | default: site.description }}">
 
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-  </head>
-  <body>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+  <a class="skip" href="#innhald">Hopp til innhald</a>
 
-<header class="site-nav">
-  <nav>
-    <a href="{{ '/' | relative_url }}">Heim</a> ·
-    <a href="{{ '/om/' | relative_url }}">Om laget</a>
-  </nav>
-</header>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="brand">
+        <a class="brand__title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+        <div class="brand__tagline">{{ site.description }}</div>
+      </div>
 
-    <main>
+      {% include nav.html %}
+    </div>
+  </header>
+
+  <main id="innhald" class="site-main">
+    <div class="wrap prose">
       {{ content }}
-    </main>
+    </div>
+  </main>
 
-<footer class="site-footer">
-  <p>
-    © {{ site.time | date: "%Y" }} {{ site.title }} ·
-    Bygd på frivillig arbeid, GitHub Pages og øl på Kaffistova.
-  </p>
-</footer>
-  </body>
-  
+  <footer class="site-footer">
+    <div class="wrap">
+      {% include footer.html %}
+    </div>
+  </footer>
+</body>
 </html>
