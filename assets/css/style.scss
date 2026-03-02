@@ -1,0 +1,15 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* Enkel meny som ikkje kolliderer med innhald */
+.site-nav {
+  margin-bottom: 2rem;
+}
+
+.site-nav::after {
+  content: "";
+  display: block;
+  clear: both;
+}
