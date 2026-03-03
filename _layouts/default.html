@@ -13,16 +13,28 @@
 <body>
   <a class="skip" href="#innhald">Hopp til innhald</a>
 
-  <header class="site-header">
-    <div class="wrap">
-      <div class="brand">
-        <a class="brand__title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-        <div class="brand__tagline">{{ site.description }}</div>
-      </div>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="{{ '/' | relative_url }}">
+      <!-- Logo: best om han er inline, men vi prøver fyrst <img> -->
+      <span class="brand__logo brand__logo--mask" aria-hidden="true"></span>
+	  <span class="brand__name">{{ site.title }}</span>
+      <span class="brand__name">{{ site.title }}</span>
+    </a>
 
-      {% include nav.html %}
-    </div>
-  </header>
+    <nav class="nav" aria-label="Meny">
+      <a href="{{ '/' | relative_url }}">Framsida</a>
+      <a href="{{ '/om/' | relative_url }}">Om</a>
+      <a href="{{ '/pub/' | relative_url }}">Folkemusikkpøbb</a>
+      <a href="{{ '/kalender/' | relative_url }}">Kalender</a>
+      <a href="{{ '/brev/' | relative_url }}">Nyhendebrev</a>
+
+      <button class="theme-toggle" type="button" id="themeToggle" aria-label="Byt tema">
+        🌓
+      </button>
+    </nav>
+  </div>
+</header>
 
   <main id="innhald" class="site-main">
     <div class="wrap prose">
@@ -35,5 +47,25 @@
       {% include footer.html %}
     </div>
   </footer>
+  
+  <script>
+(function(){
+  const root = document.documentElement;
+  const key = "oslobygda-theme";
+  const btn = document.getElementById("themeToggle");
+  if(!btn) return;
+
+  // init
+  const saved = localStorage.getItem(key);
+  if(saved === "light" || saved === "dark") root.dataset.theme = saved;
+
+  btn.addEventListener("click", () => {
+    const cur = root.dataset.theme;
+    const next = (cur === "dark") ? "light" : "dark";
+    root.dataset.theme = next;
+    localStorage.setItem(key, next);
+  });
+})();
+</script>
 </body>
 </html>
