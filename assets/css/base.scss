@@ -15,7 +15,7 @@
   --accent2: #c18a2b;  /* øl/rav */
   --accent3: #2f5d50;  /* dempa grøn */
 
-  --radius: 18px;
+  --radius: 0px;
   --maxw: 980px;
 }
 
@@ -78,6 +78,27 @@ a:hover{ text-decoration: underline; }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 1rem;
+}
+
+/* Harde kantar */
+:root{ --radius: 0px; }
+.card, .hero, .nav a, .theme-toggle{ border-radius: 0 !important; }
+
+/* Grid for kalenderlista */
+.kalenderliste{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+.kalenderkort{ grid-column: span 12; }
+
+@media (min-width: 720px){
+  .kalenderkort{ grid-column: span 6; }
+}
+
+@media (min-width: 1050px){
+  .kalenderkort{ grid-column: span 4; }
 }
 
 /* Skip-link */
@@ -193,7 +214,7 @@ a:hover{ text-decoration: underline; }
 
   margin: 1.2rem 0 1.4rem;
   border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 6px);
+  border-radius: 0px);
   overflow: hidden;
 
   background-image: url("../img/hero.jpg");
@@ -282,4 +303,24 @@ a:hover{ text-decoration: underline; }
 }
 .header-inner{
   padding: .65rem 0;
+}
+
+.kalenderliste{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+.kalenderkort{
+  grid-column: span 12;
+}
+
+/* 2 kolonner på litt breiare skjerm */
+@media (min-width: 720px){
+  .kalenderkort{ grid-column: span 6; }
+}
+
+/* 3 kolonner på stor skjerm */
+@media (min-width: 1050px){
+  .kalenderkort{ grid-column: span 4; }
 }

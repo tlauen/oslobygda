@@ -1,4 +1,5 @@
 {% assign no = "now" | date: "%s" %}
+
 {% if site.data.kalender %}
   {% assign alle = site.data.kalender | sort: "dato" %}
 {% else %}
@@ -26,9 +27,31 @@
       {%- assign g_dates = dtstart | append: "/" | append: dtend -%}
       {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
 
+      {%- comment -%} Norsk månadsnamn (robust på GitHub Pages) {%- endcomment -%}
+      {%- assign m = e.dato | date: "%-m" -%}
+      {%- capture mnd -%}
+        {%- case m -%}
+          {%- when "1" -%}januar
+          {%- when "2" -%}februar
+          {%- when "3" -%}mars
+          {%- when "4" -%}april
+          {%- when "5" -%}mai
+          {%- when "6" -%}juni
+          {%- when "7" -%}juli
+          {%- when "8" -%}august
+          {%- when "9" -%}september
+          {%- when "10" -%}oktober
+          {%- when "11" -%}november
+          {%- when "12" -%}desember
+        {%- endcase -%}
+      {%- endcapture -%}
+
+      {%- assign dag = e.dato | date: "%-d" -%}
+      {%- assign aar = e.dato | date: "%Y" -%}
+
       <div class="card kalenderkort">
         <div class="kalenderkort__dato">
-          {{ e.dato | date: "%-d. %B %Y" }} · {{ e.start | default: "19:00" }}
+          {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }}
         </div>
 
         <div class="kalenderkort__tittel">
