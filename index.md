@@ -9,6 +9,14 @@ cta_label: "Sjå kalenderen"
 cta_href: /kalender/
 ---
 
+<section class="hero">
+  <div class="hero__inner">
+    <div class="hero__logo" aria-hidden="true"></div>
+    <h1 class="hero__title">Oslobygda kulturlag</h1>
+    <p class="hero__lead">Din leverandør av Folkemusikkpøbb i kjellaren på Kaffistova.</p>
+  </div>
+</section>
+
 <div class="card">
 <strong>Neste arrangement</strong><br>
 {% include kalenderliste.html limit=5 %}
