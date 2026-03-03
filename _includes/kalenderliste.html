@@ -16,101 +16,117 @@
 
 {% assign current_year = "" %}
 
-{% if group == "year" %}
-  <div class="kalender-grupper">
-{% endif %}
+{%- if alle.size == 0 -%}
+  <p class="muted">Ingen arrangement enno.</p>
+{%- else -%}
 
-{% for e in alle %}
-  {% if vist >= max %}{% break %}{% endif %}
+  {%- comment -%}
+  Viktig: Vi opnar alltid ein grid-container.
+  Ved grouping pr. år opnar/lukkar vi per år for å få overskrift mellom gridar.
+  {%- endcomment -%}
 
-  {% assign es = e.dato | append: " 12:00:00 +0100" | date: "%s" %}
-  {% if mode == "future" and es < no %}{% continue %}{% endif %}
-  {% if mode == "past" and es >= no %}{% continue %}{% endif %}
-
-  {% assign vist = vist | plus: 1 %}
-
-  {% assign this_year = e.dato | date: "%Y" %}
-
-  {% if group == "year" and this_year != current_year %}
-    {% if current_year != "" %}
-      </div>
-    {% endif %}
-
-    {% assign current_year = this_year %}
-    <h3 class="kalender-jaar">{{ current_year }}</h3>
+  {% if group != "year" %}
     <div class="kalenderliste">
   {% endif %}
 
-  {%- assign m = e.dato | date: "%-m" -%}
-  {%- capture mnd -%}
-    {%- case m -%}
-      {%- when "1" -%}januar
-      {%- when "2" -%}februar
-      {%- when "3" -%}mars
-      {%- when "4" -%}april
-      {%- when "5" -%}mai
-      {%- when "6" -%}juni
-      {%- when "7" -%}juli
-      {%- when "8" -%}august
-      {%- when "9" -%}september
-      {%- when "10" -%}oktober
-      {%- when "11" -%}november
-      {%- when "12" -%}desember
-    {%- endcase -%}
-  {%- endcapture -%}
+  {% for e in alle %}
+    {% if vist >= max %}{% break %}{% endif %}
 
-  {%- assign dag = e.dato | date: "%-d" -%}
-  {%- assign aar = e.dato | date: "%Y" -%}
-  {%- assign cover = e.bilete | default: "/assets/img/arr-cover.png" -%}
+    {% assign es = e.dato | append: " 12:00:00 +0100" | date: "%s" %}
+    {% if mode == "future" and es < no %}{% continue %}{% endif %}
+    {% if mode == "past" and es >= no %}{% continue %}{% endif %}
 
-  {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
-  {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
-  {%- assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" -%}
-  {%- assign dtstart = dato_ymd | append: "T" | append: start_hhmm | append: "00" -%}
-  {%- assign dtend   = dato_ymd | append: "T" | append: slutt_hhmm | append: "00" -%}
+    {% assign vist = vist | plus: 1 %}
 
-  {%- assign g_text = e.tittel | uri_escape -%}
-  {%- assign g_loc  = e.stad | default: "" | uri_escape -%}
-  {%- assign g_det  = e.merknad | default: "" | uri_escape -%}
-  {%- assign g_dates = dtstart | append: "/" | append: dtend -%}
-  {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
+    {% assign this_year = e.dato | date: "%Y" %}
 
-  {% assign kortklasse = "card kalenderkort" %}
-  {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--past" %}{% endif %}
+    {% if group == "year" and this_year != current_year %}
+      {% if current_year != "" %}
+        </div>
+      {% endif %}
+      {% assign current_year = this_year %}
+      <h3 class="kalender-jaar">{{ current_year }}</h3>
+      <div class="kalenderliste">
+    {% endif %}
 
-  <div class="{{ kortklasse }}">
-    <a class="kalenderkort__coverlink" href="{{ e.lenkje | default: '/kalender/' | relative_url }}">
-      <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
-    </a>
+    {%- assign m = e.dato | date: "%-m" -%}
+    {%- capture mnd -%}
+      {%- case m -%}
+        {%- when "1" -%}januar
+        {%- when "2" -%}februar
+        {%- when "3" -%}mars
+        {%- when "4" -%}april
+        {%- when "5" -%}mai
+        {%- when "6" -%}juni
+        {%- when "7" -%}juli
+        {%- when "8" -%}august
+        {%- when "9" -%}september
+        {%- when "10" -%}oktober
+        {%- when "11" -%}november
+        {%- when "12" -%}desember
+      {%- endcase -%}
+    {%- endcapture -%}
 
-    <div class="kalenderkort__body">
-      <div class="kalenderkort__dato">
-        {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }}
-      </div>
+    {%- assign dag = e.dato | date: "%-d" -%}
+    {%- assign aar = e.dato | date: "%Y" -%}
+    {%- assign cover = e.bilete | default: "/assets/img/arr-cover.png" -%}
 
-      <div class="kalenderkort__tittel">
-        {% if e.lenkje %}
-          <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
-        {% else %}
-          {{ e.tittel }}
-        {% endif %}
-      </div>
+    {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
+    {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
+    {%- assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" -%}
+    {%- assign dtstart = dato_ymd | append: "T" | append: start_hhmm | append: "00" -%}
+    {%- assign dtend   = dato_ymd | append: "T" | append: slutt_hhmm | append: "00" -%}
 
-      {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
-      {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+    {%- assign g_text = e.tittel | uri_escape -%}
+    {%- assign g_loc  = e.stad | default: "" | uri_escape -%}
+    {%- assign g_det  = e.merknad | default: "" | uri_escape -%}
+    {%- assign g_dates = dtstart | append: "/" | append: dtend -%}
+    {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
 
-      <div class="kalenderkort__actions">
-        <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
-        <span class="muted">·</span>
-        <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
+    {% assign kortklasse = "card kalenderkort" %}
+    {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--past" %}{% endif %}
+
+    <div class="{{ kortklasse }}">
+      <a class="kalenderkort__coverlink" href="{{ e.lenkje | default: '/kalender/' | relative_url }}">
+        <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
+      </a>
+
+      <div class="kalenderkort__body">
+        <div class="kalenderkort__dato">
+          {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }}
+        </div>
+
+        <div class="kalenderkort__tittel">
+          {% if e.lenkje %}
+            <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
+          {% else %}
+            {{ e.tittel }}
+          {% endif %}
+        </div>
+
+        {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
+        {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+
+        <div class="kalenderkort__actions">
+          <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
+          <span class="muted">·</span>
+          <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
+        </div>
       </div>
     </div>
-  </div>
-{% endfor %}
 
-{% if group == "year" %}
-  {% if current_year != "" %}
+  {% endfor %}
+
+  {% if group == "year" %}
+    {% if current_year != "" %}
+      </div>
+    {% endif %}
+  {% else %}
     </div>
   {% endif %}
-  </div>
-{% endif %}
+
+  {% if vist == 0 %}
+    <p class="muted">Ingen arrangement i denne lista.</p>
+  {% endif %}
+
+{%- endif -%}
