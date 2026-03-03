@@ -1,14 +1,16 @@
 ---
-layout: default
-title: Framsida
+layout: cool
+title: Oslobygda kulturlag
+kicker: "Folkemusikkpøbb · dans · frilynt lag"
+hero_title: "Oslobygda kulturlag"
+hero_subtitle: "Ein møteplass for levande folkekultur i Oslo — med pøbb i kjellaren på Kaffistova."
+hero: /assets/img/hero.jpg
+cta_label: "Sjå kalenderen"
+cta_href: /kalender/
 ---
 
-# Oslobygda kulturlag
-
-Velkomen til Oslobygda – ein frilynt møteplass for levande folkekultur i hovudstaden.
-
 <div class="card">
-## Neste arrangement
+<strong>Neste arrangement</strong><br>
 {% include kalenderliste.html limit=5 %}
 </div>
 
