@@ -19,7 +19,7 @@ cta_href: /kalender/
 
 <div class="section">
 <strong>Neste arrangement</strong><br>
-{% include kalenderliste.html limit=5 %}
+{% include kalenderliste.html limit=3 %}
 </div>
 
 ## Kva finn du her?
