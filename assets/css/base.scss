@@ -340,10 +340,11 @@ a:hover{ text-decoration: underline; }
 }
 
 .kalenderkort__cover{
-  height: 140px;
-  background-size: cover;
-  background-position: center;
-  filter: saturate(1.05) contrast(1.02);
+  aspect-ratio: 21 / 9;         /* same format overalt */
+  height: auto;                 /* viktig når aspect-ratio styrer */
+  background-size: cover;       /* fyll flata */
+  background-position: center;  /* kutt likt */
+  background-repeat: no-repeat;
 }
 
 .kalenderkort__coverlink{
