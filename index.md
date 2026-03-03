@@ -13,7 +13,7 @@ cta_href: /kalender/
   <div class="hero__inner">
     <div class="hero__logo" aria-hidden="true"></div>
     <h1 class="hero__title">Oslobygda kulturlag</h1>
-    <p class="hero__lead">Din leverandør av Folkemusikkpøbb i kjellaren på Kaffistova.</p>
+    <p class="hero__lead">Din leverandør av Folkemusikkpøbb i Oslo sidan 2021.</p>
   </div>
 </section>
 
@@ -21,9 +21,3 @@ cta_href: /kalender/
 <strong>Neste arrangement</strong><br>
 {% include kalenderliste.html limit=3 %}
 </div>
-
-## Kva finn du her?
-- [Om Oslobygda kulturlag]({{ '/om/' | relative_url }})
-- [Om Folkemusikkpøbben]({{ '/pub/' | relative_url }})
-- [Kalender]({{ '/kalender/' | relative_url }})
-- [Meld deg på nyhendebrevet]({{ '/brev/' | relative_url }})

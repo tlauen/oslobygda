@@ -385,3 +385,8 @@ a:hover{ text-decoration: underline; }
 .muted{
   color: color-mix(in srgb, var(--text) 70%, transparent);
 }
+
+.kalenderkort--past{
+  opacity: .75;
+  filter: grayscale(.15);
+}

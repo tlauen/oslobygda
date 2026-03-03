@@ -1,4 +1,19 @@
+{% comment %}
+Inkluder:
+  {% include kalenderliste.html %}                     -> framtid
+  {% include kalenderliste.html limit=5 %}             -> maks 5 framtid
+  {% include kalenderliste.html mode="past" %}         -> fortid (nyaste først)
+  {% include kalenderliste.html mode="all" %}          -> alt (stigande)
+
+Felt i _data/kalender.yml (valfrie):
+  bilete: "/assets/img/arr-cover.png"
+  lenkje: "/pub/"
+{% endcomment %}
+
 {% assign no = "now" | date: "%s" %}
+{% assign mode = include.mode | default: "future" %}
+{% assign max = include.limit | default: 9999 %}
+{% assign vist = 0 %}
 
 {% if site.data.kalender %}
   {% assign alle = site.data.kalender | sort: "dato" %}
@@ -6,79 +21,99 @@
   {% assign alle = "" | split: "" %}
 {% endif %}
 
-{%- assign max = include.limit | default: 9999 -%}
-{%- assign vist = 0 -%}
+{%- comment -%}
+For past-mode vil vi vise nyaste først, så vi reverserer den sorterte lista.
+{%- endcomment -%}
+{% if mode == "past" %}
+  {% assign alle = alle | reverse %}
+{% endif %}
 
 <div class="kalenderliste">
   {% for e in alle %}
-    {% assign es = e.dato | date: "%s" %}
-    {% if es >= no and vist < max %}
-      {% assign vist = vist | plus: 1 %}
+    {% if vist >= max %}{% break %}{% endif %}
 
-      {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
-      {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
-      {%- assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" -%}
-      {%- assign dtstart = dato_ymd | append: "T" | append: start_hhmm | append: "00" -%}
-      {%- assign dtend   = dato_ymd | append: "T" | append: slutt_hhmm | append: "00" -%}
+    {%- assign es = e.dato | date: "%s" -%}
 
-      {%- assign g_text = e.tittel | uri_escape -%}
-      {%- assign g_loc  = e.stad   | default: "" | uri_escape -%}
-      {%- assign g_det  = e.merknad | default: "" | uri_escape -%}
-      {%- assign g_dates = dtstart | append: "/" | append: dtend -%}
-      {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
-
-      {%- comment -%} Norsk månadsnamn (robust på GitHub Pages) {%- endcomment -%}
-      {%- assign m = e.dato | date: "%-m" -%}
-      {%- capture mnd -%}
-        {%- case m -%}
-          {%- when "1" -%}januar
-          {%- when "2" -%}februar
-          {%- when "3" -%}mars
-          {%- when "4" -%}april
-          {%- when "5" -%}mai
-          {%- when "6" -%}juni
-          {%- when "7" -%}juli
-          {%- when "8" -%}august
-          {%- when "9" -%}september
-          {%- when "10" -%}oktober
-          {%- when "11" -%}november
-          {%- when "12" -%}desember
-        {%- endcase -%}
-      {%- endcapture -%}
-
-      {%- assign dag = e.dato | date: "%-d" -%}
-      {%- assign aar = e.dato | date: "%Y" -%}
-
-      {%- assign cover = e.bilete | default: "/assets/img/arr-cover.png" -%}
-
-<div class="card kalenderkort">
-  <a class="kalenderkort__coverlink" href="{{ e.lenkje | default: '/kalender/' | relative_url }}">
-    <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
-  </a>
-
-  <div class="kalenderkort__body">
-    <div class="kalenderkort__dato">
-      {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }}
-    </div>
-
-    <div class="kalenderkort__tittel">
-      {% if e.lenkje %}
-        <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
-      {% else %}
-        {{ e.tittel }}
-      {% endif %}
-    </div>
-
-    {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
-    {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
-
-    <div class="kalenderkort__actions">
-      <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
-      <span class="muted">·</span>
-      <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
-    </div>
-  </div>
-</div>
+    {%- comment -%} Filtrer etter modus {%- endcomment -%}
+    {% if mode == "future" and es < no %}
+      {% continue %}
     {% endif %}
+    {% if mode == "past" and es >= no %}
+      {% continue %}
+    {% endif %}
+
+    {% assign vist = vist | plus: 1 %}
+
+    {%- comment -%} Norsk månadsnamn {%- endcomment -%}
+    {%- assign m = e.dato | date: "%-m" -%}
+    {%- capture mnd -%}
+      {%- case m -%}
+        {%- when "1" -%}januar
+        {%- when "2" -%}februar
+        {%- when "3" -%}mars
+        {%- when "4" -%}april
+        {%- when "5" -%}mai
+        {%- when "6" -%}juni
+        {%- when "7" -%}juli
+        {%- when "8" -%}august
+        {%- when "9" -%}september
+        {%- when "10" -%}oktober
+        {%- when "11" -%}november
+        {%- when "12" -%}desember
+      {%- endcase -%}
+    {%- endcapture -%}
+
+    {%- assign dag = e.dato | date: "%-d" -%}
+    {%- assign aar = e.dato | date: "%Y" -%}
+
+    {%- comment -%} Cover-bilete {%- endcomment -%}
+    {%- assign cover = e.bilete | default: "/assets/img/arr-cover.png" -%}
+
+    {%- comment -%} Google Kalender-lenkje {%- endcomment -%}
+    {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
+    {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
+    {%- assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" -%}
+    {%- assign dtstart = dato_ymd | append: "T" | append: start_hhmm | append: "00" -%}
+    {%- assign dtend   = dato_ymd | append: "T" | append: slutt_hhmm | append: "00" -%}
+
+    {%- assign g_text = e.tittel | uri_escape -%}
+    {%- assign g_loc  = e.stad   | default: "" | uri_escape -%}
+    {%- assign g_det  = e.merknad | default: "" | uri_escape -%}
+    {%- assign g_dates = dtstart | append: "/" | append: dtend -%}
+    {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
+
+    {%- assign kortklasse = "card kalenderkort" -%}
+    {% if es < no %}
+      {%- assign kortklasse = kortklasse | append: " kalenderkort--past" -%}
+    {% endif %}
+
+    <div class="{{ kortklasse }}">
+      <a class="kalenderkort__coverlink" href="{{ e.lenkje | default: '/kalender/' | relative_url }}">
+        <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
+      </a>
+
+      <div class="kalenderkort__body">
+        <div class="kalenderkort__dato">
+          {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }}
+        </div>
+
+        <div class="kalenderkort__tittel">
+          {% if e.lenkje %}
+            <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
+          {% else %}
+            {{ e.tittel }}
+          {% endif %}
+        </div>
+
+        {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
+        {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+
+        <div class="kalenderkort__actions">
+          <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
+          <span class="muted">·</span>
+          <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
+        </div>
+      </div>
+    </div>
   {% endfor %}
 </div>
