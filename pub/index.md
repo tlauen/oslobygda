@@ -11,4 +11,4 @@ Kva det er, kvar det er, korleis ein kveld fungerer, og kva folk bør ta med (go
 {% include kalenderliste.html mode="future" %}
 
 ## Tidlegare pøbbar
-{% render kalenderliste.html mode:"past" group:"year" %}
+{% include kalenderliste.html mode="past" group="year" %}
