@@ -1,5 +1,5 @@
 ---
-layout: cool
+layout: default
 title: Oslobygda kulturlag
 kicker: "Folkemusikkpøbb · dans · frilynt lag"
 hero_title: "Oslobygda kulturlag"
