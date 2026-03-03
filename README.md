@@ -1,1 +1,1 @@
-Hello world!
+A website for a not-yet-existing local cultural association in Oslo, Norway. 
