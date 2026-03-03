@@ -6,6 +6,7 @@
   stad: "Kaffistova, kjellaren"
   lenkje: "/pub/"
   merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"
 
 - uid: "pobb-2026-03-25"
   dato: 2026-03-25
@@ -15,3 +16,64 @@
   stad: "Kaffistova, kjellaren"
   lenkje: "/pub/"
   merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"
+  
+  - uid: "pobb-2026-07-25"
+  dato: 2026-07-25
+  start: "19:00"
+  slutt: "22:30"
+  tittel: "Folkemusikkpøbben"
+  stad: "Kaffistova, kjellaren"
+  lenkje: "/pub/"
+  merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"
+
+- uid: "pobb-2026-03-25"
+  dato: 2026-03-25
+  start: "19:00"
+  slutt: "22:30"
+  tittel: "Folkemusikkpøbben"
+  stad: "Kaffistova, kjellaren"
+  lenkje: "/pub/"
+  merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"
+  
+  - uid: "pobb-2026-07-25"
+  dato: 2026-07-25
+  start: "19:00"
+  slutt: "22:30"
+  tittel: "Folkemusikkpøbben"
+  stad: "Kaffistova, kjellaren"
+  lenkje: "/pub/"
+  merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"
+
+- uid: "pobb-2026-03-25"
+  dato: 2026-03-25
+  start: "19:00"
+  slutt: "22:30"
+  tittel: "Folkemusikkpøbben"
+  stad: "Kaffistova, kjellaren"
+  lenkje: "/pub/"
+  merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"
+  
+  - uid: "pobb-2026-07-25"
+  dato: 2026-07-25
+  start: "19:00"
+  slutt: "22:30"
+  tittel: "Folkemusikkpøbben"
+  stad: "Kaffistova, kjellaren"
+  lenkje: "/pub/"
+  merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"
+
+- uid: "pobb-2026-03-25"
+  dato: 2026-03-25
+  start: "19:00"
+  slutt: "22:30"
+  tittel: "Folkemusikkpøbben"
+  stad: "Kaffistova, kjellaren"
+  lenkje: "/pub/"
+  merknad: "Ope hus."
+  bilete: "/assets/img/arr-cover.png"

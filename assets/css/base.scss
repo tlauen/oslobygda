@@ -213,7 +213,8 @@ a:hover{ text-decoration: underline; }
   --hero-muted: rgba(235,222,204,.82);
 
   margin: 1.2rem 0 1.4rem;
-  border: 1px solid var(--line);
+  border: 0;
+  box-shadow: 0 12px 40px rgba(0,0,0,.18);
   border-radius: 0px;
   overflow: hidden;
 
@@ -323,4 +324,63 @@ a:hover{ text-decoration: underline; }
 /* 3 kolonner på stor skjerm */
 @media (min-width: 1050px){
   .kalenderkort{ grid-column: span 4; }
+}
+
+/* Nøytrale innhaldsseksjonar utan kort/ramme */
+.section{
+  padding: 1rem 0;
+}
+
+/* Kalenderkort – meir “plakat” */
+.kalenderkort{
+  padding: 0;              /* vi styrer padding i body */
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.kalenderkort__cover{
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.kalenderkort__coverlink{
+  display:block;
+  text-decoration:none;
+}
+
+.kalenderkort__body{
+  padding: 1rem;
+}
+
+.kalenderkort__dato{
+  font-size: .95rem;
+  color: color-mix(in srgb, var(--text) 75%, transparent);
+  margin-bottom: .35rem;
+}
+
+.kalenderkort__tittel a{
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.15rem;
+  font-family: var(--serif);
+}
+
+.kalenderkort__tittel a:hover{
+  text-decoration: underline;
+}
+
+.kalenderkort__actions{
+  margin-top: .75rem;
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: .95rem;
+}
+
+.muted{
+  color: color-mix(in srgb, var(--text) 70%, transparent);
 }

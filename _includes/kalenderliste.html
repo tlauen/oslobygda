@@ -49,28 +49,36 @@
       {%- assign dag = e.dato | date: "%-d" -%}
       {%- assign aar = e.dato | date: "%Y" -%}
 
-      <div class="card kalenderkort">
-        <div class="kalenderkort__dato">
-          {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }}
-        </div>
+      {%- assign cover = e.bilete | default: "/assets/img/arr-cover.png" -%}
 
-        <div class="kalenderkort__tittel">
-          {% if e.lenkje %}
-            <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
-          {% else %}
-            {{ e.tittel }}
-          {% endif %}
-        </div>
+<div class="card kalenderkort">
+  <a class="kalenderkort__coverlink" href="{{ e.lenkje | default: '/kalender/' | relative_url }}">
+    <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
+  </a>
 
-        {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
-        {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+  <div class="kalenderkort__body">
+    <div class="kalenderkort__dato">
+      {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }}
+    </div>
 
-        <div class="kalenderkort__actions">
-          <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
-          <span class="muted">·</span>
-          <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
-        </div>
-      </div>
+    <div class="kalenderkort__tittel">
+      {% if e.lenkje %}
+        <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
+      {% else %}
+        {{ e.tittel }}
+      {% endif %}
+    </div>
+
+    {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
+    {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+
+    <div class="kalenderkort__actions">
+      <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
+      <span class="muted">·</span>
+      <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
+    </div>
+  </div>
+</div>
     {% endif %}
   {% endfor %}
 </div>
