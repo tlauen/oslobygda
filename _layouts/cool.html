@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'nn' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+  <meta name="description" content="{{ page.description | default: site.description }}">
+
+  <link rel="stylesheet" href="{{ '/assets/css/base.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/cool.css' | relative_url }}">
+</head>
+<body class="cool">
+
+  <header class="cool-header">
+    <div class="wrap cool-top">
+      <a class="cool-brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+      {% include nav.html %}
+    </div>
+  </header>
+
+  {% assign hero = page.hero | default: "/assets/img/hero.jpg" %}
+  <section class="hero" style="--hero:url('{{ hero | relative_url }}')">
+    <div class="wrap hero__inner">
+      <p class="hero__kicker">{{ page.kicker | default: "Frilynt folkekultur i hovudstaden" }}</p>
+      <h1 class="hero__title">{{ page.hero_title | default: page.title | default: site.title }}</h1>
+      {% if page.hero_subtitle %}
+        <p class="hero__subtitle">{{ page.hero_subtitle }}</p>
+      {% endif %}
+
+      {% if page.cta_href and page.cta_label %}
+        <p class="hero__cta">
+          <a class="btn" href="{{ page.cta_href | relative_url }}">{{ page.cta_label }}</a>
+        </p>
+      {% endif %}
+    </div>
+  </section>
+
+  <main class="site-main">
+    <div class="wrap prose">
+      {{ content }}
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      {% include footer.html %}
+    </div>
+  </footer>
+</body>
+</html>
