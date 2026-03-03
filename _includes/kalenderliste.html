@@ -1,4 +1,4 @@
-{% assign no = "now" | date: "%s" %}
+{% assign no = "now" | date: "%Y-%m-%d" | append: " 12:00:00 +0100" | date: "%s" %}
 {% assign mode = include.mode | default: "future" %}
 {% assign group = include.group | default: "none" %}
 {% assign max = include.limit | default: 9999 %}
@@ -23,7 +23,7 @@
 {% for e in alle %}
   {% if vist >= max %}{% break %}{% endif %}
 
-  {% assign es = e.dato | date: "%s" %}
+  {% assign es = e.dato | append: " 12:00:00 +0100" | date: "%s" %}
   {% if mode == "future" and es < no %}{% continue %}{% endif %}
   {% if mode == "past" and es >= no %}{% continue %}{% endif %}
 
