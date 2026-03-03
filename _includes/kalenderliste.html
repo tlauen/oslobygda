@@ -1,16 +1,3 @@
-<p>INCLUDE-TEST: {{ 1 | plus: 1 }}</p>
-
-{% comment %}
-Bruk:
-  {% include kalenderliste.html %}                                -> framtid
-  {% include kalenderliste.html limit=5 %}                        -> maks 5 framtid
-  {% include kalenderliste.html mode="past" group="year" %}       -> fortid gruppert per år
-  {% include kalenderliste.html mode="all" group="year" %}        -> alt gruppert per år (stigande)
-Param:
-  mode:  future | past | all   (default future)
-  group: year | none           (default none)
-{% endcomment %}
-
 {% assign no = "now" | date: "%s" %}
 {% assign mode = include.mode | default: "future" %}
 {% assign group = include.group | default: "none" %}
