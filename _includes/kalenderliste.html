@@ -1,17 +1,17 @@
 {% comment %}
-Inkluder:
-  {% include kalenderliste.html %}                     -> framtid
-  {% include kalenderliste.html limit=5 %}             -> maks 5 framtid
-  {% include kalenderliste.html mode="past" %}         -> fortid (nyaste først)
-  {% include kalenderliste.html mode="all" %}          -> alt (stigande)
-
-Felt i _data/kalender.yml (valfrie):
-  bilete: "/assets/img/arr-cover.png"
-  lenkje: "/pub/"
+Bruk:
+  {% include kalenderliste.html %}                                -> framtid
+  {% include kalenderliste.html limit=5 %}                        -> maks 5 framtid
+  {% include kalenderliste.html mode="past" group="year" %}       -> fortid gruppert per år
+  {% include kalenderliste.html mode="all" group="year" %}        -> alt gruppert per år (stigande)
+Param:
+  mode:  future | past | all   (default future)
+  group: year | none           (default none)
 {% endcomment %}
 
 {% assign no = "now" | date: "%s" %}
 {% assign mode = include.mode | default: "future" %}
+{% assign group = include.group | default: "none" %}
 {% assign max = include.limit | default: 9999 %}
 {% assign vist = 0 %}
 
@@ -21,30 +21,32 @@ Felt i _data/kalender.yml (valfrie):
   {% assign alle = "" | split: "" %}
 {% endif %}
 
-{%- comment -%}
-For past-mode vil vi vise nyaste først, så vi reverserer den sorterte lista.
-{%- endcomment -%}
 {% if mode == "past" %}
   {% assign alle = alle | reverse %}
 {% endif %}
+
+{% assign current_year = "" %}
 
 <div class="kalenderliste">
   {% for e in alle %}
     {% if vist >= max %}{% break %}{% endif %}
 
-    {%- assign es = e.dato | date: "%s" -%}
+    {% assign es = e.dato | date: "%s" %}
 
-    {%- comment -%} Filtrer etter modus {%- endcomment -%}
-    {% if mode == "future" and es < no %}
-      {% continue %}
-    {% endif %}
-    {% if mode == "past" and es >= no %}
-      {% continue %}
-    {% endif %}
+    {% if mode == "future" and es < no %}{% continue %}{% endif %}
+    {% if mode == "past" and es >= no %}{% continue %}{% endif %}
 
     {% assign vist = vist | plus: 1 %}
 
-    {%- comment -%} Norsk månadsnamn {%- endcomment -%}
+    {% assign this_year = e.dato | date: "%Y" %}
+
+    {% if group == "year" and this_year != current_year %}
+      {% assign current_year = this_year %}
+      </div>
+      <h3 class="kalender-jaar">{{ current_year }}</h3>
+      <div class="kalenderliste">
+    {% endif %}
+
     {%- assign m = e.dato | date: "%-m" -%}
     {%- capture mnd -%}
       {%- case m -%}
@@ -65,11 +67,8 @@ For past-mode vil vi vise nyaste først, så vi reverserer den sorterte lista.
 
     {%- assign dag = e.dato | date: "%-d" -%}
     {%- assign aar = e.dato | date: "%Y" -%}
-
-    {%- comment -%} Cover-bilete {%- endcomment -%}
     {%- assign cover = e.bilete | default: "/assets/img/arr-cover.png" -%}
 
-    {%- comment -%} Google Kalender-lenkje {%- endcomment -%}
     {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
     {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
     {%- assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" -%}

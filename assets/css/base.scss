@@ -390,3 +390,10 @@ a:hover{ text-decoration: underline; }
   opacity: .75;
   filter: grayscale(.15);
 }
+
+.kalender-jaar{
+  margin: 2rem 0 .8rem;
+  font-family: var(--serif);
+  font-weight: 650;
+  letter-spacing: .2px;
+}
