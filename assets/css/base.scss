@@ -395,10 +395,5 @@ a:hover{ text-decoration: underline; }
   margin: 2rem 0 .8rem;
   font-family: var(--serif);
   font-weight: 650;
-}
-
-.kalenderliste{
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  letter-spacing: .2px;
 }
