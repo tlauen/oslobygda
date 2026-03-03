@@ -1,6 +1,11 @@
 ---
 ---
 
+/* =========================================
+   Oslobygda kulturlag — base.scss
+   Harde kantar + kaffistove-palett + grid
+   ========================================= */
+
 /* --- Palettar: kaffistove --- */
 :root{
   /* default = lys */
@@ -15,8 +20,10 @@
   --accent2: #c18a2b;  /* øl/rav */
   --accent3: #2f5d50;  /* dempa grøn */
 
-  --radius: 0px;
+  --radius: 0px;       /* harde kantar */
   --maxw: 980px;
+
+  --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
 }
 
 @media (prefers-color-scheme: dark){
@@ -31,7 +38,7 @@
     --accent2: #c18a2b; /* øl/rav */
     --accent3: #6bb7a6; /* lysare grøn */
   }
-} /* <-- DENNE mangla hos deg */
+}
 
 /* Manuel overstyring (knapp) */
 :root[data-theme="light"]{
@@ -56,7 +63,7 @@
 }
 
 /* --- Grunnlayout --- */
-html, body { height: 100%; }
+html, body{ height: 100%; }
 body{
   margin: 0;
   background: var(--bg);
@@ -73,33 +80,20 @@ body{
 a{ color: inherit; }
 a:hover{ text-decoration: underline; }
 
+/* Harde kantar, alltid */
+.card, .hero, .nav a, .theme-toggle{
+  border-radius: 0 !important;
+}
+
+/* Kort */
 .card{
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
   padding: 1rem;
 }
 
-/* Harde kantar */
-:root{ --radius: 0px; }
-.card, .hero, .nav a, .theme-toggle{ border-radius: 0 !important; }
-
-/* Grid for kalenderlista */
-.kalenderliste{
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1rem;
-}
-
-.kalenderkort{ grid-column: span 12; }
-
-@media (min-width: 720px){
-  .kalenderkort{ grid-column: span 6; }
-}
-
-@media (min-width: 1050px){
-  .kalenderkort{ grid-column: span 4; }
-}
+/* Nøytrale innhaldsseksjonar (ingen “boks” rundt alt) */
+.section{ padding: 1rem 0; }
 
 /* Skip-link */
 .skip{
@@ -113,7 +107,7 @@ a:hover{ text-decoration: underline; }
   background: var(--panel-strong);
   border: 1px solid var(--line);
   padding: .5rem .75rem;
-  border-radius: 999px;
+  border-radius: 999px; /* ok – dette er berre skip-lenke */
 }
 
 /* --- Header / nav --- */
@@ -122,8 +116,8 @@ a:hover{ text-decoration: underline; }
   top: 0;
   z-index: 50;
   backdrop-filter: blur(10px);
-  background: rgba(0,0,0,0); /* trygg fallback */
   border-bottom: 1px solid var(--line);
+  background: rgba(0,0,0,0); /* trygg fallback */
 }
 @supports (background: color-mix(in srgb, #000 50%, transparent)){
   .site-header{
@@ -136,9 +130,11 @@ a:hover{ text-decoration: underline; }
   align-items: center;
   justify-content: space-between;
   gap: .9rem;
-  padding: .8rem 0;
+  padding: .65rem 0;
 }
 
+/* Om du ikkje vil ha logo i header, kan brand skjulast i HTML.
+   Men stilane kan stå her uansett. */
 .brand{
   display: inline-flex;
   align-items: center;
@@ -152,10 +148,6 @@ a:hover{ text-decoration: underline; }
   height: 44px;
   display: block;
 }
-.brand__name{
-  font-weight: 800;
-  letter-spacing: .2px;
-}
 
 /* Logo som mask (éin farge) */
 .brand__logo--mask{
@@ -164,7 +156,12 @@ a:hover{ text-decoration: underline; }
   mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
 }
 
-/* Navlenker */
+.brand__name{
+  font-weight: 800;
+  letter-spacing: .2px;
+  font-family: var(--serif);
+}
+
 .nav{
   display: flex;
   align-items: center;
@@ -175,7 +172,6 @@ a:hover{ text-decoration: underline; }
 .nav a{
   text-decoration: none;
   padding: .35rem .55rem;
-  border-radius: 999px;
 }
 .nav a:hover{
   background: var(--panel-strong);
@@ -186,7 +182,6 @@ a:hover{ text-decoration: underline; }
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--text);
-  border-radius: 999px;
   padding: .35rem .6rem;
   cursor: pointer;
 }
@@ -201,44 +196,39 @@ a:hover{ text-decoration: underline; }
   font-size: .95rem;
 }
 
-/* Typografi */
-:root{
-  --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
-}
-
-/* HERO */
+/* --- HERO --- */
 .hero{
-  /* eigen farge for hero-innhald (alltid lys) */
+  /* hero-innhald skal alltid vere lyst (sidan biletet er mørkt) */
   --hero-ink: #ebdecc;
   --hero-muted: rgba(235,222,204,.82);
 
   margin: 1.2rem 0 1.4rem;
-  border: 0;
-  box-shadow: 0 12px 40px rgba(0,0,0,.18);
-  border-radius: 0px;
+  border: 0;                 /* ingen stygg kant */
   overflow: hidden;
 
   background-image: url("../img/hero.jpg");
   background-size: cover;
   background-position: center;
   position: relative;
+
+  box-shadow: 0 12px 40px rgba(0,0,0,.18);
 }
 
-/* Overlay/vignett: kombiner alt i éin bakgrunn (ingen dobbel background) */
+/* Overlay/vignett */
 .hero::before{
   content:"";
   position:absolute;
   inset: 0;
+  pointer-events:none;
   background:
     linear-gradient(to bottom, rgba(0,0,0,.42), rgba(0,0,0,.18)),
     radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 55%),
     radial-gradient(circle at 80% 30%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%),
     radial-gradient(circle at 40% 80%, color-mix(in srgb, var(--accent3) 12%, transparent), transparent 55%),
     radial-gradient(closest-side, rgba(0,0,0,.0), rgba(0,0,0,.22));
-  pointer-events:none;
 }
 
-/* BONUS: lysare overlay i light mode */
+/* litt lysare overlay i light mode (men framleis mørk nok for lys tekst/logo) */
 :root[data-theme="light"] .hero::before{
   background:
     linear-gradient(to bottom, rgba(0,0,0,.30), rgba(0,0,0,.10)),
@@ -248,7 +238,6 @@ a:hover{ text-decoration: underline; }
     radial-gradient(closest-side, rgba(0,0,0,.0), rgba(0,0,0,.16));
 }
 
-/* (Valfri) litt mørkare i dark mode – gir meir “pub” */
 :root[data-theme="dark"] .hero::before{
   background:
     linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.22)),
@@ -267,7 +256,7 @@ a:hover{ text-decoration: underline; }
   justify-items: center;
 }
 
-/* STOR LOGO – alltid lys i hero */
+/* Stor logo i hero */
 .hero__logo{
   width: min(360px, 72vw);
   aspect-ratio: 1 / 1;
@@ -278,7 +267,6 @@ a:hover{ text-decoration: underline; }
   filter: drop-shadow(0 10px 26px rgba(0,0,0,.25));
 }
 
-/* Kaffistove-serif */
 .hero__title{
   font-family: var(--serif);
   font-weight: 650;
@@ -298,63 +286,43 @@ a:hover{ text-decoration: underline; }
   text-shadow: 0 1px 14px rgba(0,0,0,.30);
 }
 
-/* Gjer headeren litt “lettare” no som hero tek identiteten */
-.site-header{
-  border-bottom: 1px solid var(--line);
-}
-.header-inner{
-  padding: .65rem 0;
-}
-
+/* --- Kalenderliste: grid (EN definisjon) --- */
 .kalenderliste{
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
   gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: stretch;
 }
 
+/* År-overskrift */
+.kalender-jaar{
+  margin: 2rem 0 .8rem;
+  font-family: var(--serif);
+  font-weight: 650;
+}
+
+/* --- Kalenderkort: meir “plakat” --- */
 .kalenderkort{
-  grid-column: span 12;
-}
-
-/* 2 kolonner på litt breiare skjerm */
-@media (min-width: 720px){
-  .kalenderkort{ grid-column: span 6; }
-}
-
-/* 3 kolonner på stor skjerm */
-@media (min-width: 1050px){
-  .kalenderkort{ grid-column: span 4; }
-}
-
-/* Nøytrale innhaldsseksjonar utan kort/ramme */
-.section{
-  padding: 1rem 0;
-}
-
-/* Kalenderkort – meir “plakat” */
-.kalenderkort{
-  padding: 0;              /* vi styrer padding i body */
+  padding: 0;              /* padding i body */
   overflow: hidden;
   border: 1px solid var(--line);
   background: var(--panel);
 }
 
+.kalenderkort__coverlink{
+  display: block;
+  text-decoration: none;
+}
+
 .kalenderkort__cover{
   aspect-ratio: 21 / 9;         /* same format overalt */
-  height: auto;                 /* viktig når aspect-ratio styrer */
-  background-size: cover;       /* fyll flata */
-  background-position: center;  /* kutt likt */
+  height: auto;
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
 }
 
-.kalenderkort__coverlink{
-  display:block;
-  text-decoration:none;
-}
-
-.kalenderkort__body{
-  padding: 1rem;
-}
+.kalenderkort__body{ padding: 1rem; }
 
 .kalenderkort__dato{
   font-size: .95rem;
@@ -368,10 +336,7 @@ a:hover{ text-decoration: underline; }
   font-size: 1.15rem;
   font-family: var(--serif);
 }
-
-.kalenderkort__tittel a:hover{
-  text-decoration: underline;
-}
+.kalenderkort__tittel a:hover{ text-decoration: underline; }
 
 .kalenderkort__actions{
   margin-top: .75rem;
@@ -389,16 +354,4 @@ a:hover{ text-decoration: underline; }
 .kalenderkort--past{
   opacity: .75;
   filter: grayscale(.15);
-}
-
-.kalender-jaar{
-  margin: 2rem 0 .8rem;
-  font-family: var(--serif);
-  font-weight: 650;
-}
-
-.kalenderliste{
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
