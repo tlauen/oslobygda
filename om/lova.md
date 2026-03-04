@@ -8,7 +8,7 @@ title: Lov for Oslobygda kulturlag
 *Skipa [dag]. [månad] [år]*
 
 ## §1 Føremål
-Oslobygda kulturlag skal på frilynt grunn skape engasjement for levande folkekultur i hovudstaden – fortrinnsvis innafor Ring 2 så lenge T-banen går.
+Oslobygda kulturlag skal på frilynt grunn skape engasjement for levande folkekultur i hovudstaden – fortrinnsvis innafor Ring 2, så lenge T-banen går.
 
 ## §2 Verksemd
 Laget arbeider for føremålet gjennom opne tilskipingar, hovudsakleg basert på frivillig innsats og godt humør.
