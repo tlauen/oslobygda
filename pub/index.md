@@ -4,14 +4,7 @@ title: Om Folkemusikkpøbben
 permalink: /pub/
 ---
 
-# Folkemusikkpøbben
-
-Kva det er, kvar det er, korleis ein kveld fungerer, og kva folk bør ta med (godt humør, gjerne instrument).
-
-## Komande pøbbar
-
-{% include kalenderliste.html mode="future" %}
-
-## Tidlegare pøbbar
-
-{% include kalenderliste.html mode="past" group="year" %}
+<div class="section">
+<strong>Neste arrangement</strong><br>
+{% include kalenderliste.html %}
+</div>
