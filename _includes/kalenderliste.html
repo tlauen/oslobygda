@@ -41,13 +41,27 @@
     {% assign this_year = e.dato | date: "%Y" %}
 
     {% if group == "year" and this_year != current_year %}
-      {% if current_year != "" %}
-        </div>
-      {% endif %}
-      {% assign current_year = this_year %}
-      <h3 class="kalender-jaar">{{ current_year }}</h3>
-      <div class="kalenderliste">
+  {% if current_year != "" %}
+    </div>
+  {% endif %}
+
+  {% assign current_year = this_year %}
+
+  {% assign pobb_count = 0 %}
+  {% for x in site.data.kalender %}
+    {% assign x_year = x.dato | date: "%Y" %}
+    {% assign uid_pref = x.uid | slice: 0, 5 %}
+    {% if x_year == current_year and uid_pref == "pobb-" %}
+      {% assign pobb_count = pobb_count | plus: 1 %}
     {% endif %}
+  {% endfor %}
+
+  <h3 class="kalender-jaar">
+    {{ current_year }} <span class="muted">({{ pobb_count }} pøbbar)</span>
+  </h3>
+
+  <div class="kalenderliste">
+{% endif %}
 
     {%- assign m = e.dato | date: "%-m" -%}
     {%- capture mnd -%}
