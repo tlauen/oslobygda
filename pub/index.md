@@ -10,12 +10,8 @@ Kva det er, kvar det er, korleis ein kveld fungerer, og kva folk bør ta med (go
 
 ## Komande pøbbar
 
-{% liquid
-  include kalenderliste.html mode="future"
-%}
+{% include kalenderliste.html mode="future" %}
 
 ## Tidlegare pøbbar
 
-{% liquid
-  include kalenderliste.html mode="past" group="year"
-%}
+{% include kalenderliste.html mode="past" group="year" %}

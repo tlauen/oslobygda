@@ -8,12 +8,8 @@ permalink: /kalender/
 
 ## Komande arrangement
 
-{% liquid
-  include kalenderliste.html mode="future" group="none"
-%}
+{% include kalenderliste.html mode="future" %}
 
 ## Tidlegare arrangement
 
-{% liquid
-  include kalenderliste.html mode="past" group="year"
-%}
+{% include kalenderliste.html mode="past" group="year" %}
