@@ -47,34 +47,30 @@
 
   {% assign current_year = this_year %}
 
-  {% assign pobb_count = 0 %}
-  {% assign kved_count = 0 %}
-  {% assign kviss_count = 0 %}
+{% assign pobb_count = 0 %}
+{% assign kved_count = 0 %}
+{% assign kviss_count = 0 %}
 
-  {% for x in site.data.kalender %}
-    {% assign x_year = x.dato | date: "%Y" %}
+{% for x in site.data.kalender %}
+  {% assign uid = x.uid | default: "" %}
+  {% assign x_year = x.dato | date: "%Y" %}
 
-    {% if x_year == current_year %}
+  {% if x_year == current_year %}
 
-      {% assign pref5 = x.uid | slice: 0, 5 %}
-      {% assign pref6 = x.uid | slice: 0, 6 %}
-      {% assign pref10 = x.uid | slice: 0, 10 %}
-
-      {% if pref5 == "pobb-" %}
-        {% assign pobb_count = pobb_count | plus: 1 %}
-      {% endif %}
-
-      {% if pref10 == "kved-" %}
-        {% assign kved_count = kved_count | plus: 1 %}
-      {% endif %}
-
-      {% if pref6 == "kviss-" %}
-        {% assign kviss_count = kviss_count | plus: 1 %}
-      {% endif %}
-
+    {% if x.uid contains "pobb-" %}
+      {% assign pobb_count = pobb_count | plus: 1 %}
     {% endif %}
-  {% endfor %}
 
+    {% if x.uid contains "kved-" %}
+      {% assign kved_count = kved_count | plus: 1 %}
+    {% endif %}
+
+    {% if x.uid contains "kviss-" %}
+      {% assign kviss_count = kviss_count | plus: 1 %}
+    {% endif %}
+
+  {% endif %}
+{% endfor %}
   <h3 class="kalender-jaar">
     {{ current_year }}
     <span class="muted">
