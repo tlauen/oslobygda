@@ -196,6 +196,19 @@ a:hover{ text-decoration: underline; }
   font-size: .95rem;
 }
 
+.footer-logo{
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.footer-logo img{
+  max-width: 160px;
+  height: auto;
+  opacity: 0.85;
+  filter: grayscale(10%);
+}
+
 /* --- HERO --- */
 .hero{
   /* hero-innhald skal alltid vere lyst (sidan biletet er mørkt) */
