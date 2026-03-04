@@ -4,7 +4,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb: Norsk-færøysk dansekveld"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Ta med songrøysta di."
   bilete: "/assets/img/arr-cover.png"
 
@@ -14,7 +14,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spelemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -24,7 +24,7 @@
   slutt: "23:45"
   tittel: "Svenske tilstander på Folkemusikkpøbben!"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -34,7 +34,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Åretak"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -44,7 +44,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Snaustrinda-veteranar"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Del av festivalen DANS DANS DANS."
   bilete: "/assets/img/arr-cover.png"
   
@@ -54,7 +54,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Thedens & Hauknes"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -64,7 +64,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Laffen"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -74,7 +74,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Åretak"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -84,7 +84,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spelemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -94,7 +94,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med NMH-studentar"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -104,7 +104,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spelemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -114,7 +114,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Gudåmleg"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -124,7 +124,7 @@
   slutt: "23:45"
   tittel: "Munnharpe-pøbb + kurs og konsert!"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Samarbeid med Norsk munnharpeforum"
   bilete: "/assets/img/arr-cover.png"
   
@@ -134,7 +134,7 @@
   slutt: "23:45"
   tittel: "Belgkveld og Folkemusikkpøbb med Amalie Kinsarvik Tvilde m.fl."
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Del av festivalen DANS DANS DANS."
   bilete: "/assets/img/arr-cover.png"
   
@@ -144,7 +144,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Åretak"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -154,7 +154,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Gudåmleg"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -164,7 +164,7 @@
   slutt: "23:45"
   tittel: "Langeleikpøbb med Ingrid Lingaas Fossum m.fl."
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -174,7 +174,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spelemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -184,7 +184,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med belg-kveld!"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Amalie Kinsarvik Tvilde m.fl."
   bilete: "/assets/img/arr-cover.png"
   
@@ -194,7 +194,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spelemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -204,7 +204,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Gudbrandsdølenes spelmannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -214,7 +214,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Østerdølenes spellmannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -224,7 +224,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med spelemannstafett!"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Del av DANS DANS DANS. Mattias Thedens, Ester Thunander, Åsmund Fauske, Tiril Einarsdotter og Sindre Tronrud."
   bilete: "/assets/img/arr-cover.png"
 
@@ -234,7 +234,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Snaustrinda-veteranar"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -244,7 +244,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Gudåmleg"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -254,7 +254,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Bærum spellemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -264,7 +264,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spelemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -274,7 +274,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Snaustrinda-veteranar"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -284,7 +284,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Bærum spellemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -294,7 +294,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spelemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -304,7 +304,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med NMH spel- og fyllarlag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -314,7 +314,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Gudåmleg"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -324,7 +324,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med NMH spel- og fyllarlag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -334,7 +334,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Bærum spellemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -344,7 +344,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Snauststrinda-veteranar"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -354,7 +354,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb med Flatlusa spellemannslag"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
@@ -364,7 +364,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -374,7 +374,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -384,7 +384,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -394,7 +394,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -404,7 +404,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -414,7 +414,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -424,7 +424,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -434,7 +434,7 @@
   slutt: "21:00"
   tittel: "Kvedarkrok "
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
@@ -444,7 +444,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png"
   
@@ -454,7 +454,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png"
   
@@ -464,7 +464,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
 
@@ -474,7 +474,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -484,7 +484,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -494,7 +494,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
    
@@ -504,7 +504,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png"
   
@@ -514,7 +514,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png"   
   
@@ -524,7 +524,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Astrid Garmo er jam-vert! Støtta av SFF."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -534,7 +534,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Astrid Garmo er jam-vert! Støtta av SFF."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -544,7 +544,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -554,7 +554,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png"  
 
@@ -564,7 +564,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -574,7 +574,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
 
@@ -584,7 +584,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -594,7 +594,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -604,7 +604,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song -- AVLYST"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -614,7 +614,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song -- AVLYST"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -624,7 +624,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song -- AVLYST"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -634,7 +634,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song -- AVLYST"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
 
@@ -645,7 +645,7 @@
   slutt: "22:00"
   tittel: "Pøbbkviss med Nina Losnedahl!"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Pandemi-tiltak"
   bilete: "/assets/img/kviss-cover.png" 
   
@@ -655,7 +655,7 @@
   slutt: "22:00"
   tittel: "Pøbbkviss!"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Pandemi-tiltak"
   bilete: "/assets/img/kviss-cover.png" 
   
@@ -665,7 +665,7 @@
   slutt: "22:00"
   tittel: "Kviss og kaffi!"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang. Pandemi-tiltak"
   bilete: "/assets/img/kviss-cover.png" 
   
@@ -675,7 +675,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
 
@@ -685,7 +685,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -695,7 +695,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -705,7 +705,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -715,7 +715,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
 
@@ -725,7 +725,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   
@@ -735,7 +735,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
 
@@ -745,7 +745,7 @@
   slutt: "23:45"
   tittel: "Folkemusikkpøbb – Jam, dans & song"
   stad: "Kaffistova, kjellaren"
-  lenkje: "/pub/"
+  #lenkje: "/pub/"
   merknad: "Gratis inngang."
   bilete: "/assets/img/gamal-cover.png" 
   

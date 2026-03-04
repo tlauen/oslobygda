@@ -1,0 +1,85 @@
+/* =========================================
+   _vars.scss — Variablar
+   ========================================= */
+
+/* --- Palettar: kaffistove --- */
+:root{
+  /* default = lys */
+  --bg: #ebdecc;     /* varm papir */
+  --text: #12110e;   /* espresso */
+  --panel: rgba(255,255,255,.55);
+  --panel-strong: rgba(255,255,255,.72);
+  --line: rgba(18,17,14,.14);
+  --card-radius: 18px;
+
+  /* aksent: tre / øl / messing */
+  --accent: #6b4a2d;   /* tre */
+  --accent2: #c18a2b;  /* øl/rav */
+  --accent3: #2f5d50;  /* dempa grøn */
+
+  --radius: 0px;       /* harde kantar */
+  --maxw: 980px;
+
+  --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg: #12110e;
+    --text: #ebdecc;
+    --panel: rgba(235,222,204,.08);
+    --panel-strong: rgba(235,222,204,.12);
+    --line: rgba(235,222,204,.16);
+
+    --accent: #e2c08b;  /* messing/lys tre */
+    --accent2: #c18a2b; /* øl/rav */
+    --accent3: #6bb7a6; /* lysare grøn */
+  }
+}
+
+/* Manuel overstyring (knapp) */
+:root[data-theme="light"]{
+  --bg: #ebdecc;
+  --text: #12110e;
+  --panel: rgba(255,255,255,.55);
+  --panel-strong: rgba(255,255,255,.72);
+  --line: rgba(18,17,14,.14);
+  --accent: #6b4a2d;
+  --accent2: #c18a2b;
+  --accent3: #2f5d50;
+}
+:root[data-theme="dark"]{
+  --bg: #12110e;
+  --text: #ebdecc;
+  --panel: rgba(235,222,204,.08);
+  --panel-strong: rgba(235,222,204,.12);
+  --line: rgba(235,222,204,.16);
+  --accent: #e2c08b;
+  --accent2: #c18a2b;
+  --accent3: #6bb7a6;
+}
+
+/* --- Palett B: pastell / flat icon --- */
+:root[data-palette="pastell"]{
+
+  --bg: #FCF9F3;
+  --text: #12110e;
+  --card-radius: 10px;
+
+  --panel: rgba(255,255,255,.72);
+  --panel-strong: rgba(255,255,255,.86);
+  --line: rgba(18,17,14,.12);
+
+  --accent: #BFEAEE;
+  --accent2: #F1CACB;
+  --accent3: #C8EBE4;
+  --accent4: #F5DFC9;
+
+  /* nye kortfargar */
+  --card1: #FBEDC0;
+  --card2: #BFEAEE;
+  --card3: #F1CACB;
+  --card4: #F5DFC9;
+  --card5: #C8EBE4;
+
+}

@@ -1,0 +1,50 @@
+/* =========================================
+   _layout.scss — Vevbunad
+   ========================================= */
+
+/* --- Grunnlayout --- */
+html, body{ height: 100%; }
+body{
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.wrap{
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 1.1rem;
+}
+
+a{ color: inherit; }
+a:hover{ text-decoration: underline; }
+
+.card:not(.kalenderkort), .hero, .nav a, .theme-toggle{
+  border-radius: 0 !important;
+}
+
+/* Kort */
+.card{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 1rem;
+}
+
+/* Nøytrale innhaldsseksjonar (ingen “boks” rundt alt) */
+.section{ padding: 1rem 0; }
+
+/* Skip-link */
+.skip{
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+.skip:focus{
+  left: 1rem;
+  top: 1rem;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  padding: .5rem .75rem;
+  border-radius: 999px; /* ok – dette er berre skip-lenke */
+}

@@ -1,0 +1,109 @@
+/* =========================================
+   _header.scss — Toppen
+   ========================================= */
+
+/* --- Header / nav --- */
+.site-header{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  background: rgba(0,0,0,0); /* trygg fallback */
+}
+@supports (background: color-mix(in srgb, #000 50%, transparent)){
+  .site-header{
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+  }
+}
+
+.header-inner{
+  display: flex;
+  align-items: stretch;           /* viktig */
+  justify-content: space-between;
+  gap: .9rem;
+
+  padding: 0;                     /* <- fjern høgde-lufta her */
+  min-height: 64px;               /* <- gir “stødig” headerhøgde */
+}
+
+/* Om du ikkje vil ha logo i header, kan brand skjulast i HTML.
+   Men stilane kan stå her uansett. */
+.brand{
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+  text-decoration: none;
+
+  padding: .65rem 0;              /* <- flytta hit */
+}
+.brand:hover{ text-decoration: none; }
+
+.brand__logo{
+  width: 44px;
+  height: 44px;
+  display: block;
+}
+
+/* Logo som mask (éin farge) */
+.brand__logo--mask{
+  background: var(--text);
+  -webkit-mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
+  mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
+}
+
+.brand__name{
+  font-weight: 800;
+  letter-spacing: .2px;
+  font-family: var(--serif);
+}
+
+/* NAV */
+.nav{
+  display: flex;
+  align-items: stretch;           /* viktig */
+  gap: .2rem;
+}
+
+.nav a{
+  display: flex;
+  align-items: center;
+  height: 100%;                   /* <- fyller heile header-inner */
+  padding: 0 .9rem;               /* <- ingen vertikal padding her */
+
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition:
+  background .15s ease,
+  transform .1s ease;
+}
+
+/* ulike pastellfargar på menyval */
+
+.nav a:nth-child(1):hover{
+  background: color-mix(in srgb, #BFEAEE 60%, transparent);
+}
+
+.nav a:nth-child(2):hover{
+  background: color-mix(in srgb, #F1CACB 60%, transparent);
+}
+
+.nav a:nth-child(3):hover{
+  background: color-mix(in srgb, #C8EBE4 60%, transparent);
+}
+
+.nav a:hover{
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  transform: translateY(-1px);
+}
+/* Tema-knapp */
+.theme-toggle{
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  padding: .35rem .6rem;
+  cursor: pointer;
+}
+.theme-toggle:hover{ background: var(--panel-strong); }

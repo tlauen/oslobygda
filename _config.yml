@@ -4,3 +4,6 @@ lang: nn
 
 # Valfritt: gjer fine permalinks for sider
 permalink: pretty
+
+sass:
+  sass_dir: assets/css

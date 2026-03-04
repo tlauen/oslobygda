@@ -135,9 +135,13 @@
     {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--past" %}{% endif %}
 
     <div class="{{ kortklasse }}">
-      <a class="kalenderkort__coverlink" href="{{ e.lenkje | default: '/kalender/' | relative_url }}">
-        <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
-      </a>
+      {% if e.lenkje %}
+  <a class="kalenderkort__coverlink" href="{{ e.lenkje | relative_url }}">
+    <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
+  </a>
+{% else %}
+  <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')"></div>
+{% endif %}
 
       <div class="kalenderkort__body">
         <div class="kalenderkort__dato">

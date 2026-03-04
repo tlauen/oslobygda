@@ -1,0 +1,138 @@
+/* =========================================
+   _kalender.scss — Kalender
+   ========================================= */
+
+/* --- Kalenderliste: grid (EN definisjon) --- */
+.kalenderliste{
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: stretch;
+}
+
+/* År-overskrift */
+.kalender-jaar{
+  margin: 2rem 0 .8rem;
+  font-family: var(--serif);
+  font-weight: 650;
+}
+
+/* --- Kalenderkort: meir “plakat” --- */
+.kalenderkort{
+  position: relative;
+
+  padding: 0;
+
+  border-radius: var(--card-radius) !important;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel);
+
+  transition: transform .15s ease, box-shadow .15s ease;
+
+  box-shadow:
+    0 2px 0 rgba(18,17,14,.06),
+    0 10px 24px rgba(0,0,0,.10);
+}
+
+.kalenderkort:hover{
+  transform: translateY(-4px);
+  box-shadow:
+    0 4px 0 rgba(18,17,14,.08),
+    0 16px 34px rgba(0,0,0,.16);
+}
+
+/* aksentstripe */
+.kalenderkort::before{
+  content:"";
+  display:block;
+  height: 6px;
+  opacity: .9;
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--accent2) 50%,
+    var(--accent3) 100%
+  );
+}
+
+.kalenderkort__coverlink{
+  display: block;
+  text-decoration: none;
+  padding: .7rem .7rem 0;  /* topp/side-luft */
+}
+
+.kalenderkort__cover{
+  aspect-ratio: 21 / 9;
+  height: auto;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 0;
+}
+
+.kalenderkort__body{
+  padding: .85rem 1rem 1rem;
+}
+
+.kalenderkort__dato{
+  font-size: .95rem;
+  color: color-mix(in srgb, var(--text) 75%, transparent);
+  margin-bottom: .35rem;
+}
+
+.kalenderkort__tittel{
+  font-weight: 700;
+  font-size: 1.15rem;
+  font-family: var(--serif);
+  line-height: 1.2;
+}
+
+.kalenderkort__tittel a{
+  text-decoration: none;
+  color: inherit;
+}
+
+.kalenderkort__tittel a:hover{
+  text-decoration: underline;
+}
+
+.kalenderkort__actions{
+  margin-top: .75rem;
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: .95rem;
+}
+
+.muted{
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+}
+
+.kalenderkort--past{
+  opacity: .75;
+  filter: grayscale(.15);
+}
+
+/* berre i pastell-palett */
+
+[data-palette="pastell"] .kalenderkort:nth-child(5n+1){
+  background: var(--card1);
+}
+
+[data-palette="pastell"] .kalenderkort:nth-child(5n+2){
+  background: var(--card2);
+}
+
+[data-palette="pastell"] .kalenderkort:nth-child(5n+3){
+  background: var(--card3);
+}
+
+[data-palette="pastell"] .kalenderkort:nth-child(5n+4){
+  background: var(--card4);
+}
+
+[data-palette="pastell"] .kalenderkort:nth-child(5n+5){
+  background: var(--card5);
+}
