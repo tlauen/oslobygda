@@ -348,14 +348,6 @@ a:hover{ text-decoration: underline; }
   background-repeat: no-repeat;
 }
 
-.kalenderkort__cover{
-  transition: transform .3s ease;
-}
-
-.kalenderkort:hover .kalenderkort__cover{
-  transform: scale(1.04);
-}
-
 .kalenderkort__body{ padding: 1rem; }
 
 .kalenderkort__dato{
