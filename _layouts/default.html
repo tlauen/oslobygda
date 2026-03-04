@@ -17,13 +17,7 @@
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <nav class="nav" aria-label="Meny">
-      <a href="{{ '/' | relative_url }}">Framsida</a>
-      <a href="{{ '/om/' | relative_url }}">Om</a>
-      <a href="{{ '/pub/' | relative_url }}">Folkemusikkpøbb</a>
-      <a href="{{ '/kalender/' | relative_url }}">Kalender</a>
-      <a href="{{ '/brev/' | relative_url }}">Nyhendebrev</a>
-    </nav>
+    {% include nav.html %}
 
     <button class="theme-toggle" type="button" id="themeToggle" aria-label="Byt tema">
       🌓
