@@ -40,7 +40,7 @@
 
     {% assign this_year = e.dato | date: "%Y" %}
 
-    {% if group == "year" and this_year != current_year %}
+   {% if group == "year" and this_year != current_year %}
   {% if current_year != "" %}
     </div>
   {% endif %}
@@ -48,16 +48,54 @@
   {% assign current_year = this_year %}
 
   {% assign pobb_count = 0 %}
+  {% assign kved_count = 0 %}
+  {% assign kviss_count = 0 %}
+
   {% for x in site.data.kalender %}
     {% assign x_year = x.dato | date: "%Y" %}
-    {% assign uid_pref = x.uid | slice: 0, 5 %}
-    {% if x_year == current_year and uid_pref == "pobb-" %}
-      {% assign pobb_count = pobb_count | plus: 1 %}
+
+    {% if x_year == current_year %}
+
+      {% assign pref5 = x.uid | slice: 0, 5 %}
+      {% assign pref6 = x.uid | slice: 0, 6 %}
+      {% assign pref10 = x.uid | slice: 0, 10 %}
+
+      {% if pref5 == "pobb-" %}
+        {% assign pobb_count = pobb_count | plus: 1 %}
+      {% endif %}
+
+      {% if pref10 == "kvedarkrok-" %}
+        {% assign kved_count = kved_count | plus: 1 %}
+      {% endif %}
+
+      {% if pref6 == "kviss-" %}
+        {% assign kviss_count = kviss_count | plus: 1 %}
+      {% endif %}
+
     {% endif %}
   {% endfor %}
 
   <h3 class="kalender-jaar">
-    {{ current_year }} <span class="muted">({{ pobb_count }} pøbbar)</span>
+    {{ current_year }}
+    <span class="muted">
+      (
+      {% assign sep = "" %}
+
+      {% if pobb_count > 0 %}
+        {{ sep }}{{ pobb_count }} pøbbar
+        {% assign sep = ", " %}
+      {% endif %}
+
+      {% if kved_count > 0 %}
+        {{ sep }}{{ kved_count }} kvedarkrokar
+        {% assign sep = ", " %}
+      {% endif %}
+
+      {% if kviss_count > 0 %}
+        {{ sep }}{{ kviss_count }} kvissar
+      {% endif %}
+      )
+    </span>
   </h3>
 
   <div class="kalenderliste">
