@@ -358,7 +358,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/arr-cover.png"
   
-- uid: "kvedarkrok-2022-02"
+- uid: "kved-2022-02"
   dato: "2022-10-26"
   start: "20:00"
   slutt: "21:00"
@@ -368,7 +368,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
-- uid: "kvedarkrok-2022-01"
+- uid: "kved-2022-01"
   dato: "2022-09-28"
   start: "20:00"
   slutt: "21:00"
@@ -378,7 +378,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
-- uid: "kvedarkrok-2022-03"
+- uid: "kved-2022-03"
   dato: "2022-04-27"
   start: "20:00"
   slutt: "21:00"
@@ -388,7 +388,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
-- uid: "kvedarkrok-2022-04"
+- uid: "kved-2022-04"
   dato: "2022-04-04"
   start: "20:00"
   slutt: "21:00"
@@ -398,7 +398,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
-- uid: "kvedarkrok-2022-05"
+- uid: "kved-2022-05"
   dato: "2022-03-16"
   start: "20:00"
   slutt: "21:00"
@@ -408,7 +408,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
-- uid: "kvedarkrok-2022-06"
+- uid: "kved-2022-06"
   dato: "2022-03-09"
   start: "20:00"
   slutt: "21:00"
@@ -418,7 +418,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
-- uid: "kvedarkrok-2022-07"
+- uid: "kved-2022-07"
   dato: "2022-03-02"
   start: "20:00"
   slutt: "21:00"
@@ -428,7 +428,7 @@
   merknad: "Gratis inngang."
   bilete: "/assets/img/kvedarkrok.png"
   
-- uid: "kvedarkrok-2022-08"
+- uid: "kved-2022-08"
   dato: "2022-02-09"
   start: "20:00"
   slutt: "21:00"
