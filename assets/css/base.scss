@@ -198,15 +198,18 @@ a:hover{ text-decoration: underline; }
 
 .footer-logo{
   text-align: center;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
+  margin: 2.5rem 0 1rem;
 }
 
-.footer-logo img{
-  max-width: 160px;
-  height: auto;
+.footer-logo__mark{
+  display: inline-block;
+  width: 160px;           /* passe stor */
+  aspect-ratio: 1 / 1;
+  background: var(--text); /* skiftar automatisk med tema */
+  -webkit-mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
+  mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
   opacity: 0.85;
-  filter: grayscale(10%);
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.15));
 }
 
 /* --- HERO --- */
