@@ -3,7 +3,7 @@ layout: default
 title: Om Folkemusikkpøbben
 description: "Jam, song og dans på Kaffistova!"
 permalink: /pub/
-og_image: "/assets/img/og-oslobygda.jpg"
+og_image: "/assets/img/arr-cover.png"
 ---
 
 # Folkemusikkpøbben
