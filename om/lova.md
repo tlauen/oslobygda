@@ -5,7 +5,7 @@ title: Lov for Oslobygda kulturlag
 
 # Lov for Oslobygda kulturlag
 
-*Skipa [dag]. [månad] [år]*
+*Skipa 5. mars 2026*
 
 ## §1 Føremål
 Oslobygda kulturlag skal på frilynt grunn skape engasjement for levande folkekultur i hovudstaden – fortrinnsvis innafor Ring 2, så lenge T-banen går.
