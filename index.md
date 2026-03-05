@@ -18,6 +18,6 @@ cta_href: /kalender/
 </section>
 
 <div class="section">
-<strong>Neste arrangement</strong><br>
+<h2>Ting du kan glede deg til:</h2>
 {% include kalenderliste.html limit=3 %}
 </div>

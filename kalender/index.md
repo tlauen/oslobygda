@@ -14,6 +14,6 @@ permalink: /kalender/
 
 ## Kva me har gjort før
 
-<div class="section">
+<div class="section section--past">
 {% include kalenderliste.html mode="past" group="year" %}
 </div>

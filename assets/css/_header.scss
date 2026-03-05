@@ -19,23 +19,20 @@
 
 .header-inner{
   display: flex;
-  align-items: stretch;           /* viktig */
+  align-items: stretch;
   justify-content: space-between;
   gap: .9rem;
-
-  padding: 0;                     /* <- fjern høgde-lufta her */
-  min-height: 64px;               /* <- gir “stødig” headerhøgde */
+  padding: 0;
+  min-height: 64px;
 }
 
-/* Om du ikkje vil ha logo i header, kan brand skjulast i HTML.
-   Men stilane kan stå her uansett. */
+/* Brand (kan vere skjult i HTML, men stilane kan stå) */
 .brand{
   display: inline-flex;
   align-items: center;
   gap: .75rem;
   text-decoration: none;
-
-  padding: .65rem 0;              /* <- flytta hit */
+  padding: .65rem 0;
 }
 .brand:hover{ text-decoration: none; }
 
@@ -44,61 +41,172 @@
   height: 44px;
   display: block;
 }
-
-/* Logo som mask (éin farge) */
 .brand__logo--mask{
   background: var(--text);
   -webkit-mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
   mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
 }
-
 .brand__name{
   font-weight: 800;
   letter-spacing: .2px;
   font-family: var(--serif);
 }
 
-/* NAV */
+/* NAV container (held berre knapp + desktop-meny) */
 .nav{
   display: flex;
-  align-items: stretch;           /* viktig */
+  align-items: stretch;
   gap: .2rem;
 }
 
-.nav a{
+/* -----------------------------------------
+   Desktop-meny (horisontal)
+   ----------------------------------------- */
+
+.nav-desktop{
+  display: none; /* blir aktiv på desktop via media query */
+  align-items: stretch;
+  gap: .2rem;
+}
+
+.nav-desktop a{
   display: flex;
   align-items: center;
-  height: 100%;                   /* <- fyller heile header-inner */
-  padding: 0 .9rem;               /* <- ingen vertikal padding her */
+  height: 100%;
+  padding: 0 .9rem;
 
   text-decoration: none;
   color: var(--text);
   font-weight: 600;
   letter-spacing: .2px;
-  transition:
-  background .15s ease,
-  transform .1s ease;
+
+  transition: background .15s ease, transform .1s ease;
 }
 
-/* ulike pastellfargar på menyval */
+/* Pastell-hover berre på einingar som faktisk har hover (desktop/trackpad) */
+@media (hover: hover) and (pointer: fine){
+  .nav-desktop a:nth-child(1):hover{ background: color-mix(in srgb, #BFEAEE 60%, transparent); }
+  .nav-desktop a:nth-child(2):hover{ background: color-mix(in srgb, #F1CACB 60%, transparent); }
+  .nav-desktop a:nth-child(3):hover{ background: color-mix(in srgb, #C8EBE4 60%, transparent); }
+  .nav-desktop a:nth-child(4):hover{ background: color-mix(in srgb, #F3E5C8 60%, transparent); }
+  .nav-desktop a:nth-child(5):hover{ background: color-mix(in srgb, #E1D4F5 60%, transparent); }
 
-.nav a:nth-child(1):hover{
-  background: color-mix(in srgb, #BFEAEE 60%, transparent);
+  .nav-desktop a:hover{
+    transform: translateY(-1px);
+  }
 }
 
-.nav a:nth-child(2):hover{
-  background: color-mix(in srgb, #F1CACB 60%, transparent);
+/* -----------------------------------------
+   Hamburgarmeny (mobil)
+   ----------------------------------------- */
+
+.nav-toggle{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.8rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  padding: .75rem .85rem; /* stor treffflate */
+  color: var(--text);
+
+  position: relative;
+  z-index: 11000; /* over overlay */
 }
 
-.nav a:nth-child(3):hover{
-  background: color-mix(in srgb, #C8EBE4 60%, transparent);
+/* Byt ikon */
+.icon-close{ display: none; }
+.nav-open .icon-open{ display: none; }
+.nav-open .icon-close{ display: inline; }
+
+.nav-toggle{
+  position: relative;   /* ikkje fixed */
+  z-index: 11000;
 }
 
-.nav a:hover{
-  background: color-mix(in srgb, var(--accent) 25%, transparent);
-  transform: translateY(-1px);
+/* Fullskjerms overlay */
+.nav-overlay{
+  position: fixed;
+  inset: 0;
+ width: 100vw;
+  height: 100vh;
+  
+  background: var(--bg);
+  z-index: 9999;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+
+  /* berre sentrering av MENY-BLOKKA, ikkje av lenkene direkte */
+  display: grid;
+  place-items: center;
 }
-/* Tema-knapp */
+
+.nav-overlay.open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.nav-open{
+  overflow: hidden;
+}
+
+/* sjølve menylista */
+.nav-overlay__menu{
+  width: min(520px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .25rem;
+
+  /* plass til ☰/✕ oppe til høgre */
+  padding: 4.5rem 0 2rem;
+}
+
+.nav-overlay__menu a{
+  display: block;
+  width: 100%;
+
+  text-align: center;
+  text-decoration: none;
+  color: var(--text);
+
+  font-size: clamp(1.25rem, 4.8vw, 1.8rem);
+  font-weight: 650;
+  letter-spacing: .2px;
+
+  padding: .9rem 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+
+  transform: none !important;
+}
+
+/* hover-effekt berre der det faktisk finst hover */
+@media (hover: hover) and (pointer: fine){
+  .nav-overlay__menu a:hover{
+    background: color-mix(in srgb, var(--accent2) 18%, transparent);
+  }
+}
+/* -----------------------------------------
+   Breakpoints: desktop vs mobil
+   ----------------------------------------- */
+
+@media (min-width: 720px){
+  .nav-toggle{ display: none; }
+  .nav-overlay{ display: none; }
+  .nav-desktop{ display: flex; }
+}
+
+/* -----------------------------------------
+   Tema-knapp (om du skrur på att i HTML)
+   ----------------------------------------- */
 .theme-toggle{
   border: 1px solid var(--line);
   background: var(--panel);

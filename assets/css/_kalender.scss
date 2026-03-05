@@ -17,6 +17,16 @@
   font-weight: 650;
 }
 
+/* Stram inn berre gapet rett etter overskrifta "Kva me har gjort før" */
+.section--past .kalender-jaar:first-of-type{
+  margin-top: 0rem;     /* var 2rem */
+}
+
+/* Men hald luft mellom års-bolkane elles */
+.section--past .kalenderliste + .kalender-jaar{
+  margin-top: 2rem;      /* same som før */
+}
+
 /* --- Kalenderkort: meir “plakat” --- */
 .kalenderkort{
   position: relative;

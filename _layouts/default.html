@@ -56,5 +56,14 @@
   });
 })();
 </script>
+<script>
+const toggle = document.querySelector('.nav-toggle')
+const overlay = document.querySelector('#navOverlay')
+
+toggle.addEventListener('click', () => {
+  overlay.classList.toggle('open')
+  document.body.classList.toggle('nav-open')
+})
+</script>
 </body>
 </html>
