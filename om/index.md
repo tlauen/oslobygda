@@ -11,5 +11,8 @@ Me skipar til Folkemusikkpøbb omlag 9 gonger i året, hovudsakleg siste onsdage
 
 Vil du bli med i laget? Send oss ein epost eller prat med Torbjørn. Kostar deg ein femkroning.
 
+**Styreleiar:** Torbjørn Bergwitz Lauen
+**Nestleiar** Signe Dorthea Krohn Gjessing
+
 § [Lova vår]({{ '/om/lova/' | relative_url }})
 📄 [Skipingsdokumentet (PDF)](/assets/pdf/skipingsdokument.pdf)
