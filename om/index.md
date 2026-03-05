@@ -9,7 +9,7 @@ Oslobygda kulturlag skal på frilynt grunn skape engasjement for levande folkeku
 
 Me skipar til Folkemusikkpøbb omlag 9 gonger i året, hovudsakleg siste onsdagen i månaden. Me kan òg finne på andre ting viss me syns det er kult.
 
-Vil du bli med i laget? Snakk med Torbjørn. Kostar deg ein femtilapp.
+Vil du bli med i laget? Send oss ein epost eller prat med Torbjørn. Kostar deg ein femkroning.
 
 § [Lova vår]({{ '/om/lova/' | relative_url }})
 📄 [Skipingsdokumentet (PDF)](/assets/pdf/skipingsdokument.pdf)

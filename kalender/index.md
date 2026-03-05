@@ -6,13 +6,13 @@ permalink: /kalender/
 
 # Kalender
 
-## Komande arrangement
+## Kva du kan glede deg til
 
 <div class="section">
 {% include kalenderliste.html mode="future" %}
 </div>
 
-## Tidlegare arrangement
+## Kva me har gjort før
 
 <div class="section">
 {% include kalenderliste.html mode="past" group="year" %}

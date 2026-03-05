@@ -6,16 +6,10 @@ permalink: /pub/
 
 # Folkemusikkpøbben
 
-Kva det er, kvar det er, korleis ein kveld fungerer, og kva folk bør ta med (godt humør, gjerne instrument).
+Me har skipa til folkemusikkpøbb på Kaffistova i Oslo sidan hausten 2021. Det er gratis å kome inn, og pøbben har blitt organisert på dugnad og utan nokon form for økonomi. Kaffistova lånar ut lokalet gratis, organisatorane organiserar på dugnar og musikarane speler på dugnad.
 
-## Komande pøbbar
+Tanken, og ønsket, er å legge til rett for ein arena der musikarar kan møtast for å spele og jamme, og for at dansarar skal få danse, og at dei som helst vil drikke øl skal få lov til det.
 
-<div class="section">
-{% include kalenderliste.html mode="future" %}
-</div>
+Kan du tenkje deg å hjelpe til med organisering, leie ein jamsession eller spele til dans? Send ein epost til <u>folk (krøllalfa) oslobygda.no</u>!
 
-## Tidlegare pøbbar
-
-<div class="section">
-{% include kalenderliste.html mode="past" group="year" %}
-</div>
+[Du kan sjå alle komande og tidlegare tilskipingar i kalenderen vår.]({{ '/kalender/' | relative_url }})
