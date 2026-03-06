@@ -85,10 +85,10 @@
 
 /* Pastell-hover berre på einingar som faktisk har hover (desktop/trackpad) */
 @media (hover: hover) and (pointer: fine){
-  .nav-desktop a:nth-child(1):hover{ background: color-mix(in srgb, #BFEAEE 60%, transparent); }
+  .nav-desktop a:nth-child(1):hover{ background: color-mix(in srgb, #A8D4E8 60%, transparent); }  /* blå */
   .nav-desktop a:nth-child(2):hover{ background: color-mix(in srgb, #F1CACB 60%, transparent); }
-  .nav-desktop a:nth-child(3):hover{ background: color-mix(in srgb, #C8EBE4 60%, transparent); }
-  .nav-desktop a:nth-child(4):hover{ background: color-mix(in srgb, #F3E5C8 60%, transparent); }
+  .nav-desktop a:nth-child(3):hover{ background: color-mix(in srgb, #A8D8A0 60%, transparent); }  /* grøn */
+  .nav-desktop a:nth-child(4):hover{ background: color-mix(in srgb, #EDE4F5 60%, transparent); }  /* lys lavendel */
   .nav-desktop a:nth-child(5):hover{ background: color-mix(in srgb, #E1D4F5 60%, transparent); }
   .nav-desktop a:nth-child(6):hover{ background: color-mix(in srgb, #F5DFC9 60%, transparent); }
 
