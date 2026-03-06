@@ -33,7 +33,9 @@ def fmt_date_emne_nn(date)
 end
 
 def http_json(method, path, token:, body: nil)
-  uri = URI.join(API_BASE, path)
+  # URI.join(base, "/groups") would replace path and drop /api – use path without leading /
+  path = path.sub(/\A\//, "")
+  uri = URI.join(API_BASE + "/", path)
   req =
     case method
     when :get then Net::HTTP::Get.new(uri)
