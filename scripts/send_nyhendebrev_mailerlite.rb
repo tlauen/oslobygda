@@ -226,12 +226,12 @@ formats.each do |emails_value|
   }
   code, created = http_json(:post, "/campaigns", token: token, body: create_body)
   last_emails_sent = emails_value
-  break if code == 200 && created && created.dig("data", "id")
+  break if (code == 200 || code == 201) && created && created.dig("data", "id")
   break if code != 422
   warn "Tried emails format #{emails_value.class}; got 422, trying next format."
 end
 
-unless code == 200 && created && created.dig("data", "id")
+unless (code == 200 || code == 201) && created && created.dig("data", "id")
   msg = created&.dig("message") || created&.inspect || "no body"
   errors = created&.dig("errors")
   msg += " | errors: #{errors.inspect}" if errors
@@ -256,7 +256,7 @@ puts "Created campaign id=#{campaign_id}"
 # Send immediately (delivery=instant)
 schedule_body = { "delivery" => "instant" }
 code, scheduled = http_json(:post, "/campaigns/#{campaign_id}/schedule", token: token, body: schedule_body)
-unless code == 200
+unless code == 200 || code == 201
   raise "Failed to send/schedule campaign (status=#{code}): #{scheduled.inspect}"
 end
 
