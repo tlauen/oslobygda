@@ -83,14 +83,14 @@
   transition: background .15s ease, transform .1s ease;
 }
 
-/* Pastell-hover berre på einingar som faktisk har hover (desktop/trackpad) */
+/* 6 tydelege pastellar; rekkjefølgje slik at like fargar ikkje er ved sida av kvarandre */
 @media (hover: hover) and (pointer: fine){
   .nav-desktop a:nth-child(1):hover{ background: color-mix(in srgb, #A8D4E8 60%, transparent); }  /* blå */
-  .nav-desktop a:nth-child(2):hover{ background: color-mix(in srgb, #F1CACB 60%, transparent); }
-  .nav-desktop a:nth-child(3):hover{ background: color-mix(in srgb, #A8D8A0 60%, transparent); }  /* grøn */
-  .nav-desktop a:nth-child(4):hover{ background: color-mix(in srgb, #EDE4F5 60%, transparent); }  /* lys lavendel */
-  .nav-desktop a:nth-child(5):hover{ background: color-mix(in srgb, #E1D4F5 60%, transparent); }
-  .nav-desktop a:nth-child(6):hover{ background: color-mix(in srgb, #F5DFC9 60%, transparent); }
+  .nav-desktop a:nth-child(2):hover{ background: color-mix(in srgb, #F1CACB 60%, transparent); }  /* rosa */
+  .nav-desktop a:nth-child(3):hover{ background: color-mix(in srgb, #FBEDC0 60%, transparent); }  /* gul */
+  .nav-desktop a:nth-child(4):hover{ background: color-mix(in srgb, #A8D8A0 60%, transparent); }  /* grøn */
+  .nav-desktop a:nth-child(5):hover{ background: color-mix(in srgb, #F5DFC9 60%, transparent); }  /* persika */
+  .nav-desktop a:nth-child(6):hover{ background: color-mix(in srgb, #E1D4F5 60%, transparent); }  /* lavendel */
 
   .nav-desktop a:hover{
     transform: translateY(-1px);
