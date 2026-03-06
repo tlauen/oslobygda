@@ -48,12 +48,13 @@ a:hover{ text-decoration: underline; }
   box-sizing: border-box;
 }
 
-#mlb2-38102957.ml-form-embedContainer .ml-form-embedWrapper.embedForm {
-max-width: 1200px;
+/* Overstyr MailerLite sin egen bredde (klasse-basert, ikkje ID, så det held seg) */
+.brev-form-wrap .ml-form-embedContainer .ml-form-embedWrapper.embedForm {
+  max-width: 100% !important;
+  width: 100% !important;
 }
-
-#mlb2-38102957.ml-form-embedContainer .ml-form-align-center {
-  text-align: left;
+.brev-form-wrap .ml-form-embedContainer .ml-form-align-center {
+  text-align: left !important;
 }
 
 /* Skip-link */
