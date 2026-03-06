@@ -3,7 +3,8 @@ description: "Din leverandør av Folkemusikkpøbb i Oslo <3"
 lang: nn
 url: "https://oslobygda.no"
 
-share_image: "/assets/img/og-oslobygda.jpg"
+# Bilde ved deling i sosiale medium (alle sider utan eige og_image, inkl. forsida)
+share_image: "/assets/img/hero.jpg"
 
 # Valfritt: gjer fine permalinks for sider
 permalink: pretty

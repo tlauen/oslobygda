@@ -14,7 +14,11 @@
 
   {%- assign canonical = page.url | absolute_url -%}
   {%- assign og_desc = page.description | default: site.description | default: "Oslobygda kulturlag" -%}
-  {%- assign og_img_rel = page.og_image | default: site.share_image | default: "/assets/img/og-oslobygda.jpg" -%}
+  {%- assign default_share_img = site.share_image | default: "/assets/img/hero.jpg" -%}
+  {%- assign og_img_rel = page.og_image | default: default_share_img -%}
+  {%- if og_img_rel == nil or og_img_rel == "" -%}
+    {%- assign og_img_rel = default_share_img -%}
+  {%- endif -%}
   {%- assign og_img = og_img_rel | absolute_url -%}
 
   <title>{{ full_title }}</title>
