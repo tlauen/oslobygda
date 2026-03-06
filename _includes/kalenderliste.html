@@ -76,25 +76,7 @@
 {% endfor %}
   <h3 class="kalender-jaar">
     {{ current_year }}
-    <span class="muted">
-      (
-      {% assign sep = "" %}
-
-      {% if pobb_count > 0 %}
-        {{ sep }}{{ pobb_count }} pøbbar
-        {% assign sep = ", " %}
-      {% endif %}
-
-      {% if kved_count > 0 %}
-        {{ sep }}{{ kved_count }} kvedarkrokar
-        {% assign sep = ", " %}
-      {% endif %}
-
-      {% if kviss_count > 0 %}
-        {{ sep }}{{ kviss_count }} kvissar
-      {% endif %}
-      )
-    </span>
+    <span class="muted">({% assign sep = "" %}{%- if pobb_count > 0 -%}{{ sep }}{{ pobb_count }} pøbbar{% assign sep = ", " %}{%- endif -%}{%- if kved_count > 0 -%}{{ sep }}{{ kved_count }} kvedarkrokar{% assign sep = ", " %}{%- endif -%}{%- if kviss_count > 0 -%}{{ sep }}{{ kviss_count }} kvissar{%- endif -%})</span>
   </h3>
 
   <div class="kalenderliste">
