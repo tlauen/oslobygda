@@ -188,18 +188,20 @@ email_obj = {
   "content" => html
 }
 email_obj["reply_to"] = reply_to unless reply_to.empty?
-# API returns 422 "emails.0 must be an array" if we send emails: [obj] – send as [[obj]]
 
+# Some MailerLite API versions expect emails as object with numeric keys and array values (emails.0 = array)
 create_body = {
   "name" => campaign_name,
   "type" => "regular",
-  "groups" => [group_id],
-  "emails" => [[email_obj]]
+  "groups" => [group_id.to_s],
+  "emails" => { "0" => [email_obj] }
 }
 
 code, created = http_json(:post, "/campaigns", token: token, body: create_body)
 unless code == 200 && created && created.dig("data", "id")
   msg = created&.dig("message") || created&.inspect || "no body"
+  errors = created&.dig("errors")
+  msg += " | errors: #{errors.inspect}" if errors
   hint = if code == 404
     " 404 often means wrong MAILERLITE_GROUP_ID or that campaign API is not available for your plan. Check Integrations → API in MailerLite for the correct group ID."
   else
