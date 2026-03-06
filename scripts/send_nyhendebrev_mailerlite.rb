@@ -21,8 +21,15 @@ MONTHS_NN = [
   "juli", "august", "september", "oktober", "november", "desember"
 ].freeze
 
+# vekedagar, index = Date#wday (0 = sundag, 1 = mandag, …)
+WEEKDAYS_NN = %w[sundag mandag tirsdag onsdag torsdag fredag laurdag].freeze
+
 def fmt_date_nn(date)
   "#{date.day}. #{MONTHS_NN.fetch(date.month)} #{date.year}"
+end
+
+def fmt_date_emne_nn(date)
+  "#{WEEKDAYS_NN[date.wday]} #{date.day}. #{MONTHS_NN.fetch(date.month)}"
 end
 
 def http_json(method, path, token:, body: nil)
@@ -100,7 +107,7 @@ end
 
 upcoming = future.first(limit)
 
-subject = "Komande tilskipingar (#{fmt_date_nn(trigger_date)})"
+subject = "Neste folkemusikkpøbb er #{fmt_date_emne_nn(trigger_date)}!"
 campaign_name = "Nyhendebrev – tilskipingar – #{trigger_date.iso8601}"
 
 html_items = upcoming.map do |e|
