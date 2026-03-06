@@ -3,9 +3,11 @@ layout: default
 title: Meld deg på nyhendebrevet
 ---
 
-# Meld deg på nyhendebrevet
+# Nyhendebrev frå Oslobygda kulturlag
 
-<div class="ml-embedded" data-form="mOtfzP"></div>
+<div class="brev-form-wrap">
+  <div class="ml-embedded" data-form="mOtfzP"></div>
+</div>
 
 ## Nerde-greier:
 

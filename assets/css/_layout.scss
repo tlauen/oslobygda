@@ -34,6 +34,20 @@ a:hover{ text-decoration: underline; }
 /* Nøytrale innhaldsseksjonar (ingen “boks” rundt alt) */
 .section{ padding: 1rem 0; }
 
+/* Brev-sida: MailerLite-skjema i same breidde som innhaldet */
+.brev-form-wrap {
+  width: 100%;
+  margin: 1rem 0;
+}
+.brev-form-wrap .ml-embedded,
+.brev-form-wrap .ml-embedded > div,
+.brev-form-wrap .ml-embedded iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 /* Skip-link */
 .skip{
   position: absolute;
