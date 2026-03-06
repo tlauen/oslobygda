@@ -99,11 +99,13 @@ end
 
 trigger_date = trigger["dato"]
 send_on = trigger_date - days_before
+force_send = %w[1 true yes].include?(ENV["OSLOBYGDA_FORCE_SEND"].to_s.strip.downcase)
 
-unless today == send_on
-  puts "Today is #{today}, next trigger event is #{trigger_date} (send_on=#{send_on}). Not sending today."
+unless force_send || today == send_on
+  puts "Today is #{today}, next trigger event is #{trigger_date} (send_on=#{send_on}). Not sending today. Set OSLOBYGDA_FORCE_SEND=1 to test anyway."
   exit 0
 end
+puts "Force send mode – sending despite send_on=#{send_on}" if force_send && today != send_on
 
 upcoming = future.first(limit)
 

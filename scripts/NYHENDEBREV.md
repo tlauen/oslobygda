@@ -41,7 +41,10 @@ Legg inn:
 
 Gå til **Actions → Send nyhendebrev (MailerLite)** og trykk **Run workflow**.
 
-Merk: Om det ikkje er “rett dag” (7 dagar før neste `pobb-`), vil scriptet berre avslutte utan å sende.
+- **Vanleg køyr**: Scriptet sender berre om det er 7 dagar før neste pøbb; elles avsluttar det utan å sende.
+- **Testutsending uansett dato**: Kryss av for **«Send uansett dato (test – sender også om det ikkje er 7 dagar før pøbb)»** før du trykkar Run workflow. Da sendes e-post likevel (bruk ei lita testgruppe om mogleg).
+
+Du kan også køyre scriptet lokalt med `OSLOBYGDA_FORCE_SEND=1` (samt alle MAILERLITE_*-variablane) for å sende ein test.
 
 ### Vanlege feil
 

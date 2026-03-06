@@ -1,7 +1,13 @@
 name: Send nyhendebrev (MailerLite)
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force_send:
+        description: "Send uansett dato (test – sender også om det ikkje er 7 dagar før pøbb)"
+        required: false
+        default: false
+        type: boolean
   schedule:
     # Køyr dagleg; scriptet avgjer om det er "rett dag" å sende.
     - cron: "17 7 * * *" # UTC
@@ -24,8 +30,9 @@ jobs:
       MAILERLITE_FROM_EMAIL: ${{ secrets.MAILERLITE_FROM_EMAIL }}
       MAILERLITE_FROM_NAME: ${{ secrets.MAILERLITE_FROM_NAME }}
       MAILERLITE_REPLY_TO: ${{ secrets.MAILERLITE_REPLY_TO }}
+      OSLOBYGDA_FORCE_SEND: ${{ github.event.inputs.force_send == 'true' && '1' || '' }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Send (om det er rett dag)
+      - name: Send nyhendebrev
         run: ruby scripts/send_nyhendebrev_mailerlite.rb
