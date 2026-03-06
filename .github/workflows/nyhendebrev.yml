@@ -1,0 +1,31 @@
+name: Send nyhendebrev (MailerLite)
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Køyr dagleg; scriptet avgjer om det er "rett dag" å sende.
+    - cron: "17 7 * * *" # UTC
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Oslo
+      OSLOBYGDA_BASE_URL: https://oslobygda.no
+      TRIGGER_UID_CONTAINS: pobb-
+      DAYS_BEFORE_TRIGGER: "7"
+      UPCOMING_LIMIT: "12"
+
+      MAILERLITE_API_TOKEN: ${{ secrets.MAILERLITE_API_TOKEN }}
+      MAILERLITE_GROUP_ID: ${{ secrets.MAILERLITE_GROUP_ID }}
+      MAILERLITE_FROM_EMAIL: ${{ secrets.MAILERLITE_FROM_EMAIL }}
+      MAILERLITE_FROM_NAME: ${{ secrets.MAILERLITE_FROM_NAME }}
+      MAILERLITE_REPLY_TO: ${{ secrets.MAILERLITE_REPLY_TO }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Send (om det er rett dag)
+        run: ruby scripts/send_nyhendebrev_mailerlite.rb
