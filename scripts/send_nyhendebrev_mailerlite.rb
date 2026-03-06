@@ -62,6 +62,21 @@ rescue JSON::ParserError
   [res.code.to_i, { "message" => res.body }]
 end
 
+def http_post_form(path, token:, body:)
+  path = path.sub(/\A\//, "")
+  uri = URI.join(API_BASE + "/", path)
+  req = Net::HTTP::Post.new(uri)
+  req["Authorization"] = "Bearer #{token}"
+  req["Accept"] = "application/json"
+  req["Content-Type"] = "application/x-www-form-urlencoded"
+  req.body = body
+  res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
+  return [res.code.to_i, nil] if res.body.nil? || res.body.strip.empty?
+  [res.code.to_i, JSON.parse(res.body)]
+rescue JSON::ParserError
+  [res.code.to_i, { "message" => res.body }]
+end
+
 def verify_group_exists!(token, group_id)
   code, data = http_json(:get, "/groups?limit=100", token: token)
   unless code == 200 && data && data["data"].is_a?(Array)
@@ -189,15 +204,21 @@ email_obj = {
 }
 email_obj["reply_to"] = reply_to unless reply_to.empty?
 
-# API: emails.0 must be an array; emails.0.* must have subject, from_name, from → emails = [[email_obj]]
-create_body = {
-  "name" => campaign_name,
-  "type" => "regular",
-  "groups" => [group_id.to_s],
-  "emails" => [[email_obj]]
-}
+# MailerLite backend (Laravel) validates "emails.0" = array and "emails.0.*.subject" etc.;
+# JSON array-of-arrays can be mis-parsed. Send as form-encoded so emails[0][0][subject] is unambiguous.
+form_params = [
+  ["name", campaign_name],
+  ["type", "regular"],
+  ["groups[0]", group_id.to_s],
+  ["emails[0][0][subject]", subject],
+  ["emails[0][0][from_name]", from_name],
+  ["emails[0][0][from]", from_email],
+  ["emails[0][0][content]", html]
+]
+form_params << ["emails[0][0][reply_to]", reply_to] unless reply_to.empty?
+create_body_str = URI.encode_www_form(form_params)
 
-code, created = http_json(:post, "/campaigns", token: token, body: create_body)
+code, created = http_post_form("/campaigns", token: token, body: create_body_str)
 unless code == 200 && created && created.dig("data", "id")
   msg = created&.dig("message") || created&.inspect || "no body"
   errors = created&.dig("errors")
