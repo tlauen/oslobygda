@@ -181,77 +181,89 @@ end
 plain << "\nHeile kalenderen: #{base_url}/kalender/\n"
 plain << "ICS: #{base_url}/kalender.ics\n"
 
-def campaign_exists?(token, campaign_name)
-  %w[draft ready sent].any? do |status|
+# Returns { "id" => campaign_id, "status" => "draft"|"ready"|"sent" } or nil.
+def find_existing_campaign(token, campaign_name)
+  %w[draft ready sent].each do |status|
     code, data = http_json(:get, "/campaigns?filter[status]=#{status}&limit=100", token: token)
-    next false unless code == 200 && data && data["data"].is_a?(Array)
-    data["data"].any? { |c| c["name"].to_s == campaign_name }
+    next unless code == 200 && data && data["data"].is_a?(Array)
+    found = data["data"].find { |c| c["name"].to_s == campaign_name }
+    return { "id" => found["id"].to_s, "status" => status } if found
   end
+  nil
 end
 
-if campaign_exists?(token, campaign_name)
-  puts "Campaign '#{campaign_name}' already exists. Not creating/sending again."
+existing = find_existing_campaign(token, campaign_name)
+if existing && existing["status"] == "sent"
+  puts "Campaign '#{campaign_name}' was already sent. Not creating/sending again."
   exit 0
 end
 
+# If draft/ready, we will send it below (campaign_id set from existing).
+existing_draft_or_ready = existing && %w[draft ready].include?(existing["status"])
+campaign_id = existing_draft_or_ready ? existing["id"] : nil
+
 verify_group_exists!(token, group_id)
 
-email_obj = {
-  "subject" => subject.to_s,
-  "from_name" => from_name.to_s,
-  "from" => from_email.to_s,
-  "content" => html.to_s
-}
-email_obj["reply_to"] = reply_to.to_s if reply_to && !reply_to.empty?
-
-# MailerLite 422: "emails.0 must be an array" and "emails.0.subject required". Try formats:
-# 1) emails = { "0" => [email_obj] } (Laravel-style: emails.0 is array, emails.0.0 has subject)
-# 2) emails = [email_obj] (docs: "1 email object item")
-# 3) emails = [[email_obj]] (nested array)
-email_obj_str = email_obj.transform_keys(&:to_s)
-formats = [
-  { "0" => [email_obj_str] },
-  [email_obj_str],
-  [email_obj_str].yield_self { |a| [a] }
-]
-code = nil
-created = nil
-last_emails_sent = nil
-formats.each do |emails_value|
-  create_body = {
-    "name" => campaign_name,
-    "type" => "regular",
-    "groups" => [group_id.to_s],
-    "emails" => emails_value
+unless campaign_id
+  email_obj = {
+    "subject" => subject.to_s,
+    "from_name" => from_name.to_s,
+    "from" => from_email.to_s,
+    "content" => html.to_s
   }
-  code, created = http_json(:post, "/campaigns", token: token, body: create_body)
-  last_emails_sent = emails_value
-  break if (code == 200 || code == 201) && created && created.dig("data", "id")
-  break if code != 422
-  warn "Tried emails format #{emails_value.class}; got 422, trying next format."
-end
+  email_obj["reply_to"] = reply_to.to_s if reply_to && !reply_to.empty?
 
-unless (code == 200 || code == 201) && created && created.dig("data", "id")
-  msg = created&.dig("message") || created&.inspect || "no body"
-  errors = created&.dig("errors")
-  msg += " | errors: #{errors.inspect}" if errors
-  if code == 422 && ENV["OSLOBYGDA_DEBUG"] && last_emails_sent
-    warn "DEBUG last request emails: #{last_emails_sent.inspect}"
-    warn "DEBUG JSON: #{JSON.dump(last_emails_sent)}"
+  # MailerLite 422: "emails.0 must be an array" and "emails.0.subject required". Try formats:
+  # 1) emails = { "0" => [email_obj] } (Laravel-style)
+  # 2) emails = [email_obj] (docs: "1 email object item")
+  # 3) emails = [[email_obj]] (nested array)
+  email_obj_str = email_obj.transform_keys(&:to_s)
+  formats = [
+    { "0" => [email_obj_str] },
+    [email_obj_str],
+    [email_obj_str].yield_self { |a| [a] }
+  ]
+  code = nil
+  created = nil
+  last_emails_sent = nil
+  formats.each do |emails_value|
+    create_body = {
+      "name" => campaign_name,
+      "type" => "regular",
+      "groups" => [group_id.to_s],
+      "emails" => emails_value
+    }
+    code, created = http_json(:post, "/campaigns", token: token, body: create_body)
+    last_emails_sent = emails_value
+    break if (code == 200 || code == 201) && created && created.dig("data", "id")
+    break if code != 422
+    warn "Tried emails format #{emails_value.class}; got 422, trying next format."
   end
-  hint = case code
-  when 404
-    " 404 often means wrong MAILERLITE_GROUP_ID or that campaign API is not available for your plan. Check Integrations → API in MailerLite for the correct group ID."
-  when 422
-    " 422: Tried object/array/nested-array for emails. Set OSLOBYGDA_DEBUG=1 to log payload; see developers.mailerlite.com/docs/campaigns or contact MailerLite support."
-  else
-    ""
-  end
-  raise "Failed to create campaign (status=#{code}): #{msg}#{hint}"
-end
 
-campaign_id = created.dig("data", "id").to_s
-puts "Created campaign id=#{campaign_id}"
+  unless (code == 200 || code == 201) && created && created.dig("data", "id")
+    msg = created&.dig("message") || created&.inspect || "no body"
+    errors = created&.dig("errors")
+    msg += " | errors: #{errors.inspect}" if errors
+    if code == 422 && ENV["OSLOBYGDA_DEBUG"] && last_emails_sent
+      warn "DEBUG last request emails: #{last_emails_sent.inspect}"
+      warn "DEBUG JSON: #{JSON.dump(last_emails_sent)}"
+    end
+    hint = case code
+    when 404
+      " 404 often means wrong MAILERLITE_GROUP_ID or that campaign API is not available for your plan. Check Integrations → API in MailerLite for the correct group ID."
+    when 422
+      " 422: Tried object/array/nested-array for emails. Set OSLOBYGDA_DEBUG=1 to log payload; see developers.mailerlite.com/docs/campaigns or contact MailerLite support."
+    else
+      ""
+    end
+    raise "Failed to create campaign (status=#{code}): #{msg}#{hint}"
+  end
+
+  campaign_id = created.dig("data", "id").to_s
+  puts "Created campaign id=#{campaign_id}"
+else
+  puts "Found existing campaign '#{campaign_name}' (id=#{campaign_id}, status=#{existing['status']}). Sending now."
+end
 
 # Send immediately (delivery=instant)
 schedule_body = { "delivery" => "instant" }
