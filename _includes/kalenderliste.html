@@ -54,6 +54,9 @@
 {% for x in site.data.kalender %}
   {% assign uid = x.uid | default: "" %}
   {% assign x_year = x.dato | date: "%Y" %}
+  {% assign xs = x.dato | append: " 12:00:00 +0100" | date: "%s" %}
+  {% comment %} I past-modus tel vi berre arrangement som allereie har skjedd {% endcomment %}
+  {% if mode == "past" and xs >= no %}{% continue %}{% endif %}
 
   {% if x_year == current_year %}
 
