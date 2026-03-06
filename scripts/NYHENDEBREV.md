@@ -46,6 +46,14 @@ Gå til **Actions → Send nyhendebrev (MailerLite)** og trykk **Run workflow**.
 
 Du kan også køyre scriptet lokalt med `OSLOBYGDA_FORCE_SEND=1` (samt alle MAILERLITE_*-variablane) for å sende ein test.
 
+### Design og stil
+
+E-posten som sendes automatisk, bruker same **fargepalett og typografi** som nettsida (pastell: bakgrunn #FCF9F3, tekst #12110e, aksent #2f5d50 / #BFEAEE). HTML-en byggjest i scriptet (`send_nyhendebrev_mailerlite.rb`), så endringar av utsjånad gjer du der (eller ved å redigere variablane øvst i scriptet).
+
+**MailerLite-mal:** Du kan lage ein **mal** i MailerLite (Campaigns → Templates) med same stil – nyttig for manuelle kampanjar og som referanse. Den automatiske nyhendebrevet bruker ikkje malen (API-et sender ferdig HTML), men du kan kopiere fargar og oppsett frå malen inn i scriptet om du vil halde alt likt.
+
+**Logo i e-posten:** Nyhendebrevet bruker `assets/img/logo_oslobygda.png` (44×44 px) nederst. PNG er meir kompatibel enn SVG i e-postklientar (Outlook, Gmail osb.). Lag fila ved å eksportere/konvertere frå `logo_oslobygda.svg` (t.d. 44×44 eller 88×88 for skarpt bilete), og legg han i `assets/img/`. Utan PNG vil logoen ikkje visast (lenka peikar berre på .png).
+
 ### Vanlege feil
 
 - **Frå-adressa er ikkje verifisert**: `MAILERLITE_FROM_EMAIL` må vere godkjent i MailerLite.

@@ -4,30 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Førehandsvisning – nyhendebrev (automatisk)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
   <style>
-    body { font-family: system-ui, sans-serif; line-height: 1.5; max-width: 600px; margin: 0 auto; padding: 1rem; }
-    h1 { font-size: 1.25rem; }
-    ul { padding-left: 1.25rem; }
-    li { margin: 0.5rem 0; }
-    a { color: #0066cc; }
-    .meta { font-size: 0.875rem; color: #666; margin-bottom: 1.5rem; }
+    body { background: #e8e6e3; margin: 0; padding: 1rem; }
+    .meta { font-size: 0.875rem; color: #666; margin-bottom: 1rem; font-family: system-ui, sans-serif; }
   </style>
 </head>
 <body>
-  <p class="meta">Dette er ein statisk førehandsvisning av innhaldet som det automatiske scriptet sender. I MailerLite kjem dette inni deira mal (avsendar, footer med avmeldingslenke osb.).</p>
+  <p class="meta">Førehandsvisning av innhaldet som det automatiske scriptet sender (same stil som nettsida). I MailerLite kjem dette inni deira mal (avsendar, footer med avmeldingslenke osb.).</p>
 
-  <!-- Nøyaktig same HTML som send_nyhendebrev_mailerlite.rb byggjer (berre framtidige datoar): -->
-  <div>
-    <h1>Komande tilskipingar</h1>
-    <p>Her er det som ligg i kalenderen vår no:</p>
-    <ul>
-      <li><strong>25. mars 2026</strong> kl. 21:00 – Svenske tilstander på Folkemusikkpøbben! (Kaffistova, kjellaren)</li>
-      <li><strong>29. april 2026</strong> kl. 21:00 – Folkemusikkpøbb med Flatlusa spelemannslag (Kaffistova, kjellaren)</li>
-      <li><strong>27. mai 2026</strong> kl. 21:00 – Folkemusikkpøbb: Norsk-færøysk dansekveld (Kaffistova, kjellaren)</li>
+  <!-- Same struktur og inline-stil som send_nyhendebrev_mailerlite.rb -->
+  <div style="max-width:580px; margin:0 auto; font-family:Georgia,'Times New Roman',serif; color:#12110e; background:#FCF9F3; padding:24px 20px;">
+    <p style="margin:0 0 4px; font-family:'Fraunces',Georgia,serif; font-weight:700; font-size:1.25em; letter-spacing:.02em;">Oslobygda kulturlag</p>
+    <p style="margin:0 0 24px; font-size:.9em; color:#5a5856;">frilynt · folkeleg · litt for seint heim</p>
+    <h1 style="margin:0 0 12px; font-family:'Fraunces',Georgia,serif; font-weight:650; font-size:1.5em; color:#12110e;">Komande tilskipingar</h1>
+    <p style="margin:0 0 16px; line-height:1.5;">Her er det som ligg i kalenderen vår no:</p>
+    <ul style="margin:0 0 20px; padding-left:1.2em; line-height:1.6;">
+      <li style="margin:.5em 0; padding-left:.5em; border-left:3px solid #BFEAEE;"><strong>25. mars 2026</strong> kl. 21:00 – Svenske tilstander på Folkemusikkpøbben! (Kaffistova, kjellaren)</li>
+      <li style="margin:.5em 0; padding-left:.5em; border-left:3px solid #BFEAEE;"><strong>29. april 2026</strong> kl. 21:00 – Folkemusikkpøbb med Flatlusa spelemannslag (Kaffistova, kjellaren)</li>
+      <li style="margin:.5em 0; padding-left:.5em; border-left:3px solid #BFEAEE;"><strong>27. mai 2026</strong> kl. 21:00 – Folkemusikkpøbb: Norsk-færøysk dansekveld (Kaffistova, kjellaren)</li>
     </ul>
-    <p>
-      Sjå heile kalenderen: <a href="https://oslobygda.no/kalender/">https://oslobygda.no/kalender/</a><br>
-      Kalender (ICS): <a href="https://oslobygda.no/kalender.ics">https://oslobygda.no/kalender.ics</a>
+    <p style="margin:0 0 8px; line-height:1.5;">
+      Sjå heile kalenderen: <a href="https://oslobygda.no/kalender/" style="color:#2f5d50; text-decoration:underline;">https://oslobygda.no/kalender/</a><br>
+      Kalender (ICS): <a href="https://oslobygda.no/kalender.ics" style="color:#2f5d50; text-decoration:underline;">https://oslobygda.no/kalender.ics</a>
+    </p>
+    <p style="margin:24px 0 0; font-size:.85em; color:#5a5856;">frilynt · folkeleg · litt for seint heim</p>
+    <p style="margin:20px 0 0; text-align:center;">
+      <a href="https://oslobygda.no/" style="text-decoration:none;"><img src="https://oslobygda.no/assets/img/logo_oslobygda.png" alt="Oslobygda kulturlag" width="44" height="44" style="display:inline-block; width:44px; height:44px;"></a>
     </p>
   </div>
 

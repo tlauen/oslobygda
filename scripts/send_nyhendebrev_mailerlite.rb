@@ -152,19 +152,26 @@ html_items = upcoming.map do |e|
   line << " kl. #{e["start"]}" unless e["start"].empty?
   line << " – #{e["tittel"]}" unless e["tittel"].empty?
   line << " (#{e["stad"]})" unless e["stad"].empty?
-  "<li>#{line}</li>"
+  "<li style=\"margin:.5em 0; padding-left:.5em; border-left:3px solid #BFEAEE;\">#{line}</li>"
 end.join("\n")
 
+# Stil i tråd med nettsida (pastell-palett, Fraunces). Inline CSS for e-postklientar.
 html = <<~HTML
-  <div>
-    <h1>Komande tilskipingar</h1>
-    <p>Her er det som ligg i kalenderen vår no:</p>
-    <ul>
+  <div style="max-width:580px; margin:0 auto; font-family:Georgia,'Times New Roman',serif; color:#12110e; background:#FCF9F3; padding:24px 20px;">
+    <p style="margin:0 0 4px; font-family:'Fraunces',Georgia,serif; font-weight:700; font-size:1.25em; letter-spacing:.02em;">Oslobygda kulturlag</p>
+    <p style="margin:0 0 24px; font-size:.9em; color:#5a5856;">frilynt · folkeleg · litt for seint heim</p>
+    <h1 style="margin:0 0 12px; font-family:'Fraunces',Georgia,serif; font-weight:650; font-size:1.5em; color:#12110e;">Komande tilskipingar</h1>
+    <p style="margin:0 0 16px; line-height:1.5;">Her er det som ligg i kalenderen vår no:</p>
+    <ul style="margin:0 0 20px; padding-left:1.2em; line-height:1.6;">
       #{html_items}
     </ul>
-    <p>
-      Sjå heile kalenderen: <a href="#{base_url}/kalender/">#{base_url}/kalender/</a><br>
-      Kalender (ICS): <a href="#{base_url}/kalender.ics">#{base_url}/kalender.ics</a>
+    <p style="margin:0 0 8px; line-height:1.5;">
+      Sjå heile kalenderen: <a href="#{base_url}/kalender/" style="color:#2f5d50; text-decoration:underline;">#{base_url}/kalender/</a><br>
+      Kalender (ICS): <a href="#{base_url}/kalender.ics" style="color:#2f5d50; text-decoration:underline;">#{base_url}/kalender.ics</a>
+    </p>
+    <p style="margin:24px 0 0; font-size:.85em; color:#5a5856;">frilynt · folkeleg · litt for seint heim</p>
+    <p style="margin:20px 0 0; text-align:center;">
+      <a href="#{base_url}/" style="text-decoration:none;"><img src="#{base_url}/assets/img/logo_oslobygda.png" alt="Oslobygda kulturlag" width="44" height="44" style="display:inline-block; width:44px; height:44px;"></a>
     </p>
   </div>
 HTML
