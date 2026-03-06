@@ -52,8 +52,26 @@ def http_json(method, path, token:, body: nil)
 
   res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
 
-  return [res.code.to_i, nil] if res.body.nil? || res.body.strip.empty?
+  if res.body.nil? || res.body.strip.empty?
+    return [res.code.to_i, nil]
+  end
   [res.code.to_i, JSON.parse(res.body)]
+rescue JSON::ParserError
+  [res.code.to_i, { "message" => res.body }]
+end
+
+def verify_group_exists!(token, group_id)
+  code, data = http_json(:get, "/groups?limit=100", token: token)
+  unless code == 200 && data && data["data"].is_a?(Array)
+    raise "Could not fetch groups (status=#{code}). Check MAILERLITE_API_TOKEN."
+  end
+  ids = data["data"].map { |g| g["id"].to_s }
+  return if ids.include?(group_id.to_s)
+  raise <<~MSG.strip
+    Group ID #{group_id.inspect} not found in your account.
+    Valid group IDs: #{ids.join(", ")}.
+    Update MAILERLITE_GROUP_ID in GitHub Secrets (or .env) with one of these.
+  MSG
 end
 
 def load_events
@@ -159,6 +177,8 @@ if campaign_exists?(token, campaign_name)
   exit 0
 end
 
+verify_group_exists!(token, group_id)
+
 email_obj = {
   "subject" => subject,
   "from_name" => from_name,
@@ -177,7 +197,13 @@ create_body = {
 
 code, created = http_json(:post, "/campaigns", token: token, body: create_body)
 unless code == 200 && created && created.dig("data", "id")
-  raise "Failed to create campaign (status=#{code}): #{created.inspect}"
+  msg = created&.dig("message") || created&.inspect || "no body"
+  hint = if code == 404
+    " 404 often means wrong MAILERLITE_GROUP_ID or that campaign API is not available for your plan. Check Integrations → API in MailerLite for the correct group ID."
+  else
+    ""
+  end
+  raise "Failed to create campaign (status=#{code}): #{msg}#{hint}"
 end
 
 campaign_id = created.dig("data", "id").to_s

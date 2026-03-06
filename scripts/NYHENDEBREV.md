@@ -49,5 +49,6 @@ Du kan også køyre scriptet lokalt med `OSLOBYGDA_FORCE_SEND=1` (samt alle MAIL
 ### Vanlege feil
 
 - **Frå-adressa er ikkje verifisert**: `MAILERLITE_FROM_EMAIL` må vere godkjent i MailerLite.
+- **404 «Resource does not exist»** ved oppretting av kampanje: Scriptet sjekkar no at `MAILERLITE_GROUP_ID` finst i kontoen din. Om den ikkje gjer det, får du ei feilmelding som viser gyldige gruppe-ID-ar. Hent gruppe-ID i MailerLite under **Integrations → API** (eller **Subscribers → Groups** – ID står i URL eller gruppeinnstillingar). Bruk alltid tal/ID som høyrer til same konto som API-tokenet.
 - **Plan/innhald**: API-et prøver å setje `emails[0].content` (HTML). Om kontoen din ikkje tillèt dette via API, vil MailerLite svare med 4xx/422. Då må ein anten oppgradere, eller byggje ei alternativ løysing (t.d. RSS-kampanje).
 
