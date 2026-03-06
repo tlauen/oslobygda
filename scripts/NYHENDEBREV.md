@@ -52,7 +52,7 @@ E-posten som sendes automatisk, bruker same **fargepalett og typografi** som net
 
 **MailerLite-mal:** Du kan lage ein **mal** i MailerLite (Campaigns → Templates) med same stil – nyttig for manuelle kampanjar og som referanse. Den automatiske nyhendebrevet bruker ikkje malen (API-et sender ferdig HTML), men du kan kopiere fargar og oppsett frå malen inn i scriptet om du vil halde alt likt.
 
-**Logo i e-posten:** Nyhendebrevet bruker `assets/img/logo_oslobygda.png` (44×44 px) nederst. PNG er meir kompatibel enn SVG i e-postklientar (Outlook, Gmail osb.). Lag fila ved å eksportere/konvertere frå `logo_oslobygda.svg` (t.d. 44×44 eller 88×88 for skarpt bilete), og legg han i `assets/img/`. Utan PNG vil logoen ikkje visast (lenka peikar berre på .png).
+**Logo i e-posten:** Nyhendebrevet bruker `assets/img/logo_oslobygda.png` (200×200 px) nederst. PNG er meir kompatibel enn SVG i e-postklientar (Outlook, Gmail osb.). Lag fila ved å eksportere/konvertere frå `logo_oslobygda.svg` (200×200 px eller større for skarpt bilete), og legg han i `assets/img/`. Utan PNG vil logoen ikkje visast (lenka peikar berre på .png).
 
 ### Vanlege feil
 
