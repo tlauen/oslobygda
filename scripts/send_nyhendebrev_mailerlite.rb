@@ -185,16 +185,16 @@ email_obj = {
   "subject" => subject,
   "from_name" => from_name,
   "from" => from_email,
-  "content" => html,
-  "plain_text" => plain
+  "content" => html
 }
 email_obj["reply_to"] = reply_to unless reply_to.empty?
+# API returns 422 "emails.0 must be an array" if we send emails: [obj] – send as [[obj]]
 
 create_body = {
   "name" => campaign_name,
   "type" => "regular",
   "groups" => [group_id],
-  "emails" => [email_obj]
+  "emails" => [[email_obj]]
 }
 
 code, created = http_json(:post, "/campaigns", token: token, body: create_body)
