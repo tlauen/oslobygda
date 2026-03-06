@@ -189,12 +189,12 @@ email_obj = {
 }
 email_obj["reply_to"] = reply_to unless reply_to.empty?
 
-# Some MailerLite API versions expect emails as object with numeric keys and array values (emails.0 = array)
+# API: emails.0 must be an array; emails.0.* must have subject, from_name, from → emails = [[email_obj]]
 create_body = {
   "name" => campaign_name,
   "type" => "regular",
   "groups" => [group_id.to_s],
-  "emails" => { "0" => [email_obj] }
+  "emails" => [[email_obj]]
 }
 
 code, created = http_json(:post, "/campaigns", token: token, body: create_body)
