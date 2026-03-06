@@ -197,34 +197,32 @@ end
 verify_group_exists!(token, group_id)
 
 email_obj = {
-  "subject" => subject,
-  "from_name" => from_name,
-  "from" => from_email,
-  "content" => html
+  "subject" => subject.to_s,
+  "from_name" => from_name.to_s,
+  "from" => from_email.to_s,
+  "content" => html.to_s
 }
-email_obj["reply_to"] = reply_to unless reply_to.empty?
+email_obj["reply_to"] = reply_to.to_s if reply_to && !reply_to.empty?
 
-# MailerLite backend (Laravel) validates "emails.0" = array and "emails.0.*.subject" etc.;
-# JSON array-of-arrays can be mis-parsed. Send as form-encoded so emails[0][0][subject] is unambiguous.
-form_params = [
-  ["name", campaign_name],
-  ["type", "regular"],
-  ["groups[0]", group_id.to_s],
-  ["emails[0][0][subject]", subject],
-  ["emails[0][0][from_name]", from_name],
-  ["emails[0][0][from]", from_email],
-  ["emails[0][0][content]", html]
-]
-form_params << ["emails[0][0][reply_to]", reply_to] unless reply_to.empty?
-create_body_str = URI.encode_www_form(form_params)
+# MailerLite expects: emails = array, emails[0] = array of email objects (each with subject, from_name, from, content).
+# Build payload so JSON serializes as {"emails":[[{...}]]} with no extra keys.
+create_body = {
+  "name" => campaign_name,
+  "type" => "regular",
+  "groups" => [group_id.to_s],
+  "emails" => [ [ email_obj.transform_keys(&:to_s) ] ]
+}
 
-code, created = http_post_form("/campaigns", token: token, body: create_body_str)
+code, created = http_json(:post, "/campaigns", token: token, body: create_body)
 unless code == 200 && created && created.dig("data", "id")
   msg = created&.dig("message") || created&.inspect || "no body"
   errors = created&.dig("errors")
   msg += " | errors: #{errors.inspect}" if errors
-  hint = if code == 404
+  hint = case code
+  when 404
     " 404 often means wrong MAILERLITE_GROUP_ID or that campaign API is not available for your plan. Check Integrations → API in MailerLite for the correct group ID."
+  when 422
+    " 422 'emails.0 must be an array': MailerLite API validation may have changed. See developers.mailerlite.com/docs/campaigns and consider contacting MailerLite support with this payload/error."
   else
     ""
   end
