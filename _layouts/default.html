@@ -34,6 +34,7 @@
   <meta property="og:image" content="{{ og_img }}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  {%- comment -%}og-oslobygda.jpg er 1200×630{%- endcomment -%}
 
   <!-- Twitter (X) -->
   <meta name="twitter:card" content="summary_large_image">
@@ -47,16 +48,16 @@
   <link rel="stylesheet" href="{{ '/assets/css/base.css' | relative_url }}">
   
   <script defer src="https://cloud.umami.is/script.js" data-website-id="9cba7db1-1072-4803-aa54-51f4c88c1487"></script>
-
-<!-- MailerLite Universal -->
-<script>
-  (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
-  .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
-  n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
-  (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
-  ml('account', '2167559');
-</script>
-<!-- End MailerLite Universal -->
+  {%- if page.url == "/brev/" or page.url == "/brev" -%}
+  <!-- MailerLite Universal (berre på nyhendebrev-sida) -->
+  <script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '2167559');
+  </script>
+  {%- endif -%}
 
 </head>
 <body>
@@ -65,10 +66,6 @@
 <header class="site-header">
   <div class="wrap header-inner">
     {% include nav.html %}
-
-   <!-- <button class="theme-toggle" type="button" id="themeToggle" aria-label="Byt tema">
-      🌓
-    </button>-->
   </div>
 </header>
 
@@ -85,25 +82,6 @@
   </footer>
 
   <script>
-(function(){
-  const root = document.documentElement;
-  const key = "oslobygda-theme";
-  const btn = document.getElementById("themeToggle");
-  if(!btn) return;
-
-  const saved = localStorage.getItem(key);
-  if(saved === "light" || saved === "dark") root.dataset.theme = saved;
-
-  btn.addEventListener("click", () => {
-    const cur = root.dataset.theme;
-    const next = (cur === "dark") ? "light" : "dark";
-    root.dataset.theme = next;
-    localStorage.setItem(key, next);
-  });
-})();
-</script>
-
-<script>
 const toggle = document.querySelector('.nav-toggle')
 const overlay = document.querySelector('#navOverlay')
 

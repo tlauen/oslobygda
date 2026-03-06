@@ -204,15 +204,3 @@ body.nav-open{
   .nav-overlay{ display: none; }
   .nav-desktop{ display: flex; }
 }
-
-/* -----------------------------------------
-   Tema-knapp (om du skrur på att i HTML)
-   ----------------------------------------- */
-.theme-toggle{
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--text);
-  padding: .35rem .6rem;
-  cursor: pointer;
-}
-.theme-toggle:hover{ background: var(--panel-strong); }

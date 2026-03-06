@@ -20,7 +20,7 @@ body{
 a{ color: inherit; }
 a:hover{ text-decoration: underline; }
 
-.card:not(.kalenderkort), .hero, .nav a, .theme-toggle{
+.card:not(.kalenderkort), .hero, .nav a{
   border-radius: 0 !important;
 }
 
