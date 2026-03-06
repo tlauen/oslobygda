@@ -5,9 +5,7 @@ title: Meld deg på nyhendebrevet
 
 # Nyhendebrev frå Oslobygda kulturlag
 
-<div class="brev-form-wrap">
-  <div class="ml-embedded" data-form="mOtfzP"></div>
-</div>
+<div class="ml-embedded" data-form="mOtfzP"></div>
 
 ## Nerde-greier:
 
