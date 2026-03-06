@@ -1,0 +1,27 @@
+---
+layout: null
+permalink: /api/tilskipingar.txt
+---
+{%- assign no = "now" | date: "%Y-%m-%d" | append: " 12:00:00 +0100" | date: "%s" -%}
+{%- assign max = 12 -%}
+{%- assign vist = 0 -%}
+{%- if site.data.kalender -%}
+  {%- assign alle = site.data.kalender | sort: "dato" -%}
+{%- else -%}
+  {%- assign alle = "" | split: "" -%}
+{%- endif -%}
+Komande tilskipingar:
+{%- for e in alle -%}
+  {%- if vist >= max -%}{%- break -%}{%- endif -%}
+  {%- assign es = e.dato | append: " 12:00:00 +0100" | date: "%s" -%}
+  {%- if es >= no -%}
+    {%- assign vist = vist | plus: 1 -%}
+    {%- assign dag = e.dato | date: "%-d" -%}
+    {%- assign aar = e.dato | date: "%Y" -%}
+    {%- capture mnd -%}{%- include no-month.html date=e.dato -%}{%- endcapture -%}
+- {{ dag }}. {{ mnd | strip }} {{ aar }}{% if e.start %} kl. {{ e.start }}{% endif %} – {{ e.tittel | default: "Tilskiping" }}
+  {%- endif -%}
+{%- endfor -%}
+{%- if vist == 0 -%}
+- (ingen komande tilskipingar lagt inn endå)
+{%- endif -%}

@@ -1,0 +1,34 @@
+---
+layout: null
+permalink: /api/tilskipingar.json
+---
+{%- assign no = "now" | date: "%Y-%m-%d" | append: " 12:00:00 +0100" | date: "%s" -%}
+{%- if site.data.kalender -%}
+  {%- assign alle = site.data.kalender | sort: "dato" -%}
+{%- else -%}
+  {%- assign alle = "" | split: "" -%}
+{%- endif -%}
+{
+  "generated_at": "{{ site.time | date_to_xmlschema }}",
+  "events": [
+    {%- assign first = true -%}
+    {%- for e in alle -%}
+      {%- assign es = e.dato | append: " 12:00:00 +0100" | date: "%s" -%}
+      {%- if es >= no -%}
+        {%- unless first -%},{%- endunless -%}
+        {%- assign first = false -%}
+        {
+          "uid": {{ e.uid | default: "" | jsonify }},
+          "dato": {{ e.dato | date: "%Y-%m-%d" | jsonify }},
+          "start": {{ e.start | default: "" | jsonify }},
+          "slutt": {{ e.slutt | default: "" | jsonify }},
+          "tittel": {{ e.tittel | default: "" | jsonify }},
+          "stad": {{ e.stad | default: "" | jsonify }},
+          "lenkje": {{ e.lenkje | default: "" | jsonify }},
+          "merknad": {{ e.merknad | default: "" | jsonify }},
+          "bilete": {{ e.bilete | default: "" | jsonify }}
+        }
+      {%- endif -%}
+    {%- endfor -%}
+  ]
+}
