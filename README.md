@@ -20,6 +20,8 @@ Nettside for Oslobygda kulturlag (`oslobygda.no`), med informasjon om arrangemen
 - `_data/`: strukturerte data
 - `kalender/`: kalendersider
 - `assets/`: CSS, bilete og statiske ressursar
+- `medlemsregister/`: GDPR-sikkert medlemsregister (Flask-app; må deployast separat for bruk på nett)
+- `medlemsregister.md`: sida på [oslobygda.no/medlemsregister](https://oslobygda.no/medlemsregister) med lenke til innlogging
 - `index.md`: framside
 - `kalender.ics`: kalender-feed
 - `CNAME`: custom domene

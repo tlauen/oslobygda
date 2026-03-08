@@ -5,6 +5,12 @@ url: "https://oslobygda.no"
 
 share_image: "/assets/img/og-oslobygda.jpg"
 
+# Medlemsregister: URL der Flask-appen køyrer (sett ved deploy, t.d. subdomene)
+medlemsregister_url: ""
+
+# Ikkje kopier Python-appen til _site
+exclude: ["medlemsregister"]
+
 # Valfritt: gjer fine permalinks for sider
 permalink: pretty
 

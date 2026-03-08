@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="omslag">
+    <header class="header">
+      <h1>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</h1>
+      <a href="{{ prefix_url('logout') }}">Logg ut</a>
+    </header>
+
+    <p class="status" id="status"></p>
+    <p>
+      <button type="button" class="btn" id="btn-ny">Legg til medlem</button>
+      <button type="button" class="btn secondary" id="btn-sync-mailerlite">Hent nye frå MailerLite</button>
+    </p>
+
+    <div class="tabellwrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Namn</th>
+            <th>Epost</th>
+            <th>Telefon</th>
+            <th>Adresse</th>
+            <th>Postnr</th>
+            <th>Poststad</th>
+            <th>Medlemstype</th>
+            <th>Betalingsstatus</th>
+            <th>Samtykke</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="medlem-liste"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="modal-overlay" class="modal-overlay" style="display: none;" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modal-tittel">
+      <h2 id="modal-tittel">Legg til medlem</h2>
+      <form id="medlem-skjema">
+        <input type="hidden" id="medlem-id" />
+        <div class="felt">
+          <label for="fornamn">Fornamn *</label>
+          <input type="text" id="fornamn" required />
+        </div>
+        <div class="felt">
+          <label for="mellomnamn">Mellomnamn</label>
+          <input type="text" id="mellomnamn" />
+        </div>
+        <div class="felt">
+          <label for="etternamn">Etternamn *</label>
+          <input type="text" id="etternamn" required />
+        </div>
+        <div class="felt">
+          <label for="email">Epost *</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="felt">
+          <label for="phone">Telefon</label>
+          <input type="tel" id="phone" />
+        </div>
+        <div class="felt">
+          <label for="adresse">Adresse</label>
+          <input type="text" id="adresse" />
+        </div>
+        <div class="felt">
+          <label for="postnummer">Postnummer</label>
+          <input type="text" id="postnummer" inputmode="numeric" maxlength="4" />
+        </div>
+        <div class="felt">
+          <label for="poststad">Poststad</label>
+          <input type="text" id="poststad" />
+        </div>
+        <div class="felt">
+          <label for="membership_type">Medlemstype</label>
+          <select id="membership_type">
+            <option value="vanleg">Vanleg</option>
+            <option value="kul">Kul</option>
+          </select>
+        </div>
+        <div class="felt">
+          <label for="payment_status">Betalingsstatus</label>
+          <select id="payment_status">
+            <option value="betalt">Betalt</option>
+            <option value="ikkje betalt">Ikkje betalt</option>
+            <option value="frist utløpt">Frist utløpt</option>
+            <option value="gratis">Gratis</option>
+          </select>
+        </div>
+        <p class="feil" id="skjema-feil" style="display: none;"></p>
+        <div class="knappar">
+          <button type="submit" class="btn">Lagre</button>
+          <button type="button" class="btn secondary" id="btn-avbryt">Avbryt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API = "{{ url_prefix }}";
+    const statusEl = document.getElementById("status");
+    const listeEl = document.getElementById("medlem-liste");
+    const modal = document.getElementById("modal-overlay");
+    const skjema = document.getElementById("medlem-skjema");
+    const skjemaFeil = document.getElementById("skjema-feil");
+
+    function setStatus(msg, isError) {
+      statusEl.textContent = msg;
+      statusEl.style.color = isError ? "var(--error)" : "var(--muted)";
+    }
+
+    function formaterDato(iso) {
+      if (!iso) return "–";
+      try {
+        const d = new Date(iso);
+        return d.toLocaleDateString("nb-NO", { dateStyle: "short" });
+      } catch (_) { return iso; }
+    }
+
+    function medlemstypeVisningsnamn(val) {
+      if (!val) return "–";
+      if (val === "Vanleg medlem (5kr)" || val === "vanleg") return "Vanleg";
+      if (val === "Kult medlem (meir enn 5kr)" || val === "kul") return "Kul";
+      return val;
+    }
+
+    function medlemstypeTilVerdi(val) {
+      if (val === "Vanleg medlem (5kr)") return "vanleg";
+      if (val === "Kult medlem (meir enn 5kr)") return "kul";
+      return val || "vanleg";
+    }
+
+    function visningsnamn(m) {
+      if (m.fornamn || m.etternamn) {
+        return [m.fornamn, m.mellomnamn, m.etternamn].filter(Boolean).join(" ").trim();
+      }
+      return m.full_name || "–";
+    }
+
+    async function hentMedlemmar() {
+      setStatus("Lastar …");
+      try {
+        const r = await fetch(API + "/api/members", { credentials: "same-origin" });
+        if (!r.ok) { setStatus("Kunne ikkje laste medlemmar.", true); return []; }
+        const data = await r.json();
+        setStatus(data.length + " medlemmar");
+        return data;
+      } catch (e) {
+        setStatus("Feil ved lasting: " + e.message, true);
+        return [];
+      }
+    }
+
+    function renderListe(medlemmar) {
+      listeEl.innerHTML = medlemmar.map(m => `
+        <tr>
+          <td>${escapeHtml(visningsnamn(m))}</td>
+          <td>${escapeHtml(m.email)}</td>
+          <td>${escapeHtml(m.phone || "–")}</td>
+          <td>${escapeHtml(m.adresse || "–")}</td>
+          <td>${escapeHtml(m.postnummer || "–")}</td>
+          <td>${escapeHtml(m.poststad || "–")}</td>
+          <td><span class="pill">${escapeHtml(medlemstypeVisningsnamn(m.membership_type))}</span></td>
+          <td><span class="pill">${escapeHtml(m.payment_status)}</span></td>
+          <td>${formaterDato(m.consent_at)}</td>
+          <td class="aksjonar">
+            <a href="#" data-id="${m.id}" data-action="edit">Rediger</a>
+            <a href="#" data-id="${m.id}" data-action="export">Eksporter (GDPR)</a>
+            <button type="button" class="slett" data-id="${m.id}" data-action="delete">Slett</button>
+          </td>
+        </tr>
+      `).join("");
+
+      listeEl.querySelectorAll("[data-action]").forEach(el => {
+        el.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const id = parseInt(el.dataset.id, 10);
+          if (el.dataset.action === "edit") openModal(id);
+          else if (el.dataset.action === "export") eksporterMedlem(id);
+          else if (el.dataset.action === "delete") slettMedlem(id);
+        });
+      });
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return "";
+      const div = document.createElement("div");
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function openModal(id) {
+      const tittel = document.getElementById("modal-tittel");
+      document.getElementById("medlem-id").value = id || "";
+      tittel.textContent = id ? "Rediger medlem" : "Legg til medlem";
+      skjemaFeil.style.display = "none";
+      if (id) {
+        fetch(API + "/api/members/" + id, { credentials: "same-origin" })
+          .then(r => r.json())
+          .then(m => {
+            document.getElementById("fornamn").value = m.fornamn ?? (m.full_name || "");
+            document.getElementById("mellomnamn").value = m.mellomnamn || "";
+            document.getElementById("etternamn").value = m.etternamn || "";
+            document.getElementById("email").value = m.email || "";
+            document.getElementById("phone").value = m.phone || "";
+            document.getElementById("adresse").value = m.adresse || "";
+            document.getElementById("postnummer").value = m.postnummer || "";
+            document.getElementById("poststad").value = m.poststad || "";
+            document.getElementById("membership_type").value = medlemstypeTilVerdi(m.membership_type);
+            document.getElementById("payment_status").value = m.payment_status || "ikke betalt";
+          });
+      } else {
+        document.getElementById("fornamn").value = "";
+        document.getElementById("mellomnamn").value = "";
+        document.getElementById("etternamn").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("phone").value = "";
+        document.getElementById("adresse").value = "";
+        document.getElementById("postnummer").value = "";
+        document.getElementById("poststad").value = "";
+        document.getElementById("membership_type").value = "vanleg";
+        document.getElementById("payment_status").value = "ikke betalt";
+      }
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden", "false");
+      document.getElementById("fornamn").focus();
+    }
+
+    function lukkModal() {
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    skjema.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      skjemaFeil.style.display = "none";
+      const id = document.getElementById("medlem-id").value;
+      const body = {
+        fornamn: document.getElementById("fornamn").value.trim(),
+        mellomnamn: document.getElementById("mellomnamn").value.trim(),
+        etternamn: document.getElementById("etternamn").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        adresse: document.getElementById("adresse").value.trim(),
+        postnummer: document.getElementById("postnummer").value.trim(),
+        poststad: document.getElementById("poststad").value.trim(),
+        membership_type: document.getElementById("membership_type").value,
+        payment_status: document.getElementById("payment_status").value
+      };
+      if (!id) body.consent_at = new Date().toISOString();
+      const url = id ? API + "/api/members/" + id : API + "/api/members";
+      const method = id ? "PUT" : "POST";
+      try {
+        const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), credentials: "same-origin" });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) { skjemaFeil.textContent = data.error || "Feil ved lagring"; skjemaFeil.style.display = "block"; return; }
+        lukkModal();
+        const medlemmar = await hentMedlemmar();
+        renderListe(medlemmar);
+      } catch (err) {
+        skjemaFeil.textContent = err.message;
+        skjemaFeil.style.display = "block";
+      }
+    });
+
+    document.getElementById("btn-avbryt").addEventListener("click", lukkModal);
+    document.getElementById("btn-ny").addEventListener("click", () => openModal(null));
+    document.getElementById("btn-sync-mailerlite").addEventListener("click", syncMailerlite);
+
+    modal.addEventListener("click", (e) => { if (e.target === modal) lukkModal(); });
+
+    async function syncMailerlite() {
+      const btn = document.getElementById("btn-sync-mailerlite");
+      btn.disabled = true;
+      setStatus("Hentar frå MailerLite …");
+      try {
+        const r = await fetch(API + "/api/sync-mailerlite", { method: "POST", credentials: "same-origin" });
+        const data = await r.json().catch(() => ({}));
+        setStatus(data.message || (data.error ? "Feil: " + data.error : "Ferdig"));
+        if (data.error) setStatus(data.error, true);
+        if (r.ok && (data.added || 0) > 0) {
+          const medlemmar = await hentMedlemmar();
+          renderListe(medlemmar);
+        }
+      } catch (e) { setStatus("Kunne ikkje hente: " + e.message, true); }
+      btn.disabled = false;
+    }
+
+    async function eksporterMedlem(id) {
+      try {
+        const r = await fetch(API + "/api/gdpr/export/" + id, { credentials: "same-origin" });
+        const m = await r.json();
+        const blob = new Blob([JSON.stringify(m, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "medlem-" + id + "-data.json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        setStatus("Eksportert medlem " + id);
+      } catch (e) { setStatus("Kunne ikkje eksportere.", true); }
+    }
+
+    async function slettMedlem(id) {
+      if (!confirm("Er du sikker på at du vil slette dette medlemmet? Dette kan ikkje angrast.")) return;
+      try {
+        const r = await fetch(API + "/api/gdpr/delete/" + id, { method: "POST", credentials: "same-origin" });
+        if (!r.ok) throw new Error("Sletting feila");
+        setStatus("Medlem sletta.");
+        const medlemmar = await hentMedlemmar();
+        renderListe(medlemmar);
+      } catch (e) { setStatus("Kunne ikkje slette.", true); }
+    }
+
+    (async () => {
+      const medlemmar = await hentMedlemmar();
+      renderListe(medlemmar);
+    })();
+  </script>
+</body>
+</html>

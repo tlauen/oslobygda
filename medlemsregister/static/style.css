@@ -1,0 +1,253 @@
+/* Bygdelista – stil etter oslobygda.no (pastell-palett) */
+:root {
+  --bg: #FCF9F3;
+  --text: #12110e;
+  --muted: #4a4a4a;
+  --panel: rgba(255, 255, 255, 0.72);
+  --panel-strong: rgba(255, 255, 255, 0.86);
+  --line: rgba(18, 17, 14, 0.12);
+  --accent: #FAF1D7;
+  --accent-hover: #F5E9DB;
+  --accent2: #F1CACB;
+  --accent3: #A8D8A0;
+  --card-radius: 10px;
+  --error: #b91c1c;
+  --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --maxw: 980px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.omslag {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 1.5rem 1.1rem;
+}
+
+/* Login */
+.login-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-boks {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  padding: 2rem;
+  width: 100%;
+  max-width: 340px;
+}
+.login-boks h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-family: var(--serif);
+  font-weight: 650;
+}
+.login-boks .ingress {
+  color: var(--muted);
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+.login-boks .feil {
+  color: var(--error);
+  margin-bottom: 1rem;
+}
+.login-boks label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+.login-boks input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+}
+.login-boks button {
+  width: 100%;
+  padding: 0.65rem;
+  background: var(--accent);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.login-boks button:hover {
+  background: var(--accent-hover);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-family: var(--serif);
+  font-weight: 650;
+}
+.header a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.header a:hover {
+  text-decoration: underline;
+}
+
+/* Tabell */
+.tabellwrap {
+  overflow-x: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+th {
+  background: var(--panel-strong);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+tr:last-child td {
+  border-bottom: none;
+}
+tr:hover td {
+  background: rgba(0, 0, 0, 0.02);
+}
+.aksjonar {
+  white-space: nowrap;
+}
+.aksjonar a, .aksjonar button {
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 0;
+  text-decoration: none;
+}
+.aksjonar a:hover, .aksjonar button:hover {
+  text-decoration: underline;
+}
+.aksjonar button.slett {
+  color: var(--error);
+}
+
+/* Knappar */
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+.btn:hover {
+  background: var(--accent-hover);
+}
+.btn.secondary {
+  background: var(--panel-strong);
+  color: var(--text);
+}
+.btn.secondary:hover {
+  background: var(--panel);
+}
+
+/* Modal / skjema */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h2 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  font-family: var(--serif);
+  font-weight: 650;
+}
+.modal .felt {
+  margin-bottom: 1rem;
+}
+.modal label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+.modal input, .modal select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+}
+.modal .knappar {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.modal .feil {
+  color: var(--error);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+.status {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: var(--line);
+  color: var(--text);
+  margin-right: 0.25rem;
+}
