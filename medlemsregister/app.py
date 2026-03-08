@@ -95,6 +95,8 @@ def init_db():
                 pass
         # Migrer gamle rader: sett fornamn = full_name så brukar kan dele opp ved redigering
         conn.execute("UPDATE members SET fornamn = full_name WHERE fornamn IS NULL AND full_name IS NOT NULL")
+        # Normaliser betalingsstatus til nynorsk
+        conn.execute("UPDATE members SET payment_status = 'ikkje betalt' WHERE payment_status = 'ikke betalt'")
         conn.commit()
 
 
@@ -340,7 +342,7 @@ def api_sync_mailerlite():
             conn.execute(
                 """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, payment_status, consent_at, created_at, updated_at)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, "ikke betalt", consent_at, now, now),
+                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, "ikkje betalt", consent_at, now, now),
             )
             added += 1
         conn.commit()
@@ -387,7 +389,7 @@ def create_member():
     if not membership_type:
         membership_type = "vanleg"
     if not payment_status:
-        payment_status = "ikke betalt"
+        payment_status = "ikkje betalt"
 
     now = datetime.now(timezone.utc).isoformat()
     with get_db() as conn:

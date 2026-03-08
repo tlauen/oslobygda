@@ -217,7 +217,7 @@
             document.getElementById("postnummer").value = m.postnummer || "";
             document.getElementById("poststad").value = m.poststad || "";
             document.getElementById("membership_type").value = medlemstypeTilVerdi(m.membership_type);
-            document.getElementById("payment_status").value = m.payment_status || "ikke betalt";
+            document.getElementById("payment_status").value = m.payment_status || "ikkje betalt";
           });
       } else {
         document.getElementById("fornamn").value = "";
@@ -229,7 +229,7 @@
         document.getElementById("postnummer").value = "";
         document.getElementById("poststad").value = "";
         document.getElementById("membership_type").value = "vanleg";
-        document.getElementById("payment_status").value = "ikke betalt";
+        document.getElementById("payment_status").value = "ikkje betalt";
       }
       modal.style.display = "flex";
       modal.setAttribute("aria-hidden", "false");
