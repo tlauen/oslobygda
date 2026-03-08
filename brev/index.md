@@ -5,6 +5,8 @@ title: Meld deg på nyhendebrevet
 
 # Nyhendebrev frå Oslobygda kulturlag
 
+<p class="cookie-merknad">Skjemaet brukar cookies (leverandør MailerLite). <a href="{{ '/personvern/' | relative_url }}">Les meir om cookies og personvern</a>.</p>
+
 <div class="ml-embedded" data-form="mOtfzP"></div>
 
 ## Nerde-greier:
