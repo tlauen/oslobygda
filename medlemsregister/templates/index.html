@@ -20,6 +20,7 @@
     <p>
       <button type="button" class="btn" id="btn-ny">Legg til medlem</button>
       <button type="button" class="btn secondary" id="btn-sync-mailerlite">Hent nye frå MailerLite</button>
+      <a href="{{ prefix_url('export_excel') }}" class="btn secondary" download>Last ned til Excel</a>
     </p>
 
     <div class="tabellwrap">
@@ -83,8 +84,8 @@
         <div class="felt">
           <label for="membership_type">Medlemstype</label>
           <select id="membership_type">
-            <option value="vanleg">Vanleg</option>
-            <option value="kul">Kul</option>
+            <option value="vanleg">Kul</option>
+            <option value="kul">Superkul</option>
           </select>
         </div>
         <div class="felt">
@@ -128,14 +129,14 @@
 
     function medlemstypeVisningsnamn(val) {
       if (!val) return "–";
-      if (val === "Vanleg medlem (5kr)" || val === "vanleg") return "Vanleg";
-      if (val === "Kult medlem (meir enn 5kr)" || val === "kul") return "Kul";
+      if (val === "Kul medlem (5kr)" || val === "vanleg") return "Kul";
+      if (val === "Superkul medlem (meir enn 5kr)" || val === "kul") return "Superkul";
       return val;
     }
 
     function medlemstypeTilVerdi(val) {
-      if (val === "Vanleg medlem (5kr)") return "vanleg";
-      if (val === "Kult medlem (meir enn 5kr)") return "kul";
+      if (val === "Kul medlem (5kr)") return "vanleg";
+      if (val === "Superkul medlem (meir enn 5kr)") return "kul";
       return val || "vanleg";
     }
 

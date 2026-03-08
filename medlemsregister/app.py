@@ -3,9 +3,12 @@
 Bygdelista – GDPR-sikkert medlemsliste for Oslobygda.
 Felter: namn, epost, telefon, adresse, postnummer, poststad, medlemstype, betalingsstatus, samtykke.
 """
+import csv
+import io
 import json
 import os
 import smtplib
+import ssl
 import sqlite3
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
@@ -13,6 +16,12 @@ from email.utils import formatdate
 from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+
+try:
+    import certifi
+    _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    _SSL_CTX = None
 
 from flask import (
     Flask,
@@ -22,6 +31,7 @@ from flask import (
     session,
     redirect,
     url_for,
+    Response,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -144,7 +154,7 @@ def innmelding_page():
 def _send_innmelding_epost(to_email: str, fornamn: str, mellomnamn: str, etternamn: str, email: str, phone: str, adresse: str, postnummer: str, poststad: str, membership_type: str) -> tuple[bool, str]:
     """Send innmeldings-epost til styret. Returnerer (success, feilmelding)."""
     full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-    medlemstype_visning = "Vanleg (5 kr)" if membership_type == "vanleg" else "Kul (meir enn 5 kr)"
+    medlemstype_visning = "Kul (5 kr)" if membership_type == "vanleg" else "Superkul (meir enn 5 kr)"
     body = f"""Ny innmelding via nettskjema – registrer i Bygdelista:
 
 Fornamn:     {fornamn}
@@ -192,7 +202,7 @@ def _mailerlite_fetch_group_subscribers(token: str, group_id: str) -> tuple[list
         url = f"{url_base}?limit=100" if cursor is None else f"{url_base}?limit=100&cursor={cursor}"
         req = Request(url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json"}, method="GET")
         try:
-            with urlopen(req, timeout=20) as res:
+            with urlopen(req, timeout=20, context=_SSL_CTX) as res:
                 data = json.loads(res.read().decode())
         except (HTTPError, URLError, OSError, json.JSONDecodeError) as e:
             return [], str(e)
@@ -226,7 +236,7 @@ def _mailerlite_add_subscriber(email: str, fornamn: str, mellomnamn: str, ettern
         method="POST",
     )
     try:
-        with urlopen(req, timeout=15) as res:
+        with urlopen(req, timeout=15, context=_SSL_CTX) as res:
             if res.status in (200, 201):
                 return True, ""
             return False, f"MailerLite svarte med {res.status}"
@@ -324,7 +334,7 @@ def api_sync_mailerlite():
             adresse = (fields.get("state") or "").strip()  # State brukt som Adresse
             poststad = (fields.get("city") or "").strip()
             postnummer = (fields.get("zip") or fields.get("z_i_p") or "").strip()
-            membership_type = _normalize_medlemstype(fields.get("country"))  # Country brukt som Medlemstype (Vanleg/Kul)
+            membership_type = _normalize_medlemstype(fields.get("country"))  # Country brukt som Medlemstype (Kul/Superkul)
             full_name = _build_full_name(fornamn, mellomnamn, etternamn)
             consent_at = s.get("subscribed_at") or now
             conn.execute(
@@ -437,6 +447,52 @@ def member(mid):
         return jsonify({"message": "Medlem sletta"}), 200
 
     return jsonify({"error": "Ugyldig metode"}), 405
+
+
+def _medlemstype_visning(membership_type: str) -> str:
+    """Returner visningsnamn for medlemstype (vanleg→Kul, kul→Superkul)."""
+    if membership_type == "kul":
+        return "Superkul"
+    return "Kul"
+
+
+@app.route("/api/export/excel")
+@require_admin
+def export_excel():
+    """Last ned medlemslista som CSV (Excel-kompatibel)."""
+    with get_db() as conn:
+        rows = conn.execute(
+            """SELECT fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad,
+                      membership_type, payment_status, consent_at
+               FROM members ORDER BY full_name"""
+        ).fetchall()
+    buf = io.StringIO()
+    writer = csv.writer(buf, delimiter=";")
+    writer.writerow([
+        "Fornamn", "Mellomnamn", "Etternamn", "Epost", "Telefon", "Adresse",
+        "Postnummer", "Poststad", "Medlemstype", "Betalingsstatus", "Samtykke"
+    ])
+    for r in rows:
+        writer.writerow([
+            r["fornamn"] or "",
+            r["mellomnamn"] or "",
+            r["etternamn"] or "",
+            r["email"] or "",
+            r["phone"] or "",
+            r["adresse"] or "",
+            r["postnummer"] or "",
+            r["poststad"] or "",
+            _medlemstype_visning(r["membership_type"] or "vanleg"),
+            r["payment_status"] or "",
+            r["consent_at"] or "",
+        ])
+    # UTF-8 med BOM slik at Excel opnar teiknsettet riktig
+    body = "\ufeff" + buf.getvalue()
+    return Response(
+        body,
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=medlemsliste.csv"},
+    )
 
 
 @app.route("/api/gdpr/export/<int:mid>")
