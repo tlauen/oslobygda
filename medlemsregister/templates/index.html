@@ -33,6 +33,7 @@
             <th>Adresse</th>
             <th>Postnr</th>
             <th>Poststad</th>
+            <th>Fødselsdato</th>
             <th>Medlemstype</th>
             <th>Betalingsstatus</th>
             <th>Samtykke</th>
@@ -80,6 +81,10 @@
         <div class="felt">
           <label for="poststad">Poststad</label>
           <input type="text" id="poststad" />
+        </div>
+        <div class="felt">
+          <label for="birth_date">Fødselsdato</label>
+          <input type="date" id="birth_date" />
         </div>
         <div class="felt">
           <label for="membership_type">Medlemstype</label>
@@ -170,6 +175,7 @@
           <td>${escapeHtml(m.adresse || "–")}</td>
           <td>${escapeHtml(m.postnummer || "–")}</td>
           <td>${escapeHtml(m.poststad || "–")}</td>
+          <td>${m.birth_date ? formaterDato(m.birth_date) : "–"}</td>
           <td><span class="pill">${escapeHtml(medlemstypeVisningsnamn(m.membership_type))}</span></td>
           <td><span class="pill">${escapeHtml(m.payment_status)}</span></td>
           <td>${formaterDato(m.consent_at)}</td>
@@ -216,6 +222,7 @@
             document.getElementById("adresse").value = m.adresse || "";
             document.getElementById("postnummer").value = m.postnummer || "";
             document.getElementById("poststad").value = m.poststad || "";
+            document.getElementById("birth_date").value = m.birth_date || "";
             document.getElementById("membership_type").value = medlemstypeTilVerdi(m.membership_type);
             document.getElementById("payment_status").value = m.payment_status || "ikkje betalt";
           });
@@ -228,6 +235,7 @@
         document.getElementById("adresse").value = "";
         document.getElementById("postnummer").value = "";
         document.getElementById("poststad").value = "";
+        document.getElementById("birth_date").value = "";
         document.getElementById("membership_type").value = "vanleg";
         document.getElementById("payment_status").value = "ikkje betalt";
       }
@@ -254,6 +262,7 @@
         adresse: document.getElementById("adresse").value.trim(),
         postnummer: document.getElementById("postnummer").value.trim(),
         poststad: document.getElementById("poststad").value.trim(),
+        birth_date: document.getElementById("birth_date").value.trim() || null,
         membership_type: document.getElementById("membership_type").value,
         payment_status: document.getElementById("payment_status").value
       };

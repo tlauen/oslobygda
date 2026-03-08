@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Bygdelista – GDPR-sikkert medlemsliste for Oslobygda.
-Felter: namn, epost, telefon, adresse, postnummer, poststad, medlemstype, betalingsstatus, samtykke.
+Felter: namn, epost, telefon, adresse, postnummer, poststad, fødselsdato, medlemstype, betalingsstatus, samtykke.
 """
 import csv
 import io
@@ -80,6 +80,7 @@ def init_db():
                 adresse TEXT,
                 postnummer TEXT,
                 poststad TEXT,
+                birth_date TEXT,
                 membership_type TEXT NOT NULL,
                 payment_status TEXT NOT NULL,
                 consent_at TEXT NOT NULL,
@@ -88,7 +89,7 @@ def init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
         """)
-        for col in ("adresse", "postnummer", "poststad", "fornamn", "mellomnamn", "etternamn"):
+        for col in ("adresse", "postnummer", "poststad", "fornamn", "mellomnamn", "etternamn", "birth_date"):
             try:
                 conn.execute(f"ALTER TABLE members ADD COLUMN {col} TEXT")
             except sqlite3.OperationalError:
@@ -153,7 +154,7 @@ def innmelding_page():
     return render_template("innmelding.html")
 
 
-def _send_innmelding_epost(to_email: str, fornamn: str, mellomnamn: str, etternamn: str, email: str, phone: str, adresse: str, postnummer: str, poststad: str, membership_type: str) -> tuple[bool, str]:
+def _send_innmelding_epost(to_email: str, fornamn: str, mellomnamn: str, etternamn: str, email: str, phone: str, adresse: str, postnummer: str, poststad: str, birth_date: str, membership_type: str) -> tuple[bool, str]:
     """Send innmeldings-epost til styret. Returnerer (success, feilmelding)."""
     full_name = _build_full_name(fornamn, mellomnamn, etternamn)
     medlemstype_visning = "Kul (5 kr)" if membership_type == "vanleg" else "Superkul (meir enn 5 kr)"
@@ -167,6 +168,7 @@ Telefon:     {phone or '(tom)'}
 Adresse:     {adresse or '(tom)'}
 Postnummer:  {postnummer or '(tom)'}
 Poststad:    {poststad or '(tom)'}
+Fødselsdato: {birth_date or '(tom)'}
 Medlemstype: {medlemstype_visning}
 
 ——
@@ -265,6 +267,7 @@ def api_innmelding():
     adresse = (data.get("adresse") or "").strip()
     postnummer = (data.get("postnummer") or "").strip()
     poststad = (data.get("poststad") or "").strip()
+    birth_date = (data.get("birth_date") or "").strip()  # ISO YYYY-MM-DD
     membership_type = (data.get("membership_type") or "vanleg").strip()
     consent = data.get("consent") is True
 
@@ -276,7 +279,7 @@ def api_innmelding():
         return jsonify({"error": "Epost er påkrevd."}), 400
 
     to_email = os.environ.get("INNMELDING_EPOST_TIL", "folk@oslobygda.no").strip()
-    epost_ok, epost_err = _send_innmelding_epost(to_email, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type)
+    epost_ok, epost_err = _send_innmelding_epost(to_email, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type)
 
     mailerlite_ok = True
     mailerlite_err = ""
@@ -337,12 +340,13 @@ def api_sync_mailerlite():
             poststad = (fields.get("city") or "").strip()
             postnummer = (fields.get("zip") or fields.get("z_i_p") or "").strip()
             membership_type = _normalize_medlemstype(fields.get("country"))  # Country brukt som Medlemstype (Kul/Superkul)
+            birth_date = (fields.get("birthday") or fields.get("birth_date") or "").strip() or None  # valfritt frå MailerLite
             full_name = _build_full_name(fornamn, mellomnamn, etternamn)
             consent_at = s.get("subscribed_at") or now
             conn.execute(
-                """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, payment_status, consent_at, created_at, updated_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, "ikkje betalt", consent_at, now, now),
+                """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, "ikkje betalt", consent_at, now, now),
             )
             added += 1
         conn.commit()
@@ -359,7 +363,7 @@ def list_members():
     with get_db() as conn:
         rows = conn.execute(
             """SELECT id, full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad,
-                      membership_type, payment_status, consent_at, created_at, updated_at
+                      birth_date, membership_type, payment_status, consent_at, created_at, updated_at
                FROM members ORDER BY full_name"""
         ).fetchall()
     return jsonify([dict(r) for r in rows])
@@ -378,6 +382,7 @@ def create_member():
     adresse = (data.get("adresse") or "").strip()
     postnummer = (data.get("postnummer") or "").strip()
     poststad = (data.get("poststad") or "").strip()
+    birth_date = (data.get("birth_date") or "").strip() or None
     membership_type = (data.get("membership_type") or "").strip()
     payment_status = (data.get("payment_status") or "").strip()
     consent_at = data.get("consent_at") or datetime.now(timezone.utc).isoformat()
@@ -394,9 +399,9 @@ def create_member():
     now = datetime.now(timezone.utc).isoformat()
     with get_db() as conn:
         cur = conn.execute(
-            """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, payment_status, consent_at, created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, payment_status, consent_at, now, now),
+            """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, now, now),
         )
         conn.commit()
         mid = cur.lastrowid
@@ -426,6 +431,7 @@ def member(mid):
         adresse = (data.get("adresse") or row.get("adresse") or "").strip()
         postnummer = (data.get("postnummer") or row.get("postnummer") or "").strip()
         poststad = (data.get("poststad") or row.get("poststad") or "").strip()
+        birth_date = (data.get("birth_date") or row.get("birth_date") or "").strip() or None
         membership_type = (data.get("membership_type") or row["membership_type"]).strip()
         payment_status = (data.get("payment_status") or row["payment_status"]).strip()
         if not fornamn or not etternamn:
@@ -435,9 +441,9 @@ def member(mid):
         now = datetime.now(timezone.utc).isoformat()
         with get_db() as conn:
             conn.execute(
-                """UPDATE members SET full_name=?, fornamn=?, mellomnamn=?, etternamn=?, email=?, phone=?, adresse=?, postnummer=?, poststad=?, membership_type=?, payment_status=?, updated_at=?
+                """UPDATE members SET full_name=?, fornamn=?, mellomnamn=?, etternamn=?, email=?, phone=?, adresse=?, postnummer=?, poststad=?, birth_date=?, membership_type=?, payment_status=?, updated_at=?
                    WHERE id=?""",
-                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, membership_type, payment_status, now, mid),
+                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, now, mid),
             )
             conn.commit()
         return jsonify({"message": "Oppdatert"})
@@ -465,14 +471,14 @@ def export_excel():
     with get_db() as conn:
         rows = conn.execute(
             """SELECT fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad,
-                      membership_type, payment_status, consent_at
+                      birth_date, membership_type, payment_status, consent_at
                FROM members ORDER BY full_name"""
         ).fetchall()
     buf = io.StringIO()
     writer = csv.writer(buf, delimiter=";")
     writer.writerow([
         "Fornamn", "Mellomnamn", "Etternamn", "Epost", "Telefon", "Adresse",
-        "Postnummer", "Poststad", "Medlemstype", "Betalingsstatus", "Samtykke"
+        "Postnummer", "Poststad", "Fødselsdato", "Medlemstype", "Betalingsstatus", "Samtykke"
     ])
     for r in rows:
         writer.writerow([
@@ -484,6 +490,7 @@ def export_excel():
             r["adresse"] or "",
             r["postnummer"] or "",
             r["poststad"] or "",
+            r["birth_date"] or "",
             _medlemstype_visning(r["membership_type"] or "vanleg"),
             r["payment_status"] or "",
             r["consent_at"] or "",

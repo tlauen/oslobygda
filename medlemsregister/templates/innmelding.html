@@ -54,6 +54,10 @@
         <input type="text" id="poststad" />
       </div>
       <div class="felt">
+        <label for="birth_date">Fødselsdato</label>
+        <input type="date" id="birth_date" />
+      </div>
+      <div class="felt">
         <label for="membership_type">Medlemstype</label>
         <select id="membership_type">
           <option value="vanleg">Kul (5 kr)</option>
@@ -99,6 +103,7 @@
         adresse: document.getElementById("adresse").value.trim(),
         postnummer: document.getElementById("postnummer").value.trim(),
         poststad: document.getElementById("poststad").value.trim(),
+        birth_date: document.getElementById("birth_date").value.trim() || "",
         membership_type: document.getElementById("membership_type").value,
         consent: document.getElementById("consent").checked
       };
