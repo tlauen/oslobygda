@@ -57,6 +57,7 @@ python3 app.py
    MAILERLITE_API_TOKEN=din-token
    MAILERLITE_GROUP_ID=12345678
    BACKUP_DIR=/sti/til/backup-mappa
+   MEDLEMSREGISTER_DB_KEY=din-sterke-passfrase-for-database-kryptering
    ```
 3. Start appen som vanleg med `python3 app.py`. Appen lastar `.env` automatisk (via python-dotenv). Viss du ikkje har installert på nytt nylig, kjør `pip install -r requirements.txt` éin gong for å få med `python-dotenv`.
 
@@ -74,6 +75,7 @@ Du kan også bruke eit skript som les `.env` og startar appen, eller setje varia
   ```
 - **`MEDLEMSREGISTER_SECRET_KEY`** – ein lang, tilfeldig streng (for session). Viss ikkje satt, bruk ikkje appen opent på nett.
 - **`BACKUP_DIR`** – mappe for database-backup (t.d. inni OneDrive). Brukt av `backup.sh`; viss ikkje satt, brukes `~/Bygdelista-backup`.
+- **`MEDLEMSREGISTER_DB_KEY`** – (valgfritt) Passord/key for å kryptere databasen med SQLCipher. Når dette er satt, vert `medlemsregister.db` kryptert på disk, så persondata ikkje er lesbart i BBEdit eller andre teksteditorar. Appen migrerer automatisk frå ukyrptert til kryptert DB ved første køyring. Krev at `sqlcipher3` er installert (`pip install sqlcipher3`) og at **libsqlcipher** er på systemet (macOS: `brew install sqlcipher`). Lag ein sterk, lang passfrase og legg i `.env`. Utan key vert DB-fila ukyrptert; appen set då filrettar til berre eigar (chmod 600) for å redusere risiko.
 
 ### Innmeldingsskjema – e-post til styret (SMTP)
 
@@ -123,6 +125,8 @@ Heile medlemslista ligg i **`medlemsregister.db`**. For å sikre dobbellagring k
    ```
    Utan `BACKUP_DIR` i miljø eller `.env` går backup til `~/Bygdelista-backup`.
 3. **Gjenta regelmessig** – t.d. etter at du har lagt inn nye medlemmar. Du kan automatisere med **launchd** (Mac) eller **cron**.
+
+Viss du bruker **MEDLEMSREGISTER_DB_KEY**, er backup-fila også kryptert; du treng same key for å opne ho (t.d. i ein annan installasjon).
 
 Scriptet lagar éi kopi per køyring med dato og klokkeslett i filnamnet (t.d. `medlemsregister-2026-03-08-1430.db`) og behald berre dei **30 nyaste** backupane, så mappa ikkje vaksar utan ende.
 

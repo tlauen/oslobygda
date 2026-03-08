@@ -2,12 +2,14 @@
 """
 Bygdelista – GDPR-sikkert medlemsliste for Oslobygda.
 Felter: namn, epost, telefon, adresse, postnummer, poststad, fødselsdato, medlemstype, betalingsstatus, samtykke.
+Database kan krypterast med SQLCipher ved å setje MEDLEMSREGISTER_DB_KEY (da vert fila ikkje lesbar i BBEdit o.l.).
 """
 import csv
 import io
 import json
 import os
 import smtplib
+import sys
 import ssl
 import sqlite3
 from datetime import datetime, timezone
@@ -45,6 +47,22 @@ try:
 except ImportError:
     pass
 
+# Kryptering: viss MEDLEMSREGISTER_DB_KEY er satt, bruk SQLCipher (fila vert ikkje lesbar som rein tekst)
+DB_KEY = os.environ.get("MEDLEMSREGISTER_DB_KEY", "").strip()
+_use_sqlcipher = False
+if DB_KEY:
+    try:
+        import sqlcipher3.dbapi2 as _sqlcipher_sqlite
+        _use_sqlcipher = True
+    except ImportError:
+        import warnings
+        warnings.warn(
+            "MEDLEMSREGISTER_DB_KEY er satt, men sqlcipher3 er ikkje installert. "
+            "Kjør: pip install sqlcipher3 (krev også libsqlcipher, t.d. brew install sqlcipher). "
+            "Databasen vert ikkje kryptert.",
+            UserWarning,
+        )
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("MEDLEMSREGISTER_SECRET_KEY", "endre-meg-i-produksjon")
 
@@ -60,9 +78,77 @@ ADMIN_PASSWORD_HASH = os.environ.get(
 )
 
 
+def _pragma_key_sql() -> str:
+    """PRAGMA key for SQLCipher (parameterisert støttes ikkje, så vi escapar apostrof i key)."""
+    escaped = DB_KEY.replace("'", "''")
+    return f"PRAGMA key = '{escaped}'"
+
+
+def _is_plain_sqlite(path: Path) -> bool:
+    """Sjekk om fila ser ut som ukyrptert SQLite (første 16 byte)."""
+    if not path.exists() or path.stat().st_size < 16:
+        return False
+    with open(path, "rb") as f:
+        return f.read(16).startswith(b"SQLite format 3\x00")
+
+
+def _migrate_plain_to_encrypted() -> None:
+    """Kopier ukyrptert DB til ny kryptert fil og erstatt. Køyr berre éin gong."""
+    if not _use_sqlcipher or not DB_PATH.exists() or not _is_plain_sqlite(DB_PATH):
+        return
+    plain_conn = sqlite3.connect(DB_PATH)
+    plain_conn.row_factory = sqlite3.Row
+    rows = plain_conn.execute("SELECT * FROM members").fetchall()
+    cols = [d[1] for d in plain_conn.execute("PRAGMA table_info(members)").fetchall()]
+    plain_conn.close()
+    enc_path = APP_DIR / "medlemsregister.db.new"
+    enc_conn = _sqlcipher_sqlite.connect(enc_path)
+    enc_conn.execute(_pragma_key_sql())
+    enc_conn.executescript("""
+        CREATE TABLE members (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            full_name TEXT NOT NULL,
+            fornamn TEXT, mellomnamn TEXT, etternamn TEXT,
+            email TEXT NOT NULL, phone TEXT, adresse TEXT, postnummer TEXT, poststad TEXT,
+            birth_date TEXT, membership_type TEXT NOT NULL, payment_status TEXT NOT NULL,
+            consent_at TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
+    """)
+    col_list = ", ".join(cols)
+    placeholders = ", ".join("?" * len(cols))
+    for row in rows:
+        enc_conn.execute(f"INSERT INTO members ({col_list}) VALUES ({placeholders})", tuple(row))
+    enc_conn.commit()
+    enc_conn.close()
+    bak_path = APP_DIR / "medlemsregister.db.plain.bak"
+    if bak_path.exists():
+        bak_path.unlink()
+    DB_PATH.rename(bak_path)
+    enc_path.rename(DB_PATH)
+    _restrict_db_permissions(DB_PATH)
+    sys.stderr.write("Database migrert til kryptert. Den gamle ukyrpterte kopien ligg som medlemsregister.db.plain.bak\n")
+
+
+def _restrict_db_permissions(path: Path) -> None:
+    """Sett fil slik at berre eigar kan lese/skrive (chmod 600)."""
+    try:
+        os.chmod(path, 0o600)
+    except OSError:
+        pass
+
+
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    _migrate_plain_to_encrypted()
+    if _use_sqlcipher:
+        conn = _sqlcipher_sqlite.connect(DB_PATH)
+        conn.execute(_pragma_key_sql())
+        conn.row_factory = getattr(_sqlcipher_sqlite, "Row", sqlite3.Row)
+    else:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+    if DB_PATH.exists():
+        _restrict_db_permissions(DB_PATH)
     return conn
 
 
@@ -93,8 +179,9 @@ def init_db():
         for col in ("adresse", "postnummer", "poststad", "fornamn", "mellomnamn", "etternamn", "birth_date"):
             try:
                 conn.execute(f"ALTER TABLE members ADD COLUMN {col} TEXT")
-            except sqlite3.OperationalError:
-                pass
+            except Exception as e:
+                if "duplicate column" not in str(e).lower():
+                    raise
         # Migrer gamle rader: sett fornamn = full_name så brukar kan dele opp ved redigering
         conn.execute("UPDATE members SET fornamn = full_name WHERE fornamn IS NULL AND full_name IS NOT NULL")
         # Normaliser betalingsstatus til nynorsk
@@ -360,13 +447,16 @@ def _build_full_name(fornamn, mellomnamn, etternamn):
 @app.route("/api/members", methods=["GET"])
 @require_admin
 def list_members():
-    with get_db() as conn:
-        rows = conn.execute(
-            """SELECT id, full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad,
-                      birth_date, membership_type, payment_status, consent_at, created_at, updated_at
-               FROM members ORDER BY full_name"""
-        ).fetchall()
-    return jsonify([dict(r) for r in rows])
+    try:
+        with get_db() as conn:
+            rows = conn.execute(
+                """SELECT id, full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad,
+                          birth_date, membership_type, payment_status, consent_at, created_at, updated_at
+                   FROM members ORDER BY full_name"""
+            ).fetchall()
+        return jsonify([dict(r) for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/members", methods=["POST"])
@@ -524,6 +614,17 @@ def gdpr_delete(mid):
 
 
 def main():
+    # Tydelig melding om database-kryptering ved oppstart
+    if DB_KEY:
+        if _use_sqlcipher:
+            sys.stderr.write("Database: kryptert (SQLCipher). medlemsregister.db er ikkje lesbar som rein tekst.\n")
+        else:
+            sys.stderr.write(
+                "Database: UKRYPTERT. MEDLEMSREGISTER_DB_KEY er satt, men sqlcipher3 er ikkje tilgjengeleg.\n"
+                "For kryptering: installer libsqlcipher (macOS: brew install sqlcipher), deretter pip install sqlcipher3\n"
+            )
+    else:
+        sys.stderr.write("Database: ukyrptert (ingen MEDLEMSREGISTER_DB_KEY). Sett key i .env for kryptering.\n")
     init_db()
     port = int(os.environ.get("PORT", 5001))
     # Ved deploy: la server lytt på 0.0.0.0

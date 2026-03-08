@@ -175,7 +175,16 @@
       setStatus("Lastar …");
       try {
         const r = await fetch(API + "/api/members", { credentials: "same-origin" });
-        if (!r.ok) { setStatus("Kunne ikkje laste medlemmar.", true); return []; }
+        if (!r.ok) {
+          let msg = "Kunne ikkje laste medlemmar.";
+          try {
+            const body = await r.json();
+            if (body && body.error) msg += " " + body.error;
+            else if (r.status === 401) msg = "Du er ikkje innlogga. Logg inn på nytt.";
+          } catch (_) {}
+          setStatus(msg, true);
+          return [];
+        }
         const data = await r.json();
         setStatus(data.length + " medlemmar");
         return data;

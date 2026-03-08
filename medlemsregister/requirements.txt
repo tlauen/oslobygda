@@ -2,3 +2,5 @@ Flask>=3.0.0
 Werkzeug>=3.0.0
 python-dotenv>=1.0.0
 certifi>=2024.0.0
+# Valgfritt: for kryptert database (MEDLEMSREGISTER_DB_KEY). Krev libsqlcipher (macOS: brew install sqlcipher).
+sqlcipher3>=0.5.0

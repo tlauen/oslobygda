@@ -1,4 +1,6 @@
 medlemsregister.db
+medlemsregister.db.plain.bak
+medlemsregister.db.new
 *.db
 .env
 .env.local
