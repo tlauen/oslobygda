@@ -48,7 +48,8 @@
   <link rel="stylesheet" href="{{ '/assets/css/base.css' | relative_url }}">
   
   <script defer src="https://cloud.umami.is/script.js" data-website-id="9cba7db1-1072-4803-aa54-51f4c88c1487"></script>
-  {%- if page.url == "/brev/" or page.url == "/brev" or page.url == "/om/" or page.url == "/om" -%}
+  {%- assign url_slug = page.url | replace: "/", "" -%}
+  {%- if url_slug == "brev" or url_slug == "om" -%}
   <!-- MailerLite Universal (nyhendebrev + innmeldingsskjema på /om) -->
   <script>
     (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
@@ -70,7 +71,7 @@
 </header>
 
   <main id="innhald" class="site-main">
-    <div class="wrap prose">
+    <div class="wrap">
       {{ content }}
     </div>
   </main>

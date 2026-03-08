@@ -1,0 +1,13 @@
+# Éin felles menyliste for desktop og mobil (nav.html)
+- path: /
+  label: Framsida
+- path: /om/
+  label: Om laget
+- path: /pub/
+  label: Folkemusikkpøbben
+- path: /kalender/
+  label: Kalender
+- path: /brev/
+  label: Nyhendebrev
+- path: /kontakt/
+  label: Kontakt

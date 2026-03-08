@@ -23,21 +23,34 @@
       <a href="{{ prefix_url('export_excel') }}" class="btn secondary" download>Last ned til Excel</a>
     </p>
 
+    <div class="kolonnefilter">
+      <span class="kolonnefilter-label">Vis kolonnar:</span>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="namn" checked /> Namn</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="epost" checked /> Epost</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="telefon" checked /> Telefon</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="adresse" checked /> Adresse</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="postnr" checked /> Postnr</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="poststad" checked /> Poststad</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="fødselsdato" checked /> Fødselsdato</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="medlemstype" checked /> Medlemstype</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="betalingsstatus" checked /> Betalingsstatus</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="samtykke" checked /> Samtykke</label>
+    </div>
     <div class="tabellwrap">
       <table>
         <thead>
           <tr>
-            <th>Namn</th>
-            <th>Epost</th>
-            <th>Telefon</th>
-            <th>Adresse</th>
-            <th>Postnr</th>
-            <th>Poststad</th>
-            <th>Fødselsdato</th>
-            <th>Medlemstype</th>
-            <th>Betalingsstatus</th>
-            <th>Samtykke</th>
-            <th></th>
+            <th data-col="namn">Namn</th>
+            <th data-col="epost">Epost</th>
+            <th data-col="telefon">Telefon</th>
+            <th data-col="adresse">Adresse</th>
+            <th data-col="postnr">Postnr</th>
+            <th data-col="poststad">Poststad</th>
+            <th data-col="fødselsdato">Fødselsdato</th>
+            <th data-col="medlemstype">Medlemstype</th>
+            <th data-col="betalingsstatus">Betalingsstatus</th>
+            <th data-col="samtykke">Samtykke</th>
+            <th data-col="aksjonar"></th>
           </tr>
         </thead>
         <tbody id="medlem-liste"></tbody>
@@ -139,6 +152,12 @@
       return val;
     }
 
+    function pillClassForPaymentStatus(s) {
+      if (s === "betalt") return "pill pill--betalt";
+      if (s === "ikkje betalt") return "pill pill--ikkje-betalt";
+      return "pill";
+    }
+
     function medlemstypeTilVerdi(val) {
       if (val === "Kul medlem (5kr)") return "vanleg";
       if (val === "Superkul medlem (meir enn 5kr)") return "kul";
@@ -169,33 +188,83 @@
     function renderListe(medlemmar) {
       listeEl.innerHTML = medlemmar.map(m => `
         <tr>
-          <td>${escapeHtml(visningsnamn(m))}</td>
-          <td>${escapeHtml(m.email)}</td>
-          <td>${escapeHtml(m.phone || "–")}</td>
-          <td>${escapeHtml(m.adresse || "–")}</td>
-          <td>${escapeHtml(m.postnummer || "–")}</td>
-          <td>${escapeHtml(m.poststad || "–")}</td>
-          <td>${m.birth_date ? formaterDato(m.birth_date) : "–"}</td>
-          <td><span class="pill">${escapeHtml(medlemstypeVisningsnamn(m.membership_type))}</span></td>
-          <td><span class="pill">${escapeHtml(m.payment_status)}</span></td>
-          <td>${formaterDato(m.consent_at)}</td>
-          <td class="aksjonar">
-            <a href="#" data-id="${m.id}" data-action="edit">Rediger</a>
-            <a href="#" data-id="${m.id}" data-action="export">Eksporter (GDPR)</a>
-            <button type="button" class="slett" data-id="${m.id}" data-action="delete">Slett</button>
+          <td data-col="namn">${escapeHtml(visningsnamn(m))}</td>
+          <td data-col="epost">${escapeHtml(m.email)}</td>
+          <td data-col="telefon">${escapeHtml(m.phone || "–")}</td>
+          <td data-col="adresse">${escapeHtml(m.adresse || "–")}</td>
+          <td data-col="postnr">${escapeHtml(m.postnummer || "–")}</td>
+          <td data-col="poststad">${escapeHtml(m.poststad || "–")}</td>
+          <td data-col="fødselsdato">${m.birth_date ? formaterDato(m.birth_date) : "–"}</td>
+          <td data-col="medlemstype"><span class="pill">${escapeHtml(medlemstypeVisningsnamn(m.membership_type))}</span></td>
+          <td data-col="betalingsstatus"><span class="${pillClassForPaymentStatus(m.payment_status)}">${escapeHtml(m.payment_status)}</span></td>
+          <td data-col="samtykke">${formaterDato(m.consent_at)}</td>
+          <td data-col="aksjonar" class="aksjonar">
+            <a href="#" data-id="${m.id}" data-action="edit">Endre</a>
+            <div class="aksjonar-meny-wrap">
+              <button type="button" class="aksjonar-meny-knapp" data-id="${m.id}" aria-label="Meny" aria-expanded="false"><span class="aksjonar-meny-prikker"><span></span><span></span><span></span></span></button>
+              <div class="aksjonar-meny" role="menu" hidden>
+                <button type="button" role="menuitem" data-id="${m.id}" data-action="export">Eksporter (GDPR)</button>
+                <button type="button" role="menuitem" data-id="${m.id}" data-action="delete" class="slett">Slett</button>
+              </div>
+            </div>
           </td>
         </tr>
       `).join("");
 
-      listeEl.querySelectorAll("[data-action]").forEach(el => {
-        el.addEventListener("click", async (e) => {
-          e.preventDefault();
-          const id = parseInt(el.dataset.id, 10);
-          if (el.dataset.action === "edit") openModal(id);
-          else if (el.dataset.action === "export") eksporterMedlem(id);
-          else if (el.dataset.action === "delete") slettMedlem(id);
+      function lukkAlleAksjonarMenyer() {
+        listeEl.querySelectorAll(".aksjonar-meny").forEach(menu => {
+          menu.hidden = true;
+          menu.classList.remove("aksjonar-meny--open-up");
         });
+        listeEl.querySelectorAll(".aksjonar-meny-knapp").forEach(btn => { btn.setAttribute("aria-expanded", "false"); });
+        listeEl.querySelectorAll("td.aksjonar.open").forEach(cell => cell.classList.remove("open"));
+      }
+      function opneAksjonarMeny(knapp, menu, cell) {
+        menu.classList.remove("aksjonar-meny--open-up");
+        const rect = knapp.getBoundingClientRect();
+        const plassUnder = window.innerHeight - rect.bottom;
+        if (plassUnder < 95 && rect.top > 100) {
+          menu.classList.add("aksjonar-meny--open-up");
+        }
+        menu.hidden = false;
+        knapp.setAttribute("aria-expanded", "true");
+        cell.classList.add("open");
+      }
+      listeEl.addEventListener("click", (e) => {
+        const id = parseInt(e.target.dataset?.id, 10);
+        if (e.target.classList.contains("aksjonar-meny-knapp")) {
+          e.preventDefault();
+          e.stopPropagation();
+          const wrap = e.target.closest(".aksjonar-meny-wrap");
+          const menu = wrap?.querySelector(".aksjonar-meny");
+          const cell = wrap?.closest("td");
+          if (!menu || !cell) return;
+          if (menu.hidden) {
+            lukkAlleAksjonarMenyer();
+            opneAksjonarMeny(e.target, menu, cell);
+          } else {
+            lukkAlleAksjonarMenyer();
+          }
+          return;
+        }
+        if (e.target.closest(".aksjonar-meny") && e.target.dataset?.action) {
+          e.preventDefault();
+          if (!isNaN(id)) {
+            if (e.target.dataset.action === "export") eksporterMedlem(id);
+            else if (e.target.dataset.action === "delete") slettMedlem(id);
+          }
+          lukkAlleAksjonarMenyer();
+          return;
+        }
+        if (e.target.dataset?.action === "edit") {
+          e.preventDefault();
+          if (!isNaN(id)) openModal(id);
+        }
       });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".aksjonar-meny-wrap")) lukkAlleAksjonarMenyer();
+      });
+      brukKolonnefilter();
     }
 
     function escapeHtml(s) {
@@ -330,9 +399,38 @@
       } catch (e) { setStatus("Kunne ikkje slette.", true); }
     }
 
+    const KOLONNE_STORAGE_KEY = "bygdelista-kolonner";
+    function brukKolonnefilter() {
+      document.querySelectorAll(".kolonnefilter input[data-col]").forEach(cb => {
+        const col = cb.dataset.col;
+        document.querySelectorAll(`.tabellwrap [data-col="${col}"]`).forEach(el => {
+          el.classList.toggle("kolonne-skjult", !cb.checked);
+        });
+      });
+      const prefs = {};
+      document.querySelectorAll(".kolonnefilter input[data-col]").forEach(cb => { prefs[cb.dataset.col] = cb.checked; });
+      try { localStorage.setItem(KOLONNE_STORAGE_KEY, JSON.stringify(prefs)); } catch (_) {}
+    }
+    function lastKolonnefilter() {
+      try {
+        const s = localStorage.getItem(KOLONNE_STORAGE_KEY);
+        if (s) {
+          const prefs = JSON.parse(s);
+          document.querySelectorAll(".kolonnefilter input[data-col]").forEach(cb => {
+            if (prefs[cb.dataset.col] === false) cb.checked = false;
+          });
+        }
+      } catch (_) {}
+      brukKolonnefilter();
+    }
+    document.querySelectorAll(".kolonnefilter input[data-col]").forEach(cb => {
+      cb.addEventListener("change", brukKolonnefilter);
+    });
+
     (async () => {
       const medlemmar = await hentMedlemmar();
       renderListe(medlemmar);
+      lastKolonnefilter();
     })();
   </script>
 </body>

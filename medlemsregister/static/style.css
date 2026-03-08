@@ -8,12 +8,11 @@
   --line: rgba(18, 17, 14, 0.12);
   --accent: #FAF1D7;
   --accent-hover: #F5E9DB;
-  --accent2: #F1CACB;
   --accent3: #A8D8A0;
   --card-radius: 10px;
   --error: #b91c1c;
   --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
-  --maxw: 980px;
+  --maxw: 1280px;
 }
 
 * { box-sizing: border-box; }
@@ -30,6 +29,31 @@ body {
   margin: 0 auto;
   padding: 1.5rem 1.1rem;
 }
+
+/* Meldingar (innmelding + generelt) */
+.melding {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+.melding-feil { background: #fecaca; color: var(--error); }
+.melding-advarsel { background: var(--accent); color: var(--text); }
+.melding-ok { background: var(--accent3); color: #1a4d1a; }
+
+/* Innmelding-skjema (felt/knappar utanfor modal) */
+.innmelding-skjema .felt { margin-bottom: 1rem; }
+.innmelding-skjema label { display: block; margin-bottom: 0.25rem; font-size: 0.9rem; }
+.innmelding-skjema input,
+.innmelding-skjema select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+}
+.felt-sjekk .sjekk-wrap { display: flex; align-items: flex-start; gap: 0.5rem; }
+.felt-sjekk input[type="checkbox"] { margin-top: 0.2rem; }
+.innmelding-skjema .knappar { margin-top: 1.25rem; }
 
 /* Login */
 .login-body {
@@ -113,6 +137,31 @@ body {
   text-decoration: underline;
 }
 
+/* Kolonnefilter */
+.kolonnefilter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.kolonnefilter-label {
+  font-weight: 600;
+  color: var(--text);
+  margin-right: 0.25rem;
+}
+.kolonnefilter-sjekk {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+.kolonnefilter-sjekk input {
+  margin: 0;
+}
+
 /* Tabell */
 .tabellwrap {
   overflow-x: auto;
@@ -122,41 +171,159 @@ body {
 }
 table {
   width: 100%;
+  min-width: 1300px;
   border-collapse: collapse;
+  table-layout: auto;
 }
 th, td {
-  padding: 0.6rem 0.75rem;
+  padding: 0.45rem 0.6rem;
   text-align: left;
   border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+/* Minimal min-width på kolonnar slik at innhald får plass; tabellen vaksar og ein skroller sidelengs */
+.tabellwrap th:nth-child(1),
+.tabellwrap td:nth-child(1) { min-width: 140px; }
+.tabellwrap th:nth-child(2),
+.tabellwrap td:nth-child(2) { min-width: 160px; }
+.tabellwrap th:nth-child(3),
+.tabellwrap td:nth-child(3) { min-width: 100px; }
+.tabellwrap th:nth-child(4),
+.tabellwrap td:nth-child(4) { min-width: 120px; }
+.tabellwrap th:nth-child(5),
+.tabellwrap td:nth-child(5) { min-width: 58px; }
+.tabellwrap th:nth-child(6),
+.tabellwrap td:nth-child(6) { min-width: 80px; }
+.tabellwrap th:nth-child(7),
+.tabellwrap td:nth-child(7) { min-width: 85px; }
+.tabellwrap th:nth-child(8),
+.tabellwrap td:nth-child(8) { min-width: 75px; }
+.tabellwrap th:nth-child(9),
+.tabellwrap td:nth-child(9) { min-width: 95px; }
+.tabellwrap th:nth-child(10),
+.tabellwrap td:nth-child(10) { min-width: 85px; }
+.tabellwrap th:nth-child(11),
+.tabellwrap td:nth-child(11) { min-width: 95px; }
+/* Namn – kan bryte på 1–2 linjer */
+.tabellwrap td:first-child {
+  word-wrap: break-word;
+  max-width: 220px;
 }
 th {
   background: var(--panel-strong);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+}
+/* Aksjonar-kolonne alltid synleg til høgre ved sidelengs scrolling – dekkande bakgrunn, over rad-hover */
+.tabellwrap th:last-child,
+.tabellwrap td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  background: var(--bg);
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.06);
+}
+.tabellwrap tbody tr:hover td:last-child {
+  background: #f5f0e8;
+}
+/* Skjulte kolonnar (filtrering) */
+.tabellwrap th.kolonne-skjult,
+.tabellwrap td.kolonne-skjult {
+  display: none;
 }
 tr:last-child td {
   border-bottom: none;
 }
-tr:hover td {
+tr:hover td:not(:last-child) {
   background: rgba(0, 0, 0, 0.02);
 }
 .aksjonar {
   white-space: nowrap;
 }
-.aksjonar a, .aksjonar button {
+.aksjonar > a {
   margin-right: 0.5rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  background: none;
-  border: none;
+  font-size: 0.75rem;
   color: var(--text);
-  padding: 0;
   text-decoration: none;
 }
-.aksjonar a:hover, .aksjonar button:hover {
+.aksjonar > a:hover {
   text-decoration: underline;
 }
-.aksjonar button.slett {
+.aksjonar-meny-wrap {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.tabellwrap td:last-child.open {
+  z-index: 50;
+}
+.aksjonar-meny-knapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  color: var(--text);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.aksjonar-meny-knapp:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: var(--line);
+}
+.aksjonar-meny-prikker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.aksjonar-meny-prikker span {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.aksjonar-meny {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 2px;
+  min-width: 165px;
+  padding: 0.35rem 0;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+}
+.aksjonar-meny[hidden] {
+  display: none !important;
+}
+.aksjonar-meny.aksjonar-meny--open-up {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 2px;
+}
+.aksjonar-meny button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.aksjonar-meny button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.aksjonar-meny button.slett {
   color: var(--error);
 }
 
@@ -164,6 +331,7 @@ tr:hover td {
 .btn {
   display: inline-block;
   padding: 0.5rem 1rem;
+  line-height: 1.25;
   background: var(--accent);
   color: var(--text);
   border: 1px solid var(--line);
@@ -172,6 +340,7 @@ tr:hover td {
   font-size: 0.9rem;
   text-decoration: none;
   font-weight: 600;
+  vertical-align: middle;
 }
 .btn:hover {
   background: var(--accent-hover);
@@ -250,4 +419,13 @@ tr:hover td {
   background: var(--line);
   color: var(--text);
   margin-right: 0.25rem;
+  white-space: nowrap;
+}
+.pill--betalt {
+  background: var(--accent3);
+  color: #1a4d1a;
+}
+.pill--ikkje-betalt {
+  background: #fecaca;
+  color: var(--error);
 }

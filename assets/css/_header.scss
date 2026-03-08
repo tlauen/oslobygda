@@ -26,32 +26,6 @@
   min-height: 64px;
 }
 
-/* Brand (kan vere skjult i HTML, men stilane kan stå) */
-.brand{
-  display: inline-flex;
-  align-items: center;
-  gap: .75rem;
-  text-decoration: none;
-  padding: .65rem 0;
-}
-.brand:hover{ text-decoration: none; }
-
-.brand__logo{
-  width: 44px;
-  height: 44px;
-  display: block;
-}
-.brand__logo--mask{
-  background: var(--text);
-  -webkit-mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
-  mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
-}
-.brand__name{
-  font-weight: 800;
-  letter-spacing: .2px;
-  font-family: var(--serif);
-}
-
 /* NAV container (held berre knapp + desktop-meny) */
 .nav{
   display: flex;

@@ -56,6 +56,7 @@ python3 app.py
    INNMELDING_EPOST_TIL=folk@oslobygda.no
    MAILERLITE_API_TOKEN=din-token
    MAILERLITE_GROUP_ID=12345678
+   BACKUP_DIR=/sti/til/backup-mappa
    ```
 3. Start appen som vanleg med `python3 app.py`. Appen lastar `.env` automatisk (via python-dotenv). Viss du ikkje har installert på nytt nylig, kjør `pip install -r requirements.txt` éin gong for å få med `python-dotenv`.
 
@@ -72,6 +73,7 @@ Du kan også bruke eit skript som les `.env` og startar appen, eller setje varia
   python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('ditt-passord'))"
   ```
 - **`MEDLEMSREGISTER_SECRET_KEY`** – ein lang, tilfeldig streng (for session). Viss ikkje satt, bruk ikkje appen opent på nett.
+- **`BACKUP_DIR`** – mappe for database-backup (t.d. inni OneDrive). Brukt av `backup.sh`; viss ikkje satt, brukes `~/Bygdelista-backup`.
 
 ### Innmeldingsskjema – e-post til styret (SMTP)
 
@@ -108,6 +110,24 @@ Viss SMTP ikkje er satt, vert ikkje e-post sendt; MailerLite kan likevel brukast
 
 ---
 
+## Backup av databasen
+
+Heile medlemslista ligg i **`medlemsregister.db`**. For å sikre dobbellagring kan du køyre backup til ei mappe som synkroniserer med **OneDrive** eller **Proton Drive**.
+
+### Slik gjer du det
+
+1. **Backup-mappa:** Legg `BACKUP_DIR="/sti/til/backup-mappa"` i **`.env`** i medlemsregister-mappa (t.d. ei mappe inni OneDrive eller Proton Drive). Scriptet les `.env` automatisk.
+2. **Kør backup** – stå inne i `medlemsregister/` og kjør:
+   ```bash
+   bash backup.sh
+   ```
+   Utan `BACKUP_DIR` i miljø eller `.env` går backup til `~/Bygdelista-backup`.
+3. **Gjenta regelmessig** – t.d. etter at du har lagt inn nye medlemmar. Du kan automatisere med **launchd** (Mac) eller **cron**.
+
+Scriptet lagar éi kopi per køyring med dato og klokkeslett i filnamnet (t.d. `medlemsregister-2026-03-08-1430.db`) og behald berre dei **30 nyaste** backupane, så mappa ikkje vaksar utan ende.
+
+---
+
 ## GDPR
 
 - **Samtykke** lagrast ved opprettelse av medlem.
@@ -123,6 +143,6 @@ Du kan la **innmeldingsskjemaet** vere eit **skjema frå MailerLite** (embed ell
 
 1. **I MailerLite:** Opprett ei gruppe, t.d. «Medlemmar». Lag eit skjema som legg innmeldte i den gruppa (Subscribers → Forms, eller Groups → «Medlemmar» → Add form). Legg til dei felta du vil (namn, epost, telefon, adresse osb.). Ta med gruppa «Medlemmar» på skjemaet.
 2. **På nettsida:** Sett inn MailerLite-skjemaet (embed-kode eller lenke) på oslobygda.no – t.d. på ei side «Bli medlem» som er statisk (Jekyll/GitHub Pages). Ingen Flask treng å køyre for at skjemaet skal fungere.
-3. **Overføre til Bygdelista:** Når du (eller nokon i styret) er inne i Bygdelista (lokalt), klikk **«Hent nye frå MailerLite»**. Da hentar appen alle abonnentar i gruppa «Medlemmar» og legg til dei som ikkje allereie finst (sjekka på epost). Felt frå MailerLite vert mappa slik: Name → fornamn, Company → mellomnamn, Last name → etternamn, Phone → telefon, State → adresse, City → poststad, Zip → postnummer, Country → medlemstype (Kul/Superkul). Valfritt: Birthday/birth_date → fødselsdato. Sett `MAILERLITE_MEDLEMMAR_GROUP_ID=181371641813534665` (eller din gruppe-ID) og `MAILERLITE_API_TOKEN` i miljøet.
+3. **Overføre til Bygdelista:** Når du (eller nokon i styret) er inne i Bygdelista (lokalt), klikk **«Hent nye frå MailerLite»**. Da hentar appen alle abonnentar i gruppa «Medlemmar» og legg til dei som ikkje allereie finst (sjekka på epost). Felt frå MailerLite vert mappa slik: **fornamn**, **etternamn**, **mellomnamn**, **adresse**, **medlemstype**, **fodselsdato** (Subscribers → Fields). Standardfelt som **name**, **last_name**, **phone**, **city**, **z_i_p**, **epost** brukast som fallback. Sett `MAILERLITE_MEDLEMMAR_GROUP_ID` og `MAILERLITE_API_TOKEN` i `.env`.
 
 Du treng altså ikkje at innmeldingsskjemaet i Flask køyrer på ein server – du kan bruke berre MailerLite-skjema og så hente inn i Bygdelista når du opnar appen lokalt.

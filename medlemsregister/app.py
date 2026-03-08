@@ -89,6 +89,7 @@ def init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
         """)
+        # Kan fjernast når alle instansar har køyrt migrering minst éin gong
         for col in ("adresse", "postnummer", "poststad", "fornamn", "mellomnamn", "etternamn", "birth_date"):
             try:
                 conn.execute(f"ALTER TABLE members ADD COLUMN {col} TEXT")
@@ -157,7 +158,6 @@ def innmelding_page():
 def _send_innmelding_epost(to_email: str, fornamn: str, mellomnamn: str, etternamn: str, email: str, phone: str, adresse: str, postnummer: str, poststad: str, birth_date: str, membership_type: str) -> tuple[bool, str]:
     """Send innmeldings-epost til styret. Returnerer (success, feilmelding)."""
     full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-    medlemstype_visning = "Kul (5 kr)" if membership_type == "vanleg" else "Superkul (meir enn 5 kr)"
     body = f"""Ny innmelding via nettskjema – registrer i Bygdelista:
 
 Fornamn:     {fornamn}
@@ -169,7 +169,7 @@ Adresse:     {adresse or '(tom)'}
 Postnummer:  {postnummer or '(tom)'}
 Poststad:    {poststad or '(tom)'}
 Fødselsdato: {birth_date or '(tom)'}
-Medlemstype: {medlemstype_visning}
+Medlemstype: {_medlemstype_visning(membership_type, med_beskrivelse=True)}
 
 ——
 Logg inn i Bygdelista og bruk «Legg til medlem» med opplysningane over.
@@ -457,11 +457,11 @@ def member(mid):
     return jsonify({"error": "Ugyldig metode"}), 405
 
 
-def _medlemstype_visning(membership_type: str) -> str:
+def _medlemstype_visning(membership_type: str, *, med_beskrivelse: bool = False) -> str:
     """Returner visningsnamn for medlemstype (vanleg→Kul, kul→Superkul)."""
     if membership_type == "kul":
-        return "Superkul"
-    return "Kul"
+        return "Superkul (meir enn 5 kr)" if med_beskrivelse else "Superkul"
+    return "Kul (5 kr)" if med_beskrivelse else "Kul"
 
 
 @app.route("/api/export/excel")

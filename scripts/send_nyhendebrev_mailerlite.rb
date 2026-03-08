@@ -62,21 +62,6 @@ rescue JSON::ParserError
   [res.code.to_i, { "message" => res.body }]
 end
 
-def http_post_form(path, token:, body:)
-  path = path.sub(/\A\//, "")
-  uri = URI.join(API_BASE + "/", path)
-  req = Net::HTTP::Post.new(uri)
-  req["Authorization"] = "Bearer #{token}"
-  req["Accept"] = "application/json"
-  req["Content-Type"] = "application/x-www-form-urlencoded"
-  req.body = body
-  res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
-  return [res.code.to_i, nil] if res.body.nil? || res.body.strip.empty?
-  [res.code.to_i, JSON.parse(res.body)]
-rescue JSON::ParserError
-  [res.code.to_i, { "message" => res.body }]
-end
-
 def verify_group_exists!(token, group_id)
   code, data = http_json(:get, "/groups?limit=100", token: token)
   unless code == 200 && data && data["data"].is_a?(Array)
