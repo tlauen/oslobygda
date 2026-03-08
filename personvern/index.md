@@ -21,4 +21,4 @@ Når du melder deg inn i laget eller på nyhendebrevet, lagrar vi (eller MailerL
 
 ## Spørsmål?
 
-Kontakt styret via [kontaktsida](/kontakt/) eller send epost.
+[Ta kontakt](/kontakt/)!
