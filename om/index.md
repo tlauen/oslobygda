@@ -21,4 +21,4 @@ Vil du bli med i laget? Send oss ein epost eller prat med Torbjørn. Kostar deg 
 {% comment %}📄 [Skipingsdokumentet (PDF)](/assets/pdf/skipingsdokument.pdf){% endcomment %}
 <span class="disabled-link">📄 Skipingsdokumentet (PDF) (kjem snart)</span>
 
-<div class="ml-embedded" data-form="mOtfzP"></div>
+<div class="ml-embedded" data-form="XMYoMi"></div>
