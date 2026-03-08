@@ -331,16 +331,16 @@ def api_sync_mailerlite():
             if conn.execute("SELECT 1 FROM members WHERE email = ?", (email,)).fetchone():
                 continue
             fields = s.get("fields") or {}
-            # Skjema-felt: Name→fornamn, Company→mellomnamn, Last name→etternamn, State→adresse, City→poststad, Zip→postnummer, Country→medlemstype
-            fornamn = (fields.get("name") or "").strip() or "–"
-            etternamn = (fields.get("last_name") or "").strip() or "–"
-            mellomnamn = (fields.get("company") or "").strip()  # Company brukt som Mellomnamn
+            # Skjema-felt (Subscribers → Fields): fornamn, mellomnamn, etternamn, adresse, medlemstype, fodselsdato + name/last_name/city/zip/phone
+            fornamn = (fields.get("fornamn") or fields.get("name") or "").strip() or "–"
+            etternamn = (fields.get("etternamn") or fields.get("last_name") or "").strip() or "–"
+            mellomnamn = (fields.get("mellomnamn") or fields.get("company") or "").strip()
             phone = (fields.get("phone") or "").strip()
-            adresse = (fields.get("state") or "").strip()  # State brukt som Adresse
-            poststad = (fields.get("city") or "").strip()
-            postnummer = (fields.get("zip") or fields.get("z_i_p") or "").strip()
-            membership_type = _normalize_medlemstype(fields.get("country"))  # Country brukt som Medlemstype (Kul/Superkul)
-            birth_date = (fields.get("birthday") or fields.get("birth_date") or "").strip() or None  # valfritt frå MailerLite
+            adresse = (fields.get("adresse") or fields.get("state") or "").strip()
+            poststad = (fields.get("poststad") or fields.get("city") or "").strip()
+            postnummer = (fields.get("postnummer") or fields.get("zip") or fields.get("z_i_p") or "").strip()
+            membership_type = _normalize_medlemstype(fields.get("medlemstype") or fields.get("country"))
+            birth_date = (fields.get("fodselsdato") or fields.get("birthday") or fields.get("birth_date") or "").strip() or None
             full_name = _build_full_name(fornamn, mellomnamn, etternamn)
             consent_at = s.get("subscribed_at") or now
             conn.execute(
