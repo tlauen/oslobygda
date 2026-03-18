@@ -1,40 +1,49 @@
 # oslobygda
 
-Nettside for Oslobygda kulturlag (`oslobygda.no`), med informasjon om arrangement, kalender og praktisk kontaktinfo.
+Nettside for Oslobygda kulturlag (`oslobygda.no`) bygga med **Jekyll**.
 
-## Kva nettsida er
+Denne README-en forklarer kva ein utanfrå bør vite: kva som er statisk Jekyll-innhald, kva som blir generert av data, og at `medlemsregister/` er ein separert Flask-app som må deployast for seg.
 
-`oslobygda` er nettsida for eit lokalt kulturmiljø i Oslo. Prosjektet brukar Jekyll med sider, includes og datafiler for å halde innhald lett å vedlikehalde.
+## Kva nettsida er (i praksis)
+
+- **Jekyll** byggjer sidene til GitHub Pages (ingen eigen build-server nødvendig)
+- Innhald er stort sett i `*.md` (frontmatter + Markdown) og inkluderer felles HTML-komponentar
+- Kalender og abonnement blir styrt av datafiler (sjå `_data/` og `kalender/`)
+- **Medlemsregisteret** er ikkje ein del av Jekyll-bygget: det er ein separat **Flask-app** i `medlemsregister/`
 
 ## Teknologi
 
 - Jekyll (GitHub Pages-kompatibel)
-- Markdown + HTML-layouts
+- Markdown + `_layouts/` (sidemalar) + `_includes/` (gjenbruk)
 - YAML-data i `_data/`
 
-## Viktige mapper/filer
+## Viktige mapper og sider
 
-- `_config.yml`: Jekyll-konfigurasjon
+- `_config.yml`: Jekyll-konfig (inkl. kven som blir ekskludert frå bygg)
 - `_layouts/`: sidemalar
-- `_includes/`: gjenbrukbare komponentar
-- `_data/`: strukturerte data
-- `kalender/`: kalendersider
-- `assets/`: CSS, bilete og statiske ressursar
-- `medlemsregister/`: GDPR-sikkert medlemsregister (Flask-app; må deployast separat for bruk på nett)
-- `medlemsregister.md`: sida på [oslobygda.no/medlemsregister](https://oslobygda.no/medlemsregister) med lenke til innlogging
+- `_includes/`: gjenbrukbare HTML-komponentar
+- `_data/`: data som driv ting som kalender/templating
+- `kalender/`: sida “Kalender” + historikk (del av statisk innhald)
+- `assets/`: CSS/bilete/andre statiske ressursar
 - `index.md`: framside
 - `kalender.ics`: kalender-feed
-- `CNAME`: custom domene
+- `medlemsregister.md`: statisk side på oslobygda.no med lenker til Flask-appen
+
+## Medlemsregister (Flask-app)
+
+- `medlemsregister/` inneheld ein **Flask-app** (Bygdelista) med admin UI og offentleg innmeldingsskjema.
+- Jekyll ekskluderer Python-delen frå bygg (`exclude: ["medlemsregister"]` i `_config.yml`).
+- Statisk sida `medlemsregister.md` brukar ei konfigverdi (`medlemsregister_url`) for å peike inn til Flask-appen når den er deploya.
 
 ## Lokal utvikling
 
-Installer avhengigheiter:
+1. Installer dependencies:
 
 ```bash
 bundle install
 ```
 
-Start lokal server:
+2. Start lokal server:
 
 ```bash
 bundle exec jekyll serve
@@ -44,34 +53,18 @@ Opne `http://localhost:4000/`.
 
 ## Publisering
 
-Repoet er sett opp for GitHub Pages/Jekyll. Push til hovudbranch publiserer ny versjon når Pages er aktivert i repo-innstillingar.
+Når du pushar til riktig branch, blir GitHub Pages oppdatert (Jekyll byggjer statiske sider).
 
-## Nyhendebrev (full auto via MailerLite)
+Custom domene blir styrt av `CNAME`.
 
-Repoet kan sende nyhendebrev automatisk via **MailerLite (ny plattform)** og GitHub Actions.
+## Nyhendebrev (MailerLite + GitHub Actions)
 
-- **Workflow**: `.github/workflows/nyhendebrev.yml`
-- **Script**: `scripts/send_nyhendebrev_mailerlite.rb`
-- **Innhald**: blir generert frå `_data/kalender.yml` (komande tilskipingar)
-- **Utsendingstidspunkt**: scriptet sender berre når det er **7 dagar før neste** tilskiping som matchar `TRIGGER_UID_CONTAINS` (standard `pobb-`)
+Det finst ein auto-flyt som kan sende nyhendebrev via MailerLite:
 
-### Secrets som må setjast i GitHub
-
-Gå til `Settings → Secrets and variables → Actions` i repoet og legg inn:
-
-- **`MAILERLITE_API_TOKEN`**: API-token frå MailerLite
-- **`MAILERLITE_GROUP_ID`**: Gruppe-ID mottakarane ligg i (finn under `Integrations → API` i MailerLite)
-- **`MAILERLITE_FROM_EMAIL`**: avsendaradresse (må vere verifisert i MailerLite)
-- **`MAILERLITE_FROM_NAME`**: avsendar-namn
-- **`MAILERLITE_REPLY_TO`** (valfri): svar-til-adresse
-
-### Tilpassing
-
-Du kan endre desse i `.github/workflows/nyhendebrev.yml`:
-
-- **`TRIGGER_UID_CONTAINS`**: kva type tilskiping som triggar utsending (t.d. `pobb-`)
-- **`DAYS_BEFORE_TRIGGER`**: kor mange dagar før trigger-tilskipinga ein sender
-- **`UPCOMING_LIMIT`**: kor mange komande tilskipingar som blir lista i brevet
+- Workflow: `.github/workflows/nyhendebrev.yml`
+- Script: `scripts/send_nyhendebrev_mailerlite.rb`
+- Innhald: blir generert frå `_data/kalender.yml`
+- Utsending: berre når det er “7 dagar før neste” arrangement (styrt av trigger-innstillingar)
 
 ## Lisens
 
