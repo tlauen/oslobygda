@@ -119,7 +119,7 @@ Heile medlemslista ligg i **`medlemsregister.db`**. For å sikre dobbellagring k
 ### Slik gjer du det
 
 1. **Backup-mappa:** Legg `BACKUP_DIR="/sti/til/backup-mappa"` i **`.env`** i medlemsregister-mappa (t.d. ei mappe inni OneDrive eller Proton Drive). Scriptet les `.env` automatisk.
-2. **Kør backup** – stå inne i `medlemsregister/` og kjør:
+2. **Køyr backup** – stå inne i `medlemsregister/` og kjør:
    ```bash
    bash backup.sh
    ```
