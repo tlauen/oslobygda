@@ -24,7 +24,7 @@
 {% assign current_year = "" %}
 
 {%- if alle.size == 0 -%}
-  <p class="muted">Ingen arrangement enno.</p>
+  <p class="dempa">Ingen arrangement enno.</p>
 {%- else -%}
 
   {%- comment -%}
@@ -76,9 +76,9 @@
 
   {% endif %}
 {% endfor %}
-  <h3 class="kalender-jaar">
+  <h3 class="kalender-aar">
     {{ current_year }}
-    <span class="muted">({% assign sep = "" %}{%- if pobb_count > 0 -%}{{ sep }}{{ pobb_count }} pøbbar{% assign sep = ", " %}{%- endif -%}{%- if kved_count > 0 -%}{{ sep }}{{ kved_count }} kvedarkrokar{% assign sep = ", " %}{%- endif -%}{%- if kviss_count > 0 -%}{{ sep }}{{ kviss_count }} kvissar{%- endif -%})</span>
+    <span class="dempa">({% assign sep = "" %}{%- if pobb_count > 0 -%}{{ sep }}{{ pobb_count }} pøbbar{% assign sep = ", " %}{%- endif -%}{%- if kved_count > 0 -%}{{ sep }}{{ kved_count }} kvedarkrokar{% assign sep = ", " %}{%- endif -%}{%- if kviss_count > 0 -%}{{ sep }}{{ kviss_count }} kvissar{%- endif -%})</span>
   </h3>
 
   <div class="kalenderliste">
@@ -87,7 +87,7 @@
     {%- capture mnd -%}{%- include no-month.html date=e.dato -%}{%- endcapture -%}
     {%- assign dag = e.dato | date: "%-d" -%}
     {%- assign aar = e.dato | date: "%Y" -%}
-    {%- assign cover = e.bilete | default: "/assets/img/arr-cover.png" -%}
+    {%- assign cover = e.bilete | default: "/lutar/bilete/arr-cover.png" -%}
 
     {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
     {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
@@ -101,7 +101,7 @@
     {%- assign g_dates = dtstart | append: "/" | append: dtend -%}
     {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
 
-    {% assign kortklasse = "card kalenderkort" %}
+    {% assign kortklasse = "kort kalenderkort" %}
     {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--past" %}{% endif %}
 
     <div class="{{ kortklasse }}">
@@ -130,12 +130,12 @@
           {% endif %}
         </div>
 
-        {% if e.stad %}<div class="muted">{{ e.stad }}</div>{% endif %}
-        {% if e.merknad %}<div class="muted">{{ e.merknad }}</div>{% endif %}
+        {% if e.stad %}<div class="dempa">{{ e.stad }}</div>{% endif %}
+        {% if e.merknad %}<div class="dempa">{{ e.merknad }}</div>{% endif %}
 
         <div class="kalenderkort__actions">
           <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
-          <span class="muted">·</span>
+          <span class="dempa">·</span>
           <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>
         </div>
       </div>
@@ -152,7 +152,7 @@
   {% endif %}
 
   {% if vist == 0 %}
-    <p class="muted">Ingen arrangement i denne lista.</p>
+    <p class="dempa">Ingen arrangement i denne lista.</p>
   {% endif %}
 
 {%- endif -%}

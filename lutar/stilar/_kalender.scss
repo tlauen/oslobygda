@@ -11,19 +11,19 @@
 }
 
 /* År-overskrift */
-.kalender-jaar{
+.kalender-aar{
   margin: 2rem 0 .8rem;
   font-family: var(--serif);
   font-weight: 650;
 }
 
 /* Stram inn berre gapet rett etter overskrifta "Kva me har gjort før" */
-.section--past .kalender-jaar:first-of-type{
+.seksjon--tidlegare .kalender-aar:first-of-type{
   margin-top: 0rem;     /* var 2rem */
 }
 
 /* Men hald luft mellom års-bolkane elles */
-.section--past .kalenderliste + .kalender-jaar{
+.seksjon--tidlegare .kalenderliste + .kalender-aar{
   margin-top: 2rem;      /* same som før */
 }
 
@@ -33,7 +33,7 @@
 
   padding: 0;
 
-  border-radius: var(--card-radius) !important;
+  border-radius: var(--kort-radius) !important;
   overflow: hidden;
   border: 1px solid var(--line);
   background: var(--panel);
@@ -121,7 +121,7 @@
   font-size: .95rem;
 }
 
-.muted{
+.dempa{
   color: color-mix(in srgb, var(--text) 70%, transparent);
 }
 
@@ -133,21 +133,21 @@
 /* berre i pastell-palett */
 
 [data-palette="pastell"] .kalenderkort:nth-child(5n+1){
-  background: var(--card1);
+  background: var(--kort1);
 }
 
 [data-palette="pastell"] .kalenderkort:nth-child(5n+2){
-  background: var(--card2);
+  background: var(--kort2);
 }
 
 [data-palette="pastell"] .kalenderkort:nth-child(5n+3){
-  background: var(--card3);
+  background: var(--kort3);
 }
 
 [data-palette="pastell"] .kalenderkort:nth-child(5n+4){
-  background: var(--card4);
+  background: var(--kort4);
 }
 
 [data-palette="pastell"] .kalenderkort:nth-child(5n+5){
-  background: var(--card5);
+  background: var(--kort5);
 }

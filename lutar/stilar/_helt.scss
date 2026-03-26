@@ -1,18 +1,18 @@
 /* =========================================
-   _hero.scss — Hero
+   _helt.scss — Hero
    ========================================= */
 
 /* --- HERO --- */
-.hero{
-  /* hero-innhald skal alltid vere lyst (sidan biletet er mørkt) */
-  --hero-ink: #ebdecc;
-  --hero-muted: rgba(235,222,204,.82);
+.helt{
+  /* helt-innhald skal alltid vere lyst (sidan biletet er mørkt) */
+  --helt-ink: #ebdecc;
+  --helt-dempa: rgba(235,222,204,.82);
 
   margin: 1.2rem 0 1.4rem;
   border: 0;                 /* ingen stygg kant */
   overflow: hidden;
 
-  background-image: url("../img/hero.jpg");
+  background-image: url("/lutar/bilete/hero.jpg");
   background-size: cover;
   background-position: center;
   position: relative;
@@ -20,8 +20,8 @@
   box-shadow: 0 12px 40px rgba(0,0,0,.18);
 }
 
-/* Overlay/vignett */
-.hero::before{
+/* Dekke/vignett */
+.helt::before{
   content:"";
   position:absolute;
   inset: 0;
@@ -34,8 +34,8 @@
     radial-gradient(closest-side, rgba(0,0,0,.0), rgba(0,0,0,.22));
 }
 
-/* litt lysare overlay i light mode (men framleis mørk nok for lys tekst/logo) */
-:root[data-theme="light"] .hero::before{
+/* litt lysare dekke i light mode (men framleis mørk nok for lys tekst/logo) */
+:root[data-theme="light"] .helt::before{
   background:
     linear-gradient(to bottom, rgba(0,0,0,.30), rgba(0,0,0,.10)),
     radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 55%),
@@ -44,7 +44,7 @@
     radial-gradient(closest-side, rgba(0,0,0,.0), rgba(0,0,0,.16));
 }
 
-:root[data-theme="dark"] .hero::before{
+:root[data-theme="dark"] .helt::before{
   background:
     linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.22)),
     radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 55%),
@@ -53,7 +53,7 @@
     radial-gradient(closest-side, rgba(0,0,0,.0), rgba(0,0,0,.28));
 }
 
-.hero__inner{
+.helt__innhald{
   position: relative;
   padding: 3.2rem 1.2rem;
   text-align: center;
@@ -62,32 +62,32 @@
   justify-items: center;
 }
 
-/* Stor logo i hero */
-.hero__logo{
+/* Stor logo i helt */
+.helt__logo{
   width: min(360px, 72vw);
   aspect-ratio: 1 / 1;
-  background: var(--hero-ink);
-  -webkit-mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
-  mask: url("../img/logo_oslobygda.svg") no-repeat center / contain;
+  background: var(--helt-ink);
+  -webkit-mask: url("/lutar/bilete/logo_oslobygda.svg") no-repeat center / contain;
+  mask: url("/lutar/bilete/logo_oslobygda.svg") no-repeat center / contain;
   opacity: .98;
   filter: drop-shadow(0 10px 26px rgba(0,0,0,.25));
 }
 
-.hero__title{
+.helt__tittel{
   font-family: var(--serif);
   font-weight: 650;
   letter-spacing: .3px;
   line-height: 1.05;
   margin: 0;
   font-size: clamp(2rem, 4vw, 3rem);
-  color: var(--hero-ink);
+  color: var(--helt-ink);
   text-shadow: 0 1px 18px rgba(0,0,0,.35);
 }
 
-.hero__lead{
+.helt__ingress{
   margin: 0;
   max-width: 60ch;
-  color: var(--hero-muted);
+  color: var(--helt-dempa);
   font-size: 1.05rem;
   text-shadow: 0 1px 14px rgba(0,0,0,.30);
 }

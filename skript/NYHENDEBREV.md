@@ -4,7 +4,7 @@ Dette repoet kan sende nyhendebrev automatisk via MailerLite sin **nyaste plattf
 
 ### Kva som skjer
 
-- Scriptet les komande tilskipingar frå `_data/kalender.yml`
+- Scriptet les komande tilhopp-lenkjeingar frå `_data/kalender.yml`
 - Det sjekkar om **i dag = 7 dagar før neste folkemusikkpøbb** (standardregel)
 - Om ja: det lagar ein kampanje i MailerLite og sender han til ei gruppe
 - Om nei: det gjer ingenting (workflowen køyrer likevel dagleg)
@@ -42,17 +42,17 @@ Legg inn:
 Gå til **Actions → Send nyhendebrev (MailerLite)** og trykk **Run workflow**.
 
 - **Vanleg køyr**: Scriptet sender berre om det er 7 dagar før neste pøbb; elles avsluttar det utan å sende.
-- **Testutsending uansett dato**: Kryss av for **«Send uansett dato (test – sender også om det ikkje er 7 dagar før pøbb)»** før du trykkar Run workflow. Da sendes e-post likevel (bruk ei lita testgruppe om mogleg).
+- **Testutsending uansett dato**: Kryss av for **«Send uansett dato (test – sender også om det ikkje er 7 dagar før pøbb)»** før du trykkar Run workflow. Då blir e-post send likevel (bruk ei lita testgruppe om mogleg).
 
 Du kan også køyre scriptet lokalt med `OSLOBYGDA_FORCE_SEND=1` (samt alle MAILERLITE_*-variablane) for å sende ein test.
 
 ### Design og stil
 
-E-posten som sendes automatisk, bruker same **fargepalett og typografi** som nettsida (pastell: bakgrunn #FCF9F3, tekst #12110e, aksent #2f5d50 / #BFEAEE). HTML-en byggjest i scriptet (`send_nyhendebrev_mailerlite.rb`), så endringar av utsjånad gjer du der (eller ved å redigere variablane øvst i scriptet).
+E-posten som blir send automatisk, bruker same **fargepalett og typografi** som nettsida (pastell: bakgrunn #FCF9F3, tekst #12110e, aksent #2f5d50 / #BFEAEE). HTML-en byggjest i scriptet (`send_nyhendebrev_mailerlite.rb`), så endringar av utsjånad gjer du der (eller ved å redigere variablane øvst i scriptet).
 
 **MailerLite-mal:** Du kan lage ein **mal** i MailerLite (Campaigns → Templates) med same stil – nyttig for manuelle kampanjar og som referanse. Den automatiske nyhendebrevet bruker ikkje malen (API-et sender ferdig HTML), men du kan kopiere fargar og oppsett frå malen inn i scriptet om du vil halde alt likt.
 
-**Logo i e-posten:** Nyhendebrevet bruker `assets/img/logo_oslobygda.png` (200×200 px) nederst. PNG er meir kompatibel enn SVG i e-postklientar (Outlook, Gmail osb.). Lag fila ved å eksportere/konvertere frå `logo_oslobygda.svg` (200×200 px eller større for skarpt bilete), og legg han i `assets/img/`. Utan PNG vil logoen ikkje visast (lenka peikar berre på .png).
+**Logo i e-posten:** Nyhendebrevet bruker `lutar/bilete/logo_oslobygda.png` (200×200 px) nederst. PNG er meir kompatibel enn SVG i e-postklientar (Outlook, Gmail osb.). Lag fila ved å eksportere/konvertere frå `logo_oslobygda.svg` (200×200 px eller større for skarpt bilete), og legg han i `lutar/bilete/`. Utan PNG vil logoen ikkje visast (lenka peikar berre på .png).
 
 ### Vanlege feil
 

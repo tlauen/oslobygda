@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: standard
 title: Kalender
 permalink: /kalender/
 ---
@@ -8,12 +8,12 @@ permalink: /kalender/
 
 ## Kva du kan glede deg til
 
-<div class="section">
+<div class="seksjon">
 {% include kalenderliste.html mode="future" %}
 </div>
 
 ## Kva me har gjort før
 
-<div class="section section--past">
+<div class="seksjon seksjon--tidlegare">
 {% include kalenderliste.html mode="past" group="year" %}
 </div>

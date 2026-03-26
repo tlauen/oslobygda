@@ -1,9 +1,9 @@
 /* =========================================
-   _header.scss — Toppen
+   topp.scss — Toppen
    ========================================= */
 
 /* --- Header / nav --- */
-.site-header{
+.toppfelt{
   position: sticky;
   top: 0;
   z-index: 50;
@@ -12,12 +12,12 @@
   background: rgba(0,0,0,0); /* trygg fallback */
 }
 @supports (background: color-mix(in srgb, #000 50%, transparent)){
-  .site-header{
+  .toppfelt{
     background: color-mix(in srgb, var(--bg) 70%, transparent);
   }
 }
 
-.header-inner{
+.toppfelt-innhald{
   display: flex;
   align-items: stretch;
   justify-content: space-between;
@@ -27,7 +27,7 @@
 }
 
 /* NAV container (held berre knapp + desktop-meny) */
-.nav{
+.meny{
   display: flex;
   align-items: stretch;
   gap: .2rem;
@@ -37,13 +37,13 @@
    Desktop-meny (horisontal)
    ----------------------------------------- */
 
-.nav-desktop{
+.meny-skrivebord{
   display: none; /* blir aktiv på desktop via media query */
   align-items: stretch;
   gap: .2rem;
 }
 
-.nav-desktop a{
+.meny-skrivebord a{
   display: flex;
   align-items: center;
   height: 100%;
@@ -57,7 +57,7 @@
   transition: background .15s ease, transform .1s ease;
 }
 
-.nav-desktop a.nav-cta{
+.meny-skrivebord a.meny-framheva{
   margin-left: auto;
   align-self: center;
   height: auto;
@@ -69,18 +69,18 @@
 
 /* 6 tydelege pastellar; rekkjefølgje slik at like fargar ikkje er ved sida av kvarandre */
 @media (hover: hover) and (pointer: fine){
-  .nav-desktop a:nth-child(1):hover{ background: color-mix(in srgb, #A8D4E8 60%, transparent); }  /* blå */
-  .nav-desktop a:nth-child(2):hover{ background: color-mix(in srgb, #F1CACB 60%, transparent); }  /* rosa */
-  .nav-desktop a:nth-child(3):hover{ background: color-mix(in srgb, #FBEDC0 60%, transparent); }  /* gul */
-  .nav-desktop a:nth-child(4):hover{ background: color-mix(in srgb, #A8D8A0 60%, transparent); }  /* grøn */
-  .nav-desktop a:nth-child(5):hover{ background: color-mix(in srgb, #F5DFC9 60%, transparent); }  /* persika */
-  .nav-desktop a:nth-child(6):hover{ background: color-mix(in srgb, #E1D4F5 60%, transparent); }  /* lavendel */
+  .meny-skrivebord a:nth-child(1):hover{ background: color-mix(in srgb, #A8D4E8 60%, transparent); }  /* blå */
+  .meny-skrivebord a:nth-child(2):hover{ background: color-mix(in srgb, #F1CACB 60%, transparent); }  /* rosa */
+  .meny-skrivebord a:nth-child(3):hover{ background: color-mix(in srgb, #FBEDC0 60%, transparent); }  /* gul */
+  .meny-skrivebord a:nth-child(4):hover{ background: color-mix(in srgb, #A8D8A0 60%, transparent); }  /* grøn */
+  .meny-skrivebord a:nth-child(5):hover{ background: color-mix(in srgb, #F5DFC9 60%, transparent); }  /* persika */
+  .meny-skrivebord a:nth-child(6):hover{ background: color-mix(in srgb, #E1D4F5 60%, transparent); }  /* lavendel */
 
-  .nav-desktop a:hover{
+  .meny-skrivebord a:hover{
     transform: translateY(-1px);
   }
 
-  .nav-desktop a.nav-cta:hover{
+  .meny-skrivebord a.meny-framheva:hover{
     background: color-mix(in srgb, var(--accent) 44%, var(--bg));
   }
 }
@@ -89,7 +89,7 @@
    Hamburgarmeny (mobil)
    ----------------------------------------- */
 
-.nav-toggle{
+.meny-vekslar{
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -104,24 +104,24 @@
   color: var(--text);
 
   position: relative;
-  z-index: 11000; /* over overlay */
+  z-index: 11000; /* over dekke */
 }
 
 /* Byt ikon */
-.icon-close{ display: none; }
-.nav-open .icon-open{ display: none; }
-.nav-open .icon-close{ display: inline; }
+.ikon-lukk{ display: none; }
+.meny-open .ikon-opne{ display: none; }
+.meny-open .ikon-lukk{ display: inline; }
 
-.nav-toggle{
+.meny-vekslar{
   position: relative;   /* ikkje fixed */
   z-index: 11000;
 }
 
-/* Fullskjerms overlay */
-.nav-overlay{
+/* Fullskjerms dekke */
+.meny-dekke{
   position: fixed;
   inset: 0;
- width: 100vw;
+width: 100vw;
   height: 100vh;
   
   background: var(--bg);
@@ -136,17 +136,17 @@
   place-items: center;
 }
 
-.nav-overlay.open{
+.meny-dekke.open{
   opacity: 1;
   pointer-events: auto;
 }
 
-body.nav-open{
+body.meny-open{
   overflow: hidden;
 }
 
 /* sjølve menylista */
-.nav-overlay__menu{
+.meny-dekke__meny{
   width: min(520px, 92vw);
   display: flex;
   flex-direction: column;
@@ -157,7 +157,7 @@ body.nav-open{
   padding: 4.5rem 0 2rem;
 }
 
-.nav-overlay__menu a{
+.meny-dekke__meny a{
   display: block;
   width: 100%;
 
@@ -177,7 +177,7 @@ body.nav-open{
   transform: none !important;
 }
 
-.nav-overlay__menu a.nav-cta{
+.meny-dekke__meny a.meny-framheva{
   border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
   border-radius: .8rem;
   background: color-mix(in srgb, var(--accent) 22%, var(--bg));
@@ -185,7 +185,7 @@ body.nav-open{
 
 /* hover-effekt berre der det faktisk finst hover */
 @media (hover: hover) and (pointer: fine){
-  .nav-overlay__menu a:hover{
+  .meny-dekke__meny a:hover{
     background: color-mix(in srgb, var(--accent2) 18%, transparent);
   }
 }
@@ -194,7 +194,7 @@ body.nav-open{
    ----------------------------------------- */
 
 @media (min-width: 720px){
-  .nav-toggle{ display: none; }
-  .nav-overlay{ display: none; }
-  .nav-desktop{ display: flex; }
+  .meny-vekslar{ display: none; }
+  .meny-dekke{ display: none; }
+  .meny-skrivebord{ display: flex; }
 }

@@ -15,7 +15,7 @@ Appen har:
 ## Starte appen (lokal køyring)
 
 1. **Python 3.9+** – sjekk med `python3 --version`.
-2. Installer avhengigheter:
+2. Installer avhengnader:
 
 ```bash
 cd medlemsregister
@@ -55,7 +55,7 @@ Hugs: `.env` inneheld secrets og skal ikkje committast.
     ```bash
     python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('ditt-passord'))"
     ```
-- `MEDLEMSREGISTER_SECRET_KEY`: lang, tilfeldig streng for sessionshandtering (set ved deploy; ikkje bruk appen opent på nett utan)
+- `MEDLEMSREGISTER_SECRET_KEY`: lang, tilfeldig streng for økthandtering (set ved driftsetjing; ikkje bruk appen opent på nett utan)
 - `BACKUP_DIR`: mappe for backup (brukast av `backup.sh`)
 - `MEDLEMSREGISTER_DB_KEY` (valfritt): krypter `medlemsregister.db` på disk med SQLCipher
   - Krev `sqlcipher3` i Python og `libsqlcipher` på systemet
@@ -106,12 +106,12 @@ Heile medlemslista ligg i `medlemsregister.db`.
 Du kan køyre backup til ei mappe som synkroniserer med t.d. OneDrive/Proton Drive:
 
 1. Set `BACKUP_DIR` i `.env`
-2. Kjør:
+2. Køyr:
    ```bash
    bash backup.sh
    ```
 
-Scriptet lagar datomerka backupar og behald berre dei nyaste (for å hindre at mappa veks utan ende).
+Scriptet lagar datomerka tryggingskopiar og beheld berre dei nyaste (for å hindre at mappa veks utan ende).
 
 ## GDPR
 
@@ -121,7 +121,7 @@ Scriptet lagar datomerka backupar og behald berre dei nyaste (for å hindre at m
 
 DB-fila inneheld personopplysningar og skal ikkje i Git eller delast ukryptert.
 
-## Alternativ flyt: MailerLite-skjema (ingen public Flask nødvendig)
+## Alternativ flyt: MailerLite-skjema (ingen offentleg Flask nødvendig)
 
 Du kan la innmeldingsskjemaet vere eit MailerLite-skjema (embed eller lenke på nettsida).
 

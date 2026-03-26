@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: standard
 title: Kontakt oss
 permalink: /kontakt/
 ---

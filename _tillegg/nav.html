@@ -1,0 +1,22 @@
+<nav class="meny">
+
+  <button class="meny-vekslar" aria-label="Meny">
+    <span class="ikon-opne">☰</span>
+    <span class="ikon-lukk">✕</span>
+  </button>
+
+  <div class="meny-skrivebord">
+    {% for item in site.data.nav %}
+    <a href="{{ item.path | relative_url }}"{% if item.path == '/bli-medlem/' %} class="meny-framheva"{% endif %}>{{ item.label }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="meny-dekke" id="menyDekke">
+    <div class="meny-dekke__meny">
+      {% for item in site.data.nav %}
+      <a href="{{ item.path | relative_url }}"{% if item.path == '/bli-medlem/' %} class="meny-framheva"{% endif %}>{{ item.label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+</nav>

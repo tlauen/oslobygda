@@ -155,7 +155,7 @@ html = <<~HTML
       Kalender (ICS): <a href="#{base_url}/kalender.ics" style="color:#2f5d50; text-decoration:underline;">#{base_url}/kalender.ics</a>
     </p>
     <p style="margin:20px 0 0; text-align:center;">
-      <a href="#{base_url}/" style="text-decoration:none;"><img src="#{base_url}/assets/img/logo_oslobygda.png" alt="Oslobygda kulturlag" width="200" height="200" style="display:inline-block; width:200px; height:200px;"></a>
+      <a href="#{base_url}/" style="text-decoration:none;"><img src="#{base_url}/lutar/bilete/logo_oslobygda.png" alt="Oslobygda kulturlag" width="200" height="200" style="display:inline-block; width:200px; height:200px;"></a>
     </p>
   </div>
 HTML

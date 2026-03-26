@@ -6,7 +6,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Ta med songrøysta di."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
 
 - uid: "pobb-2026-04"
   dato: "2026-04-29"
@@ -16,7 +16,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2026-03"
   dato: "2026-03-25"
@@ -26,7 +26,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2026-02"
   dato: "2026-02-25"
@@ -36,7 +36,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2026-01"
   dato: "2026-01-28"
@@ -46,7 +46,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Del av festivalen DANS DANS DANS."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-09"
   dato: "2025-11-12"
@@ -56,7 +56,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-08"
   dato: "2025-10-22"
@@ -66,7 +66,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-07"
   dato: "2025-09-24"
@@ -76,7 +76,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-06"
   dato: "2025-08-27"
@@ -86,7 +86,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-05"
   dato: "2025-05-21"
@@ -96,7 +96,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-04"
   dato: "2025-04-23"
@@ -106,7 +106,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-03"
   dato: "2025-03-26"
@@ -116,7 +116,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-02"
   dato: "2025-02-26"
@@ -126,7 +126,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Samarbeid med Norsk munnharpeforum"
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2025-01"
   dato: "2025-01-29"
@@ -136,7 +136,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Del av festivalen DANS DANS DANS."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-09"
   dato: "2024-11-13"
@@ -146,7 +146,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-08"
   dato: "2024-10-30"
@@ -156,7 +156,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-07"
   dato: "2024-09-25"
@@ -166,7 +166,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-06"
   dato: "2024-08-28"
@@ -176,7 +176,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-05"
   dato: "2024-05-29"
@@ -186,7 +186,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Amalie Kinsarvik Tvilde m.fl."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-04"
   dato: "2024-04-28"
@@ -196,7 +196,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-03"
   dato: "2024-03-20"
@@ -206,7 +206,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-02"
   dato: "2024-02-28"
@@ -216,7 +216,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2024-01"
   dato: "2024-01-31"
@@ -226,7 +226,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Del av DANS DANS DANS. Mattias Thedens, Ester Thunander, Åsmund Fauske, Tiril Einarsdotter og Sindre Tronrud."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
 
 - uid: "pobb-2023-09"
   dato: "2023-11-15"
@@ -236,7 +236,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-08"
   dato: "2023-10-25"
@@ -246,7 +246,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-07"
   dato: "2023-09-27"
@@ -256,7 +256,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-06"
   dato: "2023-08-30"
@@ -266,7 +266,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-05"
   dato: "2023-05-31"
@@ -276,7 +276,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-04"
   dato: "2023-04-26"
@@ -286,7 +286,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-03"
   dato: "2023-03-29"
@@ -296,7 +296,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-02"
   dato: "2023-03-03"
@@ -306,7 +306,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2023-01"
   dato: "2023-01-25"
@@ -316,7 +316,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2022-24"
   dato: "2022-11-30"
@@ -326,7 +326,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2022-23"
   dato: "2022-10-26"
@@ -336,7 +336,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2022-22"
   dato: "2022-08-31"
@@ -346,7 +346,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "pobb-2022-21"
   dato: "2022-08-31"
@@ -356,7 +356,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/arr-cover.png"
+  bilete: "/lutar/bilete/arr-cover.png"
   
 - uid: "kved-2022-02"
   dato: "2022-10-26"
@@ -366,7 +366,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "kved-2022-01"
   dato: "2022-09-28"
@@ -376,7 +376,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "kved-2022-03"
   dato: "2022-04-27"
@@ -386,7 +386,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "kved-2022-04"
   dato: "2022-04-04"
@@ -396,7 +396,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "kved-2022-05"
   dato: "2022-03-16"
@@ -406,7 +406,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "kved-2022-06"
   dato: "2022-03-09"
@@ -416,7 +416,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "kved-2022-07"
   dato: "2022-03-02"
@@ -426,7 +426,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "kved-2022-08"
   dato: "2022-02-09"
@@ -436,7 +436,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/kvedarkrok.png"
+  bilete: "/lutar/bilete/kvedarkrok.png"
   
 - uid: "pobb-2022-20"
   dato: "2022-06-01"
@@ -446,7 +446,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png"
+  bilete: "/lutar/bilete/gamal-cover.png"
   
 - uid: "pobb-2022-19"
   dato: "2022-05-25"
@@ -456,7 +456,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png"
+  bilete: "/lutar/bilete/gamal-cover.png"
   
 - uid: "pobb-2022-18"
   dato: "2022-05-18"
@@ -466,7 +466,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
 
 - uid: "pobb-2022-17"
   dato: "2022-05-11"
@@ -476,7 +476,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-16"
   dato: "2022-05-04"
@@ -486,7 +486,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-15"
   dato: "2022-04-27"
@@ -496,7 +496,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
    
 - uid: "pobb-2022-14"
   dato: "2022-04-20"
@@ -506,7 +506,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png"
+  bilete: "/lutar/bilete/gamal-cover.png"
   
 - uid: "pobb-2022-13"
   dato: "2022-04-06"
@@ -516,7 +516,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png"   
+  bilete: "/lutar/bilete/gamal-cover.png"   
   
 - uid: "pobb-2022-12"
   dato: "2022-03-30"
@@ -526,7 +526,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Astrid Garmo er jam-vert! Støtta av SFF."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-11"
   dato: "2022-03-23"
@@ -536,7 +536,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Astrid Garmo er jam-vert! Støtta av SFF."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-10"
   dato: "2022-03-16"
@@ -546,7 +546,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-09"
   dato: "2022-03-09"
@@ -556,7 +556,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png"  
+  bilete: "/lutar/bilete/gamal-cover.png"  
 
 - uid: "pobb-2022-08"
   dato: "2022-03-02"
@@ -566,7 +566,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-07"
   dato: "2022-02-23"
@@ -576,7 +576,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
 
 - uid: "pobb-2022-06"
   dato: "2022-02-16"
@@ -586,7 +586,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-05"
   dato: "2022-02-09"
@@ -596,7 +596,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-04"
   dato: "2022-02-02"
@@ -606,7 +606,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-03"
   dato: "2022-01-26"
@@ -616,7 +616,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-02"
   dato: "2022-01-19"
@@ -626,7 +626,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2022-01"
   dato: "2022-01-12"
@@ -636,7 +636,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
 
   
 - uid: "kviss-2022-01"
@@ -647,7 +647,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Pandemi-tiltak"
-  bilete: "/assets/img/kviss-cover.png" 
+  bilete: "/lutar/bilete/kviss-cover.png" 
   
 - uid: "kviss-2022-02"
   dato: "2022-01-19"
@@ -657,7 +657,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Pandemi-tiltak"
-  bilete: "/assets/img/kviss-cover.png" 
+  bilete: "/lutar/bilete/kviss-cover.png" 
   
 - uid: "kviss-2022-03"
   dato: "2022-01-12"
@@ -667,7 +667,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang. Pandemi-tiltak"
-  bilete: "/assets/img/kviss-cover.png" 
+  bilete: "/lutar/bilete/kviss-cover.png" 
   
 - uid: "pobb-2021-01"
   dato: "2021-10-06"
@@ -677,7 +677,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
 
 - uid: "pobb-2021-02"
   dato: "2021-10-13"
@@ -687,7 +687,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2021-03"
   dato: "2021-10-20"
@@ -697,7 +697,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2021-04"
   dato: "2021-10-27"
@@ -707,7 +707,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2021-05"
   dato: "2021-11-03"
@@ -717,7 +717,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
 
 - uid: "pobb-2021-06"
   dato: "2021-11-10"
@@ -727,7 +727,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
 - uid: "pobb-2021-07"
   dato: "2021-11-17"
@@ -737,7 +737,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
 
 - uid: "pobb-2021-08"
   dato: "2021-11-24"
@@ -747,7 +747,7 @@
   stad: "Kaffistova, kjellaren"
   #lenkje: "/pub/"
   merknad: "Gratis inngang."
-  bilete: "/assets/img/gamal-cover.png" 
+  bilete: "/lutar/bilete/gamal-cover.png" 
   
   
   

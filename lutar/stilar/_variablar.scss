@@ -1,16 +1,16 @@
 /* =========================================
-   _vars.scss — Variablar
+   _variablar.scss — Variablar
    ========================================= */
 
 /* --- Palettar: kaffistove --- */
 :root{
-  /* default = lys */
+  /* standard = lys */
   --bg: #ebdecc;     /* varm papir */
   --text: #12110e;   /* espresso */
   --panel: rgba(255,255,255,.55);
   --panel-strong: rgba(255,255,255,.72);
   --line: rgba(18,17,14,.14);
-  --card-radius: 18px;
+  --kort-radius: 18px;
 
   /* aksent: tre / øl / messing */
   --accent: #6b4a2d;   /* tre */
@@ -64,7 +64,7 @@
 
   --bg: #FCF9F3;
   --text: #12110e;
-  --card-radius: 10px;
+  --kort-radius: 10px;
 
   --panel: rgba(255,255,255,.72);
   --panel-strong: rgba(255,255,255,.86);
@@ -76,10 +76,10 @@
   --accent4: #F5DFC9;
 
   /* kortfargar kalender – blå og grøn tydeleg ulike */
-  --card1: #FBEDC0;
-  --card2: #A8D4E8;
-  --card3: #F1CACB;
-  --card4: #F5DFC9;
-  --card5: #A8D8A0;
+  --kort1: #FBEDC0;
+  --kort2: #A8D4E8;
+  --kort3: #F1CACB;
+  --kort4: #F5DFC9;
+  --kort5: #A8D8A0;
 
 }

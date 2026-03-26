@@ -35,4 +35,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Send nyhendebrev
-        run: ruby scripts/send_nyhendebrev_mailerlite.rb
+        run: ruby skript/send_nyhendebrev_mailerlite.rb

@@ -3,7 +3,7 @@ description: "Din leverandør av Folkemusikkpøbb i Oslo <3"
 lang: nn
 url: "https://oslobygda.no"
 
-share_image: "/assets/img/og-oslobygda.jpg"
+share_image: "/lutar/bilete/og-oslobygda.jpg"
 
 # Medlemsregister: URL der Flask-appen køyrer (sett ved deploy, t.d. subdomene)
 medlemsregister_url: ""
@@ -14,5 +14,8 @@ exclude: ["medlemsregister"]
 # Valfritt: gjer fine permalinks for sider
 permalink: pretty
 
+includes_dir: _tillegg
+layouts_dir: _utforming
+
 sass:
-  sass_dir: assets/css
+  sass_dir: lutar/stilar

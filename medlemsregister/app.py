@@ -232,7 +232,7 @@ def require_admin(f):
     def inner(*args, **kwargs):
         if not session.get("admin_logged_in"):
             if request.accept_mimetypes.best == "application/json":
-                return jsonify({"error": "Ikke innlogga"}), 401
+                return jsonify({"error": "Ikkje innlogga"}), 401
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return inner

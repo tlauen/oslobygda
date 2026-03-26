@@ -4,12 +4,12 @@ Publiser nye arrangement frå `_data/kalender.yml` til:
 - https://www.folkarr.no/?cat=589752
 - https://www.aktivioslo.no/registrer-arrangement/
 
-Dette er en "førsteversjon" som bruker browser-automatisering (Playwright)
+Dette er ein "førsteversjon" som bruker nettlesarautomatisering (Playwright)
 fordi desse sidene typisk ikkje har offentleg API.
 
 Idempotens:
-- Vi lagrar `uid` som er sendt per plattform i ein state-fil.
-- Kjør med `--dry-run` for å sjå mapping utan å sende.
+- Vi lagrar `uid` som er sendt per plattform i ei tilstandsfil.
+- Køyr med `--dry-run` for å sjå mapping utan å sende.
 """
 
 from __future__ import annotations
@@ -29,8 +29,8 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CALENDER_YML = REPO_ROOT / "_data" / "kalender.yml"
-DEFAULT_STATE_PATH = REPO_ROOT / "scripts" / ".publish_events_state.json"
-DEFAULT_IMAGE_FALLBACK = REPO_ROOT / "assets" / "img" / "arr-cover.png"
+DEFAULT_STATE_PATH = REPO_ROOT / "skript" / ".publish_events_state.json"
+DEFAULT_IMAGE_FALLBACK = REPO_ROOT / "lutar" / "bilete" / "arr-cover.png"
 
 FOLKARR_URL = "https://www.folkarr.no/?cat=589752"
 AKTIVIOSLO_URL = "https://www.aktivioslo.no/registrer-arrangement/"
@@ -48,7 +48,7 @@ def _parse_yaml_events(path: Path) -> list[dict[str, Any]]:
     with path.open("r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
     if not isinstance(data, list):
-        raise ValueError("Forventa at kalender.yml er ei liste av event-objekt.")
+        raise ValueError("Forventa at kalender.yml er ei liste av arrangementsobjekt.")
     return data
 
 
@@ -89,12 +89,12 @@ def _pick_image_file(event: dict[str, Any]) -> Path:
     if not bilete:
         return DEFAULT_IMAGE_FALLBACK
 
-    # bilete ser typisk ut som "/assets/img/arr-cover.png"
+    # bilete ser typisk ut som "/lutar/bilete/arr-cover.png"
     basename = os.path.basename(bilete)
     if not basename:
         return DEFAULT_IMAGE_FALLBACK
 
-    candidate = REPO_ROOT / "assets" / "img" / basename
+    candidate = REPO_ROOT / "lutar" / "bilete" / basename
     if candidate.exists():
         return candidate
 
@@ -545,15 +545,15 @@ def submit_aktivioslo(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--calender-yml", default=str(DEFAULT_CALENDER_YML), help="Vegen til _data/kalender.yml")
-    parser.add_argument("--state", default=str(DEFAULT_STATE_PATH), help="State-fil for idempotens")
+    parser.add_argument("--state", default=str(DEFAULT_STATE_PATH), help="Tilstandsfil for idempotens")
     parser.add_argument("--platform", choices=["folkarr", "aktivioslo", "both"], default="both")
-    parser.add_argument("--limit", type=int, default=None, help="Max antal nye event (per platform ved both)")
+    parser.add_argument("--limit", type=int, default=None, help="Maks tal på nye arrangement (per plattform ved both)")
     parser.add_argument("--dry-run", action="store_true", help="Berre vis kva som ville blitt sendt")
     parser.add_argument("--preview", action="store_true", help="Fyller inn formular, men sender ikkje inn (tek screenshot).")
     parser.add_argument("--headed", action="store_true", help="Køyr ikkje-headless")
     parser.add_argument("--folkarr-type", default=None, help="Tving Folkarr kategori (t.d. Dansefest)")
     parser.add_argument("--manual-datetime", action="store_true", help="Stopp før innsending i Aktiv i Oslo slik at dato/klokkeslett kan setjast manuelt i browseren.")
-    parser.add_argument("--from-date", default=None, help="Startdato for kva som skal publiserast (YYYY-MM-DD). Default: i dag.")
+    parser.add_argument("--from-date", default=None, help="Startdato for kva som skal publiserast (YYYY-MM-DD). Standard: i dag.")
     parser.add_argument("--include-past", action="store_true", help="Inkluderer arrangement før startdato (tilbakevendande).")
     parser.add_argument("--debug-dir", default=str(REPO_ROOT / "scripts" / ".publish_debug"))
     args = parser.parse_args()

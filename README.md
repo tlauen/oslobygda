@@ -2,7 +2,7 @@
 
 Nettside for Oslobygda kulturlag (`oslobygda.no`) bygga med **Jekyll**.
 
-Denne README-en forklarer kva ein utanfrå bør vite: kva som er statisk Jekyll-innhald, kva som blir generert av data, og at `medlemsregister/` er ein separert Flask-app som må deployast for seg.
+Denne README-en forklarer kva ein utanfrå bør vite: kva som er statisk Jekyll-innhald, kva som blir generert av data, og at `medlemsregister/` er ein separat Flask-app som må setjast i drift for seg.
 
 ## Kva nettsida er (i praksis)
 
@@ -24,7 +24,7 @@ Denne README-en forklarer kva ein utanfrå bør vite: kva som er statisk Jekyll-
 - `_includes/`: gjenbrukbare HTML-komponentar
 - `_data/`: data som driv ting som kalender/templating
 - `kalender/`: sida “Kalender” + historikk (del av statisk innhald)
-- `assets/`: CSS/bilete/andre statiske ressursar
+- `lutar/`: stilar/bilete/andre statiske ressursar
 - `index.md`: framside
 - `kalender.ics`: kalender-feed
 - `medlemsregister.md`: statisk side på oslobygda.no med lenker til Flask-appen
@@ -33,11 +33,11 @@ Denne README-en forklarer kva ein utanfrå bør vite: kva som er statisk Jekyll-
 
 - `medlemsregister/` inneheld ein **Flask-app** (Bygdelista) med admin UI og offentleg innmeldingsskjema.
 - Jekyll ekskluderer Python-delen frå bygg (`exclude: ["medlemsregister"]` i `_config.yml`).
-- Statisk sida `medlemsregister.md` brukar ei konfigverdi (`medlemsregister_url`) for å peike inn til Flask-appen når den er deploya.
+- Den statiske sida `medlemsregister.md` brukar ein konfigverdi (`medlemsregister_url`) for å peike inn til Flask-appen når han er sett i drift.
 
 ## Lokal utvikling
 
-1. Installer dependencies:
+1. Installer avhengnader:
 
 ```bash
 bundle install
@@ -55,14 +55,14 @@ Opne `http://localhost:4000/`.
 
 Når du pushar til riktig branch, blir GitHub Pages oppdatert (Jekyll byggjer statiske sider).
 
-Custom domene blir styrt av `CNAME`.
+Eige domene blir styrt av `CNAME`.
 
 ## Nyhendebrev (MailerLite + GitHub Actions)
 
 Det finst ein auto-flyt som kan sende nyhendebrev via MailerLite:
 
 - Workflow: `.github/workflows/nyhendebrev.yml`
-- Script: `scripts/send_nyhendebrev_mailerlite.rb`
+- Skript: `skript/send_nyhendebrev_mailerlite.rb`
 - Innhald: blir generert frå `_data/kalender.yml`
 - Utsending: berre når det er “7 dagar før neste” arrangement (styrt av trigger-innstillingar)
 

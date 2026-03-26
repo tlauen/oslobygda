@@ -430,9 +430,9 @@
       if (e.target.classList.contains("aksjonar-meny-knapp")) {
         e.preventDefault();
         e.stopPropagation();
-        const wrap = e.target.closest(".aksjonar-meny-wrap");
-        const menu = wrap?.querySelector(".aksjonar-meny");
-        const cell = wrap?.closest("td");
+        const ramme = e.target.closest(".aksjonar-meny-wrap");
+        const menu = ramme?.querySelector(".aksjonar-meny");
+        const cell = ramme?.closest("td");
         if (!menu || !cell) return;
         if (menu.hidden) {
           lukkAlleAksjonarMenyer();

@@ -14,7 +14,7 @@
 
   {%- assign canonical = page.url | absolute_url -%}
   {%- assign og_desc = page.description | default: site.description | default: "Oslobygda kulturlag" -%}
-  {%- assign default_share_img = site.share_image | default: "/assets/img/og-oslobygda.jpg" -%}
+  {%- assign default_share_img = site.share_image | default: "/lutar/bilete/og-oslobygda.jpg" -%}
   {%- assign og_img_rel = page.og_image | default: default_share_img -%}
   {%- if og_img_rel == nil or og_img_rel == "" -%}
     {%- assign og_img_rel = default_share_img -%}
@@ -45,7 +45,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ '/assets/css/base.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/lutar/stilar.css' | relative_url }}">
   
   <script defer src="https://cloud.umami.is/script.js" data-website-id="9cba7db1-1072-4803-aa54-51f4c88c1487"></script>
   {%- assign url_slug = page.url | replace: "/", "" -%}
@@ -62,35 +62,35 @@
 
 </head>
 <body>
-  <a class="skip" href="#innhald">Hopp til innhald</a>
+  <a class="hopp-lenkje" href="#innhald">Hopp til innhald</a>
 
-<header class="site-header">
-  <div class="wrap header-inner">
+<header class="toppfelt">
+  <div class="ramme toppfelt-innhald">
     {% include nav.html %}
   </div>
 </header>
 
-  <main id="innhald" class="site-main">
-    <div class="wrap">
+  <main id="innhald" class="hovudfelt">
+    <div class="ramme">
       {{ content }}
     </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      {% include footer.html %}
+  <footer class="kolofonfelt">
+    <div class="ramme">
+      {% include kolofon.html %}
     </div>
   </footer>
 
   <script>
-const toggle = document.querySelector('.nav-toggle')
-const overlay = document.querySelector('#navOverlay')
+const toggle = document.querySelector('.meny-vekslar')
+const dekke = document.querySelector('#menyDekke')
 
 // trygg: ikkje crash om element manglar på ei side
-if(toggle && overlay){
+if(toggle && dekke){
   toggle.addEventListener('click', () => {
-    overlay.classList.toggle('open')
-    document.body.classList.toggle('nav-open')
+    dekke.classList.toggle('open')
+    document.body.classList.toggle('meny-open')
   })
 }
 </script>
