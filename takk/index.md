@@ -9,4 +9,4 @@ Du er no påmeldt og vil få nyhende frå Oslobygda kulturlag. Viss du melde deg
 
 **Vidare:** Sjå [kalenderen]({{ '/kalender/' | relative_url }}) for neste Folkemusikkpøbb, eller les [om laget]({{ '/om/' | relative_url }}).
 
-<p class="muted" style="margin-top: 2rem;"><a href="{{ '/' | relative_url }}">← Tilbake til framsida</a></p>
+<p class="muted takk-tilbake"><a href="{{ '/' | relative_url }}">← Tilbake til framsida</a></p>

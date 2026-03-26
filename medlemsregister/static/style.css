@@ -36,6 +36,7 @@ body {
   border-radius: 6px;
   margin-bottom: 1rem;
 }
+.er-skjult { display: none; }
 .melding-feil { background: #fecaca; color: var(--error); }
 .melding-advarsel { background: var(--accent); color: var(--text); }
 .melding-ok { background: var(--accent3); color: #1a4d1a; }

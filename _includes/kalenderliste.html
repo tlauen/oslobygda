@@ -107,10 +107,14 @@
     <div class="{{ kortklasse }}">
       {% if e.lenkje %}
   <a class="kalenderkort__coverlink" href="{{ e.lenkje | relative_url }}">
-    <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')" aria-hidden="true"></div>
+    <div class="kalenderkort__cover" aria-hidden="true">
+      <img class="kalenderkort__cover-img" src="{{ cover | relative_url }}" alt="" loading="lazy" decoding="async">
+    </div>
   </a>
 {% else %}
-  <div class="kalenderkort__cover" style="background-image:url('{{ cover | relative_url }}')" aria-hidden="true"></div>
+  <div class="kalenderkort__cover" aria-hidden="true">
+    <img class="kalenderkort__cover-img" src="{{ cover | relative_url }}" alt="" loading="lazy" decoding="async">
+  </div>
 {% endif %}
 
       <div class="kalenderkort__body">

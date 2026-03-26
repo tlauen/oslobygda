@@ -75,10 +75,15 @@
 .kalenderkort__cover{
   aspect-ratio: 21 / 9;
   height: auto;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  overflow: hidden;
   border-radius: 0;
+}
+
+.kalenderkort__cover-img{
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .kalenderkort__body{
