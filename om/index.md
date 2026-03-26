@@ -11,7 +11,7 @@ Laget blei offisielt skipa 5. mars 2026 under ein lønsjprat på Wessels plass, 
 
 Me skipar til Folkemusikkpøbb omlag 9 gonger i året, hovudsakleg siste onsdagen i månaden. Me kan òg finne på andre ting viss me syns det er kult.
 
-Vil du bli med i laget? Send oss ein epost eller prat med Torbjørn. Kostar deg ein femkroning.
+Vil du bli med i laget? Sjå sida § [Bli medlem]({{ '/bli-medlem/' | relative_url }}). Kostar deg ein femkroning.
 
 **Styreleiar:** Torbjørn Bergwitz Lauen
 
@@ -20,11 +20,3 @@ Vil du bli med i laget? Send oss ein epost eller prat med Torbjørn. Kostar deg 
 § [Lova vår]({{ '/om/lova/' | relative_url }})
 {% comment %}📄 [Skipingsdokumentet (PDF)](/assets/pdf/skipingsdokument.pdf){% endcomment %}
 <span class="disabled-link">📄 Skipingsdokumentet (PDF) (kjem snart)</span>
-
-<hr class="om-skille" aria-hidden="true">
-
-<section class="om-innmelding" aria-labelledby="om-innmelding-tittel">
-  <h2 id="om-innmelding-tittel">Meld deg inn</h2>
-  <p class="cookie-merknad">Innmeldingsskjemaet brukar cookies (leverandør MailerLite). <a href="{{ '/personvern/' | relative_url }}">Les meir om cookies og personvern</a>.</p>
-  <div class="ml-embedded" data-form="XMYoMi"></div>
-</section>

@@ -7,14 +7,14 @@
 
   <div class="nav-desktop">
     {% for item in site.data.nav %}
-    <a href="{{ item.path | relative_url }}">{{ item.label }}</a>
+    <a href="{{ item.path | relative_url }}"{% if item.path == '/bli-medlem/' %} class="nav-cta"{% endif %}>{{ item.label }}</a>
     {% endfor %}
   </div>
 
   <div class="nav-overlay" id="navOverlay">
     <div class="nav-overlay__menu">
       {% for item in site.data.nav %}
-      <a href="{{ item.path | relative_url }}">{{ item.label }}</a>
+      <a href="{{ item.path | relative_url }}"{% if item.path == '/bli-medlem/' %} class="nav-cta"{% endif %}>{{ item.label }}</a>
       {% endfor %}
     </div>
   </div>

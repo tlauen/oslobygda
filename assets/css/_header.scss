@@ -57,6 +57,16 @@
   transition: background .15s ease, transform .1s ease;
 }
 
+.nav-desktop a.nav-cta{
+  margin-left: auto;
+  align-self: center;
+  height: auto;
+  padding: .5rem .9rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 28%, var(--bg));
+}
+
 /* 6 tydelege pastellar; rekkjefølgje slik at like fargar ikkje er ved sida av kvarandre */
 @media (hover: hover) and (pointer: fine){
   .nav-desktop a:nth-child(1):hover{ background: color-mix(in srgb, #A8D4E8 60%, transparent); }  /* blå */
@@ -68,6 +78,10 @@
 
   .nav-desktop a:hover{
     transform: translateY(-1px);
+  }
+
+  .nav-desktop a.nav-cta:hover{
+    background: color-mix(in srgb, var(--accent) 44%, var(--bg));
   }
 }
 
@@ -161,6 +175,12 @@ body.nav-open{
   background: transparent;
 
   transform: none !important;
+}
+
+.nav-overlay__menu a.nav-cta{
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+  border-radius: .8rem;
+  background: color-mix(in srgb, var(--accent) 22%, var(--bg));
 }
 
 /* hover-effekt berre der det faktisk finst hover */

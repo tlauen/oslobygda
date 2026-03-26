@@ -11,3 +11,5 @@
   label: Nyhendebrev
 - path: /kontakt/
   label: Kontakt
+- path: /bli-medlem/
+  label: Bli medlem
