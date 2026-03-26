@@ -429,3 +429,11 @@ tr:hover td:not(:last-child) {
   background: #fecaca;
   color: var(--error);
 }
+
+.pill--toggle {
+  cursor: pointer;
+  user-select: none;
+}
+.pill--toggle:hover {
+  filter: brightness(0.96);
+}

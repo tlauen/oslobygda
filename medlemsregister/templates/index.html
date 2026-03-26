@@ -205,7 +205,7 @@
           <td data-col="poststad">${escapeHtml(m.poststad || "–")}</td>
           <td data-col="fødselsdato">${m.birth_date ? formaterDato(m.birth_date) : "–"}</td>
           <td data-col="medlemstype"><span class="pill">${escapeHtml(medlemstypeVisningsnamn(m.membership_type))}</span></td>
-          <td data-col="betalingsstatus"><span class="${pillClassForPaymentStatus(m.payment_status)}">${escapeHtml(m.payment_status)}</span></td>
+          <td data-col="betalingsstatus"><span class="${pillClassForPaymentStatus(m.payment_status)} pill--toggle" data-id="${m.id}" data-action="toggle-payment" data-status="${escapeHtml(m.payment_status)}" title="Klikk for å bytte betalingsstatus">${escapeHtml(m.payment_status)}</span></td>
           <td data-col="samtykke">${formaterDato(m.consent_at)}</td>
           <td data-col="aksjonar" class="aksjonar">
             <a href="#" data-id="${m.id}" data-action="edit">Endre</a>
@@ -240,6 +240,15 @@
         cell.classList.add("open");
       }
       listeEl.addEventListener("click", (e) => {
+        const toggleEl = e.target.closest("[data-action=\"toggle-payment\"]");
+        if (toggleEl) {
+          e.preventDefault();
+          const id = parseInt(toggleEl.dataset.id, 10);
+          const current = (toggleEl.dataset.status || "").trim().toLowerCase();
+          if (!isNaN(id)) toggleBetalingsstatus(id, current);
+          return;
+        }
+
         const id = parseInt(e.target.dataset?.id, 10);
         if (e.target.classList.contains("aksjonar-meny-knapp")) {
           e.preventDefault();
@@ -406,6 +415,26 @@
         const medlemmar = await hentMedlemmar();
         renderListe(medlemmar);
       } catch (e) { setStatus("Kunne ikkje slette.", true); }
+    }
+
+
+    async function toggleBetalingsstatus(id, currentStatus) {
+      const nyStatus = currentStatus === "betalt" ? "ikkje betalt" : "betalt";
+      try {
+        const r = await fetch(API + "/api/members/" + id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ payment_status: nyStatus })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || "Kunne ikkje oppdatere betalingsstatus");
+        setStatus("Betalingsstatus oppdatert.");
+        const medlemmar = await hentMedlemmar();
+        renderListe(medlemmar);
+      } catch (e) {
+        setStatus(e.message || "Kunne ikkje oppdatere betalingsstatus.", true);
+      }
     }
 
     const KOLONNE_STORAGE_KEY = "bygdelista-kolonner";
