@@ -24,3 +24,9 @@ node_modules/
 
 # macOS misc
 *.swp
+
+# Script-generated debug/cache files
+scripts/.publish_debug/
+scripts/.publish_events_state.json
+**/__pycache__/
+*.pyc

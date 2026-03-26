@@ -259,71 +259,28 @@
           </td>
         </tr>
       `).join("");
-
-      function lukkAlleAksjonarMenyer() {
-        listeEl.querySelectorAll(".aksjonar-meny").forEach(menu => {
-          menu.hidden = true;
-          menu.classList.remove("aksjonar-meny--open-up");
-        });
-        listeEl.querySelectorAll(".aksjonar-meny-knapp").forEach(btn => { btn.setAttribute("aria-expanded", "false"); });
-        listeEl.querySelectorAll("td.aksjonar.open").forEach(cell => cell.classList.remove("open"));
-      }
-      function opneAksjonarMeny(knapp, menu, cell) {
-        menu.classList.remove("aksjonar-meny--open-up");
-        const rect = knapp.getBoundingClientRect();
-        const plassUnder = window.innerHeight - rect.bottom;
-        if (plassUnder < 95 && rect.top > 100) {
-          menu.classList.add("aksjonar-meny--open-up");
-        }
-        menu.hidden = false;
-        knapp.setAttribute("aria-expanded", "true");
-        cell.classList.add("open");
-      }
-      listeEl.addEventListener("click", (e) => {
-        const toggleEl = e.target.closest("[data-action=\"toggle-payment\"]");
-        if (toggleEl) {
-          e.preventDefault();
-          const id = parseInt(toggleEl.dataset.id, 10);
-          const current = (toggleEl.dataset.status || "").trim().toLowerCase();
-          if (!isNaN(id)) toggleBetalingsstatus(id, current);
-          return;
-        }
-
-        const id = parseInt(e.target.dataset?.id, 10);
-        if (e.target.classList.contains("aksjonar-meny-knapp")) {
-          e.preventDefault();
-          e.stopPropagation();
-          const wrap = e.target.closest(".aksjonar-meny-wrap");
-          const menu = wrap?.querySelector(".aksjonar-meny");
-          const cell = wrap?.closest("td");
-          if (!menu || !cell) return;
-          if (menu.hidden) {
-            lukkAlleAksjonarMenyer();
-            opneAksjonarMeny(e.target, menu, cell);
-          } else {
-            lukkAlleAksjonarMenyer();
-          }
-          return;
-        }
-        if (e.target.closest(".aksjonar-meny") && e.target.dataset?.action) {
-          e.preventDefault();
-          if (!isNaN(id)) {
-            if (e.target.dataset.action === "export") eksporterMedlem(id);
-            else if (e.target.dataset.action === "betaling") openBetalingModal(id);
-            else if (e.target.dataset.action === "delete") slettMedlem(id);
-          }
-          lukkAlleAksjonarMenyer();
-          return;
-        }
-        if (e.target.dataset?.action === "edit") {
-          e.preventDefault();
-          if (!isNaN(id)) openModal(id);
-        }
-      });
-      document.addEventListener("click", (e) => {
-        if (!e.target.closest(".aksjonar-meny-wrap")) lukkAlleAksjonarMenyer();
-      });
       brukKolonnefilter();
+    }
+
+    function lukkAlleAksjonarMenyer() {
+      listeEl.querySelectorAll(".aksjonar-meny").forEach(menu => {
+        menu.hidden = true;
+        menu.classList.remove("aksjonar-meny--open-up");
+      });
+      listeEl.querySelectorAll(".aksjonar-meny-knapp").forEach(btn => { btn.setAttribute("aria-expanded", "false"); });
+      listeEl.querySelectorAll("td.aksjonar.open").forEach(cell => cell.classList.remove("open"));
+    }
+
+    function opneAksjonarMeny(knapp, menu, cell) {
+      menu.classList.remove("aksjonar-meny--open-up");
+      const rect = knapp.getBoundingClientRect();
+      const plassUnder = window.innerHeight - rect.bottom;
+      if (plassUnder < 95 && rect.top > 100) {
+        menu.classList.add("aksjonar-meny--open-up");
+      }
+      menu.hidden = false;
+      knapp.setAttribute("aria-expanded", "true");
+      cell.classList.add("open");
     }
 
     function escapeHtml(s) {
@@ -458,6 +415,52 @@
     document.getElementById("btn-betaling-avbryt").addEventListener("click", lukkBetalingModal);
     document.getElementById("btn-ny").addEventListener("click", () => openModal(null));
     document.getElementById("btn-sync-mailerlite").addEventListener("click", syncMailerlite);
+
+    listeEl.addEventListener("click", (e) => {
+      const toggleEl = e.target.closest("[data-action=\"toggle-payment\"]");
+      if (toggleEl) {
+        e.preventDefault();
+        const id = parseInt(toggleEl.dataset.id, 10);
+        const current = (toggleEl.dataset.status || "").trim().toLowerCase();
+        if (!isNaN(id)) toggleBetalingsstatus(id, current);
+        return;
+      }
+
+      const id = parseInt(e.target.dataset?.id, 10);
+      if (e.target.classList.contains("aksjonar-meny-knapp")) {
+        e.preventDefault();
+        e.stopPropagation();
+        const wrap = e.target.closest(".aksjonar-meny-wrap");
+        const menu = wrap?.querySelector(".aksjonar-meny");
+        const cell = wrap?.closest("td");
+        if (!menu || !cell) return;
+        if (menu.hidden) {
+          lukkAlleAksjonarMenyer();
+          opneAksjonarMeny(e.target, menu, cell);
+        } else {
+          lukkAlleAksjonarMenyer();
+        }
+        return;
+      }
+      if (e.target.closest(".aksjonar-meny") && e.target.dataset?.action) {
+        e.preventDefault();
+        if (!isNaN(id)) {
+          if (e.target.dataset.action === "export") eksporterMedlem(id);
+          else if (e.target.dataset.action === "betaling") openBetalingModal(id);
+          else if (e.target.dataset.action === "delete") slettMedlem(id);
+        }
+        lukkAlleAksjonarMenyer();
+        return;
+      }
+      if (e.target.dataset?.action === "edit") {
+        e.preventDefault();
+        if (!isNaN(id)) openModal(id);
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".aksjonar-meny-wrap")) lukkAlleAksjonarMenyer();
+    });
 
     modal.addEventListener("click", (e) => { if (e.target === modal) lukkModal(); });
     betalingModal.addEventListener("click", (e) => { if (e.target === betalingModal) lukkBetalingModal(); });
