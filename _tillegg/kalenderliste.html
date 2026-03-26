@@ -87,7 +87,7 @@
     {%- capture mnd -%}{%- include no-month.html date=e.dato -%}{%- endcapture -%}
     {%- assign dag = e.dato | date: "%-d" -%}
     {%- assign aar = e.dato | date: "%Y" -%}
-    {%- assign cover = e.bilete | default: "/lutar/bilete/arr-cover.png" -%}
+{%- assign bilete = e.bilete | default: "/lutar/bilete/arr-cover.png" -%}
 
     {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
     {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
@@ -102,22 +102,22 @@
     {%- assign g_url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" | append: g_text | append: "&dates=" | append: g_dates | append: "&ctz=Europe/Oslo&location=" | append: g_loc | append: "&details=" | append: g_det -%}
 
     {% assign kortklasse = "kort kalenderkort" %}
-    {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--past" %}{% endif %}
+    {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--tidlegare" %}{% endif %}
 
     <div class="{{ kortklasse }}">
       {% if e.lenkje %}
-  <a class="kalenderkort__coverlink" href="{{ e.lenkje | relative_url }}">
-    <div class="kalenderkort__cover" aria-hidden="true">
-      <img class="kalenderkort__cover-img" src="{{ cover | relative_url }}" alt="" loading="lazy" decoding="async">
+  <a class="kalenderkort__bilete-lenkje" href="{{ e.lenkje | relative_url }}">
+    <div class="kalenderkort__bilete" aria-hidden="true">
+      <img class="kalenderkort__bilete-img" src="{{ bilete | relative_url }}" alt="" loading="lazy" decoding="async">
     </div>
   </a>
 {% else %}
-  <div class="kalenderkort__cover" aria-hidden="true">
-    <img class="kalenderkort__cover-img" src="{{ cover | relative_url }}" alt="" loading="lazy" decoding="async">
+  <div class="kalenderkort__bilete" aria-hidden="true">
+    <img class="kalenderkort__bilete-img" src="{{ bilete | relative_url }}" alt="" loading="lazy" decoding="async">
   </div>
 {% endif %}
 
-      <div class="kalenderkort__body">
+      <div class="kalenderkort__innhald">
         <div class="kalenderkort__dato">
           {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "21:00" }} – {{ e.slutt | default: "23:45" }} 
         </div>
@@ -133,7 +133,7 @@
         {% if e.stad %}<div class="dempa">{{ e.stad }}</div>{% endif %}
         {% if e.merknad %}<div class="dempa">{{ e.merknad }}</div>{% endif %}
 
-        <div class="kalenderkort__actions">
+        <div class="kalenderkort__handlingar">
           <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>
           <span class="dempa">·</span>
           <a href="{{ '/kalender.ics' | relative_url }}">ICS</a>

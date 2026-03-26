@@ -2,14 +2,14 @@
 :root {
   --bg: #FCF9F3;
   --text: #12110e;
-  --muted: #4a4a4a;
+  --dempa: #4a4a4a;
   --panel: rgba(255, 255, 255, 0.72);
   --panel-strong: rgba(255, 255, 255, 0.86);
   --line: rgba(18, 17, 14, 0.12);
   --accent: #FAF1D7;
   --accent-hover: #F5E9DB;
   --accent3: #A8D8A0;
-  --card-radius: 10px;
+  --kort-radius: 10px;
   --error: #b91c1c;
   --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
   --maxw: 1280px;
@@ -57,41 +57,41 @@ body {
 .innmelding-skjema .knappar { margin-top: 1.25rem; }
 
 /* Login */
-.login-body {
+.innlogging-kropp {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.login-boks {
+.innlogging-boks {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: var(--card-radius);
+  border-radius: var(--kort-radius);
   padding: 2rem;
   width: 100%;
   max-width: 340px;
 }
-.login-boks h1 {
+.innlogging-boks h1 {
   margin: 0 0 0.5rem;
   font-size: 1.5rem;
   font-family: var(--serif);
   font-weight: 650;
 }
-.login-boks .ingress {
-  color: var(--muted);
+.innlogging-boks .ingress {
+  color: var(--dempa);
   margin: 0 0 1rem;
   font-size: 0.95rem;
 }
-.login-boks .feil {
+.innlogging-boks .feil {
   color: var(--error);
   margin-bottom: 1rem;
 }
-.login-boks label {
+.innlogging-boks label {
   display: block;
   margin-bottom: 0.25rem;
   font-size: 0.9rem;
 }
-.login-boks input {
+.innlogging-boks input {
   width: 100%;
   padding: 0.5rem 0.6rem;
   margin-bottom: 1rem;
@@ -99,7 +99,7 @@ body {
   border-radius: 4px;
   background: var(--bg);
 }
-.login-boks button {
+.innlogging-boks button {
   width: 100%;
   padding: 0.65rem;
   background: var(--accent);
@@ -110,12 +110,12 @@ body {
   font-size: 1rem;
   font-weight: 600;
 }
-.login-boks button:hover {
+.innlogging-boks button:hover {
   background: var(--accent-hover);
 }
 
 /* Header */
-.header {
+.toppfelt {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -123,18 +123,18 @@ body {
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
-.header h1 {
+.toppfelt h1 {
   margin: 0;
   font-size: 1.5rem;
   font-family: var(--serif);
   font-weight: 650;
 }
-.header a {
+.toppfelt a {
   color: var(--text);
   text-decoration: none;
   font-size: 0.9rem;
 }
-.header a:hover {
+.toppfelt a:hover {
   text-decoration: underline;
 }
 
@@ -146,7 +146,7 @@ body {
   gap: 0.5rem 1rem;
   margin-bottom: 0.75rem;
   font-size: 0.85rem;
-  color: var(--muted);
+  color: var(--dempa);
 }
 .kolonnefilter-label {
   font-weight: 600;
@@ -164,11 +164,11 @@ body {
 }
 
 /* Tabell */
-.tabellwrap {
+.tabell-ramme {
   overflow-x: auto;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: var(--card-radius);
+  border-radius: var(--kort-radius);
 }
 table {
   width: 100%;
@@ -183,30 +183,30 @@ th, td {
   font-size: 0.8rem;
 }
 /* Minimal min-width på kolonnar slik at innhald får plass; tabellen vaksar og ein skroller sidelengs */
-.tabellwrap th:nth-child(1),
-.tabellwrap td:nth-child(1) { min-width: 140px; }
-.tabellwrap th:nth-child(2),
-.tabellwrap td:nth-child(2) { min-width: 160px; }
-.tabellwrap th:nth-child(3),
-.tabellwrap td:nth-child(3) { min-width: 100px; }
-.tabellwrap th:nth-child(4),
-.tabellwrap td:nth-child(4) { min-width: 120px; }
-.tabellwrap th:nth-child(5),
-.tabellwrap td:nth-child(5) { min-width: 58px; }
-.tabellwrap th:nth-child(6),
-.tabellwrap td:nth-child(6) { min-width: 80px; }
-.tabellwrap th:nth-child(7),
-.tabellwrap td:nth-child(7) { min-width: 85px; }
-.tabellwrap th:nth-child(8),
-.tabellwrap td:nth-child(8) { min-width: 75px; }
-.tabellwrap th:nth-child(9),
-.tabellwrap td:nth-child(9) { min-width: 95px; }
-.tabellwrap th:nth-child(10),
-.tabellwrap td:nth-child(10) { min-width: 85px; }
-.tabellwrap th:nth-child(11),
-.tabellwrap td:nth-child(11) { min-width: 95px; }
+.tabell-ramme th:nth-child(1),
+.tabell-ramme td:nth-child(1) { min-width: 140px; }
+.tabell-ramme th:nth-child(2),
+.tabell-ramme td:nth-child(2) { min-width: 160px; }
+.tabell-ramme th:nth-child(3),
+.tabell-ramme td:nth-child(3) { min-width: 100px; }
+.tabell-ramme th:nth-child(4),
+.tabell-ramme td:nth-child(4) { min-width: 120px; }
+.tabell-ramme th:nth-child(5),
+.tabell-ramme td:nth-child(5) { min-width: 58px; }
+.tabell-ramme th:nth-child(6),
+.tabell-ramme td:nth-child(6) { min-width: 80px; }
+.tabell-ramme th:nth-child(7),
+.tabell-ramme td:nth-child(7) { min-width: 85px; }
+.tabell-ramme th:nth-child(8),
+.tabell-ramme td:nth-child(8) { min-width: 75px; }
+.tabell-ramme th:nth-child(9),
+.tabell-ramme td:nth-child(9) { min-width: 95px; }
+.tabell-ramme th:nth-child(10),
+.tabell-ramme td:nth-child(10) { min-width: 85px; }
+.tabell-ramme th:nth-child(11),
+.tabell-ramme td:nth-child(11) { min-width: 95px; }
 /* Namn – kan bryte på 1–2 linjer */
-.tabellwrap td:first-child {
+.tabell-ramme td:first-child {
   word-wrap: break-word;
   max-width: 220px;
 }
@@ -216,20 +216,20 @@ th {
   font-size: 0.8rem;
 }
 /* Aksjonar-kolonne alltid synleg til høgre ved sidelengs scrolling – dekkande bakgrunn, over rad-hover */
-.tabellwrap th:last-child,
-.tabellwrap td:last-child {
+.tabell-ramme th:last-child,
+.tabell-ramme td:last-child {
   position: sticky;
   right: 0;
   z-index: 5;
   background: var(--bg);
   box-shadow: -4px 0 8px rgba(0, 0, 0, 0.06);
 }
-.tabellwrap tbody tr:hover td:last-child {
+.tabell-ramme tbody tr:hover td:last-child {
   background: #f5f0e8;
 }
 /* Skjulte kolonnar (filtrering) */
-.tabellwrap th.kolonne-skjult,
-.tabellwrap td.kolonne-skjult {
+.tabell-ramme th.kolonne-skjult,
+.tabell-ramme td.kolonne-skjult {
   display: none;
 }
 tr:last-child td {
@@ -255,7 +255,7 @@ tr:hover td:not(:last-child) {
   display: inline-block;
   vertical-align: middle;
 }
-.tabellwrap td:last-child.open {
+.tabell-ramme td:last-child.open {
   z-index: 50;
 }
 .aksjonar-meny-knapp {
@@ -346,16 +346,16 @@ tr:hover td:not(:last-child) {
 .btn:hover {
   background: var(--accent-hover);
 }
-.btn.secondary {
+.btn.sekundaer {
   background: var(--panel-strong);
   color: var(--text);
 }
-.btn.secondary:hover {
+.btn.sekundaer:hover {
   background: var(--panel);
 }
 
 /* Modal / skjema */
-.modal-overlay {
+.modal-dekke {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.25);
@@ -364,51 +364,51 @@ tr:hover td:not(:last-child) {
   justify-content: center;
   z-index: 100;
 }
-.modal {
+.modal-vindauge {
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: var(--card-radius);
+  border-radius: var(--kort-radius);
   padding: 1.5rem;
   width: 100%;
   max-width: 440px;
   max-height: 90vh;
   overflow-y: auto;
 }
-.modal h2 {
+.modal-vindauge h2 {
   margin: 0 0 1rem;
   font-size: 1.2rem;
   font-family: var(--serif);
   font-weight: 650;
 }
-.modal .felt {
+.modal-vindauge .felt {
   margin-bottom: 1rem;
 }
-.modal label {
+.modal-vindauge label {
   display: block;
   margin-bottom: 0.25rem;
   font-size: 0.9rem;
 }
-.modal input, .modal select {
+.modal-vindauge input, .modal-vindauge select {
   width: 100%;
   padding: 0.5rem 0.6rem;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: var(--bg);
 }
-.modal .knappar {
+.modal-vindauge .knappar {
   margin-top: 1.25rem;
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
-.modal .feil {
+.modal-vindauge .feil {
   color: var(--error);
   font-size: 0.9rem;
   margin-top: 0.5rem;
 }
 .status {
   font-size: 0.9rem;
-  color: var(--muted);
+  color: var(--dempa);
   margin-top: 0.5rem;
 }
 
@@ -441,7 +441,7 @@ tr:hover td:not(:last-child) {
 
 .sum-reg {
   font-size: 0.72rem;
-  color: var(--muted);
+  color: var(--dempa);
   margin-top: 0.2rem;
 }
 

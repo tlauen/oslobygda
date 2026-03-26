@@ -66,27 +66,27 @@
   );
 }
 
-.kalenderkort__coverlink{
+.kalenderkort__bilete-lenkje{
   display: block;
   text-decoration: none;
   padding: .7rem .7rem 0;  /* topp/side-luft */
 }
 
-.kalenderkort__cover{
+.kalenderkort__bilete{
   aspect-ratio: 21 / 9;
   height: auto;
   overflow: hidden;
   border-radius: 0;
 }
 
-.kalenderkort__cover-img{
+.kalenderkort__bilete-img{
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.kalenderkort__body{
+.kalenderkort__innhald{
   padding: .85rem 1rem 1rem;
 }
 
@@ -112,7 +112,7 @@
   text-decoration: underline;
 }
 
-.kalenderkort__actions{
+.kalenderkort__handlingar{
   margin-top: .75rem;
   display: flex;
   gap: .5rem;
@@ -125,29 +125,28 @@
   color: color-mix(in srgb, var(--text) 70%, transparent);
 }
 
-.kalenderkort--past{
+.kalenderkort--tidlegare{
   opacity: .75;
   filter: grayscale(.15);
 }
 
-/* berre i pastell-palett */
-
-[data-palette="pastell"] .kalenderkort:nth-child(5n+1){
+/* standard-palett */
+.kalenderkort:nth-child(5n+1){
   background: var(--kort1);
 }
 
-[data-palette="pastell"] .kalenderkort:nth-child(5n+2){
+.kalenderkort:nth-child(5n+2){
   background: var(--kort2);
 }
 
-[data-palette="pastell"] .kalenderkort:nth-child(5n+3){
+.kalenderkort:nth-child(5n+3){
   background: var(--kort3);
 }
 
-[data-palette="pastell"] .kalenderkort:nth-child(5n+4){
+.kalenderkort:nth-child(5n+4){
   background: var(--kort4);
 }
 
-[data-palette="pastell"] .kalenderkort:nth-child(5n+5){
+.kalenderkort:nth-child(5n+5){
   background: var(--kort5);
 }

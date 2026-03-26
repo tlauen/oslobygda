@@ -11,7 +11,7 @@
 </head>
 <body>
   <div class="omslag">
-    <header class="header">
+    <header class="toppfelt">
       <h1>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</h1>
       <a href="{{ prefix_url('logout') }}">Logg ut</a>
     </header>
@@ -19,8 +19,8 @@
     <p class="status" id="status"></p>
     <p>
       <button type="button" class="btn" id="btn-ny">Legg til medlem</button>
-      <button type="button" class="btn secondary" id="btn-sync-mailerlite">Hent nye frå MailerLite</button>
-      <a href="{{ prefix_url('export_excel') }}" class="btn secondary" download>Last ned til Excel</a>
+      <button type="button" class="btn sekundaer" id="btn-sync-mailerlite">Hent nye frå MailerLite</button>
+      <a href="{{ prefix_url('export_excel') }}" class="btn sekundaer" download>Last ned til Excel</a>
     </p>
 
     <div class="kolonnefilter">
@@ -36,7 +36,7 @@
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="betalingsstatus" checked /> Betalingsstatus</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="samtykke" checked /> Samtykke</label>
     </div>
-    <div class="tabellwrap">
+    <div class="tabell-ramme">
       <table>
         <thead>
           <tr>
@@ -58,8 +58,8 @@
     </div>
   </div>
 
-  <div id="modal-overlay" class="modal-overlay er-skjult" aria-hidden="true">
-    <div class="modal" role="dialog" aria-labelledby="modal-tittel">
+  <div id="modal-dekke" class="modal-dekke er-skjult" aria-hidden="true">
+    <div class="modal-vindauge" role="dialog" aria-labelledby="modal-tittel">
       <h2 id="modal-tittel">Legg til medlem</h2>
       <form id="medlem-skjema">
         <input type="hidden" id="medlem-id" />
@@ -118,14 +118,14 @@
         <p class="feil er-skjult" id="skjema-feil"></p>
         <div class="knappar">
           <button type="submit" class="btn">Lagre</button>
-          <button type="button" class="btn secondary" id="btn-avbryt">Avbryt</button>
+          <button type="button" class="btn sekundaer" id="btn-avbryt">Avbryt</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div id="betaling-overlay" class="modal-overlay er-skjult" aria-hidden="true">
-    <div class="modal" role="dialog" aria-labelledby="betaling-tittel">
+  <div id="betaling-dekke" class="modal-dekke er-skjult" aria-hidden="true">
+    <div class="modal-vindauge" role="dialog" aria-labelledby="betaling-tittel">
       <h2 id="betaling-tittel">Registrer betaling</h2>
       <form id="betaling-skjema">
         <input type="hidden" id="betaling-medlem-id" />
@@ -146,7 +146,7 @@
         <p class="feil er-skjult" id="betaling-feil"></p>
         <div class="knappar">
           <button type="submit" class="btn">Lagre betaling</button>
-          <button type="button" class="btn secondary" id="btn-betaling-avbryt">Lukk</button>
+          <button type="button" class="btn sekundaer" id="btn-betaling-avbryt">Lukk</button>
         </div>
       </form>
     </div>
@@ -156,8 +156,8 @@
     const API = "{{ url_prefix }}";
     const statusEl = document.getElementById("status");
     const listeEl = document.getElementById("medlem-liste");
-    const modal = document.getElementById("modal-overlay");
-    const betalingModal = document.getElementById("betaling-overlay");
+    const modal = document.getElementById("modal-dekke");
+    const betalingModal = document.getElementById("betaling-dekke");
     const skjema = document.getElementById("medlem-skjema");
     const skjemaFeil = document.getElementById("skjema-feil");
     const betalingSkjema = document.getElementById("betaling-skjema");
@@ -165,7 +165,7 @@
 
     function setStatus(msg, isError) {
       statusEl.textContent = msg;
-      statusEl.style.color = isError ? "var(--error)" : "var(--muted)";
+      statusEl.style.color = isError ? "var(--error)" : "var(--dempa)";
     }
 
     function formaterDato(iso) {
@@ -559,7 +559,7 @@
     function brukKolonnefilter() {
       document.querySelectorAll(".kolonnefilter input[data-col]").forEach(cb => {
         const col = cb.dataset.col;
-        document.querySelectorAll(`.tabellwrap [data-col="${col}"]`).forEach(el => {
+        document.querySelectorAll(`.tabell-ramme [data-col="${col}"]`).forEach(el => {
           el.classList.toggle("kolonne-skjult", !cb.checked);
         });
       });

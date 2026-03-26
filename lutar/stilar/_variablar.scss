@@ -2,66 +2,8 @@
    _variablar.scss — Variablar
    ========================================= */
 
-/* --- Palettar: kaffistove --- */
+/* --- Standard palett (lys) --- */
 :root{
-  /* standard = lys */
-  --bg: #ebdecc;     /* varm papir */
-  --text: #12110e;   /* espresso */
-  --panel: rgba(255,255,255,.55);
-  --panel-strong: rgba(255,255,255,.72);
-  --line: rgba(18,17,14,.14);
-  --kort-radius: 18px;
-
-  /* aksent: tre / øl / messing */
-  --accent: #6b4a2d;   /* tre */
-  --accent2: #c18a2b;  /* øl/rav */
-  --accent3: #2f5d50;  /* dempa grøn */
-
-  --radius: 0px;       /* harde kantar */
-  --maxw: 980px;
-
-  --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
-}
-
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg: #12110e;
-    --text: #ebdecc;
-    --panel: rgba(235,222,204,.08);
-    --panel-strong: rgba(235,222,204,.12);
-    --line: rgba(235,222,204,.16);
-
-    --accent: #e2c08b;  /* messing/lys tre */
-    --accent2: #c18a2b; /* øl/rav */
-    --accent3: #6bb7a6; /* lysare grøn */
-  }
-}
-
-/* Manuel overstyring (knapp) */
-:root[data-theme="light"]{
-  --bg: #ebdecc;
-  --text: #12110e;
-  --panel: rgba(255,255,255,.55);
-  --panel-strong: rgba(255,255,255,.72);
-  --line: rgba(18,17,14,.14);
-  --accent: #6b4a2d;
-  --accent2: #c18a2b;
-  --accent3: #2f5d50;
-}
-:root[data-theme="dark"]{
-  --bg: #12110e;
-  --text: #ebdecc;
-  --panel: rgba(235,222,204,.08);
-  --panel-strong: rgba(235,222,204,.12);
-  --line: rgba(235,222,204,.16);
-  --accent: #e2c08b;
-  --accent2: #c18a2b;
-  --accent3: #6bb7a6;
-}
-
-/* --- Palett B: pastell / flat icon --- */
-:root[data-palette="pastell"]{
-
   --bg: #FCF9F3;
   --text: #12110e;
   --kort-radius: 10px;
@@ -70,16 +12,19 @@
   --panel-strong: rgba(255,255,255,.86);
   --line: rgba(18,17,14,.12);
 
-  --accent: #A8D4E8;   /* blå (tydeleg frå grøn) */
+  --accent: #A8D4E8;   /* blå */
   --accent2: #F1CACB;
-  --accent3: #A8D8A0;  /* grøn (tydeleg frå blå) */
+  --accent3: #A8D8A0;  /* grøn */
   --accent4: #F5DFC9;
 
-  /* kortfargar kalender – blå og grøn tydeleg ulike */
+  --radius: 0px;
+  --maxw: 980px;
+  --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+
+  /* kortfargar kalender */
   --kort1: #FBEDC0;
   --kort2: #A8D4E8;
   --kort3: #F1CACB;
   --kort4: #F5DFC9;
   --kort5: #A8D8A0;
-
 }

@@ -14,4 +14,4 @@ Tanken, og ønsket, er å legge til rett for ein arena der musikarar kan møtast
 
 Kan du tenkje deg å hjelpe til med organisering, leie ein jamsession eller spele til dans? Send ein epost til <u>folk (krøllalfa) oslobygda.no</u>!
 
-[Du kan sjå alle komande og tidlegare tilhopp-lenkjeingar i kalenderen vår.]({{ '/kalender/' | relative_url }})
+[Du kan sjå alle komande og tidlegare tilskipingar i kalenderen vår.]({{ '/kalender/' | relative_url }})

@@ -21,7 +21,7 @@
   display: inline-block;
   width: 160px;           /* passe stor */
   aspect-ratio: 1 / 1;
-  background: var(--text); /* skiftar automatisk med tema */
+  background: var(--text); /* standardtema */
   -webkit-mask: url("/lutar/bilete/logo_oslobygda.svg") no-repeat center / contain;
   mask: url("/lutar/bilete/logo_oslobygda.svg") no-repeat center / contain;
   opacity: 0.85;

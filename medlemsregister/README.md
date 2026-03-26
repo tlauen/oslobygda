@@ -4,7 +4,7 @@ Bygdelista er eit enkelt, GDPR-orientert medlemsregister (Flask-app) som styret 
 
 Appen har:
 
-- **Styremodus (admin UI)**: legg til/endre medlemmer, handter betalingsstatus og GDPR-funksjonar (eksport/sletting)
+- **Styremodus (styregrensesnitt)**: legg til/endre medlemmer, handter betalingsstatus og GDPR-funksjonar (eksport/sletting)
 - **Offentleg innmelding**: skjema på `/innmelding` som registrerer/oppdaterer medlem og sender innmelding vidare (enten via SMTP og/eller MailerLite)
 
 ## Kva roller ser du?
@@ -32,7 +32,7 @@ Viss du har ei `.env`-fil i `medlemsregister/`, vert ho lasta automatisk (via `p
 
 4. Opne:
 
-- **Bygdelista (admin):** `http://127.0.0.1:5001/`
+- **Bygdelista (styret):** `http://127.0.0.1:5001/`
 - **Innmeldingsskjema (offentleg):** `http://127.0.0.1:5001/innmelding`
 
 Ved første køyring blir `medlemsregister.db` oppretta (i same mappe, ikkje i Git).
@@ -44,11 +44,11 @@ Du set miljøvariablane anten:
 - i same terminal-vindu som du startar `python3 app.py` frå, eller
 - via `medlemsregister/.env` (anbefalt lokalt)
 
-Hugs: `.env` inneheld secrets og skal ikkje committast.
+Hugs: `.env` inneheld hemmelege verdiar og skal ikkje committast.
 
 ## Kva miljøvariablar styrer
 
-### Passord og session (admin UI)
+### Passord og økt (styregrensesnitt)
 
 - `MEDLEMSREGISTER_PASSWORD_HASH`: passord-hash for innlogging
   - Generer med:
@@ -111,7 +111,7 @@ Du kan køyre backup til ei mappe som synkroniserer med t.d. OneDrive/Proton Dri
    bash backup.sh
    ```
 
-Scriptet lagar datomerka tryggingskopiar og beheld berre dei nyaste (for å hindre at mappa veks utan ende).
+Skriptet lagar datomerka tryggingskopiar og beheld berre dei nyaste (for å hindre at mappa veks utan ende).
 
 ## GDPR
 
@@ -123,6 +123,6 @@ DB-fila inneheld personopplysningar og skal ikkje i Git eller delast ukryptert.
 
 ## Alternativ flyt: MailerLite-skjema (ingen offentleg Flask nødvendig)
 
-Du kan la innmeldingsskjemaet vere eit MailerLite-skjema (embed eller lenke på nettsida).
+Du kan la innmeldingsskjemaet vere eit MailerLite-skjema (innebygging eller lenke på nettsida).
 
-Da kan Flask-appen vere berre lokalt for styret, og de hentar nye frå MailerLite i admin UI når de opnar appen.
+Då kan Flask-appen vere berre lokalt for styret, og de hentar nye frå MailerLite i styregrensesnittet når de opnar appen.

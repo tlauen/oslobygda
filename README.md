@@ -14,14 +14,14 @@ Denne README-en forklarer kva ein utanfrå bør vite: kva som er statisk Jekyll-
 ## Teknologi
 
 - Jekyll (GitHub Pages-kompatibel)
-- Markdown + `_layouts/` (sidemalar) + `_includes/` (gjenbruk)
+- Markdown + `_utforming/` (sidemalar) + `_tillegg/` (gjenbruk)
 - YAML-data i `_data/`
 
 ## Viktige mapper og sider
 
 - `_config.yml`: Jekyll-konfig (inkl. kven som blir ekskludert frå bygg)
-- `_layouts/`: sidemalar
-- `_includes/`: gjenbrukbare HTML-komponentar
+- `_utforming/`: sidemalar
+- `_tillegg/`: gjenbrukbare HTML-komponentar
 - `_data/`: data som driv ting som kalender/templating
 - `kalender/`: sida “Kalender” + historikk (del av statisk innhald)
 - `lutar/`: stilar/bilete/andre statiske ressursar
@@ -31,7 +31,7 @@ Denne README-en forklarer kva ein utanfrå bør vite: kva som er statisk Jekyll-
 
 ## Medlemsregister (Flask-app)
 
-- `medlemsregister/` inneheld ein **Flask-app** (Bygdelista) med admin UI og offentleg innmeldingsskjema.
+- `medlemsregister/` inneheld ein **Flask-app** (Bygdelista) med styregrensesnitt og offentleg innmeldingsskjema.
 - Jekyll ekskluderer Python-delen frå bygg (`exclude: ["medlemsregister"]` i `_config.yml`).
 - Den statiske sida `medlemsregister.md` brukar ein konfigverdi (`medlemsregister_url`) for å peike inn til Flask-appen når han er sett i drift.
 

@@ -66,15 +66,15 @@ if DB_KEY:
 app = Flask(__name__)
 app.secret_key = os.environ.get("MEDLEMSREGISTER_SECRET_KEY", "endre-meg-i-produksjon")
 
-# Ved deploy bak proxy på oslobygda.no/medlemsregister/ – sett til "/medlemsregister"
+# Ved drift bak omvendt mellomtenar på oslobygda.no/medlemsregister/ – sett til "/medlemsregister"
 URL_PREFIX = os.environ.get("MEDLEMSREGISTER_URL_PREFIX", "").rstrip("/")
 if URL_PREFIX:
     app.config["APPLICATION_ROOT"] = URL_PREFIX
 
-# Enkel passordbeskyttelse – sett MEDLEMSREGISTER_PASSWORD_HASH i miljøet
+# Enkel passordvern – sett MEDLEMSREGISTER_PASSWORD_HASH i miljøet
 ADMIN_PASSWORD_HASH = os.environ.get(
     "MEDLEMSREGISTER_PASSWORD_HASH",
-    generate_password_hash("admin"),  # Kun for lokal utvikling – sett env i produksjon
+    generate_password_hash("admin"),  # Berre for lokal utvikling – sett miljøvariabel i produksjon
 )
 
 
@@ -239,7 +239,7 @@ def require_admin(f):
 
 
 def prefix_url(endpoint, **values):
-    """URL med eventuell prefiks (for proxy under /medlemsregister)."""
+    """URL med eventuelt prefiks (for mellomtenar under /medlemsregister)."""
     url = url_for(endpoint, **values)
     if URL_PREFIX and url.startswith("/"):
         return URL_PREFIX + url
@@ -252,12 +252,12 @@ app.jinja_env.globals["url_prefix"] = URL_PREFIX  # for fetch()-base i JS
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("innlogging.html")
     password = request.form.get("password", "")
     if check_password_hash(ADMIN_PASSWORD_HASH, password):
         session["admin_logged_in"] = True
         return redirect(prefix_url("index"))
-    return render_template("login.html", error="Feil passord"), 401
+    return render_template("innlogging.html", error="Feil passord"), 401
 
 
 @app.route("/logout")
@@ -424,7 +424,7 @@ def api_innmelding():
     return jsonify({"message": msg}), 201
 
 
-# —— API (kun for innlogga admin) ——
+# —— API (berre for innlogga styret) ——
 
 @app.route("/api/sync-mailerlite", methods=["POST"])
 @require_admin
@@ -721,7 +721,7 @@ def main():
         sys.stderr.write("Database: ukyrptert (ingen MEDLEMSREGISTER_DB_KEY). Sett key i .env for kryptering.\n")
     init_db()
     port = int(os.environ.get("PORT", 5001))
-    # Ved deploy: la server lytt på 0.0.0.0
+    # Ved driftsetjing: la serveren lytte på 0.0.0.0
     host = "0.0.0.0" if os.environ.get("MEDLEMSREGISTER_PRODUCTION") else "127.0.0.1"
     app.run(host=host, port=port, debug=os.environ.get("FLASK_DEBUG", "0") == "1")
 

@@ -9,7 +9,7 @@ on:
         default: false
         type: boolean
   schedule:
-    # Køyr dagleg; scriptet avgjer om det er "rett dag" å sende.
+    # Køyr dagleg; skriptet avgjer om det er "rett dag" å sende.
     - cron: "17 7 * * *" # UTC
 
 permissions:
