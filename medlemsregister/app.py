@@ -63,7 +63,12 @@ if DB_KEY:
             UserWarning,
         )
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="fast",
+    static_url_path="/fast",
+    template_folder="malar",
+)
 app.secret_key = os.environ.get("MEDLEMSREGISTER_SECRET_KEY", "endre-meg-i-produksjon")
 
 # Ved drift bak omvendt mellomtenar på oslobygda.no/medlemsregister/ – sett til "/medlemsregister"
