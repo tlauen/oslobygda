@@ -100,6 +100,14 @@ def _migrate_plain_to_encrypted() -> None:
     plain_conn.row_factory = sqlite3.Row
     rows = plain_conn.execute("SELECT * FROM members").fetchall()
     cols = [d[1] for d in plain_conn.execute("PRAGMA table_info(members)").fetchall()]
+    has_payments = plain_conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='payments'"
+    ).fetchone() is not None
+    payment_rows = []
+    payment_cols = []
+    if has_payments:
+        payment_rows = plain_conn.execute("SELECT * FROM payments").fetchall()
+        payment_cols = [d[1] for d in plain_conn.execute("PRAGMA table_info(payments)").fetchall()]
     plain_conn.close()
     enc_path = APP_DIR / "medlemsregister.db.new"
     enc_conn = _sqlcipher_sqlite.connect(enc_path)
@@ -114,11 +122,29 @@ def _migrate_plain_to_encrypted() -> None:
             consent_at TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id INTEGER NOT NULL,
+            amount_ore INTEGER NOT NULL,
+            paid_at TEXT NOT NULL,
+            note TEXT,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_payments_member_id ON payments(member_id);
     """)
     col_list = ", ".join(cols)
     placeholders = ", ".join("?" * len(cols))
     for row in rows:
         enc_conn.execute(f"INSERT INTO members ({col_list}) VALUES ({placeholders})", tuple(row))
+    if has_payments and payment_cols:
+        payment_col_list = ", ".join(payment_cols)
+        payment_placeholders = ", ".join("?" * len(payment_cols))
+        for row in payment_rows:
+            enc_conn.execute(
+                f"INSERT INTO payments ({payment_col_list}) VALUES ({payment_placeholders})",
+                tuple(row),
+            )
     enc_conn.commit()
     enc_conn.close()
     bak_path = APP_DIR / "medlemsregister.db.plain.bak"
@@ -154,6 +180,7 @@ def get_db():
 
 def init_db():
     with get_db() as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS members (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -174,6 +201,16 @@ def init_db():
                 updated_at TEXT NOT NULL
             );
             CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
+            CREATE TABLE IF NOT EXISTS payments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                member_id INTEGER NOT NULL,
+                amount_ore INTEGER NOT NULL,
+                paid_at TEXT NOT NULL,
+                note TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+            );
+            CREATE INDEX IF NOT EXISTS idx_payments_member_id ON payments(member_id);
         """)
         # Kan fjernast når alle instansar har køyrt migrering minst éin gong
         for col in ("adresse", "postnummer", "poststad", "fornamn", "mellomnamn", "etternamn", "birth_date"):
@@ -450,9 +487,13 @@ def list_members():
     try:
         with get_db() as conn:
             rows = conn.execute(
-                """SELECT id, full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad,
-                          birth_date, membership_type, payment_status, consent_at, created_at, updated_at
-                   FROM members ORDER BY full_name"""
+                """SELECT m.id, m.full_name, m.fornamn, m.mellomnamn, m.etternamn, m.email, m.phone, m.adresse, m.postnummer, m.poststad,
+                          m.birth_date, m.membership_type, m.payment_status, m.consent_at, m.created_at, m.updated_at,
+                          COALESCE(SUM(p.amount_ore), 0) AS total_paid_ore
+                   FROM members m
+                   LEFT JOIN payments p ON p.member_id = m.id
+                   GROUP BY m.id
+                   ORDER BY m.full_name"""
             ).fetchall()
         return jsonify([dict(r) for r in rows])
     except Exception as e:
@@ -540,11 +581,64 @@ def member(mid):
 
     if request.method == "DELETE":
         with get_db() as conn:
+            conn.execute("DELETE FROM payments WHERE member_id = ?", (mid,))
             conn.execute("DELETE FROM members WHERE id = ?", (mid,))
             conn.commit()
         return jsonify({"message": "Medlem sletta"}), 200
 
     return jsonify({"error": "Ugyldig metode"}), 405
+
+
+@app.route("/api/members/<int:mid>/payments", methods=["GET", "POST"])
+@require_admin
+def member_payments(mid):
+    with get_db() as conn:
+        member_exists = conn.execute("SELECT 1 FROM members WHERE id = ?", (mid,)).fetchone()
+        if not member_exists:
+            return jsonify({"error": "Medlem finst ikkje"}), 404
+
+        if request.method == "GET":
+            rows = conn.execute(
+                """SELECT id, amount_ore, paid_at, note, created_at
+                   FROM payments
+                   WHERE member_id = ?
+                   ORDER BY paid_at DESC, id DESC""",
+                (mid,),
+            ).fetchall()
+            total_ore = conn.execute(
+                "SELECT COALESCE(SUM(amount_ore), 0) FROM payments WHERE member_id = ?",
+                (mid,),
+            ).fetchone()[0]
+            return jsonify(
+                {
+                    "payments": [dict(r) for r in rows],
+                    "total_ore": int(total_ore or 0),
+                }
+            )
+
+        data = request.get_json() or {}
+        amount_nok = data.get("amount_nok")
+        paid_at = (data.get("paid_at") or "").strip()
+        note = (data.get("note") or "").strip() or None
+        try:
+            amount_nok = float(amount_nok)
+        except (TypeError, ValueError):
+            return jsonify({"error": "Beløp må vere eit tal"}), 400
+        if amount_nok <= 0:
+            return jsonify({"error": "Beløp må vere større enn 0"}), 400
+        amount_ore = int(round(amount_nok * 100))
+        if not paid_at:
+            paid_at = datetime.now(timezone.utc).isoformat()
+        elif len(paid_at) == 10:
+            paid_at = f"{paid_at}T12:00:00"
+        created_at = datetime.now(timezone.utc).isoformat()
+        cur = conn.execute(
+            """INSERT INTO payments (member_id, amount_ore, paid_at, note, created_at)
+               VALUES (?, ?, ?, ?, ?)""",
+            (mid, amount_ore, paid_at, note, created_at),
+        )
+        conn.commit()
+        return jsonify({"id": cur.lastrowid, "message": "Betaling registrert"}), 201
 
 
 def _medlemstype_visning(membership_type: str, *, med_beskrivelse: bool = False) -> str:

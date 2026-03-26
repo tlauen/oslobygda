@@ -437,3 +437,26 @@ tr:hover td:not(:last-child) {
 .pill--toggle:hover {
   filter: brightness(0.96);
 }
+
+.sum-reg {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.betaling-historikk {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.5rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.betaling-rad {
+  display: grid;
+  grid-template-columns: 90px 85px 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.3rem 0;
+  font-size: 0.85rem;
+}

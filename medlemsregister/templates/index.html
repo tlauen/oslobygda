@@ -124,13 +124,44 @@
     </div>
   </div>
 
+  <div id="betaling-overlay" class="modal-overlay" style="display: none;" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="betaling-tittel">
+      <h2 id="betaling-tittel">Registrer betaling</h2>
+      <form id="betaling-skjema">
+        <input type="hidden" id="betaling-medlem-id" />
+        <div class="felt">
+          <label for="betaling-belop">Beløp (NOK) *</label>
+          <input type="number" id="betaling-belop" min="0" step="0.01" required />
+        </div>
+        <div class="felt">
+          <label for="betaling-dato">Betalt dato</label>
+          <input type="date" id="betaling-dato" />
+        </div>
+        <div class="felt">
+          <label for="betaling-notat">Notat (valfritt)</label>
+          <input type="text" id="betaling-notat" />
+        </div>
+        <p class="status" id="betaling-sum"></p>
+        <div id="betaling-historikk" class="betaling-historikk"></div>
+        <p class="feil" id="betaling-feil" style="display: none;"></p>
+        <div class="knappar">
+          <button type="submit" class="btn">Lagre betaling</button>
+          <button type="button" class="btn secondary" id="btn-betaling-avbryt">Lukk</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const API = "{{ url_prefix }}";
     const statusEl = document.getElementById("status");
     const listeEl = document.getElementById("medlem-liste");
     const modal = document.getElementById("modal-overlay");
+    const betalingModal = document.getElementById("betaling-overlay");
     const skjema = document.getElementById("medlem-skjema");
     const skjemaFeil = document.getElementById("skjema-feil");
+    const betalingSkjema = document.getElementById("betaling-skjema");
+    const betalingFeil = document.getElementById("betaling-feil");
 
     function setStatus(msg, isError) {
       statusEl.textContent = msg;
@@ -162,6 +193,11 @@
       if (val === "Kul medlem (5kr)") return "vanleg";
       if (val === "Superkul medlem (meir enn 5kr)") return "kul";
       return val || "vanleg";
+    }
+
+    function formatNokFromOre(ore) {
+      const n = Number(ore || 0) / 100;
+      return n.toLocaleString("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " kr";
     }
 
     function visningsnamn(m) {
@@ -205,7 +241,10 @@
           <td data-col="poststad">${escapeHtml(m.poststad || "–")}</td>
           <td data-col="fødselsdato">${m.birth_date ? formaterDato(m.birth_date) : "–"}</td>
           <td data-col="medlemstype"><span class="pill">${escapeHtml(medlemstypeVisningsnamn(m.membership_type))}</span></td>
-          <td data-col="betalingsstatus"><span class="${pillClassForPaymentStatus(m.payment_status)} pill--toggle" data-id="${m.id}" data-action="toggle-payment" data-status="${escapeHtml(m.payment_status)}" title="Klikk for å bytte betalingsstatus">${escapeHtml(m.payment_status)}</span></td>
+          <td data-col="betalingsstatus">
+            <span class="${pillClassForPaymentStatus(m.payment_status)} pill--toggle" data-id="${m.id}" data-action="toggle-payment" data-status="${escapeHtml(m.payment_status)}" title="Klikk for å bytte betalingsstatus">${escapeHtml(m.payment_status)}</span>
+            <div class="sum-reg">${formatNokFromOre(m.total_paid_ore)}</div>
+          </td>
           <td data-col="samtykke">${formaterDato(m.consent_at)}</td>
           <td data-col="aksjonar" class="aksjonar">
             <a href="#" data-id="${m.id}" data-action="edit">Endre</a>
@@ -213,6 +252,7 @@
               <button type="button" class="aksjonar-meny-knapp" data-id="${m.id}" aria-label="Meny" aria-expanded="false"><span class="aksjonar-meny-prikker"><span></span><span></span><span></span></span></button>
               <div class="aksjonar-meny" role="menu" hidden>
                 <button type="button" role="menuitem" data-id="${m.id}" data-action="export">Eksporter (GDPR)</button>
+                <button type="button" role="menuitem" data-id="${m.id}" data-action="betaling">Registrer betaling</button>
                 <button type="button" role="menuitem" data-id="${m.id}" data-action="delete" class="slett">Slett</button>
               </div>
             </div>
@@ -269,6 +309,7 @@
           e.preventDefault();
           if (!isNaN(id)) {
             if (e.target.dataset.action === "export") eksporterMedlem(id);
+            else if (e.target.dataset.action === "betaling") openBetalingModal(id);
             else if (e.target.dataset.action === "delete") slettMedlem(id);
           }
           lukkAlleAksjonarMenyer();
@@ -336,6 +377,50 @@
       modal.setAttribute("aria-hidden", "true");
     }
 
+    async function lastBetalingar(id) {
+      const hist = document.getElementById("betaling-historikk");
+      const sumEl = document.getElementById("betaling-sum");
+      hist.innerHTML = "Lastar betalingar …";
+      try {
+        const r = await fetch(API + "/api/members/" + id + "/payments", { credentials: "same-origin" });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || "Kunne ikkje hente betalingar");
+        const totalNok = (Number(data.total_ore || 0) / 100).toFixed(2);
+        sumEl.textContent = "Totalt registrert: " + totalNok + " kr";
+        const rows = data.payments || [];
+        if (!rows.length) {
+          hist.innerHTML = "<p>Ingen betalingar registrert enno.</p>";
+          return;
+        }
+        hist.innerHTML = rows.slice(0, 10).map(p => `
+          <div class="betaling-rad">
+            <strong>${(Number(p.amount_ore || 0) / 100).toFixed(2)} kr</strong>
+            <span>${escapeHtml(formaterDato(p.paid_at))}</span>
+            <span>${escapeHtml(p.note || "")}</span>
+          </div>
+        `).join("");
+      } catch (e) {
+        hist.innerHTML = "<p class=\"feil\">" + escapeHtml(e.message) + "</p>";
+      }
+    }
+
+    function openBetalingModal(id) {
+      document.getElementById("betaling-medlem-id").value = String(id);
+      document.getElementById("betaling-belop").value = "";
+      document.getElementById("betaling-dato").value = "";
+      document.getElementById("betaling-notat").value = "";
+      betalingFeil.style.display = "none";
+      betalingModal.style.display = "flex";
+      betalingModal.setAttribute("aria-hidden", "false");
+      document.getElementById("betaling-belop").focus();
+      lastBetalingar(id);
+    }
+
+    function lukkBetalingModal() {
+      betalingModal.style.display = "none";
+      betalingModal.setAttribute("aria-hidden", "true");
+    }
+
     skjema.addEventListener("submit", async (e) => {
       e.preventDefault();
       skjemaFeil.style.display = "none";
@@ -370,10 +455,12 @@
     });
 
     document.getElementById("btn-avbryt").addEventListener("click", lukkModal);
+    document.getElementById("btn-betaling-avbryt").addEventListener("click", lukkBetalingModal);
     document.getElementById("btn-ny").addEventListener("click", () => openModal(null));
     document.getElementById("btn-sync-mailerlite").addEventListener("click", syncMailerlite);
 
     modal.addEventListener("click", (e) => { if (e.target === modal) lukkModal(); });
+    betalingModal.addEventListener("click", (e) => { if (e.target === betalingModal) lukkBetalingModal(); });
 
     async function syncMailerlite() {
       const btn = document.getElementById("btn-sync-mailerlite");
@@ -416,6 +503,34 @@
         renderListe(medlemmar);
       } catch (e) { setStatus("Kunne ikkje slette.", true); }
     }
+
+    betalingSkjema.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      betalingFeil.style.display = "none";
+      const id = parseInt(document.getElementById("betaling-medlem-id").value, 10);
+      const body = {
+        amount_nok: document.getElementById("betaling-belop").value,
+        paid_at: document.getElementById("betaling-dato").value,
+        note: document.getElementById("betaling-notat").value.trim()
+      };
+      try {
+        const r = await fetch(API + "/api/members/" + id + "/payments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify(body)
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || "Kunne ikkje lagre betaling");
+        setStatus("Betaling registrert.");
+        document.getElementById("betaling-belop").value = "";
+        document.getElementById("betaling-notat").value = "";
+        await lastBetalingar(id);
+      } catch (err) {
+        betalingFeil.textContent = err.message;
+        betalingFeil.style.display = "block";
+      }
+    });
 
 
     async function toggleBetalingsstatus(id, currentStatus) {
