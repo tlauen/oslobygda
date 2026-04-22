@@ -204,46 +204,52 @@ unless campaign_id
   }
   email_obj["reply_to"] = reply_to.to_s if reply_to && !reply_to.empty?
 
-  # MailerLite 422: "emails.0 must be an array" and "emails.0.subject required". Try formats:
-  # 1) emails = { "0" => [email_obj] } (Laravel-style)
-  # 2) emails = [email_obj] (docs: "1 email object item")
-  # 3) emails = [[email_obj]] (nested array)
+  # Use the documented Connect API payload shape: emails must be an array with one object.
+  # If the account is not allowed to send custom HTML content, fallback to plain-text only.
   email_obj_str = email_obj.transform_keys(&:to_s)
-  formats = [
-    { "0" => [email_obj_str] },
-    [email_obj_str],
-    [email_obj_str].yield_self { |a| [a] }
-  ]
-  code = nil
-  created = nil
-  last_emails_sent = nil
-  formats.each do |emails_value|
-    create_body = {
+  attempts = [
+    {
       "name" => campaign_name,
       "type" => "regular",
       "groups" => [group_id.to_s],
-      "emails" => emails_value
+      "emails" => [email_obj_str]
+    },
+    {
+      "name" => campaign_name,
+      "type" => "regular",
+      "groups" => [group_id.to_s],
+      "emails" => [email_obj_str.reject { |k, _| k == "content" }.merge("plain_text" => plain.to_s)]
     }
+  ]
+
+  code = nil
+  created = nil
+  first_422 = nil
+  attempts.each_with_index do |create_body, idx|
     code, created = http_json(:post, "/campaigns", token: token, body: create_body)
-    last_emails_sent = emails_value
+    if ENV["OSLOBYGDA_DEBUG"]
+      warn "DEBUG create attempt #{idx + 1} payload: #{JSON.dump(create_body)}"
+      warn "DEBUG create attempt #{idx + 1} response: status=#{code} body=#{created.inspect}"
+    end
     break if (code == 200 || code == 201) && created && created.dig("data", "id")
-    break if code != 422
-    warn "Tried emails format #{emails_value.class}; got 422, trying next format."
+    if code == 422
+      first_422 ||= created
+      warn "Create campaign attempt #{idx + 1} failed with 422."
+      next
+    end
+    break
   end
 
   unless (code == 200 || code == 201) && created && created.dig("data", "id")
-    msg = created&.dig("message") || created&.inspect || "no body"
-    errors = created&.dig("errors")
+    error_body = created || first_422
+    msg = error_body&.dig("message") || error_body&.inspect || "no body"
+    errors = error_body&.dig("errors")
     msg += " | errors: #{errors.inspect}" if errors
-    if code == 422 && ENV["OSLOBYGDA_DEBUG"] && last_emails_sent
-      warn "DEBUG last request emails: #{last_emails_sent.inspect}"
-      warn "DEBUG JSON: #{JSON.dump(last_emails_sent)}"
-    end
     hint = case code
     when 404
       " 404 often means wrong MAILERLITE_GROUP_ID or that campaign API is not available for your plan. Check Integrations → API in MailerLite for the correct group ID."
     when 422
-      " 422: Tried object/array/nested-array for emails. Set OSLOBYGDA_DEBUG=1 to log payload; see developers.mailerlite.com/docs/campaigns or contact MailerLite support."
+      " 422: Tried documented emails array payload, then plain-text fallback without HTML content. Set OSLOBYGDA_DEBUG=1 to log payload; see developers.mailerlite.com/docs/campaigns or contact MailerLite support."
     else
       ""
     end
