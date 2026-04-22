@@ -207,25 +207,67 @@ unless campaign_id
   # Use the documented Connect API payload shape: emails must be an array with one object.
   # If the account is not allowed to send custom HTML content, fallback to plain-text only.
   email_obj_str = email_obj.transform_keys(&:to_s)
+  base_plain_email = email_obj_str.reject { |k, _| k == "content" }.merge("plain_text" => plain.to_s)
+  # MailerLite docs say emails should be an array with one object. Some accounts appear to validate
+  # "emails.0" as an array/object in a Laravel-like way, so we try a few wire-compatible variants.
   attempts = [
     {
-      "name" => campaign_name,
-      "type" => "regular",
-      "groups" => [group_id.to_s],
-      "emails" => [email_obj_str]
+      "label" => "docs array+html string-group",
+      "body" => {
+        "name" => campaign_name,
+        "type" => "regular",
+        "groups" => [group_id.to_s],
+        "emails" => [email_obj_str]
+      }
     },
     {
-      "name" => campaign_name,
-      "type" => "regular",
-      "groups" => [group_id.to_s],
-      "emails" => [email_obj_str.reject { |k, _| k == "content" }.merge("plain_text" => plain.to_s)]
+      "label" => "docs array+plain string-group",
+      "body" => {
+        "name" => campaign_name,
+        "type" => "regular",
+        "groups" => [group_id.to_s],
+        "emails" => [base_plain_email]
+      }
+    },
+    {
+      "label" => "legacy object-index plain string-group",
+      "body" => {
+        "name" => campaign_name,
+        "type" => "regular",
+        "groups" => [group_id.to_s],
+        "emails" => { "0" => base_plain_email }
+      }
     }
   ]
+  if group_id.to_s.match?(/\A\d+\z/)
+    group_id_i = group_id.to_i
+    attempts.concat([
+      {
+        "label" => "docs array+plain integer-group",
+        "body" => {
+          "name" => campaign_name,
+          "type" => "regular",
+          "groups" => [group_id_i],
+          "emails" => [base_plain_email]
+        }
+      },
+      {
+        "label" => "legacy object-index plain integer-group",
+        "body" => {
+          "name" => campaign_name,
+          "type" => "regular",
+          "groups" => [group_id_i],
+          "emails" => { "0" => base_plain_email }
+        }
+      }
+    ])
+  end
 
   code = nil
   created = nil
   first_422 = nil
-  attempts.each_with_index do |create_body, idx|
+  attempts.each_with_index do |attempt, idx|
+    create_body = attempt.fetch("body")
     code, created = http_json(:post, "/campaigns", token: token, body: create_body)
     if ENV["OSLOBYGDA_DEBUG"]
       warn "DEBUG create attempt #{idx + 1} payload: #{JSON.dump(create_body)}"
@@ -234,9 +276,10 @@ unless campaign_id
     break if (code == 200 || code == 201) && created && created.dig("data", "id")
     if code == 422
       first_422 ||= created
-      warn "Create campaign attempt #{idx + 1} failed with 422."
+      warn "Create campaign attempt #{idx + 1} (#{attempt.fetch("label")}) failed with 422: #{created.inspect}"
       next
     end
+    warn "Create campaign attempt #{idx + 1} (#{attempt.fetch("label")}) failed with status #{code}: #{created.inspect}"
     break
   end
 
@@ -249,7 +292,7 @@ unless campaign_id
     when 404
       " 404 often means wrong MAILERLITE_GROUP_ID or that campaign API is not available for your plan. Check Integrations → API in MailerLite for the correct group ID."
     when 422
-      " 422: Tried documented emails array payload, then plain-text fallback without HTML content. Set OSLOBYGDA_DEBUG=1 to log payload; see developers.mailerlite.com/docs/campaigns or contact MailerLite support."
+      " 422: Tried documented and compatibility payload shapes for emails plus plain-text fallback. Set OSLOBYGDA_DEBUG=1 to log payload; see developers.mailerlite.com/docs/campaigns or contact MailerLite support."
     else
       ""
     end
