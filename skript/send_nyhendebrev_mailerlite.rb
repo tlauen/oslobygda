@@ -207,7 +207,8 @@ unless campaign_id
   # Use the documented Connect API payload shape: emails must be an array with one object.
   # If the account is not allowed to send custom HTML content, fallback to plain-text only.
   email_obj_str = email_obj.transform_keys(&:to_s)
-  base_plain_email = email_obj_str.reject { |k, _| k == "content" }.merge("plain_text" => plain.to_s)
+  base_no_content_email = email_obj_str.reject { |k, _| k == "content" }
+  base_plain_email = base_no_content_email.merge("plain_text" => plain.to_s)
   # MailerLite docs say emails should be an array with one object. Some accounts appear to validate
   # "emails.0" as an array/object in a Laravel-like way, so we try a few wire-compatible variants.
   attempts = [
@@ -230,6 +231,15 @@ unless campaign_id
       }
     },
     {
+      "label" => "docs array+no-content string-group",
+      "body" => {
+        "name" => campaign_name,
+        "type" => "regular",
+        "groups" => [group_id.to_s],
+        "emails" => [base_no_content_email]
+      }
+    },
+    {
       "label" => "legacy object-index plain string-group",
       "body" => {
         "name" => campaign_name,
@@ -249,6 +259,15 @@ unless campaign_id
           "type" => "regular",
           "groups" => [group_id_i],
           "emails" => [base_plain_email]
+        }
+      },
+      {
+        "label" => "docs array+no-content integer-group",
+        "body" => {
+          "name" => campaign_name,
+          "type" => "regular",
+          "groups" => [group_id_i],
+          "emails" => [base_no_content_email]
         }
       },
       {
@@ -284,7 +303,7 @@ unless campaign_id
   end
 
   unless (code == 200 || code == 201) && created && created.dig("data", "id")
-    error_body = created || first_422
+    error_body = first_422 || created
     msg = error_body&.dig("message") || error_body&.inspect || "no body"
     errors = error_body&.dig("errors")
     msg += " | errors: #{errors.inspect}" if errors
