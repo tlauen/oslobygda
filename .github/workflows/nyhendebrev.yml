@@ -32,7 +32,7 @@ jobs:
       MAILERLITE_REPLY_TO: ${{ secrets.MAILERLITE_REPLY_TO }}
       OSLOBYGDA_FORCE_SEND: ${{ github.event.inputs.force_send == 'true' && '1' || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Send nyhendebrev
         run: ruby skript/send_nyhendebrev_mailerlite.rb
