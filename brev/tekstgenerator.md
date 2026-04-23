@@ -7,7 +7,8 @@ title: Tekstgenerator for nyhendebrev
 {% assign weekdays_nn = "sundag|mandag|tirsdag|onsdag|torsdag|fredag|laurdag" | split: "|" %}
 {% assign today_iso = "now" | date: "%Y-%m-%d" %}
 {% assign upcoming = site.data.kalender | where_exp: "e", "e.dato >= today_iso" | sort: "dato" %}
-{% assign trigger = upcoming | where_exp: "e", "e.uid contains 'pobb-'" | first %}
+{% assign upcoming_pobb = upcoming | where_exp: "e", "e.uid contains 'pobb-'" %}
+{% assign trigger = upcoming_pobb | first %}
 
 {% if trigger %}
   {% assign trigger_weekday_i = trigger.dato | date: "%w" | plus: 0 %}
@@ -19,24 +20,20 @@ title: Tekstgenerator for nyhendebrev
   {% capture subject_line %}Komande tilskipingar frå Oslobygda kulturlag{% endcapture %}
 {% endif %}
 
-{% capture body_text %}
-Komande tilskipingar
-
-Her er det som ligg i kalenderen vår no:
-{% for e in upcoming limit: 12 %}
+{% capture body_rich %}
+<ul>
+{% for e in upcoming_pobb limit: 6 %}
 {% assign day = e.dato | date: "%-d" %}
 {% assign month_i = e.dato | date: "%-m" | plus: 0 | minus: 1 %}
 {% assign year = e.dato | date: "%Y" %}
-- {{ day }}. {{ months_nn[month_i] }} {{ year }}{% if e.start %} kl. {{ e.start }}{% endif %}{% if e.tittel %} – {{ e.tittel }}{% endif %}{% if e.stad %} ({{ e.stad }}){% endif %}
+  <li><strong>{{ day }}. {{ months_nn[month_i] }} {{ year }}</strong>{% if e.start %} kl. {{ e.start }}{% endif %}{% if e.tittel %} – {{ e.tittel }}{% endif %}{% if e.stad %} ({{ e.stad }}){% endif %}</li>
 {% endfor %}
-
-Heile kalenderen: {{ '/kalender/' | absolute_url }}
-ICS: {{ '/kalender.ics' | absolute_url }}
+</ul>
 {% endcapture %}
 
 # Tekstgenerator for nyhendebrev
 
-Denne sida lagar ferdig tekst frå kalenderen som du kan lime rett inn i MailerLite (gratisversjon).
+Denne sida lagar det du treng for MailerLite: emnefelt + kulepunkt med komande pøbb-arrangement.
 
 <p><strong>Generert:</strong> <span id="generated-time"></span></p>
 
@@ -45,12 +42,13 @@ Denne sida lagar ferdig tekst frå kalenderen som du kan lime rett inn i MailerL
 <textarea id="subject-text" rows="3" style="width:100%; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">{{ subject_line | strip }}</textarea>
 <p><button type="button" class="btn" onclick="copyFrom('subject-text', 'subject-status')">Kopier emnefelt</button> <span id="subject-status" aria-live="polite"></span></p>
 
-<h2>Brødtekst (plain text)</h2>
+<h2>Kulepunkt (riktekst)</h2>
 
-<textarea id="body-text" rows="18" style="width:100%; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">{{ body_text | strip }}</textarea>
-<p><button type="button" class="btn" onclick="copyFrom('body-text', 'body-status')">Kopier brødtekst</button> <span id="body-status" aria-live="polite"></span></p>
+<p>Kopier denne boksen for å få kulepunkt og utheva datoar inn i rikteksteditoren:</p>
+<div id="body-rich" style="border:1px solid #d0cbc2; background:#fff; padding:1rem; border-radius:.5rem;">{{ body_rich | strip }}</div>
+<p><button type="button" class="btn" onclick="copyRich('body-rich', 'rich-status')">Kopier kulepunkt</button> <span id="rich-status" aria-live="polite"></span></p>
 
-<p>Tips: I MailerLite kan du bruke emnefeltet over + lime inn brødteksten i ein plain text- eller tekstblokk i editoren.</p>
+<p>Tips: Lim emnefeltet i Subject og kulepunkta i innhaldsfeltet i MailerLite-editoren.</p>
 
 <script>
   (function () {
@@ -76,6 +74,34 @@ Denne sida lagar ferdig tekst frå kalenderen som du kan lime rett inn i MailerL
       if (status) status.textContent = "Kopiert.";
     } catch (err) {
       if (status) status.textContent = "Kunne ikkje kopiere automatisk. Marker teksten og kopier manuelt.";
+    }
+  }
+
+  async function copyRich(sourceId, statusId) {
+    var source = document.getElementById(sourceId);
+    var status = document.getElementById(statusId);
+    if (!source) return;
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        var html = source.innerHTML;
+        var text = source.innerText;
+        var item = new ClipboardItem({
+          "text/html": new Blob([html], { type: "text/html" }),
+          "text/plain": new Blob([text], { type: "text/plain" })
+        });
+        await navigator.clipboard.write([item]);
+      } else {
+        var range = document.createRange();
+        range.selectNodeContents(source);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand("copy");
+        selection.removeAllRanges();
+      }
+      if (status) status.textContent = "Riktekst kopiert.";
+    } catch (err) {
+      if (status) status.textContent = "Kunne ikkje kopiere riktekst automatisk. Marker boksen og kopier manuelt.";
     }
   }
 </script>

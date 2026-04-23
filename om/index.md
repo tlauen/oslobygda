@@ -18,5 +18,4 @@ Vil du bli med i laget? [Bli medlem her!]({{ '/bli-medlem/' | relative_url }}). 
 **Nestleiar:** Signe Dorthea Krohn Gjessing
 
 § [Lova vår]({{ '/om/lova/' | relative_url }})
-{% comment %}📄 [Skipingsdokumentet (PDF)](/lutar/dokument/skipingsdokument.pdf){% endcomment %}
-<span>📄 Skipingsdokumentet (PDF) (kjem snart)</span>
+📄 [Skipingsdokumentet (PDF)](/lutar/dokument/skipingsdokument.pdf)
