@@ -26,10 +26,7 @@ jobs:
       UPCOMING_LIMIT: "12"
 
       MAILERLITE_API_TOKEN: ${{ secrets.MAILERLITE_API_TOKEN }}
-      MAILERLITE_GROUP_ID: ${{ secrets.MAILERLITE_GROUP_ID }}
-      MAILERLITE_FROM_EMAIL: ${{ secrets.MAILERLITE_FROM_EMAIL }}
-      MAILERLITE_FROM_NAME: ${{ secrets.MAILERLITE_FROM_NAME }}
-      MAILERLITE_REPLY_TO: ${{ secrets.MAILERLITE_REPLY_TO }}
+      MAILERLITE_READY_CAMPAIGN_ID: ${{ secrets.MAILERLITE_READY_CAMPAIGN_ID }}
       OSLOBYGDA_FORCE_SEND: ${{ github.event.inputs.force_send == 'true' && '1' || '' }}
     steps:
       - uses: actions/checkout@v5

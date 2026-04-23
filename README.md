@@ -59,12 +59,13 @@ Eige domene blir styrt av `CNAME`.
 
 ## Nyhendebrev (MailerLite + GitHub Actions)
 
-Det finst ein auto-flyt som kan sende nyhendebrev via MailerLite:
+Det finst ein auto-flyt som kan sende nyhendebrev via MailerLite (gratis-kompatibel modus):
 
 - Workflow: `.github/workflows/nyhendebrev.yml`
 - Skript: `skript/send_nyhendebrev_mailerlite.rb`
-- Innhald: blir generert frå `_data/kalender.yml`
-- Utsending: berre når det er “7 dagar før neste” arrangement (styrt av trigger-innstillingar)
+- Innhald: må vere ferdig sett opp i MailerLite-kampanjen i UI
+- Utsending: scriptet sender ein eksisterande `draft/ready` kampanje-ID når det er “7 dagar før neste” arrangement
+- Dvale (Advanced): tidlegare fullauto HTML-variant ligg i `skript/send_nyhendebrev_mailerlite_advanced.rb`
 
 ## Lisens
 
