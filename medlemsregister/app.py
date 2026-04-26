@@ -12,7 +12,7 @@ import smtplib
 import sys
 import ssl
 import sqlite3
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from email.mime.text import MIMEText
 from email.utils import formatdate
 from pathlib import Path
@@ -180,7 +180,56 @@ def get_db():
         conn.row_factory = sqlite3.Row
     if DB_PATH.exists():
         _restrict_db_permissions(DB_PATH)
+    try:
+        conn.execute("PRAGMA foreign_keys = ON")
+    except (sqlite3.Error, AttributeError):
+        pass
     return conn
+
+
+def _default_medlemsbetalingsar() -> int:
+    """Standardår for nye betalingar (miljø MEDLEMSBETALING_AR, elles kalenderår i UTC)."""
+    try:
+        raw = (os.environ.get("MEDLEMSBETALING_AR") or str(datetime.now(timezone.utc).year)).strip()
+        return int(raw)
+    except (ValueError, TypeError):
+        return datetime.now(timezone.utc).year
+
+
+def _get_medlemsbetalingsar(conn) -> int:
+    """Aktivt medlemsoppkrævingsår (app_settings, elles default)."""
+    try:
+        row = conn.execute(
+            "SELECT value FROM app_settings WHERE key = ?",
+            ("medlemsbetalingsar",),
+        ).fetchone()
+        if row and row[0] is not None and str(row[0]).strip() != "":
+            return int(str(row[0]).strip())
+    except (ValueError, TypeError, sqlite3.OperationalError):
+        pass
+    return _default_medlemsbetalingsar()
+
+
+def _parse_dato_ymd(s: str | None) -> date | None:
+    """Parsar dato YYYY-MM-DD (eller ISO med tid), elles None."""
+    if s is None:
+        return None
+    t = str(s).strip()
+    if len(t) < 10:
+        return None
+    t = t[:10]
+    try:
+        y, m, d = t.split("-")
+        return date(int(y), int(m), int(d))
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
+def _alder_år(fødsel: date, idag: date) -> int:
+    a = idag.year - fødsel.year
+    if (idag.month, idag.day) < (fødsel.month, fødsel.day):
+        a -= 1
+    return a
 
 
 def init_db():
@@ -228,6 +277,33 @@ def init_db():
         conn.execute("UPDATE members SET fornamn = full_name WHERE fornamn IS NULL AND full_name IS NOT NULL")
         # Normaliser betalingsstatus til nynorsk
         conn.execute("UPDATE members SET payment_status = 'ikkje betalt' WHERE payment_status = 'ikke betalt'")
+        conn.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS app_settings (
+                key TEXT PRIMARY KEY NOT NULL,
+                value TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS medlemsar_arkiv (
+                ar INTEGER PRIMARY KEY NOT NULL,
+                totalt_ore INTEGER NOT NULL,
+                antall_medlemer_med_betaling INTEGER NOT NULL,
+                oppretta TEXT NOT NULL
+            );
+            """
+        )
+        try:
+            conn.execute("ALTER TABLE payments ADD COLUMN for_year INTEGER")
+        except Exception as e:
+            if "duplicate column" not in str(e).lower():
+                raise
+        default_ar = _default_medlemsbetalingsar()
+        conn.execute("UPDATE payments SET for_year = ? WHERE for_year IS NULL", (default_ar,))
+        if not conn.execute("SELECT 1 FROM app_settings WHERE key = 'medlemsbetalingsar'").fetchone():
+            conn.execute(
+                "INSERT INTO app_settings (key, value) VALUES ('medlemsbetalingsar', ?)",
+                (str(default_ar),),
+            )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_payments_for_year ON payments(for_year)")
         conn.commit()
 
 
@@ -604,14 +680,16 @@ def _build_full_name(fornamn, mellomnamn, etternamn):
 def list_members():
     try:
         with get_db() as conn:
+            ar = _get_medlemsbetalingsar(conn)
             rows = conn.execute(
                 """SELECT m.id, m.full_name, m.fornamn, m.mellomnamn, m.etternamn, m.email, m.phone, m.adresse, m.postnummer, m.poststad,
                           m.birth_date, m.membership_type, m.payment_status, m.consent_at, m.created_at, m.updated_at,
-                          COALESCE(SUM(p.amount_ore), 0) AS total_paid_ore
+                          COALESCE(SUM(CASE WHEN p.for_year = ? THEN p.amount_ore ELSE 0 END), 0) AS total_paid_ore
                    FROM members m
                    LEFT JOIN payments p ON p.member_id = m.id
                    GROUP BY m.id
-                   ORDER BY m.full_name"""
+                   ORDER BY m.full_name""",
+                (ar,),
             ).fetchall()
         return jsonify([dict(r) for r in rows])
     except Exception as e:
@@ -716,21 +794,28 @@ def member_payments(mid):
             return jsonify({"error": "Medlem finst ikkje"}), 404
 
         if request.method == "GET":
+            ar = _get_medlemsbetalingsar(conn)
             rows = conn.execute(
-                """SELECT id, amount_ore, paid_at, note, created_at
+                """SELECT id, amount_ore, paid_at, note, created_at, for_year
                    FROM payments
                    WHERE member_id = ?
                    ORDER BY paid_at DESC, id DESC""",
                 (mid,),
             ).fetchall()
-            total_ore = conn.execute(
+            total_all = conn.execute(
                 "SELECT COALESCE(SUM(amount_ore), 0) FROM payments WHERE member_id = ?",
                 (mid,),
+            ).fetchone()[0]
+            total_year = conn.execute(
+                "SELECT COALESCE(SUM(amount_ore), 0) FROM payments WHERE member_id = ? AND for_year = ?",
+                (mid, ar),
             ).fetchone()[0]
             return jsonify(
                 {
                     "payments": [dict(r) for r in rows],
-                    "total_ore": int(total_ore or 0),
+                    "total_ore": int(total_year or 0),
+                    "total_ore_all": int(total_all or 0),
+                    "medlemsbetalingsar": ar,
                 }
             )
 
@@ -750,13 +835,132 @@ def member_payments(mid):
         elif len(paid_at) == 10:
             paid_at = f"{paid_at}T12:00:00"
         created_at = datetime.now(timezone.utc).isoformat()
+        ar = _get_medlemsbetalingsar(conn)
         cur = conn.execute(
-            """INSERT INTO payments (member_id, amount_ore, paid_at, note, created_at)
-               VALUES (?, ?, ?, ?, ?)""",
-            (mid, amount_ore, paid_at, note, created_at),
+            """INSERT INTO payments (member_id, amount_ore, paid_at, note, created_at, for_year)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (mid, amount_ore, paid_at, note, created_at, ar),
         )
         conn.commit()
         return jsonify({"id": cur.lastrowid, "message": "Betaling registrert"}), 201
+
+
+@app.route("/api/okonomi-sammendrag", methods=["GET"])
+@app.route("/api/medlemsoversikt", methods=["GET"])
+@require_admin
+def api_medlemsoversikt():
+    """Samanlagd medlemstal (alder) + innbetaling/arkiv for gjeldande medlemsår."""
+    idag = date.today()
+    with get_db() as conn:
+        ar = _get_medlemsbetalingsar(conn)
+        tot = conn.execute(
+            "SELECT COALESCE(SUM(amount_ore), 0) FROM payments WHERE for_year = ?",
+            (ar,),
+        ).fetchone()[0]
+        n_med = conn.execute(
+            "SELECT COUNT(DISTINCT member_id) FROM payments WHERE for_year = ? AND amount_ore > 0",
+            (ar,),
+        ).fetchone()[0]
+        ark = conn.execute(
+            "SELECT ar, totalt_ore, antall_medlemer_med_betaling, oppretta FROM medlemsar_arkiv ORDER BY ar DESC"
+        ).fetchall()
+        fødsel_rader = conn.execute("SELECT birth_date FROM members").fetchall()
+    al_0_25 = 0
+    al_26_eldre = 0
+    al_ukjent = 0
+    for r in fødsel_rader:
+        bd = _parse_dato_ymd(r["birth_date"])
+        if bd is None:
+            al_ukjent += 1
+            continue
+        a = _alder_år(bd, idag)
+        if a <= 25:
+            al_0_25 += 1
+        else:
+            al_26_eldre += 1
+    return jsonify(
+        {
+            "medlemsbetalingsar": ar,
+            "totalt_innbetalt_ore": int(tot or 0),
+            "antall_medlemer_med_betaling": int(n_med or 0),
+            "arkiv": [dict(r) for r in ark],
+            "antall_medlemer_totalt": al_0_25 + al_26_eldre + al_ukjent,
+            "alder_0_25": al_0_25,
+            "alder_26_eller_eldre": al_26_eldre,
+            "alder_utan_fodselsdato": al_ukjent,
+        }
+    )
+
+
+@app.route("/api/medlemsar/lukk", methods=["POST"])
+@require_admin
+def api_medlemsar_lukk():
+    """
+    Arkivert avslutta medlemsår (sum + tal), oppdaterer til neste kalenderår,
+    og nullstiller betalingsstatus så nye kontingentar kan føreleggjast
+    (medlemmar med status «gratis» vert ikkje endra).
+    """
+    data = request.get_json() or {}
+    try:
+        bekreft = int(data.get("bekreft_ar"))
+    except (TypeError, ValueError):
+        return (
+            jsonify(
+                {
+                    "error": 'Send JSON med { "bekreft_ar": <år> } – same tal som står som «Gjeldande medlemsår» (år du avsluttar).'
+                }
+            ),
+            400,
+        )
+    now = datetime.now(timezone.utc).isoformat()
+    with get_db() as conn:
+        ar = _get_medlemsbetalingsar(conn)
+        if bekreft != ar:
+            return (
+                jsonify(
+                    {
+                        "error": f"Bekreftinga ({bekreft}) samsvarer ikkje med gjeldande medlemsår ({ar})."
+                    }
+                ),
+                400,
+            )
+        if conn.execute("SELECT 1 FROM medlemsar_arkiv WHERE ar = ?", (ar,)).fetchone():
+            return jsonify({"error": f"År {ar} er allereie arkivert."}), 400
+        tot = conn.execute(
+            "SELECT COALESCE(SUM(amount_ore), 0) FROM payments WHERE for_year = ?",
+            (ar,),
+        ).fetchone()[0]
+        n_med = conn.execute(
+            "SELECT COUNT(DISTINCT member_id) FROM payments WHERE for_year = ? AND amount_ore > 0",
+            (ar,),
+        ).fetchone()[0]
+        conn.execute(
+            "INSERT INTO medlemsar_arkiv (ar, totalt_ore, antall_medlemer_med_betaling, oppretta) VALUES (?, ?, ?, ?)",
+            (ar, int(tot or 0), int(n_med or 0), now),
+        )
+        nytt = ar + 1
+        upd = conn.execute(
+            "UPDATE app_settings SET value = ? WHERE key = 'medlemsbetalingsar'",
+            (str(nytt),),
+        )
+        if upd.rowcount == 0:
+            conn.execute(
+                "INSERT INTO app_settings (key, value) VALUES ('medlemsbetalingsar', ?)",
+                (str(nytt),),
+            )
+        conn.execute(
+            "UPDATE members SET payment_status = 'ikkje betalt' "
+            "WHERE LOWER(TRIM(payment_status)) != 'gratis'",
+        )
+        conn.commit()
+    return jsonify(
+        {
+            "message": f"Medlemsår {ar} er arkivert. Gjeldande medlemsår er no {nytt}. "
+            f"Betalingsstatus (utanom «gratis») er satt til «ikkje betalt».",
+            "forrige_ar": ar,
+            "nytt_ar": nytt,
+        }
+    )
 
 
 def _medlemstype_visning(membership_type: str, *, med_beskrivelse: bool = False) -> str:

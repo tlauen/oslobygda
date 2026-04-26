@@ -16,7 +16,12 @@
       <a href="{{ prefix_url('logout') }}">Logg ut</a>
     </header>
 
-    <p class="status" id="status"></p>
+    <div class="medlemsoversikt-panel" id="medlemsoversikt-panel" aria-live="polite">
+      <p class="status medlemsoversikt-teljelinje" id="status"></p>
+      <div id="medlemsoversikt-innhold">
+        <p class="medlemsoversikt-ingress">Lastar medlemsoversikt …</p>
+      </div>
+    </div>
     <p>
       <button type="button" class="btn" id="btn-ny">Legg til medlem</button>
       <button type="button" class="btn sekundaer" id="btn-sync-contacts">Hent nye frå nyhendebrev-lista</button>
@@ -27,14 +32,14 @@
       <span class="kolonnefilter-label">Vis kolonnar:</span>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="namn" checked /> Namn</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="epost" checked /> Epost</label>
-      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="telefon" checked /> Telefon</label>
-      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="adresse" checked /> Adresse</label>
-      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="postnr" checked /> Postnr</label>
-      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="poststad" checked /> Poststad</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="telefon" /> Telefon</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="adresse" /> Adresse</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="postnr" /> Postnr</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="poststad" /> Poststad</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="fødselsdato" checked /> Fødselsdato</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="medlemstype" checked /> Medlemstype</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="betalingsstatus" checked /> Betalingsstatus</label>
-      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="samtykke" checked /> Samtykke</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="samtykke" /> Samtykke</label>
     </div>
     <div class="tabell-ramme">
       <table>
@@ -164,8 +169,10 @@
     const betalingFeil = document.getElementById("betaling-feil");
 
     function setStatus(msg, isError) {
-      statusEl.textContent = msg;
-      statusEl.style.color = isError ? "var(--error)" : "var(--dempa)";
+      if (statusEl) {
+        statusEl.textContent = msg;
+        statusEl.style.color = isError ? "var(--error)" : "var(--dempa)";
+      }
     }
 
     function formaterDato(iso) {
@@ -222,7 +229,7 @@
           return [];
         }
         const data = await r.json();
-        setStatus(data.length + " medlemmar");
+        setStatus("");
         return data;
       } catch (e) {
         setStatus("Feil ved lasting: " + e.message, true);
@@ -290,6 +297,86 @@
       return div.innerHTML;
     }
 
+    function lukkMedlemsar(ar) {
+      if (!confirm("Dette lagrar sammendrag for medlemsår " + ar + " i arkiv, set neste år til " + (ar + 1) + ", og set alle betalingsstatusar til «ikkje betalt» (unntak: medlemmar med «gratis»). Hugs å ta database-backup. Vil du fortsette?")) return;
+      const s = window.prompt("Skriv årstalet " + ar + " for å stadfeste (same tal som står ovanfor).");
+      if (String(s) !== String(ar)) {
+        setStatus("Avbroten – ingen endringar.");
+        return;
+      }
+      (async () => {
+        const btn = document.getElementById("btn-lukk-medlemsar");
+        if (btn) btn.disabled = true;
+        try {
+          const r = await fetch(API + "/api/medlemsar/lukk", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bekreft_ar: ar })
+          });
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            setStatus(data.error || "Feil ved lukking av medlemsår", true);
+            if (btn) btn.disabled = false;
+            return;
+          }
+          setStatus(data.message);
+          await lastOversikt();
+          const medlemmar = await hentMedlemmar();
+          renderListe(medlemmar);
+        } catch (e) {
+          setStatus(e.message, true);
+        }
+        const b2 = document.getElementById("btn-lukk-medlemsar");
+        if (b2) b2.disabled = false;
+      })();
+    }
+
+    async function lastOversikt() {
+      const el = document.getElementById("medlemsoversikt-innhold");
+      if (!el) return;
+      try {
+        const r = await fetch(API + "/api/medlemsoversikt", { credentials: "same-origin" });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          el.innerHTML = "<p class=\"feil\">" + escapeHtml(d.error || "Kunne ikkje hente oversikt") + "</p>";
+          return;
+        }
+        const a0 = d.alder_0_25 != null ? d.alder_0_25 : 0;
+        const a26 = d.alder_26_eller_eldre != null ? d.alder_26_eller_eldre : 0;
+        const aU = d.alder_utan_fodselsdato != null ? d.alder_utan_fodselsdato : 0;
+        const tot = (Number(d.totalt_innbetalt_ore) / 100).toLocaleString("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const n = d.antall_medlemer_med_betaling;
+        const ar = d.medlemsbetalingsar;
+        const mTot = d.antall_medlemer_totalt != null ? d.antall_medlemer_totalt : a0 + a26 + aU;
+        let alderLinje = "<span class=\"medlemsoversikt-dempa\">Medlemmar totalt:</span> " + mTot + " &nbsp;·&nbsp; <strong>0–25 år:</strong> " + a0 + " &nbsp;·&nbsp; <strong>26+ år:</strong> " + a26;
+        if (aU > 0) {
+          alderLinje += " &nbsp;·&nbsp; <span class=\"medlemsoversikt-dempa\">Ikkje oppgitt fødselsdato: " + aU + "</span>";
+        }
+        let arkivHtml = "";
+        if (d.arkiv && d.arkiv.length) {
+          arkivHtml = "<h3 class=\"medlemsoversikt-seksjon\">Arkiv (avslutta medlemsår)</h3><ul class=\"medlemsoversikt-arkiv-liste\">" +
+            d.arkiv.map(a => {
+              const bel = (Number(a.totalt_ore) / 100).toLocaleString("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              return "<li><strong>" + a.ar + "</strong>: " + bel + " kr <span class=\"medlemsoversikt-dempa\">(" + a.antall_medlemer_med_betaling + " medlemmar med innbetaling)</span></li>";
+            }).join("") + "</ul>";
+        }
+        el.innerHTML =
+          "<h2 class=\"medlemsoversikt-tittel\">Medlemsoversikt</h2>" +
+          "<h3 class=\"medlemsoversikt-seksjon\">Aldersfordeling</h3>" +
+          "<p class=\"medlemsoversikt-tal\">" + alderLinje + "</p>" +
+          "<h3 class=\"medlemsoversikt-seksjon\">Innbetaling</h3>" +
+          "<p class=\"medlemsoversikt-tal\"><strong>Gjeldande medlemsår: " + ar + "</strong> · " +
+          "<strong>Totalt innbetalt hittil i " + ar + ":</strong> " + tot + " kr " +
+          "<span class=\"medlemsoversikt-dempa\">(" + n + " medlemmar med innbetaling)</span></p>" +
+          arkivHtml +
+          "<p class=\"medlemsoversikt-nyttar\"><button type=\"button\" class=\"btn sekundaer\" id=\"btn-lukk-medlemsar\">Lukk medlemsår " + ar + " og start " + (ar + 1) + " …</button></p>";
+        document.getElementById("btn-lukk-medlemsar").addEventListener("click", () => lukkMedlemsar(ar));
+      } catch (e) {
+        el.innerHTML = "<p class=\"feil\">" + escapeHtml(e.message) + "</p>";
+      }
+    }
+
     function openModal(id) {
       const tittel = document.getElementById("modal-tittel");
       document.getElementById("medlem-id").value = id || "";
@@ -342,16 +429,29 @@
         const r = await fetch(API + "/api/members/" + id + "/payments", { credentials: "same-origin" });
         const data = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(data.error || "Kunne ikkje hente betalingar");
-        const totalNok = (Number(data.total_ore || 0) / 100).toFixed(2);
-        sumEl.textContent = "Totalt registrert: " + totalNok + " kr";
+        const ar = data.medlemsbetalingsar;
+        const yearNok = (Number(data.total_ore || 0) / 100).toFixed(2);
+        const allNok = data.total_ore_all != null
+          ? (Number(data.total_ore_all) / 100).toFixed(2)
+          : yearNok;
+        if (ar != null) {
+          let t = "Medlemsår " + ar + ": " + yearNok + " kr";
+          if (data.total_ore_all != null && Number(data.total_ore_all) !== Number(data.total_ore)) {
+            t += " · Samla alle år: " + allNok + " kr";
+          }
+          sumEl.textContent = t;
+        } else {
+          sumEl.textContent = "Totalt registrert: " + yearNok + " kr";
+        }
         const rows = data.payments || [];
         if (!rows.length) {
           hist.innerHTML = "<p>Ingen betalingar registrert enno.</p>";
           return;
         }
-        hist.innerHTML = rows.slice(0, 10).map(p => `
+        hist.innerHTML = '<p class="betaling-rad-overskrift">Beløp · Medlemsår · Dato · Notat</p>' + rows.map(p => `
           <div class="betaling-rad">
             <strong>${(Number(p.amount_ore || 0) / 100).toFixed(2)} kr</strong>
+            <span>${p.for_year != null ? escapeHtml(String(p.for_year)) : "–"}</span>
             <span>${escapeHtml(formaterDato(p.paid_at))}</span>
             <span>${escapeHtml(p.note || "")}</span>
           </div>
@@ -529,6 +629,7 @@
         document.getElementById("betaling-belop").value = "";
         document.getElementById("betaling-notat").value = "";
         await lastBetalingar(id);
+        lastOversikt();
       } catch (err) {
         betalingFeil.textContent = err.message;
         betalingFeil.style.display = "block";
@@ -573,7 +674,9 @@
         if (s) {
           const prefs = JSON.parse(s);
           document.querySelectorAll(".kolonnefilter input[data-col]").forEach(cb => {
-            if (prefs[cb.dataset.col] === false) cb.checked = false;
+            if (Object.prototype.hasOwnProperty.call(prefs, cb.dataset.col)) {
+              cb.checked = !!prefs[cb.dataset.col];
+            }
           });
         }
       } catch (_) {}
@@ -584,6 +687,7 @@
     });
 
     (async () => {
+      lastOversikt();
       const medlemmar = await hentMedlemmar();
       renderListe(medlemmar);
       lastKolonnefilter();

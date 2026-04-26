@@ -4,7 +4,7 @@ Bygdelista er eit enkelt, GDPR-orientert medlemsregister (Flask-app) som styret 
 
 Appen har:
 
-- **Styremodus (styregrensesnitt)**: legg til/endre medlemmer, handter betalingsstatus og GDPR-funksjonar (eksport/sletting)
+- **Styremodus (styregrensesnitt)**: legg til/endre medlemmar, handter betalingsstatus og GDPR-funksjonar (eksport/sletting)
 - **Offentleg innmelding**: skjema på `/innmelding` som registrerer/oppdaterer medlem og sender innmelding vidare (enten via SMTP og/eller Brevo)
 
 ## Kva roller ser du?
@@ -60,6 +60,14 @@ Hugs: `.env` inneheld hemmelege verdiar og skal ikkje committast.
 - `MEDLEMSREGISTER_DB_KEY` (valfritt): krypter `medlemsregister.db` på disk med SQLCipher
   - Krev `sqlcipher3` i Python og `libsqlcipher` på systemet
   - Utan key blir DB-fila ukryptert (men appen set filrettar til berre eigar)
+
+### Medlemsbetalingsår (kontingent)
+
+- Sjekkliste når eit år avsluttes og neste byr (backup, knappen «Lukk medlemsår»): **[HUSK_MEDLEMSAR.md](HUSK_MEDLEMSAR.md)** i denne mappa.
+
+- `MEDLEMSBETALING_AR` (valfritt): heiltal, t.d. `2026` – føresetnad for nye innbetalingar før databasen har fått eiga innstilling, og for eldre rader som migrerer inn utan år.
+- I styregrensesnittet, panel **Medlemsoversikt** (innlogga oversikt / **/**): viser **aldersfordeling** (0–25 og 26+ år, og tal utan fødselsdato), **samla innbetalt** for **gjeldande** medlemsår og låsbar **arkiv**-oversikt for tidlegare år.
+- Knappen **Lukk medlemsår …** lagrar eit sammendrag (sum og tal) for året, set neste medlemsår, og set alle betalingsstatusar til «ikkje betalt» (unntak: medlemmar med status «gratis»). Einskilde innbetalingar vert **ikkje** sletta; dei ligg med medlemsår i databasen.
 
 ### Innmeldingsskjema: e-post til styret (SMTP)
 

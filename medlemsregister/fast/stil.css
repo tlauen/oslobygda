@@ -364,6 +364,10 @@ tr:hover td:not(:last-child) {
   justify-content: center;
   z-index: 100;
 }
+/* Vinn over display:flex over: .er-skjult kjem tidlegare i fila med same spesifisitet. */
+.modal-dekke.er-skjult {
+  display: none;
+}
 .modal-vindauge {
   background: var(--bg);
   border: 1px solid var(--line);
@@ -445,6 +449,52 @@ tr:hover td:not(:last-child) {
   margin-top: 0.2rem;
 }
 
+.medlemsoversikt-panel {
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--kort-radius);
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.1rem;
+}
+.medlemsoversikt-panel > .medlemsoversikt-teljelinje {
+  margin: 0 0 0.65rem;
+  min-height: 1.4em;
+}
+.medlemsoversikt-panel > .medlemsoversikt-teljelinje:empty {
+  min-height: 0;
+  margin: 0;
+}
+.medlemsoversikt-tittel {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  font-family: var(--serif);
+  font-weight: 650;
+}
+.medlemsoversikt-seksjon {
+  margin: 0.85rem 0 0.35rem;
+  font-size: 0.95rem;
+  font-family: var(--serif);
+  font-weight: 650;
+}
+.medlemsoversikt-tal {
+  margin: 0 0 0.35rem;
+  line-height: 1.5;
+}
+.medlemsoversikt-dempa {
+  color: var(--dempa);
+  font-weight: normal;
+}
+.medlemsoversikt-arkiv-liste {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.medlemsoversikt-arkiv-liste li {
+  margin-bottom: 0.25rem;
+}
+.medlemsoversikt-nyttar {
+  margin: 1rem 0 0;
+}
+
 .betaling-historikk {
   margin-top: 0.75rem;
   border-top: 1px solid var(--line);
@@ -453,10 +503,15 @@ tr:hover td:not(:last-child) {
   overflow-y: auto;
 }
 
+.betaling-rad-overskrift {
+  font-size: 0.75rem;
+  color: var(--dempa);
+  margin: 0 0 0.35rem;
+}
 .betaling-rad {
   display: grid;
-  grid-template-columns: 90px 85px 1fr;
-  gap: 0.5rem;
+  grid-template-columns: 88px 4.5rem 5.5rem 1fr;
+  gap: 0.45rem;
   align-items: center;
   padding: 0.3rem 0;
   font-size: 0.85rem;
