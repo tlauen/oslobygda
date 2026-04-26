@@ -326,6 +326,82 @@ Logg inn i Bygdelista og bruk «Legg til medlem» med opplysningane over.
         return False, str(e)
 
 
+def _newsletter_provider() -> str:
+    provider = (os.environ.get("NEWSLETTER_PROVIDER") or "brevo").strip().lower()
+    return provider if provider in {"brevo", "mailerlite"} else "brevo"
+
+
+def _brevo_request(method: str, path: str, api_key: str, body: dict | None = None) -> tuple[int, dict]:
+    url = f"https://api.brevo.com/v3/{path.lstrip('/')}"
+    data = None if body is None else json.dumps(body).encode("utf-8")
+    req = Request(
+        url,
+        data=data,
+        headers={
+            "api-key": api_key,
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+        method=method.upper(),
+    )
+    try:
+        with urlopen(req, timeout=20, context=_SSL_CTX) as res:
+            payload = res.read().decode().strip()
+            return res.status, (json.loads(payload) if payload else {})
+    except HTTPError as e:
+        raw = e.read().decode().strip()
+        try:
+            parsed = json.loads(raw) if raw else {}
+        except Exception:
+            parsed = {"message": raw or str(e)}
+        return e.code, parsed
+    except (URLError, OSError) as e:
+        return 0, {"message": str(e)}
+
+
+def _brevo_add_contact(email: str, fornamn: str, mellomnamn: str, etternamn: str, phone: str, adresse: str, postnummer: str, poststad: str, birth_date: str, membership_type: str, api_key: str, list_id: int) -> tuple[bool, str]:
+    full_name = _build_full_name(fornamn, mellomnamn, etternamn)
+    attrs = {
+        "FIRSTNAME": fornamn or "",
+        "LASTNAME": etternamn or "",
+        "NAME": full_name,
+        "PHONE": phone or "",
+        "ADDRESS": adresse or "",
+        "ZIP": postnummer or "",
+        "CITY": poststad or "",
+        "BIRTH_DATE": birth_date or "",
+        "MEMBERSHIP_TYPE": membership_type or "vanleg",
+        "MIDDLENAME": mellomnamn or "",
+    }
+    body = {
+        "email": email,
+        "attributes": attrs,
+        "listIds": [int(list_id)],
+        "updateEnabled": True,
+    }
+    status, payload = _brevo_request("POST", "/contacts", api_key, body)
+    if status in (200, 201, 204):
+        return True, ""
+    msg = payload.get("message") or payload.get("code") or str(payload)
+    return False, msg
+
+
+def _brevo_fetch_list_contacts(api_key: str, list_id: int) -> tuple[list[dict], str]:
+    contacts = []
+    limit = 500
+    offset = 0
+    while True:
+        status, payload = _brevo_request("GET", f"/contacts/lists/{int(list_id)}/contacts?limit={limit}&offset={offset}", api_key)
+        if status != 200:
+            return [], payload.get("message", f"Brevo status {status}")
+        batch = payload.get("contacts") or []
+        contacts.extend(batch)
+        if len(batch) < limit:
+            break
+        offset += limit
+    return contacts, ""
+
+
 def _mailerlite_fetch_group_subscribers(token: str, group_id: str) -> tuple[list[dict], str]:
     """Hent alle abonnentar i ei gruppe (Connect API, cursor-paginering). Returnerer (liste med dict, feilmelding)."""
     out = []
@@ -410,19 +486,31 @@ def api_innmelding():
     to_email = os.environ.get("INNMELDING_EPOST_TIL", "folk@oslobygda.no").strip()
     epost_ok, epost_err = _send_innmelding_epost(to_email, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type)
 
-    mailerlite_ok = True
-    mailerlite_err = ""
-    token = os.environ.get("MAILERLITE_API_TOKEN", "").strip()
-    group_id = (os.environ.get("MAILERLITE_INNMELDING_GROUP_ID") or os.environ.get("MAILERLITE_GROUP_ID", "")).strip()
-    if token and group_id:
-        mailerlite_ok, mailerlite_err = _mailerlite_add_subscriber(email, fornamn, mellomnamn, etternamn, token, group_id)
+    subscribe_ok = True
+    subscribe_err = ""
+    provider = _newsletter_provider()
+    if provider == "brevo":
+        api_key = os.environ.get("BREVO_API_KEY", "").strip()
+        list_id_raw = (os.environ.get("BREVO_INNMELDING_LIST_ID") or os.environ.get("BREVO_LIST_ID", "")).strip()
+        if api_key and list_id_raw:
+            try:
+                list_id = int(list_id_raw)
+            except ValueError:
+                subscribe_ok, subscribe_err = False, "BREVO_LIST_ID må vere eit heiltal"
+            else:
+                subscribe_ok, subscribe_err = _brevo_add_contact(email, fornamn, mellomnamn, etternamn, phone, adresse, postnummer, poststad, birth_date, membership_type, api_key, list_id)
+    else:
+        token = os.environ.get("MAILERLITE_API_TOKEN", "").strip()
+        group_id = (os.environ.get("MAILERLITE_INNMELDING_GROUP_ID") or os.environ.get("MAILERLITE_GROUP_ID", "")).strip()
+        if token and group_id:
+            subscribe_ok, subscribe_err = _mailerlite_add_subscriber(email, fornamn, mellomnamn, etternamn, token, group_id)
 
-    if not epost_ok and not mailerlite_ok:
-        return jsonify({"error": f"Kunne ikkje sende innmeldinga. E-post: {epost_err}. Nyhendebrev: {mailerlite_err}"}), 500
+    if not epost_ok and not subscribe_ok:
+        return jsonify({"error": f"Kunne ikkje sende innmeldinga. E-post: {epost_err}. Nyhendebrev: {subscribe_err}"}), 500
     if not epost_ok:
         return jsonify({"message": "Du er lagt til i nyhendebrev-lista.", "warning": f"E-post til styret kunne ikkje sendast: {epost_err}. Kontakt folk@oslobygda.no for å fullføre innmeldinga."}), 201
-    if not mailerlite_ok:
-        return jsonify({"message": "Innmeldinga er sendt til styret. Du vil bli registrert i Bygdelista snart.", "warning": f"Kunne ikkje legge til i nyhendebrev-lista: {mailerlite_err}"}), 201
+    if not subscribe_ok:
+        return jsonify({"message": "Innmeldinga er sendt til styret. Du vil bli registrert i Bygdelista snart.", "warning": f"Kunne ikkje legge til i nyhendebrev-lista: {subscribe_err}"}), 201
 
     default_msg = "Takk for innmeldinga! Vi har sendt henne til styret (folk@oslobygda.no), og du er lagt til i nyhendebrev-lista. Styret registrerer deg i Bygdelista så snart dei ser henne."
     msg = os.environ.get("INNMELDING_SUCCESS_MESSAGE", default_msg).strip() or default_msg
@@ -431,17 +519,32 @@ def api_innmelding():
 
 # —— API (berre for innlogga styret) ——
 
-@app.route("/api/sync-mailerlite", methods=["POST"])
+@app.route("/api/sync-contacts", methods=["POST"])
 @require_admin
-def api_sync_mailerlite():
-    """Hent abonnentar frå MailerLite-gruppa «Medlemmar» (eller MAILERLITE_GROUP_ID) og legg til nye i Bygdelista."""
-    token = os.environ.get("MAILERLITE_API_TOKEN", "").strip()
-    group_id = (os.environ.get("MAILERLITE_MEDLEMMAR_GROUP_ID") or os.environ.get("MAILERLITE_GROUP_ID", "")).strip()
-    if not token or not group_id:
-        return jsonify({"error": "MAILERLITE_API_TOKEN og MAILERLITE_GROUP_ID (eller MAILERLITE_MEDLEMMAR_GROUP_ID) må vere satt."}), 400
-    subscribers, err = _mailerlite_fetch_group_subscribers(token, group_id)
-    if err:
-        return jsonify({"error": f"Kunne ikkje hente frå MailerLite: {err}"}), 502
+def api_sync_contacts():
+    """Hent kontaktar frå nyhendebrevleverandør og legg til nye i Bygdelista."""
+    provider = _newsletter_provider()
+    if provider == "brevo":
+        api_key = os.environ.get("BREVO_API_KEY", "").strip()
+        list_id_raw = (os.environ.get("BREVO_MEDLEMMAR_LIST_ID") or os.environ.get("BREVO_INNMELDING_LIST_ID") or os.environ.get("BREVO_LIST_ID", "")).strip()
+        if not api_key or not list_id_raw:
+            return jsonify({"error": "BREVO_API_KEY og BREVO_LIST_ID (eller BREVO_MEDLEMMAR_LIST_ID) må vere satt."}), 400
+        try:
+            list_id = int(list_id_raw)
+        except ValueError:
+            return jsonify({"error": "BREVO_LIST_ID må vere eit heiltal."}), 400
+        subscribers, err = _brevo_fetch_list_contacts(api_key, list_id)
+        if err:
+            return jsonify({"error": f"Kunne ikkje hente frå Brevo: {err}"}), 502
+    else:
+        token = os.environ.get("MAILERLITE_API_TOKEN", "").strip()
+        group_id = (os.environ.get("MAILERLITE_MEDLEMMAR_GROUP_ID") or os.environ.get("MAILERLITE_GROUP_ID", "")).strip()
+        if not token or not group_id:
+            return jsonify({"error": "MAILERLITE_API_TOKEN og MAILERLITE_GROUP_ID (eller MAILERLITE_MEDLEMMAR_GROUP_ID) må vere satt."}), 400
+        subscribers, err = _mailerlite_fetch_group_subscribers(token, group_id)
+        if err:
+            return jsonify({"error": f"Kunne ikkje hente frå MailerLite: {err}"}), 502
+
     now = datetime.now(timezone.utc).isoformat()
     added = 0
     def _normalize_medlemstype(val):
@@ -460,18 +563,20 @@ def api_sync_mailerlite():
             if conn.execute("SELECT 1 FROM members WHERE email = ?", (email,)).fetchone():
                 continue
             fields = s.get("fields") or {}
+            if provider == "brevo":
+                fields = s.get("attributes") or {}
             # Skjema-felt (Subscribers → Fields): fornamn, mellomnamn, etternamn, adresse, medlemstype, fodselsdato + name/last_name/city/zip/phone
-            fornamn = (fields.get("fornamn") or fields.get("name") or "").strip() or "–"
-            etternamn = (fields.get("etternamn") or fields.get("last_name") or "").strip() or "–"
-            mellomnamn = (fields.get("mellomnamn") or fields.get("company") or "").strip()
-            phone = (fields.get("phone") or "").strip()
-            adresse = (fields.get("adresse") or fields.get("state") or "").strip()
-            poststad = (fields.get("poststad") or fields.get("city") or "").strip()
-            postnummer = (fields.get("postnummer") or fields.get("zip") or fields.get("z_i_p") or "").strip()
-            membership_type = _normalize_medlemstype(fields.get("medlemstype") or fields.get("country"))
-            birth_date = (fields.get("fodselsdato") or fields.get("birthday") or fields.get("birth_date") or "").strip() or None
+            fornamn = (fields.get("fornamn") or fields.get("FIRSTNAME") or fields.get("name") or fields.get("NAME") or "").strip() or "–"
+            etternamn = (fields.get("etternamn") or fields.get("LASTNAME") or fields.get("last_name") or "").strip() or "–"
+            mellomnamn = (fields.get("mellomnamn") or fields.get("MIDDLENAME") or fields.get("company") or "").strip()
+            phone = (fields.get("phone") or fields.get("PHONE") or "").strip()
+            adresse = (fields.get("adresse") or fields.get("ADDRESS") or fields.get("state") or "").strip()
+            poststad = (fields.get("poststad") or fields.get("CITY") or fields.get("city") or "").strip()
+            postnummer = (fields.get("postnummer") or fields.get("ZIP") or fields.get("zip") or fields.get("z_i_p") or "").strip()
+            membership_type = _normalize_medlemstype(fields.get("medlemstype") or fields.get("MEMBERSHIP_TYPE") or fields.get("country"))
+            birth_date = (fields.get("fodselsdato") or fields.get("BIRTH_DATE") or fields.get("birthday") or fields.get("birth_date") or "").strip() or None
             full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-            consent_at = s.get("subscribed_at") or now
+            consent_at = s.get("subscribed_at") or s.get("createdAt") or now
             conn.execute(
                 """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, created_at, updated_at)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -479,7 +584,15 @@ def api_sync_mailerlite():
             )
             added += 1
         conn.commit()
-    return jsonify({"message": f"{added} nye medlemmar importert frå MailerLite." if added else "Ingen nye å hente frå MailerLite.", "added": added})
+    provider_label = "Brevo" if provider == "brevo" else "MailerLite"
+    return jsonify({"message": f"{added} nye medlemmar importert frå {provider_label}." if added else f"Ingen nye å hente frå {provider_label}.", "added": added})
+
+
+@app.route("/api/sync-mailerlite", methods=["POST"])
+@require_admin
+def api_sync_mailerlite():
+    """Bakoverkompatibel alias til /api/sync-contacts."""
+    return api_sync_contacts()
 
 
 def _build_full_name(fornamn, mellomnamn, etternamn):

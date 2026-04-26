@@ -1,0 +1,30 @@
+<script>
+  /* Meldingstekstar (nynorsk); namna må vere uendra — brukt av sib main.js */
+  window.REQUIRED_CODE_ERROR_MESSAGE = 'Vel landskode (t.d. +47 for Norge).';
+  window.LOCALE = 'en';
+  window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = 'Det har skjedd ein feil. Ver god og sjå gjennom skjemaet og prøv på nytt.';
+  window.REQUIRED_ERROR_MESSAGE = 'Feltet kan ikkje stå tomt.';
+  window.GENERIC_INVALID_MESSAGE = 'Det har skjedd ein feil. Ver god og sjå gjennom skjemaet og prøv på nytt.';
+  window.INVALID_NUMBER = 'Det har skjedd ein feil. Ver god og sjå gjennom skjemaet og prøv på nytt.';
+  window.INVALID_DATE = 'Skriv inn ein gyldig dato (dd-mm-åååå).';
+  window.translation = {
+    common: {
+      selectedList: '{quantity} list selected',
+      selectedLists: '{quantity} lists selected',
+      selectedOption: '{quantity} selected',
+      selectedOptions: '{quantity} selected',
+    }
+  };
+  var AUTOHIDE = Boolean(0);
+</script>
+<script>
+  ;(function (d, s, c) {
+    var j = d.createElement(s),
+      t = d.getElementsByTagName(s)[0]
+    j.src = 'https://sibforms.com/forms/end-form/elastic-apm-rum.umd.min.js'
+    j.onload = function () { elasticApm.init(c) }
+    t.parentNode.insertBefore(j, t)
+  })(document, 'script', { serviceName: 'End Forms', serverUrl: 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443' , environment : 'production'})
+</script>
+<script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>
+<script src="https://www.google.com/recaptcha/api.js?hl=en"></script>

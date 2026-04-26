@@ -9,15 +9,15 @@ Oslobygda kulturlag tar personvern på alvor. Denne sida forklarer kort korleis 
 
 ## Kjeks
 
-Nettsida bruker **kjeks** i innmeldingsskjemaet (på [Om laget](/om/)) og i skjemaet for å melde seg på [nyhendebrevet](/brev/). Skjemaa er levert av **MailerLite**; dei set små informasjonsfiler (kjeks) for at skjemaet skal fungere, til dømes for å unngå at du vert vist same melding fleire gonger.
+Nettsida bruker **kjeks** i innmeldingsskjemaet (på [Bli medlem](/bli-medlem/)) og i skjemaet for å melde seg på [nyhendebrevet](/brev/). Skjemaa er levert av **Brevo**; dei set små informasjonsfiler (kjeks) for at skjemaet skal fungere.
 
-- [MailerLite sine kjeksvilkår](https://www.mailerlite.com/legal/cookie-policy) (ekstern lenke)
+- [Brevo cookie policy](https://www.brevo.com/legal/privacypolicy/) (ekstern lenke)
 
 Vi brukar ikkje kjeks til annonsar eller sporing utover det skjemaa krev.
 
 ## Innmelding og nyhendebrev
 
-Når du melder deg inn i laget eller på nyhendebrevet, lagrar vi (eller MailerLite på våre vegne) namnet og epostadressa di for å kunne sende nyhende og halde kontakt. Opplysningane vert ikkje delt med andre. Du kan når som helst be om innsyn eller sletting – ta kontakt med oss.
+Når du melder deg inn i laget eller på nyhendebrevet, lagrar vi (eller Brevo på våre vegne) namnet og epostadressa di for å kunne sende nyhende og halde kontakt. Opplysningane vert ikkje delt med andre. Du kan når som helst be om innsyn eller sletting – ta kontakt med oss.
 
 ## Spørsmål?
 

@@ -5,7 +5,7 @@ Bygdelista er eit enkelt, GDPR-orientert medlemsregister (Flask-app) som styret 
 Appen har:
 
 - **Styremodus (styregrensesnitt)**: legg til/endre medlemmer, handter betalingsstatus og GDPR-funksjonar (eksport/sletting)
-- **Offentleg innmelding**: skjema på `/innmelding` som registrerer/oppdaterer medlem og sender innmelding vidare (enten via SMTP og/eller MailerLite)
+- **Offentleg innmelding**: skjema på `/innmelding` som registrerer/oppdaterer medlem og sender innmelding vidare (enten via SMTP og/eller Brevo)
 
 ## Kva roller ser du?
 
@@ -72,9 +72,17 @@ Brukast når du vil sende e-post ved innmelding:
 - `SMTP_USER`
 - `SMTP_PASSWORD`
 
-Om SMTP ikkje er sett, blir ikkje e-post sendt (men MailerLite kan framleis brukast).
+Om SMTP ikkje er sett, blir ikkje e-post sendt (men nyhendebrevleverandør kan framleis brukast).
 
-### Innmeldingsskjema: MailerLite
+### Innmeldingsskjema og sync: Brevo (standard)
+
+- `NEWSLETTER_PROVIDER` (`brevo` eller `mailerlite`, standard `brevo`)
+- `BREVO_API_KEY`
+- `BREVO_LIST_ID` (standard liste for nyhendebrev / kontaktar)
+- `BREVO_INNMELDING_LIST_ID` (valfri eigen liste for innmeldingsskjema)
+- `BREVO_MEDLEMMAR_LIST_ID` (valfri liste brukt ved import til Bygdelista)
+
+### Alternativ: MailerLite (bakoverkompatibel)
 
 - `MAILERLITE_API_TOKEN`
 - `MAILERLITE_GROUP_ID` (brukast i flyt der appen hentar/oppdaterer)
@@ -121,8 +129,8 @@ Skriptet lagar datomerka tryggingskopiar og beheld berre dei nyaste (for å hind
 
 DB-fila inneheld personopplysningar og skal ikkje i Git eller delast ukryptert.
 
-## Alternativ flyt: MailerLite-skjema (ingen offentleg Flask nødvendig)
+## Alternativ flyt: Brevo-skjema (ingen offentleg Flask nødvendig)
 
-Du kan la innmeldingsskjemaet vere eit MailerLite-skjema (innebygging eller lenke på nettsida).
+Du kan la innmeldingsskjemaet vere eit Brevo-skjema (innebygging eller lenke på nettsida).
 
-Då kan Flask-appen vere berre lokalt for styret, og de hentar nye frå MailerLite i styregrensesnittet når de opnar appen.
+Då kan Flask-appen vere berre lokalt for styret, og de hentar nye frå nyhendebrevleverandøren i styregrensesnittet når de opnar appen.

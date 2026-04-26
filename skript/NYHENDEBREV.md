@@ -1,61 +1,41 @@
-## Nyhendebrev via MailerLite (gratis-modus aktiv)
+## Fullauto nyhendebrev via Brevo (aktiv)
 
-Dette repoet kan sende nyhendebrev automatisk via MailerLite sin **nyaste plattform** (Connect API).
-Gratis-modusen er aktiv no: scriptet sender ein ferdig kampanje-ID frå MailerLite UI.
+Dette repoet sender nyhendebrev automatisk via Brevo API.
 
-### Kva som skjer
+### Aktiv flyt
 
-- Skriptet les komande tilskipingar frå `_data/kalender.yml`
-- Det sjekkar om **i dag = 7 dagar før neste folkemusikkpøbb** (standardregel)
-- Om ja: det sender ein eksisterande `draft/ready` kampanje i MailerLite (via ID)
-- Om nei: det gjer ingenting (workflowen køyrer likevel dagleg)
+- Workflow: `.github/workflows/nyhendebrev-brevo.yml`
+- Script: `skript/send_nyhendebrev_brevo.rb`
+- Datakjelde: `_data/kalender.yml`
+- Trigger: sender når dato er `7` dagar før neste `pobb-`-arrangement
 
-### 1) Lag kampanjen i MailerLite (UI)
+### Nødvendige GitHub Secrets (Brevo)
 
-I MailerLite:
+- `BREVO_API_KEY`
+- `BREVO_LIST_ID` (lista som skal få nyhendebrevet)
+- `BREVO_FROM_EMAIL`
+- `BREVO_FROM_NAME`
+- `BREVO_REPLY_TO` (valfri)
 
-- Gå til **Campaigns**
-- Lag ny kampanje med innhald i editoren (builder)
-- Vel mottakarar
-- La kampanjen stå i `draft` eller `ready` (ikkje send manuelt)
+### Testkøyring
 
-### 2) Hent API-token og Campaign ID
+Gå til **Actions → Send nyhendebrev (Brevo)** og bruk `force_send=true` for test.
 
-- Gå til **Integrations → API**
-- Lag/bruk eit API-token
-- Finn **Campaign ID** for kampanjen du vil sende (frå URL eller API-listing)
+### Kva scriptet gjer
 
-### 3) Legg inn GitHub Secrets
+1. Les komande arrangement frå kalenderen
+2. Finn neste `pobb-` som trigger
+3. Bygg emnefelt + HTML-innhald etter Oslobygda-malen
+4. Opprett kampanje i Brevo mot `BREVO_LIST_ID`
+5. Sender kampanjen (`sendNow`)
 
-I GitHub-repoet:
+Scriptet brukar kampanjenamn med dato (`Nyhendebrev – tilskipingar – YYYY-MM-DD`) for å unngå dobbel utsending.
 
-`Settings → Secrets and variables → Actions → New repository secret`
+## MailerLite backup (dvale)
 
-Legg inn:
+Dette ligg framleis i repoet for beredskap:
 
-- `MAILERLITE_API_TOKEN`
-- `MAILERLITE_READY_CAMPAIGN_ID`
-
-### 4) Testkøyr manuelt
-
-Gå til **Actions → Send nyhendebrev (MailerLite)** og trykk **Run workflow**.
-
-- **Vanleg køyr**: Scriptet sender berre om det er 7 dagar før neste pøbb; elles avsluttar det utan å sende.
-- **Testutsending uansett dato**: Kryss av for **«Send uansett dato (test – sender også om det ikkje er 7 dagar før pøbb)»** før du trykkar Run workflow. Då blir e-post send likevel (bruk ei lita testgruppe om mogleg).
-
-Du kan også køyre skriptet lokalt med `OSLOBYGDA_FORCE_SEND=1` (samt variablane over) for å sende ein test.
-
-### Dvale: Advanced-varianten
-
-Den gamle fullauto-varianten med generering av HTML via API er lagra i:
-
-- `skript/send_nyhendebrev_mailerlite_advanced.rb`
-
-Denne krev Advanced-plan (`emails[].content` via API). Han er lagt i dvale no.
-
-### Vanlege feil
-
-- **Feil campaign ID**: sjekk at `MAILERLITE_READY_CAMPAIGN_ID` peikar på ein eksisterande kampanje i kontoen til API-tokenet.
-- **Campaign kan ikkje sendast (422)**: kampanjen må ha ferdig innhald og mottakarar i MailerLite UI før workflowen køyrer.
-- **Allereie sendt**: scriptet avsluttar utan feil om kampanjen allereie er sendt.
-
+- Workflow (manuell): `.github/workflows/nyhendebrev.yml`
+- Script: `skript/send_nyhendebrev_mailerlite.rb`
+- Avansert tidlegare variant: `skript/send_nyhendebrev_mailerlite_advanced.rb`
+- Manuell tekstbackup: `brev/tekstgenerator.md`

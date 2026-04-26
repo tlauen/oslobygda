@@ -57,15 +57,19 @@ Når du pushar til riktig branch, blir GitHub Pages oppdatert (Jekyll byggjer st
 
 Eige domene blir styrt av `CNAME`.
 
-## Nyhendebrev (MailerLite + GitHub Actions)
+## Nyhendebrev (Brevo + GitHub Actions)
 
-Det finst ein auto-flyt som kan sende nyhendebrev via MailerLite (gratis-kompatibel modus):
+Det finst no ein fullauto-flyt som sender nyhendebrev via Brevo API:
 
-- Workflow: `.github/workflows/nyhendebrev.yml`
-- Skript: `skript/send_nyhendebrev_mailerlite.rb`
-- Innhald: må vere ferdig sett opp i MailerLite-kampanjen i UI
-- Utsending: scriptet sender ein eksisterande `draft/ready` kampanje-ID når det er “7 dagar før neste” arrangement
-- Dvale (Advanced): tidlegare fullauto HTML-variant ligg i `skript/send_nyhendebrev_mailerlite_advanced.rb`
+- Aktiv workflow: `.github/workflows/nyhendebrev-brevo.yml`
+- Aktivt script: `skript/send_nyhendebrev_brevo.rb`
+- Innhald: blir generert frå `_data/kalender.yml` (same mal som tidlegare fullauto)
+- Utsending: automatisk når det er “7 dagar før neste” arrangement (kan tvangskøyrast manuelt)
+
+Backup:
+- MailerLite manuell/backup workflow: `.github/workflows/nyhendebrev.yml`
+- MailerLite backup-script: `skript/send_nyhendebrev_mailerlite.rb`
+- Tekstgenerator for manuell backup: `brev/tekstgenerator.md`
 
 ## Lisens
 

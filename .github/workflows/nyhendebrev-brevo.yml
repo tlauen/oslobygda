@@ -1,4 +1,4 @@
-name: Send nyhendebrev (MailerLite backup)
+name: Send nyhendebrev (Brevo)
 
 on:
   workflow_dispatch:
@@ -8,6 +8,8 @@ on:
         required: false
         default: false
         type: boolean
+  schedule:
+    - cron: "19 7 * * *" # UTC
 
 permissions:
   contents: read
@@ -21,12 +23,13 @@ jobs:
       TRIGGER_UID_CONTAINS: pobb-
       DAYS_BEFORE_TRIGGER: "7"
       UPCOMING_LIMIT: "12"
-
-      MAILERLITE_API_TOKEN: ${{ secrets.MAILERLITE_API_TOKEN }}
-      MAILERLITE_READY_CAMPAIGN_ID: ${{ secrets.MAILERLITE_READY_CAMPAIGN_ID }}
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+      BREVO_LIST_ID: ${{ secrets.BREVO_LIST_ID }}
+      BREVO_FROM_EMAIL: ${{ secrets.BREVO_FROM_EMAIL }}
+      BREVO_FROM_NAME: ${{ secrets.BREVO_FROM_NAME }}
+      BREVO_REPLY_TO: ${{ secrets.BREVO_REPLY_TO }}
       OSLOBYGDA_FORCE_SEND: ${{ github.event.inputs.force_send == 'true' && '1' || '' }}
     steps:
       - uses: actions/checkout@v5
-
-      - name: Send nyhendebrev
-        run: ruby skript/send_nyhendebrev_mailerlite.rb
+      - name: Send nyhendebrev via Brevo
+        run: ruby skript/send_nyhendebrev_brevo.rb

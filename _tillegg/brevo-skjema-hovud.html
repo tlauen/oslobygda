@@ -1,0 +1,141 @@
+<link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
+<style id="brevo-skjema-lokal-utforming">
+  /*
+    Utvendig brevo-skjema: same breidd og venstrekant som .ramme (ikkje Brevo sin ekstra
+    høgrepolstring / 540px-boks i midten), same skrift som brødtekst, tittar med --serif.
+  */
+  .brevo-skjema-innpakning,
+  .brevo-skjema-innpakning .sib-form-container,
+  .brevo-skjema-innpakning #sib-container,
+  .brevo-skjema-innpakning .sib-form-block,
+  .brevo-skjema-innpakning .form__label-row,
+  .brevo-skjema-innpakning .entry__choice,
+  .brevo-skjema-innpakning .sib-form__declaration {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  }
+
+  .brevo-skjema-innpakning { text-align: left; }
+
+  .brevo-skjema-innpakning.sib-form,
+  .brevo-skjema-innpakning .sib-form-container,
+  .brevo-skjema-innpakning #sib-container {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Brevo sib-styles: .sib-form { padding: 32px 12px } */
+  .brevo-skjema-innpakning.sib-form { padding: 0 !important; }
+  .brevo-skjema-innpakning .sib-form-container { padding: 0 !important; }
+
+  /* Brevo: #sib-container { padding: 17px; display: inline-block; margin: 0 auto } */
+  .brevo-skjema-innpakning #sib-container {
+    display: block !important;
+    text-align: left !important;
+    background: transparent !important;
+    color: var(--text) !important;
+    margin: 0 !important;
+    padding: 0 !important; /* fyllkant mot .ramme */
+  }
+
+  /* Brevo: .sib-form-block { padding: 0 16px } – hovud­kjelda til «innrappa» venstre kant */
+  .brevo-skjema-innpakning .sib-form-block { padding: 0 !important; }
+
+  /* Brevo: .sib-form__declaration { padding: 0 16px } */
+  .brevo-skjema-innpakning .sib-form__declaration { padding-left: 0 !important; padding-right: 0 !important; }
+
+  /* Brevo-pakker kvar blokk i div med 8px vertikal polstring */
+  .brevo-skjema-innpakning #sib-form [style*="padding: 8px 0"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Skjemerubrikk (32px hos Brevo): --serif som andre tittar */
+  .brevo-skjema-innpakning .sib-form-block[style*="font-size:32px"] p {
+    font-family: var(--serif) !important;
+  }
+
+  .brevo-skjema-innpakning p,
+  .brevo-skjema-innpakning .sib-text-form-block p,
+  .brevo-skjema-innpakning .entry__label,
+  .brevo-skjema-innpakning .entry__specification,
+  .brevo-skjema-innpakning .sib-sms-tooltip__box,
+  .brevo-skjema-innpakning span[style*="font-size:16px"] {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+    color: var(--text) !important;
+  }
+
+  .brevo-skjema-innpakning #sib-container a {
+    color: inherit !important;
+    text-decoration: underline;
+  }
+
+  /* Brevo: .input { width: calc(100% - 1rem) } – gjev falsk «venstredrag» */
+  .brevo-skjema-innpakning .input,
+  .brevo-skjema-innpakning .sib-form .input,
+  .brevo-skjema-innpakning input.input,
+  .brevo-skjema-innpakning select.input,
+  .brevo-skjema-innpakning .sib-sms-input-wrapper select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+    color: var(--text) !important;
+    background-color: var(--panel-strong) !important;
+    border-color: var(--line) !important;
+    border-radius: var(--kort-radius) !important;
+  }
+
+  .brevo-skjema-innpakning #sib-container input::placeholder,
+  .brevo-skjema-innpakning #sib-container textarea::placeholder,
+  .brevo-skjema-innpakning .input::placeholder {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+    color: color-mix(in srgb, var(--text) 38%, var(--bg)) !important;
+  }
+
+  .brevo-skjema-innpakning .sib-form-message-panel {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+    border-radius: var(--kort-radius) !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Same uttrykk som .meny-framheva (palett: --accent, --line, --bg) */
+  .brevo-skjema-innpakning .sib-form-block__button,
+  .brevo-skjema-innpakning button.sib-form-block__button {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+    font-weight: 600;
+    color: var(--text) !important;
+    background: color-mix(in srgb, var(--accent) 28%, var(--bg)) !important;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line)) !important;
+    border-radius: 999px !important;
+  }
+
+  .brevo-skjema-innpakning .sib-form-block__button:hover,
+  .brevo-skjema-innpakning button.sib-form-block__button:hover {
+    background: color-mix(in srgb, var(--accent) 44%, var(--bg)) !important;
+    filter: none;
+  }
+
+  .brevo-skjema-innpakning .sib-form__declaration { align-items: flex-start; }
+  .brevo-skjema-innpakning .sib-form__declaration > div:last-child p {
+    color: var(--text) !important;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  }
+
+  /* Litt mindre tomrom over skjemaet på sider med Brevo */
+  .brevo-skjema-side p.kjeks-merknad { margin-bottom: 0.45rem; }
+  .brevo-skjema-side .brevo-skjema-innpakning.sib-form { margin-top: 0.1rem; }
+  .brevo-skjema-side .om-innmelding > h2 { margin-bottom: 0.4rem; }
+
+  /* Sib har @media for #sib-container polstring; held breiddkant 0 */
+  @media screen and (max-width: 500px) {
+    .brevo-skjema-innpakning #sib-container { padding: 0 !important; }
+  }
+  @media screen and (max-width: 400px) {
+    .brevo-skjema-innpakning #sib-container { padding: 0 !important; }
+  }
+</style>

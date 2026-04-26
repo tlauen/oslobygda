@@ -8,6 +8,10 @@ share_image: "/lutar/bilete/og-oslobygda.jpg"
 # Medlemsregister: URL der Flask-appen køyrer (sett ved deploy, t.d. subdomene)
 medlemsregister_url: ""
 
+# Brevo-skjema (sibforms embed – heile URLen frå Brevo)
+brevo_newsletter_form_url: "https://b7461112.sibforms.com/serve/MUIFAPIoWhFm2zQT7k-8GL9P_9Ttzf4xJRzt2YlXjrObhg5Jz95RGrcSX64foKC9I3H_C7CGJZlI6-3603ZvEhyoCz8fUNG0JlmKu7VmLPdnNQTjAUip8Z1gO9U1u5a0vNBhKHSz8KoREFcM4M7uJwFU5NOKIck-yX8BiavmqoRO56R5nqlUX0c1DvGF3zmIyUp3J_jn_7IZ7xZzcw=="
+brevo_membership_form_url: "https://b7461112.sibforms.com/serve/MUIFAJGlCev2wSpEvmgeWqBoZC34fzoZ2gkirseBpT08nQ8zEiSRsxv_rRkdx6flZyVSvy7o3czwWWxgErVM5lm0HVnpn3DTyap7A_TtjpNURo-_EHVh187NSMQHOXS7uZERE9iSD2xCAMX-EOEBjUqq9yrUzbTu06CKXu8vomFledMOd8UdyG5cu358dRkDJvtH3U6ApSfONW_FFA=="
+
 # Ikkje kopier Python-appen til _site
 exclude: ["medlemsregister"]
 
