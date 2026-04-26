@@ -165,22 +165,32 @@ html_items = upcoming.map do |event|
 end.join("\n")
 
 html = <<~HTML
-  <div style="max-width:580px; margin:0 auto; font-family:Georgia,'Times New Roman',serif; color:#12110e; background:#FCF9F3; padding:24px 20px;">
-    <p style="margin:0 0 4px; font-family:'Fraunces',Georgia,serif; font-weight:700; font-size:1.25em; letter-spacing:.02em;">Oslobygda kulturlag</p>
-    <p style="margin:0 0 24px; font-size:.9em; color:#5a5856;">frilynt · folkeleg · litt for seint heim</p>
-    <h1 style="margin:0 0 12px; font-family:'Fraunces',Georgia,serif; font-weight:650; font-size:1.5em; color:#12110e;">Komande tilskipingar</h1>
-    <p style="margin:0 0 16px; line-height:1.5;">Her er det som ligg i kalenderen vår no:</p>
-    <ul style="margin:0 0 20px; padding-left:0; line-height:1.6; list-style:none;">
-      #{html_items}
-    </ul>
-    <p style="margin:0 0 8px; line-height:1.5;">
-      Sjå heile kalenderen: <a href="#{base_url}/kalender/" style="color:#2f5d50; text-decoration:underline;">#{base_url}/kalender/</a><br>
-      Kalender (ICS): <a href="#{base_url}/kalender.ics" style="color:#2f5d50; text-decoration:underline;">#{base_url}/kalender.ics</a>
-    </p>
-    <p style="margin:20px 0 0; text-align:center;">
-      <a href="#{base_url}/" style="text-decoration:none;"><img src="#{base_url}/lutar/bilete/logo_oslobygda.png" alt="Oslobygda kulturlag" width="200" height="200" style="display:inline-block; width:200px; height:200px;"></a>
-    </p>
-  </div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#E8E6E3" style="width:100%; border-collapse:collapse; margin:0; background-color:#E8E6E3;">
+    <tr>
+      <td align="center" bgcolor="#E8E6E3" style="padding:24px 16px; background-color:#E8E6E3;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#FCF9F3" style="max-width:680px; width:100%; border-collapse:collapse; background-color:#FCF9F3;">
+          <tr>
+            <td style="padding:36px 32px; font-family:Georgia,'Times New Roman',serif; color:#12110e; line-height:1.5; font-size:16px;">
+              <p style="margin:0 0 4px; font-family:Georgia,serif; font-weight:700; font-size:1.3em; letter-spacing:.02em;">Oslobygda kulturlag</p>
+              <p style="margin:0 0 24px; font-size:0.95em; color:#5a5856;">frilynt · folkeleg · litt for seint heim</p>
+              <h1 style="margin:0 0 14px; font-family:Georgia,serif; font-weight:700; font-size:1.6em; line-height:1.25; color:#12110e;">Komande tilskipingar</h1>
+              <p style="margin:0 0 16px; line-height:1.5;">Her er det som ligg i kalenderen vår no:</p>
+              <ul style="margin:0 0 22px; padding-left:0; line-height:1.65; list-style:none;">
+                #{html_items}
+              </ul>
+              <p style="margin:0 0 8px; line-height:1.5;">
+                Sjå heile kalenderen: <a href="#{base_url}/kalender/" style="color:#2f5d50; text-decoration:underline;">#{base_url}/kalender/</a><br>
+                Kalender (ICS): <a href="#{base_url}/kalender.ics" style="color:#2f5d50; text-decoration:underline;">#{base_url}/kalender.ics</a>
+              </p>
+              <p style="margin:24px 0 0; text-align:center;">
+                <a href="#{base_url}/" style="text-decoration:none;"><img src="#{base_url}/lutar/bilete/logo_oslobygda.png" alt="Oslobygda kulturlag" width="200" height="200" style="display:inline-block; width:200px; height:200px; max-width:100%;"></a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 HTML
 
 payload = {
