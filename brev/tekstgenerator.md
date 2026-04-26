@@ -33,7 +33,7 @@ title: Tekstgenerator for nyhendebrev
 
 # Tekstgenerator for nyhendebrev
 
-Denne sida lagar det du treng for MailerLite: emnefelt + kulepunkt med komande pøbb-arrangement.
+Denne sida lagar det du treng for manuell utsending i e-postverktøyet ditt (t.d. **Brevo**): emnefelt + kulepunkt med komande pøbb-arrangement.
 
 <p><strong>Generert:</strong> <span id="generated-time"></span></p>
 
@@ -48,7 +48,7 @@ Denne sida lagar det du treng for MailerLite: emnefelt + kulepunkt med komande p
 <div id="body-rich" style="border:1px solid #d0cbc2; background:#fff; padding:1rem; border-radius:.5rem;">{{ body_rich | strip }}</div>
 <p><button type="button" class="btn" onclick="copyRich('body-rich', 'rich-status')">Kopier kulepunkt</button> <span id="rich-status" aria-live="polite"></span></p>
 
-<p>Tips: Lim emnefeltet i Subject og kulepunkta i innhaldsfeltet i MailerLite-editoren.</p>
+<p>Tips: Lim emnefeltet i emnelinja og kulepunkta i innhaldsfeltet i kampanje- eller brev-editoren i Brevo (eller anna verktøy du brukar).</p>
 
 <script>
   (function () {
