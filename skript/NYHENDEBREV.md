@@ -12,24 +12,32 @@ Dette repoet sender nyhendebrev automatisk via Brevo API.
 ### Nødvendige GitHub Secrets (Brevo)
 
 - `BREVO_API_KEY`
-- `BREVO_LIST_ID` (lista som skal få nyhendebrevet)
+- `BREVO_LIST_ID` – numerisk ID for hovudlista **«Nyhendebrev»** (alle som skal ha brevet i drift)
+- `BREVO_TEST_LIST_ID` – numerisk ID for lista **«Test»** (berre brukt når du slår på testmodus under manuell køyring)
 - `BREVO_FROM_EMAIL`
 - `BREVO_FROM_NAME`
 - `BREVO_REPLY_TO` (valfri)
 
-### Testkøyring
+I Brevo: **Contacts → Lists** – opprett/minn **Test** med t.d. berre di eiga e-post, og noter list-ID for `BREVO_TEST_LIST_ID`.
 
-Gå til **Actions → Send nyhendebrev (Brevo)** og bruk `force_send=true` for test.
+### Vanleg utsending vs. test
+
+| Situasjon | Mottakarar | Miljø / GitHub |
+|-----------|------------|----------------|
+| **Cron + manuell utan test** | Lista med `BREVO_LIST_ID` («Nyhendebrev») | `BREVO_BRUK_TEST_LISTE` tom / `bruk_test_lista` av |
+| **Teste auto-utsending** | Lista med `BREVO_TEST_LIST_ID` («Test») | `BREVO_BRUK_TEST_LISTE=1` eller **Run workflow** med **bruk_test_lista** på, pluss **force_send** viss i dag ikkje er 7 dagar før pøbb |
+
+Test brukar eige kampanjenamn (`Test – nyhendebrev – …`) slik at det ikkje krockar med ordinar kampanje same dato.
 
 ### Kva scriptet gjer
 
 1. Les komande arrangement frå kalenderen
 2. Finn neste `pobb-` som trigger
 3. Bygg emnefelt + HTML-innhald etter Oslobygda-malen
-4. Opprett kampanje i Brevo mot `BREVO_LIST_ID`
+4. Opprett kampanje i Brevo mot valt liste-ID
 5. Sender kampanjen (`sendNow`)
 
-Scriptet brukar kampanjenamn med dato (`Nyhendebrev – tilskipingar – YYYY-MM-DD`) for å unngå dobbel utsending.
+Scriptet brukar kampanjenamn med dato for å unngå dobbel utsending.
 
 ## MailerLite backup (dvale)
 

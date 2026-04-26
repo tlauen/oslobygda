@@ -65,6 +65,7 @@ Det finst no ein fullauto-flyt som sender nyhendebrev via Brevo API:
 - Aktivt script: `skript/send_nyhendebrev_brevo.rb`
 - Innhald: blir generert frå `_data/kalender.yml` (same mal som tidlegare fullauto)
 - Utsending: automatisk når det er “7 dagar før neste” arrangement (kan tvangskøyrast manuelt)
+- **Hovudmottakarar:** Brevo-lista «Nyhendebrev» (`BREVO_LIST_ID`). **Test:** slå på `bruk_test_lista` i workflow og bruk secret `BREVO_TEST_LIST_ID` (lista «Test» i Brevo) – sjå `skript/NYHENDEBREV.md`
 
 Backup:
 - MailerLite manuell/backup workflow: `.github/workflows/nyhendebrev.yml`

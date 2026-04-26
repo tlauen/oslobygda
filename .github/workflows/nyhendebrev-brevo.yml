@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      bruk_test_lista:
+        description: "Send til Brevo-lista «Test» (BREVO_TEST_LIST_ID), ikkje hovudlista «Nyhendebrev»"
+        required: false
+        default: false
+        type: boolean
   schedule:
     - cron: "19 7 * * *" # UTC
 
@@ -25,9 +30,11 @@ jobs:
       UPCOMING_LIMIT: "12"
       BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
       BREVO_LIST_ID: ${{ secrets.BREVO_LIST_ID }}
+      BREVO_TEST_LIST_ID: ${{ secrets.BREVO_TEST_LIST_ID }}
       BREVO_FROM_EMAIL: ${{ secrets.BREVO_FROM_EMAIL }}
       BREVO_FROM_NAME: ${{ secrets.BREVO_FROM_NAME }}
       BREVO_REPLY_TO: ${{ secrets.BREVO_REPLY_TO }}
+      BREVO_BRUK_TEST_LISTE: ${{ github.event.inputs.bruk_test_lista == 'true' && '1' || '' }}
       OSLOBYGDA_FORCE_SEND: ${{ github.event.inputs.force_send == 'true' && '1' || '' }}
     steps:
       - uses: actions/checkout@v5

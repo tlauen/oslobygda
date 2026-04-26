@@ -95,10 +95,17 @@ def list_exists?(api_key, list_id)
 end
 
 api_key = env!("BREVO_API_KEY")
-list_id = Integer(env!("BREVO_LIST_ID"))
 from_email = env!("BREVO_FROM_EMAIL")
 from_name = env!("BREVO_FROM_NAME")
 reply_to = ENV.fetch("BREVO_REPLY_TO", "").strip
+# Vanleg: BREVO_LIST_ID = hovudlista «Nyhendebrev». Test: BREVO_BRUK_TEST_LISTE=1 og BREVO_TEST_LIST_ID = lista «Test».
+bruk_test_liste = %w[1 true yes].include?(ENV["BREVO_BRUK_TEST_LISTE"].to_s.strip.downcase)
+list_id =
+  if bruk_test_liste
+    Integer(env!("BREVO_TEST_LIST_ID"))
+  else
+    Integer(env!("BREVO_LIST_ID"))
+  end
 
 base_url = ENV.fetch("OSLOBYGDA_BASE_URL", "https://oslobygda.no").sub(%r{/\z}, "")
 trigger_uid_contains = ENV.fetch("TRIGGER_UID_CONTAINS", "pobb-")
@@ -128,10 +135,20 @@ puts "Force send mode – sending despite send_on=#{send_on}" if force_send && t
 unless list_exists?(api_key, list_id)
   raise "Brevo list #{list_id} was not found for API key."
 end
+if bruk_test_liste
+  puts "Utsending til testlista (BREVO_TEST_LIST_ID=#{list_id}, t.d. «Test» i Brevo)."
+else
+  puts "Utsending til hovudlista for nyhendebrev (BREVO_LIST_ID=#{list_id}, t.d. «Nyhendebrev» i Brevo)."
+end
 
 upcoming = future.first(limit)
 subject = "Neste folkemusikkpøbb er #{fmt_subject_date_nn(trigger_date)}!"
-campaign_name = "Nyhendebrev – tilskipingar – #{trigger_date.iso8601}"
+# Eige namn for test slik at test- og hovudkampanje ikkje forvekslast (Brevo bind mottakarar til kampanje).
+campaign_name = if bruk_test_liste
+  "Test – nyhendebrev – tilskipingar – #{trigger_date.iso8601}"
+else
+  "Nyhendebrev – tilskipingar – #{trigger_date.iso8601}"
+end
 
 existing_campaign = find_campaign_by_name(get_campaigns(api_key), campaign_name)
 if existing_campaign && existing_campaign["status"].to_s.downcase == "sent"
@@ -189,9 +206,9 @@ campaign_id =
     created["id"]
   end
 
-code, sent = http_json(:post, "/emailCampaigns/#{campaign_id}/sendNow", api_key: api_key)
-unless code == 200 || code == 201 || code == 202 || code == 204
-  raise "Failed to send Brevo campaign id=#{campaign_id} (status=#{code}): #{sent.inspect}"
+kode, sendt = http_json(:post, "/emailCampaigns/#{campaign_id}/sendNow", api_key: api_key)
+unless kode == 200 || kode == 201 || kode == 202 || kode == 204
+  raise "Failed to send Brevo campaign id=#{campaign_id} (status=#{kode}): #{sendt.inspect}"
 end
 
-puts "Sent Brevo campaign '#{campaign_name}' to list #{list_id}"
+puts "Sendte Brevo-kampanjen «#{campaign_name}» til mottakarliste id=#{list_id}"
