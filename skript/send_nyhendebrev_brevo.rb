@@ -150,7 +150,17 @@ else
   "Nyhendebrev – tilskipingar – #{trigger_date.iso8601}"
 end
 
-existing_campaign = find_campaign_by_name(get_campaigns(api_key), campaign_name)
+# Idempotens: hovudlista skal ikkje få dobbel utsending same dato. På testlista er same
+# kampanjenamn ofte allerei `sendt` når du prøver igjen; med force_send får kvar køyring eit
+# unikt suffiks så Brevo opprettar ny kampanje.
+campaigns = get_campaigns(api_key)
+existing_campaign = find_campaign_by_name(campaigns, campaign_name)
+if bruk_test_liste && existing_campaign && existing_campaign["status"].to_s.downcase == "sent" && force_send
+  campaign_name = "#{campaign_name} – køyring-#{Time.now.getutc.strftime('%Y%m%d-%H%M%S')}"
+  puts "Testliste: fann allerei sendt kampanje med same dato; nytt unikt namn: #{campaign_name}"
+  existing_campaign = find_campaign_by_name(get_campaigns(api_key), campaign_name)
+end
+
 if existing_campaign && existing_campaign["status"].to_s.downcase == "sent"
   puts "Campaign '#{campaign_name}' already sent in Brevo. Not sending again."
   exit 0

@@ -27,7 +27,7 @@ I Brevo: **Contacts → Lists** – opprett/minn **Test** med t.d. berre di eiga
 | **Cron + manuell utan test** | Lista med `BREVO_LIST_ID` («Nyhendebrev») | `BREVO_BRUK_TEST_LISTE` tom / `bruk_test_lista` av |
 | **Teste auto-utsending** | Lista med `BREVO_TEST_LIST_ID` («Test») | `BREVO_BRUK_TEST_LISTE=1` eller **Run workflow** med **bruk_test_lista** på, pluss **force_send** viss i dag ikkje er 7 dagar før pøbb |
 
-Test brukar eige kampanjenamn (`Test – nyhendebrev – …`) slik at det ikkje krockar med ordinar kampanje same dato.
+Test brukar eige kampanjenamn (`Test – nyhendebrev – …`) slik at det ikkje krockar med ordinar kampanje same dato. Dersom du køyrer test igjen med same `pobb-`-dato og `force_send`, legg skriptet automatisk til `– køyring-YYYYMMDD-HHMMSS` så Brevo ikkje stoppar for «allerede sendt».
 
 ### Kva scriptet gjer
 
