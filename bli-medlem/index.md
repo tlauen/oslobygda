@@ -10,7 +10,7 @@ Me blir veldig glade om du vil vere med i Oslobygda kulturlag.
 
 Vanleg medlemskap for kule folk kostar 5 kroner. Superkule medlemmar betalar ein valfri sum over 5 kroner. 
 
-Du kan betale kæsj eller vippse Torbjørn. Kjem ordentleg opplegg så fort me får ein bankkonto på plass.
+Medlemspengane kan du betale kæsj til Torbjørn eller på Vipps. Vippsnummeret vårt er **51630**.
 
 <section class="om-innmelding" aria-labelledby="om-innmelding-tittel">
   {% if site.brevo_membership_form_url != nil and site.brevo_membership_form_url != "" %}
