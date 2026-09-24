@@ -12,10 +12,8 @@ Vanleg medlemskap for kule folk kostar 5 kroner. Superkule medlemmar betalar ein
 
 Medlemspengane kan du betale kæsj til Torbjørn eller på Vipps. Vippsnummeret vårt er **51630**.
 
-<section class="om-innmelding" aria-labelledby="om-innmelding-tittel">
-  {% if site.brevo_membership_form_url != nil and site.brevo_membership_form_url != "" %}
-  {% include brevo-skjema-innmelding.html %}
-  {% else %}
-  <p><em>Brevo-skjema for innmelding er ikkje sett opp enno. Legg inn <code>brevo_membership_form_url</code> i <code>_config.yml</code>.</em></p>
-  {% endif %}
-</section>
+{% if site.brevo_membership_form_url != nil and site.brevo_membership_form_url != "" %} {% include brevo-skjema-innmelding.html %} {% else %}
+
+*Brevo-skjema for innmelding er ikkje sett opp enno. Legg inn* `brevo_membership_form_url` *i* `_config.yml`*.*
+
+ {% endif %}
