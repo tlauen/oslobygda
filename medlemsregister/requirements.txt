@@ -7,3 +7,4 @@ sqlcipher3>=0.5.0
 
 PyOTP>=2.9.0,<3
 segno>=1.6,<2
+PyYAML>=6,<7

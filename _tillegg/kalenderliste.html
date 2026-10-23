@@ -104,16 +104,21 @@
     {% assign kortklasse = "kort kalenderkort" %}
     {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--tidlegare" %}{% endif %}
 
-    <div class="{{ kortklasse }}">
+    {%- assign sluttdato = e.sluttdato | default: e.dato -%}
+    {%- if e.sluttdato == nil and slutt_hhmm <= start_hhmm -%}
+      {%- assign neste_dag = e.dato | append: 'T12:00:00Z' | date: '%s' | plus: 86400 -%}
+      {%- assign sluttdato = neste_dag | date: '%Y-%m-%d' -%}
+    {%- endif -%}
+    <div class="{{ kortklasse }}" data-event-uid="{{ e.uid | escape }}" data-event-start="{{ e.dato }}T{{ e.start | default: '19:00' }}" data-event-end="{{ sluttdato }}T{{ e.slutt | default: '22:00' }}">
       {% if e.lenkje %}
-  <a class="kalenderkort__bilete-lenkje" href="{{ e.lenkje | relative_url }}">
+  <a class="kalenderkort__bilete-lenkje" href="{{ e.lenkje | relative_url | escape }}">
     <div class="kalenderkort__bilete" aria-hidden="true">
-      <img class="kalenderkort__bilete-img" src="{{ bilete | relative_url }}" alt="" loading="lazy" decoding="async">
+      <img class="kalenderkort__bilete-img" src="{{ bilete | relative_url | escape }}" alt="" loading="lazy" decoding="async">
     </div>
   </a>
 {% else %}
   <div class="kalenderkort__bilete" aria-hidden="true">
-    <img class="kalenderkort__bilete-img" src="{{ bilete | relative_url }}" alt="" loading="lazy" decoding="async">
+    <img class="kalenderkort__bilete-img" src="{{ bilete | relative_url | escape }}" alt="" loading="lazy" decoding="async">
   </div>
 {% endif %}
 
@@ -124,14 +129,14 @@
 
         <div class="kalenderkort__tittel">
           {% if e.lenkje %}
-            <a href="{{ e.lenkje | relative_url }}">{{ e.tittel }}</a>
+            <a href="{{ e.lenkje | relative_url | escape }}">{{ e.tittel | escape }}</a>
           {% else %}
-            {{ e.tittel }}
+            {{ e.tittel | escape }}
           {% endif %}
         </div>
 
-        {% if e.stad %}<div class="dempa">{{ e.stad }}</div>{% endif %}
-        {% if e.merknad %}<div class="dempa">{{ e.merknad }}</div>{% endif %}
+        {% if e.stad %}<div class="dempa">{{ e.stad | escape }}</div>{% endif %}
+        {% if e.merknad %}<div class="dempa">{{ e.merknad | escape }}</div>{% endif %}
 
         <div class="kalenderkort__handlingar">
           <a href="{{ g_url }}" target="_blank" rel="noopener">Legg til i Google Kalender</a>

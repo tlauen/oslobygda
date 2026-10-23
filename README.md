@@ -106,3 +106,14 @@ Opne <http://localhost:4000/kalender/>. Skriptet byggjer nettsida automatisk ved
 endringar; last nettlesarsida på nytt etter lagring. Ved endring av `_config.yml`
 må skriptet startast på nytt. Stopp med Ctrl+C. Byggfiler ligg mellombels utanfor
 prosjektmappa. Dette viser Jekyll-nettsida; Bygdelista er ein separat Flask-app.
+
+### Tilskipingar frå Bygdelista
+
+Styret kan leggje inn nye tilskipingar i det innlogga skjemaet `/tilskipingar`.
+Sjå [oppsett og bruk](medlemsregister/TILSKIPINGAR.md). Publisering legg til ei rad
+med fast UID i GitHub-datafila, slik at nettside, kalenderabonnement og nyhendebrev
+brukar same kjelde. GitHub-token skal berre liggje i `.env` på PythonAnywhere.
+
+Den offentlege kalendersida brukar `lutar/kalender.js` til å flytte hendingar til
+historikken når sluttida i Oslo er passert, uavhengig av når sida sist vart bygd.
+Kontroller klokkefiltreringa med `node skript/test_kalender.js`.

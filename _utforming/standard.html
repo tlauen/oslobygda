@@ -45,7 +45,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ '/lutar/stilar.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/lutar/stilar.css' | relative_url }}?v={{ site.time | date: '%s' }}">
   {%- if page.brevo_skjema -%}
   {% include brevo-skjema-hovud.html %}
   {%- endif -%}
@@ -87,5 +87,8 @@ if(toggle && dekke){
 {%- if page.brevo_skjema -%}
 {% include brevo-skjema-bunntekst.html %}
 {%- endif -%}
+  {% if page.url == '/kalender/' %}
+  <script defer src="{{ '/lutar/kalender.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+  {% endif %}
 </body>
 </html>

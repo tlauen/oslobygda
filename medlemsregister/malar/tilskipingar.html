@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tilskipingar – Bygdelista</title>
+  <link rel="stylesheet" href="{{ prefix_url('static',filename='stil.css') }}">
+</head>
+<body><main class="omslag">
+<header class="toppfelt"><h1>Tilskipingar</h1><a href="{{ prefix_url('index') }}">Til medlemslista</a></header>
+<h2>Komande tilskipingar</h2>
+<ul>{% for event in upcoming %}<li>{{ event.dato }} kl. {{ event.start }} – {{ event.tittel }} <a href="{{ prefix_url('event_editor') }}?uid={{ event.uid|urlencode }}">Rediger</a></li>{% else %}<li>Ingen komande tilskipingar å vise.</li>{% endfor %}</ul>
+<h2>{{ 'Rediger tilskipinga' if editing else 'Legg til ei tilskiping' }}</h2>
+{% if editing %}<p>UID: {{ editing }}. <a href="{{ prefix_url('event_editor') }}">Legg til ei ny tilskiping</a></p>{% endif %}
+<p>Lag ei ny tilskiping her, så kjem ho med på nettsida og i kalenderabonnementet.</p>
+{% if message %}<p role="status">{{ message }}</p>{% endif %}
+{% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}
+{% if not ready %}<p class="feil">Publisering er ikkje sett opp enno. Kontakt administratoren før du fyller ut skjemaet.</p>{% endif %}
+<form method="post" class="innmelding-skjema">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="uid" value="{{ editing }}">
+  <input type="hidden" name="revision" value="{{ revision }}">
+  <input type="hidden" name="submission" value="{{ submission }}">
+  <div class="felt"><label for="kind">Type</label><select id="kind" name="kind" {% if editing %}disabled{% endif %}>{% for value,label in kinds.items() %}<option value="{{ value }}" {% if values.get('kind')==value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  {% if editing %}<input type="hidden" name="kind" value="{{ values.get('kind','anna') }}">{% endif %}
+  <div class="felt"><label for="title">Tittel</label><input id="title" name="tittel" value="{{ values.get('tittel','') }}" maxlength="200" required></div>
+  <div class="felt"><label for="day">Dato</label><input id="day" name="dato" type="date" value="{{ values.get('dato','') }}" required></div>
+  <div class="felt"><label for="start">Start</label><input id="start" name="start" type="time" value="{{ values.get('start','') }}" required></div>
+  <div class="felt"><label for="end">Slutt</label><input id="end" name="slutt" type="time" value="{{ values.get('slutt','') }}" required></div>
+  <div class="felt"><label for="endday">Sluttdato (berre for fleire dagar)</label><input id="endday" name="sluttdato" type="date" value="{{ values.get('sluttdato','') }}"><p>Sluttid før starttid blir tolka som neste dag.</p></div>
+  <div class="felt"><label for="place">Stad</label><input id="place" name="stad" value="{{ values.get('stad','') }}" maxlength="200" required></div>
+  <div class="felt"><label for="description">Omtale</label><textarea id="description" name="merknad" maxlength="3000" rows="5">{{ values.get('merknad','') }}</textarea></div>
+  <div class="felt"><label for="link">Lenkje (valfri)</label><input id="link" name="lenkje" value="{{ values.get('lenkje','') }}" placeholder="/pub/ eller https://…"></div>
+  <div class="felt"><label for="image">Bilete</label><select id="image" name="bilete"><option value="/lutar/bilete/arr-cover.png">Vanleg arrangementsbilete</option><option value="/lutar/bilete/gamal-cover.png" {% if values.get('bilete')=='/lutar/bilete/gamal-cover.png' %}selected{% endif %}>Eldre arrangementsbilete</option></select></div>
+  <p>Opplysningane blir offentlege når du publiserer.</p>
+  <button type="submit" {% if not ready %}disabled{% endif %}>{{ 'Lagre endringane' if editing else 'Publiser tilskipinga' }}</button>
+</form>
+</main></body></html>

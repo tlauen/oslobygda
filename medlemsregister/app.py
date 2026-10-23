@@ -372,6 +372,9 @@ app.jinja_env.globals["url_prefix"] = URL_PREFIX  # for fetch()-base i JS
 
 install_auth(app, get_db, prefix_url)
 
+from tilskipingar import install_calendar
+install_calendar(app, require_admin)
+
 
 @app.route("/")
 @require_admin
