@@ -1,6 +1,6 @@
 {% assign kalender_feed = '/kalender.ics' | absolute_url %}
 {% assign kalender_webcal = kalender_feed | replace: 'https://', 'webcal://' | replace: 'http://', 'webcal://' %}
-<section class="seksjon" aria-labelledby="kalenderabonnement-tittel">
+<section class="seksjon{% if include.infoboks %} kalenderabonnement-infoboks{% endif %}" aria-labelledby="kalenderabonnement-tittel">
   <h2 id="kalenderabonnement-tittel">Få tilskipingane i kalenderen din</h2>
   <p>Abonner éin gong, så hentar kalenderappen din nye tilskipingar og oppdaterte tidspunkt automatisk.</p>
   <p><a class="knapp" href="{{ kalender_webcal }}">Abonner på Oslobygda-kalenderen</a></p>

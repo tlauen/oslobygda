@@ -150,3 +150,34 @@
 .kalenderkort:nth-child(5n+5){
   background: var(--kort5);
 }
+/* Abonnement øvst på kalendersida */
+.kalenderabonnement-infoboks {
+  margin: 1.25rem 0 2.5rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid var(--line);
+  border-left: .35rem solid var(--accent);
+  border-radius: var(--kort-radius);
+  background: var(--panel);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+
+  h2 { margin-top: 0; }
+
+  .knapp {
+    display: inline-block;
+    padding: .7rem 1rem;
+    border-radius: .5rem;
+    background: var(--text);
+    color: var(--panel);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .knapp:hover { text-decoration: underline; }
+  .knapp:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  summary { cursor: pointer; }
+  details > :last-child { margin-bottom: 0; }
+}
