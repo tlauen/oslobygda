@@ -153,16 +153,18 @@
 /* Kompakt kalenderabonnement, lukka til lesaren opnar det. */
 .kalenderabonnement-infoboks {
   margin: 1.25rem 0 2rem;
-  border: 1px solid var(--line);
-  border-left: .25rem solid var(--accent);
+  border: 1px solid #9bbdd4;
+  border-left: .35rem solid #24618a;
   border-radius: .75rem;
-  background: var(--kort2);
+  background: #e7f2fa;
+  color: #173d58;
+  box-shadow: 0 3px 10px rgba(23, 61, 88, .08);
 
   > summary {
     display: flex;
     align-items: center;
     gap: .75rem;
-    padding: .9rem 1rem;
+    padding: 1rem 1.15rem;
     cursor: pointer;
     list-style: none;
     font-size: 1rem;
@@ -174,20 +176,21 @@
   > summary > span:nth-child(2) { flex: 1; }
   > summary::after { content: "+"; font-size: 1.4rem; font-weight: 400; }
   &[open] > summary::after { content: "−"; }
-  &[open] > summary { border-bottom: 1px solid var(--line); }
+  > summary:hover { background: rgba(36, 97, 138, .07); }
+  &[open] > summary { border-bottom: 1px solid #bcd3e3; }
 
   .knapp {
     display: inline-block;
     padding: .6rem .9rem;
     border-radius: .5rem;
-    background: var(--text);
-    color: var(--panel);
+    background: #24618a;
+    color: #fff;
     font-weight: 650;
     text-decoration: none;
   }
   .knapp:hover { text-decoration: underline; }
   .knapp:focus-visible, > summary:focus-visible {
-    outline: 3px solid var(--accent);
+    outline: 3px solid #24618a;
     outline-offset: 3px;
   }
 }
@@ -196,12 +199,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 1.5rem;
-  height: 1.5rem;
-  border: 1px solid currentColor;
+  flex: 0 0 1.8rem;
+  height: 1.8rem;
+  background: #24618a;
+  color: #fff;
   border-radius: 50%;
-  font-family: var(--serif);
-  font-weight: 650;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.15rem;
 }
 
 .kalenderabonnement-innhald {

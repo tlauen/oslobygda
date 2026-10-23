@@ -95,3 +95,14 @@ før startklokkeslett blir elles tolka som neste dag.
 `webcal://` opnar kalenderabonnement der appen støttar det. Google Kalender og
 andre appar kan i staden abonnere på den offentlege HTTPS-adressa. Nedlasting og
 import av ei fil gir berre ein eingongskopi, ikkje automatisk oppdatering.
+
+### Lokal førehandsvising på denne Mac-en
+
+Start frå prosjektmappa:
+
+    /opt/homebrew/opt/ruby/bin/ruby skript/forehandsvis.rb
+
+Opne <http://localhost:4000/kalender/>. Skriptet byggjer nettsida automatisk ved
+endringar; last nettlesarsida på nytt etter lagring. Ved endring av `_config.yml`
+må skriptet startast på nytt. Stopp med Ctrl+C. Byggfiler ligg mellombels utanfor
+prosjektmappa. Dette viser Jekyll-nettsida; Bygdelista er ein separat Flask-app.
