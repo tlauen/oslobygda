@@ -14,6 +14,9 @@ Appen har:
 
 ## Starte appen (lokal køyring)
 
+For planlagt drift på `bygdelista.oslobygda.no`, sjå
+[PythonAnywhere EU-oppsettet](PYTHONANYWHERE.md).
+
 1. **Python 3.9+** – sjekk med `python3 --version`.
 2. Installer avhengnader:
 
@@ -50,11 +53,11 @@ Hugs: `.env` inneheld hemmelege verdiar og skal ikkje committast.
 
 ### Passord og økt (styregrensesnitt)
 
-- `MEDLEMSREGISTER_PASSWORD_HASH`: passord-hash for innlogging
-  - Generer med:
-    ```bash
-    python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('ditt-passord'))"
-    ```
+- Personlege styrekontoar brukar passord og TOTP-kode frå autentiseringsapp.
+  Medlemstype **Styret** gir høve til kontoregistrering etter stadfesting på e-post.
+  `STYRE_EPOST_FRA` og SMTP-innstillingane må vere sette for dette.
+  Sjå [STYREKONTOAR.md](STYREKONTOAR.md) for oppretting, sperring og nullstilling.
+  Det gamle fellespassordet (`MEDLEMSREGISTER_PASSWORD_HASH`) er ikkje lenger i bruk.
 - `MEDLEMSREGISTER_SECRET_KEY`: lang, tilfeldig streng for økthandtering (set ved driftsetjing; ikkje bruk appen opent på nett utan)
 - `BACKUP_DIR`: mappe for backup (brukast av `backup.sh`)
 - `MEDLEMSREGISTER_DB_KEY` (valfritt): krypter `medlemsregister.db` på disk med SQLCipher
@@ -111,11 +114,14 @@ Start då med:
 MEDLEMSREGISTER_PRODUCTION=1 python3 app.py
 ```
 
-Appen lyttar på `0.0.0.0:5001`. Del IP-adressa til maskina og passord med styret. Bruk berre på eit trygt nett.
+Appen lyttar på `0.0.0.0:5001`. Del IP-adressa med styret. Alle må ha kvar sin styrekonto. Bruk berre på eit trygt nett; på nett skal HTTPS vere aktivert.
 
 **Offline-kopi (alternativ):** del `medlemsregister.db` over sikker kanal. Unngå samtidige endringar.
 
 ## Backup
+
+For aktivt register på PythonAnywhere, bruk [BACKUP.md](BACKUP.md) og
+`backup.py`. Det eldre `backup.sh` under er berre eigna når databasen er stoppa.
 
 Heile medlemslista ligg i `medlemsregister.db`.
 

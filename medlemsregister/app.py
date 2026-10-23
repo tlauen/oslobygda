@@ -7,6 +7,7 @@ Database kan krypterast med SQLCipher ved å setje MEDLEMSREGISTER_DB_KEY (da ve
 import csv
 import io
 import json
+from datetime import timedelta
 import os
 import smtplib
 import sys
@@ -35,7 +36,7 @@ from flask import (
     url_for,
     Response,
 )
-from werkzeug.security import check_password_hash, generate_password_hash
+from styre_auth import install_auth, init_auth_db
 
 APP_DIR = Path(__file__).resolve().parent
 DB_PATH = APP_DIR / "medlemsregister.db"
@@ -76,11 +77,8 @@ URL_PREFIX = os.environ.get("MEDLEMSREGISTER_URL_PREFIX", "").rstrip("/")
 if URL_PREFIX:
     app.config["APPLICATION_ROOT"] = URL_PREFIX
 
-# Enkel passordvern – sett MEDLEMSREGISTER_PASSWORD_HASH i miljøet
-ADMIN_PASSWORD_HASH = os.environ.get(
-    "MEDLEMSREGISTER_PASSWORD_HASH",
-    generate_password_hash("admin"),  # Berre for lokal utvikling – sett miljøvariabel i produksjon
-)
+app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
+                  PERMANENT_SESSION_LIFETIME=timedelta(hours=8))
 
 
 def _pragma_key_sql() -> str:
@@ -233,6 +231,7 @@ def _alder_år(fødsel: date, idag: date) -> int:
 
 
 def init_db():
+    init_auth_db(get_db)
     with get_db() as conn:
         conn.execute("PRAGMA foreign_keys = ON")
         conn.executescript("""
@@ -311,7 +310,7 @@ def require_admin(f):
     from functools import wraps
     @wraps(f)
     def inner(*args, **kwargs):
-        if not session.get("admin_logged_in"):
+        if not app.extensions["styre_auth_valid"]():
             if request.accept_mimetypes.best == "application/json":
                 return jsonify({"error": "Ikkje innlogga"}), 401
             return redirect(url_for("login"))
@@ -330,21 +329,7 @@ def prefix_url(endpoint, **values):
 app.jinja_env.globals["prefix_url"] = prefix_url
 app.jinja_env.globals["url_prefix"] = URL_PREFIX  # for fetch()-base i JS
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "GET":
-        return render_template("innlogging.html")
-    password = request.form.get("password", "")
-    if check_password_hash(ADMIN_PASSWORD_HASH, password):
-        session["admin_logged_in"] = True
-        return redirect(prefix_url("index"))
-    return render_template("innlogging.html", error="Feil passord"), 401
-
-
-@app.route("/logout")
-def logout():
-    session.pop("admin_logged_in", None)
-    return redirect(prefix_url("login"))
+install_auth(app, get_db, prefix_url)
 
 
 @app.route("/")
@@ -550,6 +535,8 @@ def api_innmelding():
     poststad = (data.get("poststad") or "").strip()
     birth_date = (data.get("birth_date") or "").strip()  # ISO YYYY-MM-DD
     membership_type = (data.get("membership_type") or "vanleg").strip()
+    if membership_type not in {"vanleg", "kul"}:
+        return jsonify({"error": "Ugyldig medlemstype."}), 400
     consent = data.get("consent") is True
 
     if not consent:
@@ -965,6 +952,8 @@ def api_medlemsar_lukk():
 
 def _medlemstype_visning(membership_type: str, *, med_beskrivelse: bool = False) -> str:
     """Returner visningsnamn for medlemstype (vanleg→Kul, kul→Superkul)."""
+    if membership_type == "styret":
+        return "Styret"
     if membership_type == "kul":
         return "Superkul (meir enn 5 kr)" if med_beskrivelse else "Superkul"
     return "Kul (5 kr)" if med_beskrivelse else "Kul"

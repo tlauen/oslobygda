@@ -8,12 +8,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
+<script>
+    const csrfToken = {{ csrf_token() | tojson }};
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = function(input, options = {}) {
+      const target = new URL(input instanceof Request ? input.url : input, location.href);
+      const method = (options.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+      if (target.origin === location.origin && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+        const headers = new Headers(options.headers || (input instanceof Request ? input.headers : undefined));
+        headers.set('X-CSRF-Token', csrfToken);
+        options = {...options, headers};
+      }
+      return originalFetch(input, options);
+    };
+  </script>
 </head>
 <body>
   <div class="omslag">
     <header class="toppfelt">
       <h1>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</h1>
-      <a href="{{ prefix_url('logout') }}">Logg ut</a>
+      <form method="post" action="{{ prefix_url('logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit">Logg ut</button>
+      </form>
     </header>
 
     <div class="medlemsoversikt-panel" id="medlemsoversikt-panel" aria-live="polite">
@@ -109,6 +126,7 @@
           <select id="membership_type">
             <option value="vanleg">Kul</option>
             <option value="kul">Superkul</option>
+            <option value="styret">Styret</option>
           </select>
         </div>
         <div class="felt">
@@ -185,6 +203,7 @@
 
     function medlemstypeVisningsnamn(val) {
       if (!val) return "–";
+      if (val === "styret") return "Styret";
       if (val === "Kul medlem (5kr)" || val === "vanleg") return "Kul";
       if (val === "Superkul medlem (meir enn 5kr)" || val === "kul") return "Superkul";
       return val;
@@ -197,6 +216,7 @@
     }
 
     function medlemstypeTilVerdi(val) {
+      if (val === "Styret") return "styret";
       if (val === "Kul medlem (5kr)") return "vanleg";
       if (val === "Superkul medlem (meir enn 5kr)") return "kul";
       return val || "vanleg";

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Opprett styrekonto – Bygdelista</title>
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}">
+</head>
+<body class="innlogging-kropp">
+<main class="innlogging-boks">
+  <h1>Opprett styrekonto</h1>
+  {% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}
+  {% if stage == 'unavailable' %}
+    <p>Kontoregistrering er ikkje klar enno. Ta kontakt med den som administrerer Bygdelista.</p>
+  {% elif stage == 'email' %}
+    <p>Bruk e-postadressa di i medlemsregisteret. Du må vere registrert med medlemstype «Styret» og ha di eiga e-postadresse.</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="email">Registrert e-postadresse</label>
+      <input id="email" name="email" type="email" autocomplete="email" required maxlength="254">
+      <button type="submit">Send stadfestingskode</button>
+    </form>
+  {% elif stage == 'verify' %}
+    <p>Dersom adressa gir rett til ein ny styrekonto, har du fått ein åttesifra kode på e-post. Koden gjeld i 15 minutt. Hald denne nettlesaren open.</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="email_code">Kode frå e-posten</label>
+      <input id="email_code" name="email_code" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" autocomplete="one-time-code" required>
+      <button type="submit">Stadfest e-post</button>
+    </form>
+    <p><a href="{{ prefix_url('board_register') }}">Start på nytt</a></p>
+  {% elif stage == 'account' %}
+    <p>E-postadressa er stadfesta. Du skal bruke {{ email }} ved innlogging.</p>
+    <p>Opne autentiseringsappen, vel å leggje til ei konto og skann QR-koden:</p>
+    <img src="{{ qr_image }}" alt="QR-kode for å leggje Bygdelista til i autentiseringsappen" style="display:block;width:280px;max-width:100%;height:auto;margin:1rem auto;background:#fff">
+    <p>Skriv deretter koden frå appen i feltet nedanfor.</p>
+    <details>
+      <summary>Får du ikkje skanna? Legg inn nøkkelen manuelt</summary>
+      <p>Konto: Bygdelista / {{ email }}. Vel tidsbasert kode med seks siffer, 30 sekund og SHA-1.</p>
+      <p><code style="overflow-wrap:anywhere">{{ secret }}</code></p>
+    </details>
+    <p>Hald QR-koden og oppsettsnøkkelen private.</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="password">Nytt passord (minst 14 teikn)</label>
+      <input id="password" name="password" type="password" minlength="14" maxlength="1024" autocomplete="new-password" required>
+      <label for="confirmation">Gjenta passordet</label>
+      <input id="confirmation" name="confirmation" type="password" minlength="14" maxlength="1024" autocomplete="new-password" required>
+      <label for="code">Kode frå autentiseringsappen</label>
+      <input id="code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required>
+      <button type="submit">Opprett konto</button>
+    </form>
+  {% elif stage == 'done' %}
+    <p>Kontoen er oppretta. Logg inn med e-postadressa, passordet og ein ny kode frå autentiseringsappen. Vent til koden har skifta.</p>
+  {% endif %}
+  <p><a href="{{ prefix_url('login') }}">Til innlogging</a></p>
+</main>
+</body>
+</html>
