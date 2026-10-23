@@ -1,18 +1,20 @@
 {% assign kalender_feed = '/kalender.ics' | absolute_url %}
 {% assign kalender_webcal = kalender_feed | replace: 'https://', 'webcal://' | replace: 'http://', 'webcal://' %}
-<section class="seksjon{% if include.infoboks %} kalenderabonnement-infoboks{% endif %}" aria-labelledby="kalenderabonnement-tittel">
-  <h2 id="kalenderabonnement-tittel">Få tilskipingane i kalenderen din</h2>
-  <p>Abonner éin gong, så hentar kalenderappen din nye tilskipingar og oppdaterte tidspunkt automatisk.</p>
-  <p><a class="knapp" href="{{ kalender_webcal }}">Abonner på Oslobygda-kalenderen</a></p>
-  <details>
-    <summary>Google Kalender, Outlook eller legg til adressa sjølv</summary>
-    <p>Kopier kalenderadressa:</p>
-    <p><code style="overflow-wrap:anywhere;user-select:all">{{ kalender_feed }}</code></p>
+<details class="kalenderabonnement-infoboks">
+  <summary id="kalenderabonnement-tittel">
+    <span class="kalenderabonnement-infoikon" aria-hidden="true">i</span>
+    <span>Få tilskipingane i kalenderen din</span>
+  </summary>
+  <div class="kalenderabonnement-innhald">
+    <p>Abonner éin gong. Nye tilskipingar og endringar blir henta automatisk.</p>
+    <p><a class="knapp" href="{{ kalender_webcal }}">Abonner på kalenderen</a></p>
+    <p>Du kan òg lime inn denne adressa i kalenderappen:</p>
+    <p><code class="kalenderabonnement-adresse">{{ kalender_feed }}</code></p>
     <ul>
-      <li><strong>Google Kalender:</strong> Opne Google Kalender i nettlesaren på ei datamaskin. Vel + ved «Andre kalendrar», deretter «Frå nettadresse», og lim inn adressa.</li>
-      <li><strong>Apple Kalender:</strong> Bruk abonnementsknappen ovanfor, eller vel «Nytt kalenderabonnement» og lim inn adressa.</li>
-      <li><strong>Outlook:</strong> Vel «Legg til kalender» og «Abonner frå nettet», og lim inn adressa.</li>
+      <li><strong>Google Kalender:</strong> På datamaskin: «Andre kalendrar» → + → «Frå nettadresse».</li>
+      <li><strong>Apple Kalender:</strong> Bruk knappen ovanfor eller «Nytt kalenderabonnement».</li>
+      <li><strong>Outlook:</strong> «Legg til kalender» → «Abonner frå nettet».</li>
     </ul>
-    <p>Vel abonnement frå nettadresse, ikkje import av ei nedlasta fil. Kalenderappen bestemmer kor ofte han hentar oppdateringar; endringar kjem derfor ikkje alltid med ein gong.</p>
-  </details>
-</section>
+    <p class="dempa">Vel abonnement, ikkje filimport. Det kan ta litt tid før endringar blir synlege.</p>
+  </div>
+</details>

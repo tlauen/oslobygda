@@ -6,7 +6,7 @@ permalink: /kalender/
 
 # Kalender
 
-{% include kalenderabonnement.html infoboks=true %}
+{% include kalenderabonnement.html %}
 
 ## Kva du kan glede deg til
 
