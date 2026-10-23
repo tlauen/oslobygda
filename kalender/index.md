@@ -6,6 +6,8 @@ permalink: /kalender/
 
 # Kalender
 
+{% include kalenderabonnement.html %}
+
 ## Kva du kan glede deg til
 
 <div class="seksjon">

@@ -75,3 +75,23 @@ Backup:
 ## Lisens
 
 Sjå [LICENSE](LICENSE).
+
+## Kalenderabonnement
+
+Kalender- og pøbbsida har abonnementsknapp og rettleiing for kalenderappar:
+
+Éin felles straum, `/kalender.ics`, inneheld alle tilskipingar.
+
+Straumen blir bygd av `_tillegg/icalendar.html` frå `_data/kalender.yml` ved publisering.
+Det trengst ingen ny teneste eller server. Kalenderappen hentar oppdateringar på
+sitt eige tidspunkt. Straumen føreslår seks timar, men klienten kan bruke lengre tid.
+
+Behald `uid` når ei hending blir flytta eller endra; elles kan abonnentar få duplikat.
+Ved avlysing: behald hendinga og set `avlyst: true`, slik at ho blir merkt CANCELLED
+i straumen. Ikkje fjern gamle hendingar berre fordi dei har vore; historikken vert
+bevart for abonnentane. `sluttdato` kan nyttast for fleirdagshendingar; sluttklokkeslett
+før startklokkeslett blir elles tolka som neste dag.
+
+`webcal://` opnar kalenderabonnement der appen støttar det. Google Kalender og
+andre appar kan i staden abonnere på den offentlege HTTPS-adressa. Nedlasting og
+import av ei fil gir berre ein eingongskopi, ikkje automatisk oppdatering.

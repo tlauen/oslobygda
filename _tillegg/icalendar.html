@@ -1,0 +1,57 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Oslobygda kulturlag//kalender//NN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Oslobygda kulturlag
+X-WR-TIMEZONE:Europe/Oslo
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Europe/Oslo
+BEGIN:DAYLIGHT
+DTSTART:19700329T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+DTSTART:19701025T030000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+{% assign alle = site.data.kalender | sort: 'dato' -%}
+{% for e in alle -%}
+{% assign dato_ymd = e.dato | date: '%Y%m%d' -%}
+{% assign start_hhmm = e.start | default: '19:00' | remove: ':' -%}
+{% assign slutt_hhmm = e.slutt | default: '22:00' | remove: ':' -%}
+{% assign sluttdato = e.sluttdato | default: e.dato -%}
+{% if e.sluttdato == nil and slutt_hhmm <= start_hhmm -%}
+{% assign neste_dag = e.dato | append: 'T12:00:00Z' | date: '%s' | plus: 86400 -%}
+{% assign sluttdato = neste_dag | date: '%Y-%m-%d' -%}
+{% endif -%}
+{% assign slutt_ymd = sluttdato | date: '%Y%m%d' -%}
+{% capture fallback_uid %}{{ e.dato }}-{{ start_hhmm }}-{{ e.tittel | slugify }}{% endcapture -%}
+BEGIN:VEVENT
+UID:{{ e.uid | default: fallback_uid }}@oslobygda.no
+DTSTAMP:{{ site.time | date: '%Y%m%dT%H%M%SZ' }}
+DTSTART;TZID=Europe/Oslo:{{ dato_ymd }}T{{ start_hhmm }}00
+DTEND;TZID=Europe/Oslo:{{ slutt_ymd }}T{{ slutt_hhmm }}00
+SUMMARY:{{ e.tittel | replace: '\', '\\' | replace: ';', '\;' | replace: ',', '\,' | newline_to_br | replace: '<br />', '\n' | strip_newlines }}
+{% if e.stad -%}
+LOCATION:{{ e.stad | replace: '\', '\\' | replace: ';', '\;' | replace: ',', '\,' | newline_to_br | replace: '<br />', '\n' | strip_newlines }}
+{% endif -%}
+{% if e.merknad -%}
+DESCRIPTION:{{ e.merknad | replace: '\', '\\' | replace: ';', '\;' | replace: ',', '\,' | newline_to_br | replace: '<br />', '\n' | strip_newlines }}
+{% endif -%}
+URL:{{ e.lenkje | default: '/pub/' | absolute_url }}
+{% if e.avlyst -%}
+STATUS:CANCELLED
+{% else -%}
+STATUS:CONFIRMED
+{% endif -%}
+END:VEVENT
+{% endfor -%}
+END:VCALENDAR

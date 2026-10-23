@@ -24,7 +24,7 @@ layouts_dir: _utforming
 sass:
   sass_dir: lutar/stilar
 # Salsvilkår: set først true etter at kontaktopplysningar og vilkår er stadfesta.
-salsvilkar_publiserte: false
+salsvilkar_publiserte: true
 laget:
   organisasjonsnummer: "937 453 612"
   postadresse: "Freserveien 29, 0195 Oslo"

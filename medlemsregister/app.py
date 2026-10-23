@@ -7,6 +7,7 @@ Database kan krypterast med SQLCipher ved å setje MEDLEMSREGISTER_DB_KEY (da ve
 import csv
 import io
 import json
+from decimal import Decimal, InvalidOperation
 from datetime import timedelta
 import os
 import smtplib
@@ -208,6 +209,44 @@ def _get_medlemsbetalingsar(conn) -> int:
     return _default_medlemsbetalingsar()
 
 
+def _nok_to_ore(value, *, allow_zero=False):
+    try:
+        number = Decimal(str(value).strip().replace(',', '.'))
+        if not number.is_finite() or number < (0 if allow_zero else Decimal('0.01')) or number > 1000000000:
+            raise ValueError()
+        ore = number * 100
+        if ore != ore.to_integral_value():
+            raise ValueError()
+        return int(ore)
+    except (InvalidOperation, ValueError, TypeError):
+        raise ValueError('Beløpet må vere eit gyldig kronebeløp med høgst to desimalar.') from None
+
+
+def _get_superkul_grense(conn):
+    row = conn.execute("SELECT value FROM app_settings WHERE key='superkul_grense_ore'").fetchone()
+    return int(row[0]) if row else 500
+
+
+def _oppdater_fra_innbetalingar(conn, mid, *, reset_empty=False):
+    member = conn.execute('SELECT membership_type, payment_status FROM members WHERE id=?', (mid,)).fetchone()
+    if not member:
+        return
+    total = conn.execute('SELECT COALESCE(SUM(amount_ore),0) FROM payments WHERE member_id=? AND for_year=?',
+                         (mid, _get_medlemsbetalingsar(conn))).fetchone()[0]
+    if total <= 0 and not reset_empty:
+        return  # Manuelle statusar som gratis vert bevarte når ingen betaling er registrert.
+    status = 'betalt' if total > 0 else ('gratis' if member['payment_status'] == 'gratis' else 'ikkje betalt')
+    kind = member['membership_type'] if member['membership_type'].strip().lower() == 'styret' else ('kul' if total > _get_superkul_grense(conn) else 'vanleg')
+    if member['payment_status'] != status or member['membership_type'] != kind:
+        conn.execute('UPDATE members SET payment_status=?, membership_type=?, updated_at=? WHERE id=?',
+                     (status, kind, datetime.now(timezone.utc).isoformat(), mid))
+
+
+def _oppdater_alle_fra_innbetalingar(conn):
+    for row in conn.execute('SELECT DISTINCT member_id FROM payments WHERE for_year=?', (_get_medlemsbetalingsar(conn),)).fetchall():
+        _oppdater_fra_innbetalingar(conn, row[0])
+
+
 def _parse_dato_ymd(s: str | None) -> date | None:
     """Parsar dato YYYY-MM-DD (eller ISO med tid), elles None."""
     if s is None:
@@ -303,6 +342,8 @@ def init_db():
                 (str(default_ar),),
             )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_payments_for_year ON payments(for_year)")
+        conn.execute("INSERT OR IGNORE INTO app_settings(key,value) VALUES ('superkul_grense_ore','500')")
+        _oppdater_alle_fra_innbetalingar(conn)
         conn.commit()
 
 
@@ -811,12 +852,9 @@ def member_payments(mid):
         paid_at = (data.get("paid_at") or "").strip()
         note = (data.get("note") or "").strip() or None
         try:
-            amount_nok = float(amount_nok)
-        except (TypeError, ValueError):
-            return jsonify({"error": "Beløp må vere eit tal"}), 400
-        if amount_nok <= 0:
-            return jsonify({"error": "Beløp må vere større enn 0"}), 400
-        amount_ore = int(round(amount_nok * 100))
+            amount_ore = _nok_to_ore(amount_nok)
+        except ValueError as error:
+            return jsonify({"error": str(error)}), 400
         if not paid_at:
             paid_at = datetime.now(timezone.utc).isoformat()
         elif len(paid_at) == 10:
@@ -828,8 +866,42 @@ def member_payments(mid):
                VALUES (?, ?, ?, ?, ?, ?)""",
             (mid, amount_ore, paid_at, note, created_at, ar),
         )
+        _oppdater_fra_innbetalingar(conn, mid)
         conn.commit()
-        return jsonify({"id": cur.lastrowid, "message": "Betaling registrert"}), 201
+        return jsonify({"id": cur.lastrowid, "message": "Betaling registrert. Betalingsstatus og medlemstype er oppdaterte."}), 201
+
+
+@app.route('/api/members/<int:mid>/payments/<int:pid>', methods=['DELETE'])
+@require_admin
+def delete_member_payment(mid, pid):
+    with get_db() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        payment = conn.execute('SELECT for_year FROM payments WHERE id=? AND member_id=?', (pid, mid)).fetchone()
+        if not payment:
+            return jsonify({'error':'Betalinga finst ikkje på denne medlemmen.'}), 404
+        year = _get_medlemsbetalingsar(conn)
+        if payment['for_year'] != year or conn.execute('SELECT 1 FROM medlemsar_arkiv WHERE ar=?', (payment['for_year'],)).fetchone():
+            return jsonify({'error':'Betalingar frå avslutta medlemsår kan ikkje slettast her.'}), 409
+        conn.execute('DELETE FROM payments WHERE id=? AND member_id=?', (pid, mid))
+        _oppdater_fra_innbetalingar(conn, mid, reset_empty=True)
+        conn.commit()
+    return jsonify({'message':'Betalingsregistreringa er sletta. Status og medlemstype er oppdaterte.'})
+
+
+@app.route('/api/innstillingar/kontingent', methods=['GET', 'PUT'])
+@require_admin
+def kontingent_innstillingar():
+    with get_db() as conn:
+        if request.method == 'PUT':
+            data = request.get_json() or {}
+            try:
+                ore = _nok_to_ore(data.get('superkul_grense_nok'), allow_zero=True)
+            except ValueError as error:
+                return jsonify({'error':str(error)}), 400
+            conn.execute("INSERT INTO app_settings(key,value) VALUES ('superkul_grense_ore',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (str(ore),))
+            _oppdater_alle_fra_innbetalingar(conn)
+            conn.commit()
+        return jsonify({'superkul_grense_ore':_get_superkul_grense(conn)})
 
 
 @app.route("/api/okonomi-sammendrag", methods=["GET"])

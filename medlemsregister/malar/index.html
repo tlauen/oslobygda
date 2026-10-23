@@ -39,6 +39,15 @@
         <p class="medlemsoversikt-ingress">Lastar medlemsoversikt …</p>
       </div>
     </div>
+    <details>
+      <summary>Kontingentinnstillingar</summary>
+      <form id="kontingent-innstillingar">
+        <label for="superkul-grense">Grense for Superkul (kr)</label>
+        <input id="superkul-grense" type="number" min="0" step="0.01" required disabled>
+        <p>Meir enn grensa samla i gjeldande medlemsår gir Superkul; opp til grensa gir Kul. Registrert innbetaling gir Betalt. Styret blir ikkje endra automatisk. Endring av grensa oppdaterer også eksisterande innbetalingar for gjeldande år.</p>
+        <button type="submit" id="lagre-kontingent" disabled>Lagre grense</button>
+      </form>
+    </details>
     <p>
       <button type="button" class="btn" id="btn-ny">Legg til medlem</button>
       <button type="button" class="btn sekundaer" id="btn-sync-contacts">Hent nye frå nyhendebrev-lista</button>
@@ -441,6 +450,31 @@
       modal.setAttribute("aria-hidden", "true");
     }
 
+    document.getElementById('betaling-historikk').addEventListener('click', async (event) => {
+      const button = event.target.closest('button[data-slett-betaling]');
+      if (!button) return;
+      const mid = Number(document.getElementById('betaling-medlem-id').value);
+      const pid = Number(button.dataset.slettBetaling);
+      const amount = formatNokFromOre(Number(button.dataset.belop));
+      if (!confirm('Slett registreringa på ' + amount + ' for medlemsår ' + button.dataset.ar + '? Status og medlemstype blir rekna på nytt. Dette refunderer ikkje pengar.')) return;
+      button.disabled = true;
+      const error = document.getElementById('betaling-feil');
+      error.style.display = 'none';
+      try {
+        const r = await fetch(API + '/api/members/' + mid + '/payments/' + pid, {method:'DELETE'});
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || 'Kunne ikkje slette betalinga.');
+        await lastBetalingar(mid);
+        renderListe(await hentMedlemmar());
+        await lastOversikt();
+        setStatus(data.message);
+      } catch (e) {
+        error.textContent = e.message;
+        error.style.display = 'block';
+        button.disabled = false;
+      }
+    });
+
     async function lastBetalingar(id) {
       const hist = document.getElementById("betaling-historikk");
       const sumEl = document.getElementById("betaling-sum");
@@ -473,7 +507,8 @@
             <strong>${(Number(p.amount_ore || 0) / 100).toFixed(2)} kr</strong>
             <span>${p.for_year != null ? escapeHtml(String(p.for_year)) : "–"}</span>
             <span>${escapeHtml(formaterDato(p.paid_at))}</span>
-            <span>${escapeHtml(p.note || "")}</span>
+            <span>${escapeHtml(p.note || "")}<br>
+            ${p.for_year === ar ? `<button type="button" class="btn sekundaer" data-slett-betaling="${Number(p.id)}" data-belop="${Number(p.amount_ore)}" data-ar="${Number(p.for_year)}">Slett</button>` : '<span>Avslutta år</span>'}</span>
           </div>
         `).join("");
       } catch (e) {
@@ -649,6 +684,7 @@
         document.getElementById("betaling-belop").value = "";
         document.getElementById("betaling-notat").value = "";
         await lastBetalingar(id);
+        renderListe(await hentMedlemmar());
         lastOversikt();
       } catch (err) {
         betalingFeil.textContent = err.message;
@@ -706,7 +742,35 @@
       cb.addEventListener("change", brukKolonnefilter);
     });
 
+    async function lastKontingentinnstillingar() {
+      try {
+        const r = await fetch(API + '/api/innstillingar/kontingent');
+        if (!r.ok) throw new Error('Kunne ikkje hente kontingentinnstillingar.');
+        const data = await r.json();
+        document.getElementById('superkul-grense').value = (data.superkul_grense_ore / 100).toFixed(2);
+        document.getElementById('superkul-grense').disabled = false;
+        document.getElementById('lagre-kontingent').disabled = false;
+      } catch (error) { setStatus(error.message, true); }
+    }
+    document.getElementById('kontingent-innstillingar').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = document.getElementById('lagre-kontingent');
+      button.disabled = true;
+      try {
+        const r = await fetch(API + '/api/innstillingar/kontingent', {
+          method: 'PUT', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({superkul_grense_nok: document.getElementById('superkul-grense').value})
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Kunne ikkje lagre grensa.');
+        renderListe(await hentMedlemmar());
+        setStatus('Grensa er lagra og medlemstypane er oppdaterte.');
+      } catch (error) { setStatus(error.message, true); }
+      finally { button.disabled = false; }
+    });
+
     (async () => {
+      lastKontingentinnstillingar();
       lastOversikt();
       const medlemmar = await hentMedlemmar();
       renderListe(medlemmar);

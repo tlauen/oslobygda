@@ -148,3 +148,16 @@ DB-fila inneheld personopplysningar og skal ikkje i Git eller delast ukryptert.
 Du kan la innmeldingsskjemaet vere eit Brevo-skjema (innebygging eller lenke på nettsida).
 
 Då kan Flask-appen vere berre lokalt for styret, og de hentar nye frå nyhendebrevleverandøren i styregrensesnittet når de opnar appen.
+
+## Automatisk status og medlemstype
+
+Registrering av ei innbetaling set **Betalt** automatisk. Summen for gjeldande
+medlemsår avgjer medlemstypen: meir enn grensa gir **Superkul**, elles **Kul**.
+**Styret** vert aldri endra automatisk. Betalingar for andre medlemsår tel ikkje.
+Grensa er som standard 5 kr og kan endrast under **Kontingentinnstillingar** i
+styregrensesnittet. Endringar vert lagra i databasen og gjeld òg eksisterande
+innbetalingar i gjeldande år. Dette endrar ikkje i seg sjølv prisen på den offentlege nettsida.
+
+Ved oppstart vert eksisterande innbetalingar for gjeldande år synkroniserte med
+status og medlemstype. Medlemmar utan innbetalingar får behalde manuelle statusar,
+til dømes **Gratis**. Registrering av ei faktisk betaling set også desse til **Betalt**.
