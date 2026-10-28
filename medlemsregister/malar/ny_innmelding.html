@@ -5,7 +5,7 @@
     <p class="eyebrow">Oslobygda kulturlag</p>
     <h1>Ver med på<br> det som skjer.</h1>
     <p class="intro-text">Folkemusikk, dans og kjekke folk. Bli ein del av Oslobygda!</p>
-    <div class="membership-card"><span class="eyebrow">Medlemskap {{ year }}</span><p class="membership-price">Frå {{ '%.2f'|format(minimum/100)|replace('.',',') }} <span>kr / kalenderår</span></p><p><strong>Kul</strong> for {{ minimum/100 }} kr.<br> <strong>Superkul</strong> når du betalar meir enn {{ '%.2f'|format(threshold/100)|replace('.',',') }} kr.</p></div>
+    <div class="membership-card"><span class="eyebrow">Medlemskap {{ year }}</span><p class="membership-price">Frå {{ '%.2f'|format(minimum/100)|replace('.',',') }} <span>kr / kalenderår</span></p><p><strong>Kul</strong> for {{ ('%d' if minimum % 100 == 0 else '%.2f')|format(minimum/100)|replace('.',',') }} kroner<br> <strong>Superkul</strong> om du betalar meir enn {{ ('%d' if threshold % 100 == 0 else '%.2f')|format(threshold/100)|replace('.',',') }} kroner</p></div>
     <p class="small-note">Allereie medlem? <a href="mailto:folk@oslobygda.no">Kontakt oss</a> om fornying.</p>
   </aside>
   <section class="form-card" aria-labelledby="form-title">
