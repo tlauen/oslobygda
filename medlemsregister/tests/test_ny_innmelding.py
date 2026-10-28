@@ -30,7 +30,7 @@ class SignupTests(unittest.TestCase):
         with closing(module.get_db()) as db: return db.execute('SELECT count(*) FROM '+table).fetchone()[0]
     def test_validation(self):
         self.assertEqual(validate(self.fields())[1],10000)
-        for change in ({'amount':'4.99'},{'amount':'nan'},{'terms':''},{'email':'bad'},{'postnummer':'1'},{'birth_date':'3000-01-01'},{'phone':'bad'}):
+        for change in ({'amount':'5.50'},{'amount':'4.99'},{'amount':'nan'},{'terms':''},{'email':'bad'},{'postnummer':'1'},{'birth_date':'3000-01-01'},{'phone':'bad'}):
             with self.assertRaises(ValueError): validate(self.fields(**change))
     def test_order_idempotence_and_duplicate_email(self):
         ref=self.new();self.assertEqual(self.new(),ref)

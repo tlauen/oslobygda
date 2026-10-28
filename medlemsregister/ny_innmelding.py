@@ -136,6 +136,8 @@ def validate(values, minimum=500):
     if values.get("terms") != "1":
         raise ValueError("Du må godta salsvilkåra før du går vidare.")
     ore = amount_ore(values.get("amount", ""))
+    if ore % 100:
+        raise ValueError("Skriv beløpet i heile kroner.")
     if ore < minimum:
         raise ValueError(f"Medlemskap kostar minst {minimum/100:.2f} kroner.")
     return data, ore
