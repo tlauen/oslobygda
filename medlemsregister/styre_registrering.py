@@ -43,11 +43,11 @@ def mail_ready():
     )
 
 
-def send_code(email, code):
+def send_code(email, code, password_reset=False):
     message = EmailMessage()
     message["From"] = os.environ["STYRE_EPOST_FRA"]
     message["To"] = email
-    message["Subject"] = "Stadfest styrekonto i Bygdelista"
+    message["Subject"] = "Byt passord i Bygdelista" if password_reset else "Stadfest styrekonto i Bygdelista"
     message.set_content(f"""Stadfestingskoden din er: {code}
 
 Gå tilbake til registreringa i Bygdelista og skriv inn koden.
@@ -55,6 +55,8 @@ Koden gjeld i 15 minutt. Han gir ikkje tilgang utan passord og autentiseringsapp
 
 Dersom du ikkje bad om ein konto, kan du sjå bort frå denne e-posten.
 """)
+    if password_reset:
+        message.set_content(f"Stadfestingskoden for passordbyte i Bygdelista er: {code}\n\nKoden gjeld i 15 minutt. Gå tilbake til passordbyte i same nettlesar. Du treng òg autentiseringsappen din.\n\nDersom du ikkje bad om passordbyte, kan du sjå bort frå denne e-posten. Passordet er ikkje endra.")
     port = int(os.environ.get("SMTP_PORT", "587"))
     context = ssl.create_default_context()
     if port == 465:

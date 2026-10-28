@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='autentiseringskode.css') }}">
+  <script src="{{ prefix_url('static', filename='autentiseringskode.js') }}" defer></script>
 </head>
 <body class="innlogging-kropp">
   <main class="innlogging-boks">
@@ -23,9 +25,10 @@
       <label for="password">Passord</label>
       <input type="password" id="password" name="password" required autocomplete="current-password" />
       <label for="code">Kode frå autentiseringsappen</label>
-      <input id="code" name="code" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" />
+      {% include 'autentiseringskode.html' %}
       <button type="submit">Logg inn</button>
     </form>
+    <p><a href="{{ prefix_url('forgot_password') }}">Gløymt passord?</a></p>
     <p><a href="{{ prefix_url('board_register') }}">Opprett styrekonto</a></p>
   </main>
 </body>

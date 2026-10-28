@@ -6,6 +6,8 @@
   <meta name="referrer" content="no-referrer">
   <title>Opprett styrekonto – Bygdelista</title>
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}">
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='autentiseringskode.css') }}">
+  <script src="{{ prefix_url('static', filename='autentiseringskode.js') }}" defer></script>
 </head>
 <body class="innlogging-kropp">
 <main class="innlogging-boks">
@@ -48,7 +50,7 @@
       <label for="confirmation">Gjenta passordet</label>
       <input id="confirmation" name="confirmation" type="password" minlength="14" maxlength="1024" autocomplete="new-password" required>
       <label for="code">Kode frå autentiseringsappen</label>
-      <input id="code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required>
+      {% include 'autentiseringskode.html' %}
       <button type="submit">Opprett konto</button>
     </form>
   {% elif stage == 'done' %}

@@ -24,6 +24,11 @@ def init_auth_db(get_db):
                 session_version TEXT NOT NULL,
                 active INTEGER NOT NULL DEFAULT 1
             );
+            CREATE TABLE IF NOT EXISTS board_password_reset (
+                id TEXT PRIMARY KEY, username TEXT NOT NULL, code_hash TEXT NOT NULL,
+                session_version TEXT NOT NULL, expires INTEGER NOT NULL,
+                attempts INTEGER NOT NULL DEFAULT 0
+            );
             CREATE TABLE IF NOT EXISTS login_limits (
                 bucket TEXT PRIMARY KEY,
                 attempts INTEGER NOT NULL,
@@ -179,6 +184,8 @@ def install_auth(app, get_db, prefix_url):
         return redirect(prefix_url("login"))
 
     install_registration(app, get_db, prefix_url)
+    from passord_reset import install_password_reset
+    install_password_reset(app, get_db, prefix_url)
 
     @app.cli.command("styrekonto")
     @click.argument("username")

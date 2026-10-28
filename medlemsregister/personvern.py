@@ -44,6 +44,7 @@ def erase_member(db, mid):
                 "INSERT OR IGNORE INTO privacy_jobs(email,created_at) VALUES (?,?)",
                 (address, time.time()),
             )
+    db.execute("DELETE FROM board_password_reset WHERE username=? OR username IN (SELECT username FROM board_users WHERE member_id=?)", (email, mid))
     db.execute("DELETE FROM board_users WHERE member_id=? OR username=?", (mid, email))
     db.execute(
         "DELETE FROM board_enrollment WHERE member_id=? OR lower(trim(email))=?",

@@ -64,7 +64,16 @@ Vent til neste kode før første innlogging.
 Gjenta for kvar person. Brukarnamn skil ikkje mellom store og små bokstavar.
 Passord og autentiseringsnøkkel bør oppbevarast separat.
 
-## Mista telefon eller gløymt passord
+## Gløymt passord
+
+Vel **Gløymt passord?** på innloggingssida. Skriv den registrerte e-postadressa,
+og bruk koden frå e-posten saman med den eksisterande autentiseringsappen til
+å velje eit nytt passord på minst 14 teikn. E-postkoden gjeld i 15 minutt og
+tillet fem forsøk. Autentiseringsappen skal ikkje setjast opp på nytt.
+Gamle innloggingar vert avslutta. Kontoar utan e-postadresse som brukarnamn
+må få hjelp frå ein administrator.
+
+## Mista telefon eller tilgang til e-post
 
 Ein serveradministrator stadfestar identiteten til personen og køyrer:
 
@@ -73,8 +82,7 @@ python -m flask --app app styrekonto torbjorn --nullstill
 ```
 
 Dette krev nytt passord og ny autentiseringsnøkkel med stadfestingskode,
-og avsluttar alle gamle innloggingar. Det finst ikkje ei offentleg omgåing
-eller sjølvbetent gjenoppretting. Sørg for at laget beheld tilgang til
+og avsluttar alle gamle innloggingar. Sjølvbetent passordbyte kan ikkje erstatte ein mista autentiseringsapp. Sørg for at laget beheld tilgang til
 PythonAnywhere-kontoen, også når styret skiftar.
 
 ## Fjern styretilgang

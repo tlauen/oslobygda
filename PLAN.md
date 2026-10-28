@@ -24,3 +24,5 @@
 - Bygdelista er oppdatert på PythonAnywhere. Produksjonsprøve er tilgjengeleg for innlogga styremedlemmar; offentleg innmelding ventar på betalingsprøva.
 - Offentleg nettside er klar lokalt, men ikkje committa eller pusha.
 - Lesekontroll av produksjon viste fungerande innlogging og felles CSS, og ingen ventande Brevo-kontaktar eller slettingar. Ingen produksjonssynkronisering vart starta manuelt.
+
+- [x] Sjølvbetent «Gløymt passord?» med e-postkode og eksisterande TOTP; avsluttar gamle innloggingar. Utrulla og skjema kontrollert på PythonAnywhere. 77 Python-testar bestått. Ingen passord er endra eller e-post send under utrullinga.

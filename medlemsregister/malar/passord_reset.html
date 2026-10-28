@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Byt passord – Bygdelista</title>
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}">
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='autentiseringskode.css') }}">
+  <script src="{{ prefix_url('static', filename='autentiseringskode.js') }}" defer></script>
+</head>
+<body class="innlogging-kropp">
+<main class="innlogging-boks">
+  <h1>Byt passord</h1>
+  {% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}
+  {% if stage == 'unavailable' %}
+    <p>Passordbyte er ikkje tilgjengeleg akkurat no. Ta kontakt med den som administrerer Bygdelista.</p>
+  {% elif stage == 'email' %}
+    <p>Du treng den registrerte e-postadressa og autentiseringsappen din. Appen skal ikkje setjast opp på nytt.</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="email">Registrert e-postadresse</label>
+      <input id="email" name="email" type="email" autocomplete="username" maxlength="100" required>
+      <button type="submit">Send stadfestingskode</button>
+    </form>
+  {% elif stage == 'reset' %}
+    <p>Dersom adressa høyrer til ein aktiv styrekonto, får du ein åttesifra kode på e-post. Koden gjeld i 15 minutt. Bruk denne nettlesaren vidare.</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="email_code">Åttesifra kode frå e-posten</label>
+      <input id="email_code" name="email_code" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" autocomplete="one-time-code" required>
+      <label for="code">Sekssifra kode frå autentiseringsappen</label>
+      {% include 'autentiseringskode.html' %}
+      <label for="password">Nytt passord (minst 14 teikn)</label>
+      <input id="password" name="password" type="password" minlength="14" maxlength="1024" autocomplete="new-password" required>
+      <label for="confirmation">Gjenta nytt passord</label>
+      <input id="confirmation" name="confirmation" type="password" minlength="14" maxlength="1024" autocomplete="new-password" required>
+      <button type="submit">Lagre nytt passord</button>
+    </form>
+    <p><a href="{{ prefix_url('forgot_password') }}">Send ny kode</a></p>
+  {% elif stage == 'done' %}
+    <p>Passordet er endra. Gamle innloggingar er avslutta. Bruk den same autentiseringsappen, og vent til neste kode før du loggar inn.</p>
+  {% endif %}
+  <p>Har du mista tilgangen til autentiseringsappen eller e-posten? Ta kontakt med den som administrerer Bygdelista.</p>
+  <p><a href="{{ prefix_url('login') }}">Til innlogging</a></p>
+</main>
+</body>
+</html>
