@@ -14,7 +14,13 @@ betalingar og nyhendebrev. Spørsmål, innsyn, retting og sletting kan rettast t
 Innmeldinga blir handsama i Bygdelista på `bygdelista.oslobygda.no`. Der lagrar
 me kontaktopplysningane du gir, medlemsår, samtykke til vilkår og betalingsstatus.
 Vipps handsamar sjølve betalinga. Me lagrar betalingsreferanse og beløp, ikkje
-kortopplysningar eller BankID-data.
+kortopplysningar eller BankID-data. Når betalaren samtykkjer i Vipps, lagrar me
+namn og telefonnummer frå Vipps som eigne betalaropplysningar for oppfølging
+og eventuell refusjon. Dei kan gjelde ein annan person enn medlemmen.
+
+Etter stadfesta innmelding sender me ein stadfestingsmail via Brevo SMTP til
+e-postadressa i skjemaet. Dette er ei tenestemelding og krev ikkje påmelding
+til nyhendebrevet.
 
 Ved sletting blir medlemsopplysningane og persondata i innmeldingsordrar fjerna.
 Bokførte beløp og betalingsreferansar blir bevarte utan medlemsidentitet for

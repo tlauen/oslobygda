@@ -52,7 +52,7 @@ def erase_member(db, mid):
     )
     for order in orders:
         db.execute(
-            "UPDATE signup_orders SET details='{}',email='',browser_key='',consent_at='',status='redacted',newsletter=0,newsletter_done=1,member_id=NULL,lease_token=NULL,lease_until=0,problem='' WHERE reference=?",
+            "UPDATE signup_orders SET payer_name='',payer_phone='',confirmation_status='skipped',details='{}',email='',browser_key='',consent_at='',status='redacted',newsletter=0,newsletter_done=1,member_id=NULL,lease_token=NULL,lease_until=0,problem='' WHERE reference=?",
             (order["reference"],),
         )
     if db.execute("SELECT 1 FROM payments WHERE member_id=?", (mid,)).fetchone():

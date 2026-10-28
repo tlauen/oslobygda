@@ -1246,6 +1246,7 @@ def _privacy_maintenance():
     return process_privacy_jobs(get_db, _delete_brevo_contact)
 
 
+from innmelding_epost import send_confirmation
 from ny_innmelding import install_signup
 
 install_signup(
@@ -1256,6 +1257,7 @@ install_signup(
     _signup_newsletter,
     require_admin,
     _privacy_maintenance,
+    confirmation=send_confirmation,
 )
 app.config["MAX_CONTENT_LENGTH"] = 65536
 

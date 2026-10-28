@@ -137,6 +137,7 @@ class VippsClient:
         return self._authenticated('POST','/epayment/v1/payments',{
             'amount':{'currency':'NOK','value':ore},'paymentMethod':{'type':'WALLET'},
             'reference':reference,'userFlow':'WEB_REDIRECT','returnUrl':return_url,
+            'profile':{'scope':'name phoneNumber'},
             'paymentDescription':'Medlemskontingent Oslobygda kulturlag'},idempotency_key)
 
     def get(self, reference):

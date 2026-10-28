@@ -17,6 +17,7 @@ from urllib.parse import urlsplit
 from dotenv import dotenv_values, set_key
 from flask import abort, redirect, render_template, request, session
 from vipps_client import VippsClient, VippsError, amount_ore
+from epost import DeliveryUncertain
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS signup_orders (
@@ -48,6 +49,14 @@ FIELDS = {
 def init_signup(get_db):
     with closing(get_db()) as db:
         db.executescript(SCHEMA)
+        columns = {row[1] for row in db.execute("PRAGMA table_info(signup_orders)")}
+        for name, definition in (
+            ('payer_name', "TEXT NOT NULL DEFAULT ''"),
+            ('payer_phone', "TEXT NOT NULL DEFAULT ''"),
+            ('confirmation_status', "TEXT NOT NULL DEFAULT 'skipped'"),
+        ):
+            if name not in columns:
+                db.execute(f"ALTER TABLE signup_orders ADD COLUMN {name} {definition}")
         db.commit()
 
 
@@ -125,11 +134,12 @@ def validate(values):
 
 
 class SignupService:
-    def __init__(self, get_db, get_year, get_threshold, newsletter):
+    def __init__(self, get_db, get_year, get_threshold, newsletter, confirmation=lambda order: False):
         self.db = get_db
         self.get_year = get_year
         self.get_threshold = get_threshold
         self.newsletter = newsletter
+        self.confirmation = confirmation
 
     def order(self, reference):
         with closing(self.db()) as db:
@@ -180,8 +190,8 @@ class SignupService:
                 )
             ref = "ny-" + secrets.token_hex(16)
             db.execute(
-                """INSERT INTO signup_orders(reference,browser_key,email,details,amount_ore,for_year,environment,msn,create_key,capture_key,newsletter,created_at,consent_at)
-                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                """INSERT INTO signup_orders(reference,browser_key,email,details,amount_ore,for_year,environment,msn,create_key,capture_key,newsletter,created_at,consent_at,confirmation_status)
+                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     ref,
                     browser_key,
@@ -196,6 +206,7 @@ class SignupService:
                     int(values.get("newsletter") == "1"),
                     now,
                     stamp,
+                    "pending" if environment == "production" else "skipped",
                 ),
             )
             db.commit()
@@ -282,7 +293,7 @@ class SignupService:
                 and result["aggregate"]["refundedAmount"]["value"] == 0
                 and result["aggregate"]["cancelledAmount"]["value"] == 0
             ):
-                self.finalize(reference, lease)
+                self.finalize(reference, lease, result.get("userDetails"))
             else:
                 unusual = any(
                     result["aggregate"][k]["value"]
@@ -350,7 +361,7 @@ class SignupService:
             ):
                 raise VippsError("Ugyldig betalingsbeløp.")
 
-    def finalize(self, reference, lease):
+    def finalize(self, reference, lease, user_details=None):
         with closing(self.db()) as db:
             db.execute("BEGIN IMMEDIATE")
             order = dict(
@@ -377,6 +388,13 @@ class SignupService:
                 )
                 db.commit()
                 return
+            profile = user_details if isinstance(user_details, dict) else {}
+            def clean_profile(key, maximum):
+                value = profile.get(key, '')
+                return value.strip() if isinstance(value, str) and len(value) <= maximum and not any(ord(c) < 32 for c in value) else ''
+            payer_name = ' '.join(filter(None, (clean_profile('firstName', 200), clean_profile('lastName', 200))))
+            payer_phone = clean_profile('mobileNumber', 30)
+            db.execute("UPDATE signup_orders SET payer_name=?,payer_phone=? WHERE reference=?", (payer_name, payer_phone, reference))
             stamp = datetime.now(timezone.utc).isoformat()
             kind = "kul" if order["amount_ore"] > self.get_threshold(db) else "vanleg"
             mid = db.execute(
@@ -414,6 +432,29 @@ class SignupService:
                 (mid, pid, reference),
             )
             db.commit()
+
+    def send_confirmation(self, reference):
+        # Atomisk krav hindrar parallelle webhook/status-jobbar i å sende dobbelt.
+        with closing(self.db()) as db:
+            claimed = db.execute("UPDATE signup_orders SET confirmation_status='sending' WHERE reference=? AND environment='production' AND status='complete' AND confirmation_status='pending'", (reference,))
+            db.commit()
+            if claimed.rowcount != 1:
+                return False
+        order = self.order(reference)
+        state = 'pending'
+        try:
+            if self.confirmation(order):
+                state = 'sent'
+        except DeliveryUncertain:
+            state = 'review'
+        except Exception:
+            # Avvist SMTP eller feil før sending: reservejobben kan prøve igjen.
+            state = 'pending'
+        finally:
+            with closing(self.db()) as db:
+                db.execute("UPDATE signup_orders SET confirmation_status=? WHERE reference=? AND confirmation_status='sending'", (state, reference))
+                db.commit()
+        return state == 'sent'
 
     def sync_newsletter(self, reference):
         order = self.order(reference)
@@ -473,11 +514,13 @@ def install_signup(
     newsletter,
     require_admin,
     privacy_maintenance=lambda: 0,
+    confirmation=lambda order: False,
 ):
-    service = SignupService(get_db, get_year, get_threshold, newsletter)
+    service = SignupService(get_db, get_year, get_threshold, newsletter, confirmation)
     app.extensions["signup_service"] = service
 
     def sync_newsletter_safely(reference):
+        service.send_confirmation(reference)
         # Brevo er uavhengig av bokføringa. Feil blir liggjande i den varige køen.
         try:
             return service.sync_newsletter(reference)
@@ -604,7 +647,7 @@ def install_signup(
             orders = [
                 dict(row)
                 for row in db.execute(
-                    "SELECT reference,email,amount_ore,for_year,status,problem,newsletter,newsletter_done,environment FROM signup_orders ORDER BY created_at DESC LIMIT 100"
+                    "SELECT reference,email,amount_ore,for_year,status,problem,newsletter,newsletter_done,environment,payer_name,payer_phone,confirmation_status FROM signup_orders ORDER BY created_at DESC LIMIT 100"
                 )
             ]
         return render_template("innmeldingar.html", orders=orders)
@@ -713,6 +756,10 @@ def install_signup(
                     "SELECT reference FROM signup_orders WHERE environment='production' AND status='complete' AND newsletter=1 AND newsletter_done=0 LIMIT 100"
                 )
             ]
+        with closing(get_db()) as db:
+            confirmations = [row[0] for row in db.execute("SELECT reference FROM signup_orders WHERE environment='production' AND status='complete' AND confirmation_status='pending' LIMIT 100")]
+        for ref in confirmations:
+            service.send_confirmation(ref)
         privacy_done = privacy_maintenance()
         problems = 0
         for ref in refs:

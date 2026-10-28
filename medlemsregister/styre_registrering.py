@@ -5,10 +5,9 @@ import hmac
 import os
 import re
 import secrets
-import smtplib
-import ssl
 import time
 from email.message import EmailMessage
+from epost import send_message
 
 from database import managed_db
 
@@ -57,19 +56,7 @@ Dersom du ikkje bad om ein konto, kan du sjå bort frå denne e-posten.
 """)
     if password_reset:
         message.set_content(f"Stadfestingskoden for passordbyte i Bygdelista er: {code}\n\nKoden gjeld i 15 minutt. Gå tilbake til passordbyte i same nettlesar. Du treng òg autentiseringsappen din.\n\nDersom du ikkje bad om passordbyte, kan du sjå bort frå denne e-posten. Passordet er ikkje endra.")
-    port = int(os.environ.get("SMTP_PORT", "587"))
-    context = ssl.create_default_context()
-    if port == 465:
-        smtp = smtplib.SMTP_SSL(
-            os.environ["SMTP_HOST"], port, context=context, timeout=15
-        )
-    else:
-        smtp = smtplib.SMTP(os.environ["SMTP_HOST"], port, timeout=15)
-    with smtp:
-        if port != 465:
-            smtp.starttls(context=context)
-        smtp.login(os.environ["SMTP_USER"], os.environ["SMTP_PASSWORD"])
-        smtp.send_message(message)
+    send_message(message)
 
 
 def render_account(row, error=None):
