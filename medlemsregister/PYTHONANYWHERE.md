@@ -56,6 +56,14 @@ Du kan sjå om det er kode å oppdatere utan å endre den aktive appen:
 python3 /home/oslobygda/oppdater-bygdelista.py --dry-run
 ```
 
+Når oppdateringsskriptet sjølv er endra (til dømes for å ta med felles
+header-CSS), oppdater serverkopien etter første køyring og køyr på nytt før Reload:
+
+```bash
+cp /home/oslobygda/oslobygda-kjelde/skript/oppdater_bygdelista.py /home/oslobygda/oppdater-bygdelista.py
+python3 /home/oslobygda/oppdater-bygdelista.py
+```
+
 Ved endringar i `requirements-common.txt` eller `requirements-pythonanywhere.txt`,
 køyr òg før Reload:
 

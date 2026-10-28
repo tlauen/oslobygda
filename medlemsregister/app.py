@@ -87,6 +87,11 @@ app.jinja_loader = ChoiceLoader(
 )
 
 
+@app.get("/felles/topp.css")
+def shared_header_css():
+    return send_from_directory(APP_DIR.parent / "lutar", "topp.css")
+
+
 @app.get("/felles/kolofon.css")
 def shared_footer_css():
     return send_from_directory(APP_DIR.parent / "lutar", "kolofon.css")
@@ -101,6 +106,7 @@ def site_navigation():
         "site_nav": [
             dict(
                 label=item["label"],
+                membership=item["path"] == "/bli-medlem/",
                 url=prefix_url("new_signup")
                 if item["path"] == "/bli-medlem/"
                 else "https://oslobygda.no" + item["path"],

@@ -10,13 +10,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ prefix_url('static',filename='innmelding.css') }}?v=20261028-4">
+  <link rel="stylesheet" href="{{ prefix_url('shared_header_css') }}?v=20261028-1">
   <link rel="stylesheet" href="{{ prefix_url('shared_footer_css') }}?v=20261028-3">
 </head>
 <body>
 <a class="skip-link" href="#innhald">Hopp til innhald</a>
-<header class="site-header"><div class="site-bar">
-  <a class="brand" href="https://oslobygda.no/" aria-label="Oslobygda kulturlag – framsida"><img src="https://oslobygda.no/lutar/bilete/logo_oslobygda.svg" alt="Oslobygda kulturlag" width="152" height="56"></a>
-  <nav class="desktop-nav" aria-label="Hovudmeny">{% for item in site_nav %}<a href="{{ item.url }}"{% if item.current %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav>
+<header class="toppfelt"><div class="toppfelt-innhald">
+  <nav class="nettstad-meny" aria-label="Hovudmeny">
+  <a class="nettstad-logo" href="https://oslobygda.no/" aria-label="Oslobygda kulturlag – framsida"><img src="https://oslobygda.no/lutar/bilete/logo_oslobygda.svg" alt="Oslobygda kulturlag" width="152" height="56"></a>
+  <div class="nettstad-lenkjer">{% for item in site_nav %}<a href="{{ item.url }}"{% if item.membership %} class="nettstad-medlem"{% endif %}{% if item.current %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</div></nav>
 </div></header>
 <main id="innhald" class="page-wrap">
   {% if environment=='test' %}<div class="test-notice" role="status"><strong>Testversjon</strong><span>Bruk Vipps-testappen. Ingen ekte betaling, medlemsregistrering eller overføring til Brevo.</span></div>{% endif %}

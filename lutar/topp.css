@@ -1,0 +1,22 @@
+/* Felles header for Jekyll og Flask. Alle mål inkluderer padding. */
+.toppfelt, .toppfelt * { box-sizing: border-box; }
+.toppfelt { color: #12110e; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.toppfelt-innhald { margin: 0 auto; }
+.toppfelt{border-bottom:1px solid rgba(18,17,14,.12);background:#fcf9f3}
+.toppfelt-innhald{max-width:1180px;padding:14px 32px;min-height:88px;display:flex;align-items:center}
+.nettstad-meny{display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%}
+.nettstad-logo{display:flex;flex-shrink:0}.nettstad-logo img{object-fit:contain}
+.nettstad-lenkjer{display:flex;align-items:center;gap:25px}
+.nettstad-lenkjer a{font-size:14px;font-weight:600;text-decoration:none;text-underline-offset:.2em}
+.nettstad-lenkjer a:hover{text-decoration:underline}
+.nettstad-lenkjer .nettstad-medlem{padding:10px 17px;border:1px solid #8bb8cb;background:#e4f0f4;border-radius:100px}
+.nettstad-lenkjer [aria-current]{text-decoration:underline}
+.nettstad-meny a:focus-visible{outline:3px solid #206582;outline-offset:4px}
+@media(max-width:1000px){.nettstad-lenkjer{gap:15px}.nettstad-lenkjer a{font-size:12px}}
+@media(max-width:760px){
+ .toppfelt-innhald{padding:12px 20px;min-height:72px}
+ .nettstad-meny{flex-direction:column;gap:10px}.nettstad-logo img{width:122px;height:45px}
+ .nettstad-lenkjer{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+ .nettstad-lenkjer a,.nettstad-lenkjer .nettstad-medlem{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px;border:1px solid rgba(18,17,14,.12);border-radius:8px;background:rgba(255,255,255,.72);font-size:13px;text-align:center}
+ .nettstad-lenkjer .nettstad-medlem{background:#e4f0f4;border-color:#8bb8cb}
+}

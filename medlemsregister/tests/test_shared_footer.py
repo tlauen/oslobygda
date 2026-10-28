@@ -4,6 +4,12 @@ import app as module
 
 
 class SharedFooterTests(unittest.TestCase):
+    def test_header_css_reads_canonical_source(self):
+        response = module.app.test_client().get('/felles/topp.css')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, (Path(module.APP_DIR).parent/'lutar/topp.css').read_bytes())
+        response.close()
+
     def test_css_reads_canonical_source(self):
         response=module.app.test_client().get('/felles/kolofon.css')
         self.assertEqual(response.status_code,200)
