@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</title>
+  <title>Logg inn – Bygdelista</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
@@ -13,20 +13,20 @@
 </head>
 <body class="innlogging-kropp">
   <main class="innlogging-boks">
-    <h1>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</h1>
-    <p class="ingress">Logg inn for å opne lista.</p>
+    <h1>Logg inn i Bygdelista</h1>
+    <p class="ingress">Medlemsregisteret for Oslobygda kulturlag.</p>
     {% if error %}
     <p class="feil">{{ error }}</p>
     {% endif %}
-    <form method="post" action="{{ prefix_url('login') }}">
+    <form id="login-form" name="login" aria-label="Logg inn" method="post" action="{{ prefix_url('login') }}" autocomplete="on">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <label for="username">E-post eller brukarnamn</label>
-      <input id="username" name="username" required autocomplete="username" maxlength="100" />
+      <input type="text" id="username" name="username" required autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="100" />
       <label for="password">Passord</label>
       <input type="password" id="password" name="password" required autocomplete="current-password" />
       <label for="code">Kode frå autentiseringsappen</label>
       {% include 'autentiseringskode.html' %}
-      <button type="submit">Logg inn</button>
+      <button type="submit" name="login">Logg inn</button>
     </form>
     <p><a href="{{ prefix_url('forgot_password') }}">Gløymt passord?</a></p>
     <p><a href="{{ prefix_url('board_register') }}">Opprett styrekonto</a></p>

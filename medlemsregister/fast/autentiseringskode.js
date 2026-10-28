@@ -14,7 +14,10 @@
       field.type = 'text';
       field.id = `${original.id}-digit-${i + 1}`;
       field.inputMode = 'numeric';
-      field.autocomplete = i === 0 ? 'one-time-code' : 'off';
+      field.name = `otp-digit-${i + 1}`;
+      field.autocomplete = 'one-time-code';
+      // Seks teikn tillèt full kode frå autofyll før ho blir fordelt.
+      field.maxLength = 6;
       field.pattern = '[0-9]';
       field.required = true;
       field.setAttribute('aria-label', `Siffer ${i + 1} av 6`);
