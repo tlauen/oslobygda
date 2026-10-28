@@ -7,13 +7,12 @@
 .nettstad-lenkjer a:hover{text-decoration:underline}
 .nettstad-lenkjer .nettstad-medlem{padding:10px 17px;border:1px solid #8bb8cb;background:#e4f0f4;border-radius:100px}
 .nettstad-lenkjer [aria-current]{text-decoration:underline}
-.nettstad-mobil{display:none}
-.nettstad-meny a:focus-visible,.nettstad-mobil summary:focus-visible{outline:3px solid #206582;outline-offset:4px}
+.nettstad-meny a:focus-visible{outline:3px solid #206582;outline-offset:4px}
 @media(max-width:1000px){.nettstad-lenkjer{gap:15px}.nettstad-lenkjer a{font-size:12px}}
 @media(max-width:760px){
- .toppfelt-innhald{min-height:72px;padding:10px 20px}
- .nettstad-logo img{width:122px;height:45px}.nettstad-lenkjer{display:none}
- .nettstad-mobil{display:block;font-size:14px}.nettstad-mobil summary{cursor:pointer;min-height:44px;padding:12px 0 10px 18px}
- .nettstad-mobil>div{position:absolute;left:0;right:0;top:100%;padding:12px 20px 20px;background:var(--bg);border-bottom:1px solid var(--line);box-shadow:0 12px 20px #12110e0a}
- .nettstad-mobil a{display:block;padding:10px;text-decoration:none}.nettstad-mobil [aria-current]{background:#e4f0f4;border-radius:6px}
+ .toppfelt-innhald{padding:12px 20px;min-height:72px}
+ .nettstad-meny{flex-direction:column;gap:10px}.nettstad-logo img{width:122px;height:45px}
+ .nettstad-lenkjer{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+ .nettstad-lenkjer a,.nettstad-lenkjer .nettstad-medlem{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:13px;text-align:center}
+ .nettstad-lenkjer .nettstad-medlem{background:#e4f0f4;border-color:#8bb8cb}
 }

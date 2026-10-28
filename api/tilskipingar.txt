@@ -14,7 +14,7 @@ Komande tilskipingar:
 {%- for e in alle -%}
   {%- if vist >= max -%}{%- break -%}{%- endif -%}
   {%- assign es = e.dato | append: " 12:00:00 +0100" | date: "%s" -%}
-  {%- if es >= no -%}
+  {%- if es >= no and e.avlyst != true -%}
     {%- assign vist = vist | plus: 1 -%}
     {%- assign dag = e.dato | date: "%-d" -%}
     {%- assign aar = e.dato | date: "%Y" -%}

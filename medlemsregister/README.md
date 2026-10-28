@@ -1,163 +1,77 @@
-# Bygdelista (medlemsregister for Oslobygda)
+# Bygdelista
 
-Bygdelista er eit enkelt, GDPR-orientert medlemsregister (Flask-app) som styret typisk køyrer **lokalt**.
+Flask-app for medlemsregisteret på `https://bygdelista.oslobygda.no`.
+Den offentlege nettsida blir bygd separat med Jekyll, men menydata og footer
+har éi felles kjelde i repoet.
 
-Appen har:
+## Funksjonar
 
-- **Styremodus (styregrensesnitt)**: legg til/endre medlemmar, handter betalingsstatus og GDPR-funksjonar (eksport/sletting)
-- **Offentleg innmelding**: skjema på `/innmelding` som registrerer/oppdaterer medlem og sender innmelding vidare (enten via SMTP og/eller Brevo)
+- Personlege styrekontoar med passord, TOTP og e-poststadfesting.
+- Medlemsliste, innbetalingar, medlemsår, eksport og personvernhandtering.
+- Nye medlemmar på `/bli-medlem`: Vipps, stadfesta trekk og valfritt nyhendebrev.
+- Innmeldingsoversikt for styret på `/innmeldingar`.
+- Oppretting og redigering av komande tilskipingar på `/tilskipingar`.
 
-## Kva roller ser du?
+Gamle `/innmelding` sender vidare til det nye skjemaet. POST `/api/innmelding`
+er avvikla (410) og har ingen e-post- eller kontakt-sideeffektar.
 
-- **Offentlege brukarar** fyller innmeldingsskjemaet
-- **Styret** loggar inn og vedlikeheld medlemslista
+## Lokalt miljø
 
-## Starte appen (lokal køyring)
-
-For planlagt drift på `bygdelista.oslobygda.no`, sjå
-[PythonAnywhere EU-oppsettet](PYTHONANYWHERE.md).
-
-1. **Python 3.9+** – sjekk med `python3 --version`.
-2. Installer avhengnader:
-
-```bash
-cd medlemsregister
-pip install -r requirements.txt
-```
-
-3. Start:
+Bruk Python 3.10 eller nyare og eit eige virtuelt miljø. Felles avhengnader:
 
 ```bash
-python3 app.py
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-common.txt
+python app.py
 ```
 
-Viss du har ei `.env`-fil i `medlemsregister/`, vert ho lasta automatisk (via `python-dotenv`, som ligg i `requirements.txt`).
+Dette startar lokalt på `127.0.0.1:5001`. For ein eksisterande SQLCipher-database,
+installer `requirements.txt` og libsqlcipher. Appen nektar å opne databasen dersom
+krypteringsnøkkel er sett utan driver, og migrerer ikkje automatisk frå ukryptert
+SQLite. Ta backup og migrer alle tabellane særskilt ved behov.
 
-4. Opne:
-
-- **Bygdelista (styret):** `http://127.0.0.1:5001/`
-- **Innmeldingsskjema (offentleg):** `http://127.0.0.1:5001/innmelding`
-
-Ved første køyring blir `medlemsregister.db` oppretta (i same mappe, ikkje i Git).
-
-## Miljøvariablar
-
-Du set miljøvariablane anten:
-
-- i same terminal-vindu som du startar `python3 app.py` frå, eller
-- via `medlemsregister/.env` (anbefalt lokalt)
-
-Hugs: `.env` inneheld hemmelege verdiar og skal ikkje committast.
-
-## Kva miljøvariablar styrer
-
-### Passord og økt (styregrensesnitt)
-
-- Personlege styrekontoar brukar passord og TOTP-kode frå autentiseringsapp.
-  Medlemstype **Styret** gir høve til kontoregistrering etter stadfesting på e-post.
-  `STYRE_EPOST_FRA` og SMTP-innstillingane må vere sette for dette.
-  Sjå [STYREKONTOAR.md](STYREKONTOAR.md) for oppretting, sperring og nullstilling.
-  Det gamle fellespassordet (`MEDLEMSREGISTER_PASSWORD_HASH`) er ikkje lenger i bruk.
-- `MEDLEMSREGISTER_SECRET_KEY`: lang, tilfeldig streng for økthandtering (set ved driftsetjing; ikkje bruk appen opent på nett utan)
-- `BACKUP_DIR`: mappe for backup (brukast av `backup.sh`)
-- `MEDLEMSREGISTER_DB_KEY` (valfritt): krypter `medlemsregister.db` på disk med SQLCipher
-  - Krev `sqlcipher3` i Python og `libsqlcipher` på systemet
-  - Utan key blir DB-fila ukryptert (men appen set filrettar til berre eigar)
-
-### Medlemsbetalingsår (kontingent)
-
-- Sjekkliste når eit år avsluttes og neste byr (backup, knappen «Lukk medlemsår»): **[HUSK_MEDLEMSAR.md](HUSK_MEDLEMSAR.md)** i denne mappa.
-
-- `MEDLEMSBETALING_AR` (valfritt): heiltal, t.d. `2026` – føresetnad for nye innbetalingar før databasen har fått eiga innstilling, og for eldre rader som migrerer inn utan år.
-- I styregrensesnittet, panel **Medlemsoversikt** (innlogga oversikt / **/**): viser **aldersfordeling** (0–25 og 26+ år, og tal utan fødselsdato), **samla innbetalt** for **gjeldande** medlemsår og låsbar **arkiv**-oversikt for tidlegare år.
-- Knappen **Lukk medlemsår …** lagrar eit sammendrag (sum og tal) for året, set neste medlemsår, og set alle betalingsstatusar til «ikkje betalt» (unntak: medlemmar med status «gratis»). Einskilde innbetalingar vert **ikkje** sletta; dei ligg med medlemsår i databasen.
-
-### Innmeldingsskjema: e-post til styret (SMTP)
-
-Brukast når du vil sende e-post ved innmelding:
-
-- `INNMELDING_EPOST_TIL` (standard: `folk@oslobygda.no`)
-- `INNMELDING_EPOST_FRA` (valfritt)
-- `SMTP_HOST` (t.d. `smtp.gmail.com`, `smtp.office365.com`)
-- `SMTP_PORT` (vanlegvis `587`)
-- `SMTP_USER`
-- `SMTP_PASSWORD`
-
-Om SMTP ikkje er sett, blir ikkje e-post sendt (men nyhendebrevleverandør kan framleis brukast).
-
-### Innmeldingsskjema og sync: Brevo (standard)
-
-- `NEWSLETTER_PROVIDER` (`brevo` eller `mailerlite`, standard `brevo`)
-- `BREVO_API_KEY`
-- `BREVO_LIST_ID` (standard liste for nyhendebrev / kontaktar)
-- `BREVO_INNMELDING_LIST_ID` (valfri eigen liste for innmeldingsskjema)
-- `BREVO_MEDLEMMAR_LIST_ID` (valfri liste brukt ved import til Bygdelista)
-
-### Alternativ: MailerLite (bakoverkompatibel)
-
-- `MAILERLITE_API_TOKEN`
-- `MAILERLITE_GROUP_ID` (brukast i flyt der appen hentar/oppdaterer)
-- `MAILERLITE_MEDLEMMAR_GROUP_ID` (gruppe-ID for “Medlemmar” i MailerLite)
-  - Viss ikkje sett, blir `MAILERLITE_GROUP_ID` brukt som fallback
-
-### Tekst etter innmelding
-
-- `INNMELDING_SUCCESS_MESSAGE`: melding som brukaren ser når innmelding fungerer
-
-## Bruk lokalt med andre i styret
-
-**Eitt maskinoppsett (anbefalt):** køyr app og la andre gå inn over nettverket.
-
-Start då med:
+Testane lagar mellombelse databasar. Dei sender ingen betalingar eller e-post:
 
 ```bash
-MEDLEMSREGISTER_PRODUCTION=1 python3 app.py
+python -m unittest discover -s tests
 ```
 
-Appen lyttar på `0.0.0.0:5001`. Del IP-adressa med styret. Alle må ha kvar sin styrekonto. Bruk berre på eit trygt nett; på nett skal HTTPS vere aktivert.
+## Felles nettsidefiler
 
-**Offline-kopi (alternativ):** del `medlemsregister.db` over sikker kanal. Unngå samtidige endringar.
+- `_data/nav.yml`: same fire menyval på nettsida og i innmeldingsflyten.
+- `_tillegg/kolofon.html`: éin footer-mal med ordforklaring og logo.
+- `lutar/kolofon.css`: éi CSS-kjelde, levert av Flask på `/felles/kolofon.css`.
 
-## Backup
+Desse filene må følgje med serverkoden. Ikkje kopier berre `medlemsregister/`.
 
-For aktivt register på PythonAnywhere, bruk [BACKUP.md](BACKUP.md) og
-`backup.py`. Det eldre `backup.sh` under er berre eigna når databasen er stoppa.
+## Integrasjonar og drift
 
-Heile medlemslista ligg i `medlemsregister.db`.
+- [PythonAnywhere](PYTHONANYWHERE.md): mappar, HTTPS og WSGI.
+- [Vipps](VIPPS.md): testmiljø, webhook, reservejobb og produksjonsprøve.
+- [Styrekontoar](STYREKONTOAR.md): oppretting og sperring.
+- [Tilskipingar](TILSKIPINGAR.md): GitHub-tilgang og kalenderpublisering.
+- [Backup](BACKUP.md): konsistent SQLite-backup og testa gjenoppretting.
+- [Medlemsår](HUSK_MEDLEMSAR.md): årsavslutning.
 
-Du kan køyre backup til ei mappe som synkroniserer med t.d. OneDrive/Proton Drive:
+Løyndomar ligg berre i `.env` og `.env.vipps-test` (600), aldri i Git eller
+nettlesaren. Oppsettsskript for Vipps, Brevo, SMTP og GitHub les nøklar skjult.
+`requirements-common.txt` er felles, medan dei to andre pakkelistene legg til
+miljøspesifikke avhengnader.
 
-1. Set `BACKUP_DIR` i `.env`
-2. Køyr:
-   ```bash
-   bash backup.sh
-   ```
+Brevo-utgang er berre for betalte produksjonsinnmeldingar som vel nyhendebrev.
+`BREVO_INNMELDING_LIST_ID` peikar til nyhendebrevlista. Eventuell manuell import
+frå Brevo krev ei eiga, uttrykkeleg `BREVO_MEDLEMMAR_LIST_ID`; appen fell aldri
+tilbake til nyhendebrevlista som medlemsregister. MailerLite er berre reservekode.
 
-Skriptet lagar datomerka tryggingskopiar og beheld berre dei nyaste (for å hindre at mappa veks utan ende).
+## Sletting og rekneskap
 
-## GDPR
+Ved sletting blir medlemsopplysningar, ordredetaljar og tilknytt styrekonto fjerna.
+Dersom medlemmen har innbetalingar, blir ein post utan kontaktopplysningar bevart for at summer,
+medlemsår og betalingsreferansar skal kunne avstemmast. Han blir ikkje vist som
+medlem. Pågåande produksjonsbetalingar eller `review` må avklarast før sletting.
 
-- Samtykke blir lagra ved oppretting av medlem
-- “Eksporter (GDPR)” lastar ned data for eitt medlem
-- “Slett” fjernar medlem og data
-
-DB-fila inneheld personopplysningar og skal ikkje i Git eller delast ukryptert.
-
-## Alternativ flyt: Brevo-skjema (ingen offentleg Flask nødvendig)
-
-Du kan la innmeldingsskjemaet vere eit Brevo-skjema (innebygging eller lenke på nettsida).
-
-Då kan Flask-appen vere berre lokalt for styret, og de hentar nye frå nyhendebrevleverandøren i styregrensesnittet når de opnar appen.
-
-## Automatisk status og medlemstype
-
-Registrering av ei innbetaling set **Betalt** automatisk. Summen for gjeldande
-medlemsår avgjer medlemstypen: meir enn grensa gir **Superkul**, elles **Kul**.
-**Styret** vert aldri endra automatisk. Betalingar for andre medlemsår tel ikkje.
-Grensa er som standard 5 kr og kan endrast under **Kontingentinnstillingar** i
-styregrensesnittet. Endringar vert lagra i databasen og gjeld òg eksisterande
-innbetalingar i gjeldande år. Dette endrar ikkje i seg sjølv prisen på den offentlege nettsida.
-
-Ved oppstart vert eksisterande innbetalingar for gjeldande år synkroniserte med
-status og medlemstype. Medlemmar utan innbetalingar får behalde manuelle statusar,
-til dømes **Gratis**. Registrering av ei faktisk betaling set også desse til **Betalt**.
+Sletting hos Brevo blir lagd i `privacy_jobs`; den timelege reservejobben prøver
+igjen til leverandøren stadfestar sletting eller at kontakten ikkje finst. E-posten
+blir fjerna frå køen etterpå. Eldre backupkopiar følgjer backup-rotasjonen og må
+ikkje brukast til å reaktivere sletta medlemskap eller nyhendebrevabonnement.

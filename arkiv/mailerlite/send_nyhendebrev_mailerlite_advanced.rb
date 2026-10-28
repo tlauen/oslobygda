@@ -77,7 +77,7 @@ def verify_group_exists!(token, group_id)
 end
 
 def load_events
-  raw = YAML.load_file(File.join(__dir__, "..", "_data", "kalender.yml"))
+  raw = YAML.load_file(File.join(__dir__, "..", "..", "_data", "kalender.yml"))
   (raw || []).filter_map do |e|
     dato = e["dato"] || e[:dato]
     next if dato.nil? || dato.to_s.strip.empty?

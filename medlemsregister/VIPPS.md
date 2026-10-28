@@ -79,10 +79,10 @@ stoppar ikkje medlemsregistrering; kontakten ventar i køen.
 - Ta databasebackup. Stadfest pris, salsvilkår og faktisk medlemsår i skjemaet.
 - Set `VIPPS_SIGNUP_MODE=production` uttrykkeleg, registrer produksjonswebhook,
   Reload, og gjer ein kontrollert produksjonstest før den offentlege lenkja blir endra.
-- Oppdater den offentlege innmeldingssida og steng den gamle manuelle API-flyten.
-- Fastset rutine for sletting av personopplysningar i ufullførte ordre og ved
-  sletting av medlemskap. Ordrehistorikk skal gjennomgåast saman med medlemsdata;
-  ho blir førebels ikkje automatisk rotert eller sletta.
+- Lenker og den gamle manuelle API-flyten er oppdaterte i koden. Publiser nettsida først etter produksjonsprøva.
+- Sletting av medlemmar fjernar persondata i ordrehistorikken og køar sletting hos Brevo.
+  Rekneskapssummar blir bevarte anonymt. Ufullførte ordre utan tilknytt medlemskap
+  må følgjast opp i styreoversikta; dei blir ikkje automatisk sletta.
 - Refusjon og avstemming blir handterte av styret. Denne versjonen har ikkje
   ein refusjonsknapp eller automatisk fornying av eksisterande medlemskap.
 
@@ -98,3 +98,22 @@ Ingen oppkrav til eksisterande medlemmar blir sende av denne versjonen.
 - https://developer.vippsmobilepay.com/docs/APIs/epayment-api/api-guide/operations/get_info/
 - https://developer.vippsmobilepay.com/docs/APIs/epayment-api/api-guide/operations/capture/
 - https://developer.vippsmobilepay.com/docs/APIs/webhooks-api/request-authentication/
+
+## Kontrollert produksjonsprøve
+
+Kommandoen under gjer skjemaet tilgjengeleg **berre for innlogga styret**.
+Dette brukar verkelege produksjonsnøklar og er ei ekte betaling når du godkjenner
+henne i den vanlege Vipps-appen. Ingen betaling blir oppretta av oppsettet:
+
+```bash
+python -m flask --app app innmelding-produksjonsprove
+python -m flask --app app innmelding-webhook
+```
+
+Trykk Web → Reload, logg inn som styret og opne `/bli-medlem`. Bruk kontaktdata
+for ei ny medlemsadresse, ikkje ein medlem som alt finst. Fullfør betalinga sjølv,
+og kontroller medlemsliste, betalingsreferanse, webhook og nyhendebrevval før
+`VIPPS_SIGNUP_MODE` blir sett til `production`. Modusen `production-preview`
+er stengd for publikum. Testnøklane blir bevarte separat.
+
+Reservejobben gjer ein lesekontroll av Brevo-lista kvar 30. dag, slik at API-nøkkelen ikkje blir inaktiv ved få innmeldingar. Ingen testkontakt eller e-post blir oppretta av denne kontrollen.

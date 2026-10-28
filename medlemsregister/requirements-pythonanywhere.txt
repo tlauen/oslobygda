@@ -1,9 +1,2 @@
-# SQLite er inkludert i Python. SQLCipher er ikkje del av dette oppsettet.
-Flask>=3.0.0
-Werkzeug>=3.0.0
-python-dotenv>=1.0.0
-certifi>=2024.0.0
-
-PyOTP>=2.9.0,<3
-segno>=1.6,<2
-PyYAML>=6,<7
+# PythonAnywhere brukar vanleg SQLite.
+-r requirements-common.txt

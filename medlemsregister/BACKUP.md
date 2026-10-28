@@ -50,3 +50,10 @@ WAL/SHM-filer frå den førre databasen. Start appen att og kontroller data og i
 Backupen inneheld styrekontoane slik dei var då kopien vart teken; kontoar som vart
 sperra seinare må sperrast på nytt. Roter øktnøkkelen for å avslutte gamle økter.
 Gjennomfør sjølve byteoperasjonen med hjelp dersom du er usikker.
+
+## Gamal backup-kommando
+
+`backup.sh` kallar no same konsistente backup gjennom `backup_kommando.py`.
+Han les `.env` med python-dotenv i staden for å køyre innhaldet som shell-kode.
+Bruk `BYGDELISTA_PYTHON` for å velje Python frå eit virtuelt miljø. Den daglege
+PythonAnywhere-oppgåva kan framleis køyre `backup.py` direkte som før.

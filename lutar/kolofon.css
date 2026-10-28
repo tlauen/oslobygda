@@ -9,7 +9,7 @@
 .felles-kolofon__logo{margin:34px 0 12px}.felles-kolofon__logo img{display:inline-block;width:160px;height:160px;opacity:.85}
 @media(max-width:600px){.felles-kolofon__oversikt{flex-direction:column;gap:18px}.felles-kolofon__lenkjer a{display:inline-block}}
 
-.ordforklaring{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-decoration:underline dotted;text-underline-offset:.22em;text-decoration-thickness:1px}
+.ordforklaring{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:help;text-decoration:underline dotted;text-underline-offset:.22em;text-decoration-thickness:1px}
 .ordforklaring:hover{color:#12110e}.ordforklaring:focus-visible,.ordforklaring-lukk:focus-visible{outline:3px solid #206582;outline-offset:4px}
 .ordforklaring-boks{position:fixed;inset:auto;margin:0;width:min(340px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:18px 42px 18px 20px;border:1px solid #d9d5ca;border-radius:10px;background:#fffefa;color:#35342f;text-align:left;box-shadow:0 8px 30px #12110e20;font:14px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
 .ordforklaring-boks strong{display:block;font-size:16px;color:#12110e}.felles-kolofon .ordforklaring-boks p{margin:8px 0 0}

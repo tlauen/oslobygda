@@ -12,6 +12,11 @@ kontotilgang og backup med testa gjenoppretting er på plass.
 Legg prosjektet i `/home/oslobygda/oslobygda`. Bruk berre kodefilene frå Git;
 ikkje last opp lokal `.env` eller medlemsdatabasen som del av koden.
 
+Footer-malen kjem direkte frå `_tillegg/kolofon.html`, og footer-CSS frå
+`lutar/kolofon.css`; menyen blir lesen frå `_data/nav.yml`. Desse må vere med på serveren, i tillegg til
+`medlemsregister/`. Flask leverer CSS-en på `/felles/kolofon.css`; den vanlege
+`/fast/`-koplinga skal stå uendra. Det finst ingen eigne footer-kopiar i appen.
+
 I Bash-konsollen, med ein Python-versjon som òg er tilgjengeleg i Web-fana:
 
 ```bash

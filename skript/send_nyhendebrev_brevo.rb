@@ -6,6 +6,7 @@ require "date"
 require "json"
 require "net/http"
 require "uri"
+require "cgi"
 
 API_BASE = "https://api.brevo.com/v3"
 
@@ -41,7 +42,7 @@ def http_json(method, path, api_key:, body: nil)
     req.body = JSON.dump(body)
   end
 
-  res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
+  res = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 10, read_timeout: 30) { |http| http.request(req) }
   parsed = if res.body.nil? || res.body.strip.empty?
              nil
            else
@@ -52,9 +53,10 @@ rescue JSON::ParserError
   [res.code.to_i, { "message" => res.body }]
 end
 
-def load_events
-  raw = YAML.load_file(File.join(__dir__, "..", "_data", "kalender.yml"))
+def load_events(path = File.join(__dir__, "..", "_data", "kalender.yml"))
+  raw = YAML.safe_load_file(path, permitted_classes: [Date, Time], aliases: false)
   (raw || []).filter_map do |event|
+    next if event["avlyst"] == true
     date_raw = event["dato"] || event[:dato]
     next if date_raw.nil? || date_raw.to_s.strip.empty?
 
@@ -94,6 +96,16 @@ def list_exists?(api_key, list_id)
   code == 200 && body && body["id"]
 end
 
+def render_event_item(event)
+  line = +"<strong>#{fmt_date_nn(event["dato"])}</strong>"
+  line << " kl. #{CGI.escapeHTML(event["start"].to_s)}" unless event["start"].empty?
+  line << " – #{CGI.escapeHTML(event["tittel"].to_s)}" unless event["tittel"].empty?
+  line << " (#{CGI.escapeHTML(event["stad"].to_s)})" unless event["stad"].empty?
+  "<li style=\"margin:.5em 0; padding-left:.5em; border-left:3px solid #BFEAEE; list-style:none;\">#{line}</li>"
+end
+
+
+def main
 api_key = env!("BREVO_API_KEY")
 from_email = env!("BREVO_FROM_EMAIL")
 from_name = env!("BREVO_FROM_NAME")
@@ -166,13 +178,7 @@ if existing_campaign && existing_campaign["status"].to_s.downcase == "sent"
   exit 0
 end
 
-html_items = upcoming.map do |event|
-  line = +"<strong>#{fmt_date_nn(event["dato"])}</strong>"
-  line << " kl. #{event["start"]}" unless event["start"].empty?
-  line << " – #{event["tittel"]}" unless event["tittel"].empty?
-  line << " (#{event["stad"]})" unless event["stad"].empty?
-  "<li style=\"margin:.5em 0; padding-left:.5em; border-left:3px solid #BFEAEE; list-style:none;\">#{line}</li>"
-end.join("\n")
+html_items = upcoming.map { |event| render_event_item(event) }.join("\n")
 
 html = <<~HTML
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#E8E6E3" style="width:100%; border-collapse:collapse; margin:0; background-color:#E8E6E3;">
@@ -232,3 +238,7 @@ unless kode == 200 || kode == 201 || kode == 202 || kode == 204
 end
 
 puts "Sendte Brevo-kampanjen «#{campaign_name}» til mottakarliste id=#{list_id}"
+
+end
+
+main if $PROGRAM_NAME == __FILE__

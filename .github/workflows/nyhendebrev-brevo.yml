@@ -16,6 +16,10 @@ on:
   schedule:
     - cron: "19 7 * * *" # UTC
 
+concurrency:
+  group: nyhendebrev-brevo
+  cancel-in-progress: false
+
 permissions:
   contents: read
 

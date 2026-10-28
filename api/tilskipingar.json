@@ -14,7 +14,7 @@ permalink: /api/tilskipingar.json
     {%- assign first = true -%}
     {%- for e in alle -%}
       {%- assign es = e.dato | append: " 12:00:00 +0100" | date: "%s" -%}
-      {%- if es >= no -%}
+      {%- if es >= no and e.avlyst != true -%}
         {%- unless first -%},{%- endunless -%}
         {%- assign first = false -%}
         {

@@ -5,20 +5,33 @@ title: Personvern og kjeks
 
 # Personvern og kjeks
 
-Oslobygda kulturlag tar personvern på alvor. Denne sida forklarer kort korleis vi brukar data på nettsida.
+Oslobygda kulturlag handsamar opplysningar for å administrere medlemskap,
+betalingar og nyhendebrev. Spørsmål, innsyn, retting og sletting kan rettast til
+[folk@oslobygda.no](mailto:folk@oslobygda.no).
 
-## Kjeks
+## Medlemskap og betaling
 
-Nettsida bruker **kjeks** i innmeldingsskjemaet (på [Bli medlem](/bli-medlem/)). Skjemaa er levert av **Brevo**; dei set små informasjonsfiler (kjeks) for at skjemaet skal fungere.
+Innmeldinga blir handsama i Bygdelista på `bygdelista.oslobygda.no`. Der lagrar
+me kontaktopplysningane du gir, medlemsår, samtykke til vilkår og betalingsstatus.
+Vipps handsamar sjølve betalinga. Me lagrar betalingsreferanse og beløp, ikkje
+kortopplysningar eller BankID-data.
 
-- [Brevo cookie policy](https://www.brevo.com/legal/privacypolicy/) (ekstern lenke)
+Ved sletting blir medlemsopplysningane og persondata i innmeldingsordrar fjerna.
+Bokførte beløp og betalingsreferansar blir bevarte utan medlemsidentitet for
+avstemming. Pågåande betalingar må avklarast før sletting. Eldre tryggingskopiar
+følgjer laget sin backup-rotasjon.
 
-Vi brukar ikkje kjeks til annonsar eller sporing utover det skjemaa krev.
+## Nyhendebrev
 
-## Innmelding og nyhendebrev
+Nyhendebrev er ein valfri medlemsfordel. Dersom du vel det, overfører me namn
+og e-postadresse til Brevo for utsending. Du kan melde deg av i kvart brev utan
+å melde deg ut av laget. Ved medlemssletting blir sletting hos Brevo køa og
+prøvd på nytt dersom tenesta er mellombels utilgjengeleg.
 
-Når du melder deg inn i laget eller på nyhendebrevet, lagrar vi (eller Brevo på våre vegne) namnet og epostadressa di for å kunne sende nyhende og halde kontakt. Opplysningane vert ikkje delt med andre. Du kan når som helst be om innsyn eller sletting – ta kontakt med oss.
+## Kjeks og besøksstatistikk
 
-## Spørsmål?
+Bygdelista brukar nødvendige øktkjeks for innmelding og styreinnlogging,
+mellom anna for å verne skjema og vise betalingsstatus. Den gamle Brevo-innbygginga
+er avvikla. Hovudnettstaden brukar Umami til samla besøksstatistikk.
 
-[Ta kontakt](mailto:folk@oslobygda.no)!
+[Kontakt laget](mailto:folk@oslobygda.no) om du ønskjer meir informasjon.

@@ -1,28 +1,16 @@
-/* =========================================
-   _om.scss — Om-sida: skilje mellom dokument og innmelding
-   ========================================= */
-
-.om-skille {
-  margin: 2.5rem 0;
-  border: 0;
-  border-top: 2px solid var(--line);
-}
-
-.om-innmelding {
-  margin-top: 0.5rem;
-  padding: 1.5rem 0 0;
-}
-
-.om-innmelding h2 {
-  font-size: 1.25rem;
-  font-weight: 650;
-  margin: 0 0 1rem;
-}
-
-/* Kjeks-merknad (brukt på /om og /brev) */
-.kjeks-merknad {
-  font-size: 0.9rem;
-  color: var(--text);
-  opacity: 0.85;
-  margin: 0 0 1rem;
-}
+/* Same rolege kortuttrykk som innmeldinga. */
+.om-modul{margin:3rem 0}.om-modul>h2{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.5rem);font-weight:450;margin:.35rem 0 1.4rem}
+.modul-etikett{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#5e5c55;margin:0}
+.styre-grid,.dokument-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.styre-kort{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#fffefa}
+.styre-kort>img,.styre-portrett{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;max-height:330px;height:auto}
+.styre-portrett{display:grid;place-items:center;font:450 4rem var(--serif);color:#3e5839;background:#e1eddc}.styre-kort:nth-child(even) .styre-portrett{background:#e4f0f4;color:#345d6e}
+.styre-kort__tekst{padding:20px}.styre-kort__tekst p{font-size:.8rem;color:#5e5c55;margin:0 0 5px}.styre-kort h3{font-family:var(--serif);font-weight:450;font-size:1.4rem;line-height:1.3;margin:0}
+.dokument-kort{display:flex;flex-direction:column;padding:24px;border:1px solid var(--line);border-radius:14px;background:#fffefa;text-decoration:none;gap:10px;transition:border-color .15s,background .15s}
+.dokument-kort:hover{background:#f2f6ed;border-color:#a8c49f;text-decoration:none}.dokument-kort:focus-visible{outline:3px solid #206582;outline-offset:4px}
+.dokument-type{align-self:flex-start;font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;padding:3px 9px;border-radius:100px;background:#e4f0f4}
+.dokument-kort h3{font:450 1.5rem/1.2 var(--serif);margin:5px 0}.dokument-kort p{font-size:.9rem;color:#5e5c55;margin:0 0 10px}.dokument-opne{font-size:.8rem;font-weight:650;margin-top:auto}
+.pobb-galleri{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}.pobb-galleri figure{margin:0;max-width:620px}.galleri-lenkje{display:block;border-radius:12px;overflow:hidden}.galleri-lenkje img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;transition:transform .2s}.galleri-lenkje:hover img{transform:scale(1.03)}.pobb-galleri figcaption{font-size:.8rem;color:#5e5c55;margin-top:8px}
+.galleri-dialog{box-sizing:border-box;max-width:96vw;width:fit-content;max-height:94dvh;padding:14px;background:#fcf9f3;border:0;border-radius:12px;overflow:auto}.galleri-dialog::backdrop{background:#12110ee0}.galleri-dialog>img{display:block;max-width:88vw;max-height:72dvh;width:auto;height:auto;object-fit:contain;margin:auto}.galleri-verktøy{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px}.galleri-verktøy button{min-width:44px;min-height:44px;font:inherit;border:1px solid var(--line);border-radius:7px;background:#fffefa;cursor:pointer}.galleri-verktøy button:hover{background:#e4f0f4}.galleri-verktøy button:focus-visible{outline:3px solid #206582}.galleri-teljar{font-size:.85rem;padding:0 10px}.galleri-bildetekst{font-size:.85rem;text-align:center;margin:10px 0 0}
+@media(max-width:560px){.styre-grid,.dokument-grid{grid-template-columns:1fr}.styre-kort{display:grid;grid-template-columns:105px 1fr;align-items:center}.styre-kort>img,.styre-portrett{height:100%;min-height:140px;aspect-ratio:auto}.styre-portrett{font-size:2.3rem}.styre-kort__tekst{padding:17px}.styre-kort h3{font-size:1.2rem}.om-modul{margin:2.3rem 0}}
+@media(prefers-reduced-motion:reduce){.galleri-lenkje img,.dokument-kort{transition:none}}

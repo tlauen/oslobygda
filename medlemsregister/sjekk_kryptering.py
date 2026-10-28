@@ -16,10 +16,10 @@ key = os.environ.get("MEDLEMSREGISTER_DB_KEY", "").strip()
 print("MEDLEMSREGISTER_DB_KEY:", "satt" if key else "ikkje satt")
 
 try:
-    import sqlcipher3.dbapi2 as sqlcipher3
+    import sqlcipher3.dbapi2 as sqlcipher3  # noqa: F401 – importen testar driveren
     print("sqlcipher3: OK – kryptering er tilgjengeleg")
     if key:
-        print("→ Ved neste start av app.py vert databasen kryptert (eller migrert til kryptert).")
+        print("→ Eksisterande kryptert database kan opnast. Ukryptert database må migrerast særskilt etter backup.")
     sys.exit(0)
 except ImportError as e:
     print("sqlcipher3: FEIL –", e)

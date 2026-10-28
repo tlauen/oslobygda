@@ -92,8 +92,14 @@
     {%- assign dato_ymd = e.dato | date: "%Y%m%d" -%}
     {%- assign start_hhmm = e.start | default: "19:00" | remove: ":" -%}
     {%- assign slutt_hhmm = e.slutt | default: "22:00" | remove: ":" -%}
+    {%- assign sluttdato = e.sluttdato | default: e.dato -%}
+    {%- if e.sluttdato == nil and slutt_hhmm <= start_hhmm -%}
+      {%- assign neste_dag = e.dato | append: 'T12:00:00Z' | date: '%s' | plus: 86400 -%}
+      {%- assign sluttdato = neste_dag | date: '%Y-%m-%d' -%}
+    {%- endif -%}
+    {%- assign slutt_ymd = sluttdato | date: '%Y%m%d' -%}
     {%- assign dtstart = dato_ymd | append: "T" | append: start_hhmm | append: "00" -%}
-    {%- assign dtend   = dato_ymd | append: "T" | append: slutt_hhmm | append: "00" -%}
+    {%- assign dtend   = slutt_ymd | append: "T" | append: slutt_hhmm | append: "00" -%}
 
     {%- assign g_text = e.tittel | uri_escape -%}
     {%- assign g_loc  = e.stad | default: "" | uri_escape -%}
@@ -104,11 +110,6 @@
     {% assign kortklasse = "kort kalenderkort" %}
     {% if es < no %}{% assign kortklasse = kortklasse | append: " kalenderkort--tidlegare" %}{% endif %}
 
-    {%- assign sluttdato = e.sluttdato | default: e.dato -%}
-    {%- if e.sluttdato == nil and slutt_hhmm <= start_hhmm -%}
-      {%- assign neste_dag = e.dato | append: 'T12:00:00Z' | date: '%s' | plus: 86400 -%}
-      {%- assign sluttdato = neste_dag | date: '%Y-%m-%d' -%}
-    {%- endif -%}
     <div class="{{ kortklasse }}" data-event-uid="{{ e.uid | escape }}" data-event-start="{{ e.dato }}T{{ e.start | default: '19:00' }}" data-event-end="{{ sluttdato }}T{{ e.slutt | default: '22:00' }}">
       {% if e.lenkje %}
   <a class="kalenderkort__bilete-lenkje" href="{{ e.lenkje | relative_url | escape }}">
@@ -124,7 +125,7 @@
 
       <div class="kalenderkort__innhald">
         <div class="kalenderkort__dato">
-          {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "21:00" }} – {{ e.slutt | default: "23:45" }} 
+          {{ dag }}. {{ mnd | strip }} {{ aar }} · {{ e.start | default: "19:00" }} – {{ e.slutt | default: "22:00" }}
         </div>
 
         <div class="kalenderkort__tittel">

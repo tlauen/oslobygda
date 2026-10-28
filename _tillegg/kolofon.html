@@ -9,7 +9,9 @@
   <script>
   (() => {
     const root = document.currentScript.parentElement;
-    const button = root.querySelector('.ordforklaring');
+    const buttons = [...document.querySelectorAll('.ordforklaring[popovertarget="frilynt-forklaring"]')];
+    let button = buttons[0];
+    buttons.forEach(trigger => trigger.addEventListener('click', () => { button = trigger; }));
     const box = root.querySelector('.ordforklaring-boks');
     const position = () => {
       if (!box.matches(':popover-open')) return;
@@ -21,7 +23,7 @@
       box.style.top = Math.max(16, Math.min(top, innerHeight - height - 16)) + 'px';
     };
     box.addEventListener('toggle', event => {
-      button.setAttribute('aria-expanded', String(event.newState === 'open'));
+      buttons.forEach(trigger => trigger.setAttribute('aria-expanded', String(event.newState === 'open')));
       position();
     });
     window.addEventListener('resize', position);

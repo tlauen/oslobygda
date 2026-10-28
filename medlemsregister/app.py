@@ -4,25 +4,26 @@ Bygdelista – GDPR-sikkert medlemsliste for Oslobygda.
 Felter: namn, epost, telefon, adresse, postnummer, poststad, fødselsdato, medlemstype, betalingsstatus, samtykke.
 Database kan krypterast med SQLCipher ved å setje MEDLEMSREGISTER_DB_KEY (da vert fila ikkje lesbar i BBEdit o.l.).
 """
+
 import csv
 import io
 import json
 from decimal import Decimal, InvalidOperation
 from datetime import timedelta
 import os
-import smtplib
 import sys
+import time
 import ssl
 import sqlite3
 from datetime import date, datetime, timezone
-from email.mime.text import MIMEText
-from email.utils import formatdate
 from pathlib import Path
+from urllib.parse import quote
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
 try:
     import certifi
+
     _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
 except ImportError:
     _SSL_CTX = None
@@ -32,12 +33,15 @@ from flask import (
     request,
     jsonify,
     render_template,
-    session,
     redirect,
     url_for,
     Response,
+    send_from_directory,
 )
 from styre_auth import install_auth, init_auth_db
+from database import managed_db
+from personvern import init_privacy, erase_member, process_privacy_jobs
+from jinja2 import ChoiceLoader, FileSystemLoader, PrefixLoader
 
 APP_DIR = Path(__file__).resolve().parent
 DB_PATH = APP_DIR / "medlemsregister.db"
@@ -45,6 +49,7 @@ DB_PATH = APP_DIR / "medlemsregister.db"
 # Last .env frå medlemsregister-mappa (så du ikkje må køyre export manuelt)
 try:
     from dotenv import load_dotenv
+
     load_dotenv(APP_DIR / ".env")
 except ImportError:
     pass
@@ -55,13 +60,15 @@ _use_sqlcipher = False
 if DB_KEY:
     try:
         import sqlcipher3.dbapi2 as _sqlcipher_sqlite
+
         _use_sqlcipher = True
     except ImportError:
         import warnings
+
         warnings.warn(
             "MEDLEMSREGISTER_DB_KEY er satt, men sqlcipher3 er ikkje installert. "
             "Kjør: pip install sqlcipher3 (krev også libsqlcipher, t.d. brew install sqlcipher). "
-            "Databasen vert ikkje kryptert.",
+            "Databasen kan ikkje opnast med krypteringsnøkkel før driveren er installert.",
             UserWarning,
         )
 
@@ -71,6 +78,44 @@ app = Flask(
     static_url_path="/fast",
     template_folder="malar",
 )
+# Jekyll og Flask les same footer-mal, utan kopiar som må synkroniserast.
+app.jinja_loader = ChoiceLoader(
+    [
+        app.jinja_loader,
+        PrefixLoader({"nettstad": FileSystemLoader(APP_DIR.parent / "_tillegg")}),
+    ]
+)
+
+
+@app.get("/felles/kolofon.css")
+def shared_footer_css():
+    return send_from_directory(APP_DIR.parent / "lutar", "kolofon.css")
+
+
+@app.context_processor
+def site_navigation():
+    import yaml
+
+    items = yaml.safe_load((APP_DIR.parent / "_data/nav.yml").read_text())
+    return {
+        "site_nav": [
+            dict(
+                label=item["label"],
+                url=prefix_url("new_signup")
+                if item["path"] == "/bli-medlem/"
+                else "https://oslobygda.no" + item["path"],
+                current=item["path"] == "/bli-medlem/",
+            )
+            for item in items
+        ]
+    }
+
+
+@app.errorhandler(503)
+def service_unavailable(error):
+    return render_template("innmelding_vent.html", environment=None), 503
+
+
 app.secret_key = os.environ.get("MEDLEMSREGISTER_SECRET_KEY", "endre-meg-i-produksjon")
 
 # Ved drift bak omvendt mellomtenar på oslobygda.no/medlemsregister/ – sett til "/medlemsregister"
@@ -78,8 +123,11 @@ URL_PREFIX = os.environ.get("MEDLEMSREGISTER_URL_PREFIX", "").rstrip("/")
 if URL_PREFIX:
     app.config["APPLICATION_ROOT"] = URL_PREFIX
 
-app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
-                  PERMANENT_SESSION_LIFETIME=timedelta(hours=8))
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+)
 
 
 def _pragma_key_sql() -> str:
@@ -97,67 +145,11 @@ def _is_plain_sqlite(path: Path) -> bool:
 
 
 def _migrate_plain_to_encrypted() -> None:
-    """Kopier ukyrptert DB til ny kryptert fil og erstatt. Køyr berre éin gong."""
-    if not _use_sqlcipher or not DB_PATH.exists() or not _is_plain_sqlite(DB_PATH):
-        return
-    plain_conn = sqlite3.connect(DB_PATH)
-    plain_conn.row_factory = sqlite3.Row
-    rows = plain_conn.execute("SELECT * FROM members").fetchall()
-    cols = [d[1] for d in plain_conn.execute("PRAGMA table_info(members)").fetchall()]
-    has_payments = plain_conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='payments'"
-    ).fetchone() is not None
-    payment_rows = []
-    payment_cols = []
-    if has_payments:
-        payment_rows = plain_conn.execute("SELECT * FROM payments").fetchall()
-        payment_cols = [d[1] for d in plain_conn.execute("PRAGMA table_info(payments)").fetchall()]
-    plain_conn.close()
-    enc_path = APP_DIR / "medlemsregister.db.new"
-    enc_conn = _sqlcipher_sqlite.connect(enc_path)
-    enc_conn.execute(_pragma_key_sql())
-    enc_conn.executescript("""
-        CREATE TABLE members (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            full_name TEXT NOT NULL,
-            fornamn TEXT, mellomnamn TEXT, etternamn TEXT,
-            email TEXT NOT NULL, phone TEXT, adresse TEXT, postnummer TEXT, poststad TEXT,
-            birth_date TEXT, membership_type TEXT NOT NULL, payment_status TEXT NOT NULL,
-            consent_at TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
-        );
-        CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
-        CREATE TABLE IF NOT EXISTS payments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            member_id INTEGER NOT NULL,
-            amount_ore INTEGER NOT NULL,
-            paid_at TEXT NOT NULL,
-            note TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
-        );
-        CREATE INDEX IF NOT EXISTS idx_payments_member_id ON payments(member_id);
-    """)
-    col_list = ", ".join(cols)
-    placeholders = ", ".join("?" * len(cols))
-    for row in rows:
-        enc_conn.execute(f"INSERT INTO members ({col_list}) VALUES ({placeholders})", tuple(row))
-    if has_payments and payment_cols:
-        payment_col_list = ", ".join(payment_cols)
-        payment_placeholders = ", ".join("?" * len(payment_cols))
-        for row in payment_rows:
-            enc_conn.execute(
-                f"INSERT INTO payments ({payment_col_list}) VALUES ({payment_placeholders})",
-                tuple(row),
-            )
-    enc_conn.commit()
-    enc_conn.close()
-    bak_path = APP_DIR / "medlemsregister.db.plain.bak"
-    if bak_path.exists():
-        bak_path.unlink()
-    DB_PATH.rename(bak_path)
-    enc_path.rename(DB_PATH)
-    _restrict_db_permissions(DB_PATH)
-    sys.stderr.write("Database migrert til kryptert. Den gamle ukyrpterte kopien ligg som medlemsregister.db.plain.bak\n")
+    """Stopp automatisk migrering som ikkje kan garantere alle tabellane."""
+    if _use_sqlcipher and DB_PATH.exists() and _is_plain_sqlite(DB_PATH):
+        raise RuntimeError(
+            "Databasen er ukryptert. Ta backup og migrer heile databasen med SQLCipher før krypteringsnøkkelen blir teken i bruk."
+        )
 
 
 def _restrict_db_permissions(path: Path) -> None:
@@ -169,6 +161,10 @@ def _restrict_db_permissions(path: Path) -> None:
 
 
 def get_db():
+    if DB_KEY and not _use_sqlcipher:
+        raise RuntimeError(
+            "Krypteringsnøkkel er sett, men SQLCipher manglar. Databasen vert ikkje opna."
+        )
     _migrate_plain_to_encrypted()
     if _use_sqlcipher:
         conn = _sqlcipher_sqlite.connect(DB_PATH)
@@ -189,7 +185,9 @@ def get_db():
 def _default_medlemsbetalingsar() -> int:
     """Standardår for nye betalingar (miljø MEDLEMSBETALING_AR, elles kalenderår i UTC)."""
     try:
-        raw = (os.environ.get("MEDLEMSBETALING_AR") or str(datetime.now(timezone.utc).year)).strip()
+        raw = (
+            os.environ.get("MEDLEMSBETALING_AR") or str(datetime.now(timezone.utc).year)
+        ).strip()
         return int(raw)
     except (ValueError, TypeError):
         return datetime.now(timezone.utc).year
@@ -211,39 +209,64 @@ def _get_medlemsbetalingsar(conn) -> int:
 
 def _nok_to_ore(value, *, allow_zero=False):
     try:
-        number = Decimal(str(value).strip().replace(',', '.'))
-        if not number.is_finite() or number < (0 if allow_zero else Decimal('0.01')) or number > 1000000000:
+        number = Decimal(str(value).strip().replace(",", "."))
+        if (
+            not number.is_finite()
+            or number < (0 if allow_zero else Decimal("0.01"))
+            or number > 1000000000
+        ):
             raise ValueError()
         ore = number * 100
         if ore != ore.to_integral_value():
             raise ValueError()
         return int(ore)
     except (InvalidOperation, ValueError, TypeError):
-        raise ValueError('Beløpet må vere eit gyldig kronebeløp med høgst to desimalar.') from None
+        raise ValueError(
+            "Beløpet må vere eit gyldig kronebeløp med høgst to desimalar."
+        ) from None
 
 
 def _get_superkul_grense(conn):
-    row = conn.execute("SELECT value FROM app_settings WHERE key='superkul_grense_ore'").fetchone()
+    row = conn.execute(
+        "SELECT value FROM app_settings WHERE key='superkul_grense_ore'"
+    ).fetchone()
     return int(row[0]) if row else 500
 
 
 def _oppdater_fra_innbetalingar(conn, mid, *, reset_empty=False):
-    member = conn.execute('SELECT membership_type, payment_status FROM members WHERE id=?', (mid,)).fetchone()
+    member = conn.execute(
+        "SELECT membership_type, payment_status FROM members WHERE id=?", (mid,)
+    ).fetchone()
     if not member:
         return
-    total = conn.execute('SELECT COALESCE(SUM(amount_ore),0) FROM payments WHERE member_id=? AND for_year=?',
-                         (mid, _get_medlemsbetalingsar(conn))).fetchone()[0]
+    total = conn.execute(
+        "SELECT COALESCE(SUM(amount_ore),0) FROM payments WHERE member_id=? AND for_year=?",
+        (mid, _get_medlemsbetalingsar(conn)),
+    ).fetchone()[0]
     if total <= 0 and not reset_empty:
         return  # Manuelle statusar som gratis vert bevarte når ingen betaling er registrert.
-    status = 'betalt' if total > 0 else ('gratis' if member['payment_status'] == 'gratis' else 'ikkje betalt')
-    kind = member['membership_type'] if member['membership_type'].strip().lower() == 'styret' else ('kul' if total > _get_superkul_grense(conn) else 'vanleg')
-    if member['payment_status'] != status or member['membership_type'] != kind:
-        conn.execute('UPDATE members SET payment_status=?, membership_type=?, updated_at=? WHERE id=?',
-                     (status, kind, datetime.now(timezone.utc).isoformat(), mid))
+    status = (
+        "betalt"
+        if total > 0
+        else ("gratis" if member["payment_status"] == "gratis" else "ikkje betalt")
+    )
+    kind = (
+        member["membership_type"]
+        if member["membership_type"].strip().lower() == "styret"
+        else ("kul" if total > _get_superkul_grense(conn) else "vanleg")
+    )
+    if member["payment_status"] != status or member["membership_type"] != kind:
+        conn.execute(
+            "UPDATE members SET payment_status=?, membership_type=?, updated_at=? WHERE id=?",
+            (status, kind, datetime.now(timezone.utc).isoformat(), mid),
+        )
 
 
 def _oppdater_alle_fra_innbetalingar(conn):
-    for row in conn.execute('SELECT DISTINCT member_id FROM payments WHERE for_year=?', (_get_medlemsbetalingsar(conn),)).fetchall():
+    for row in conn.execute(
+        "SELECT DISTINCT member_id FROM payments WHERE for_year=?",
+        (_get_medlemsbetalingsar(conn),),
+    ).fetchall():
         _oppdater_fra_innbetalingar(conn, row[0])
 
 
@@ -271,9 +294,10 @@ def _alder_år(fødsel: date, idag: date) -> int:
 
 def init_db():
     from ny_innmelding import init_signup
+
     init_signup(get_db)
     init_auth_db(get_db)
-    with get_db() as conn:
+    with managed_db(get_db) as conn:
         conn.execute("PRAGMA foreign_keys = ON")
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS members (
@@ -307,16 +331,28 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_payments_member_id ON payments(member_id);
         """)
         # Kan fjernast når alle instansar har køyrt migrering minst éin gong
-        for col in ("adresse", "postnummer", "poststad", "fornamn", "mellomnamn", "etternamn", "birth_date"):
+        for col in (
+            "adresse",
+            "postnummer",
+            "poststad",
+            "fornamn",
+            "mellomnamn",
+            "etternamn",
+            "birth_date",
+        ):
             try:
                 conn.execute(f"ALTER TABLE members ADD COLUMN {col} TEXT")
             except Exception as e:
                 if "duplicate column" not in str(e).lower():
                     raise
         # Migrer gamle rader: sett fornamn = full_name så brukar kan dele opp ved redigering
-        conn.execute("UPDATE members SET fornamn = full_name WHERE fornamn IS NULL AND full_name IS NOT NULL")
+        conn.execute(
+            "UPDATE members SET fornamn = full_name WHERE fornamn IS NULL AND full_name IS NOT NULL"
+        )
         # Normaliser betalingsstatus til nynorsk
-        conn.execute("UPDATE members SET payment_status = 'ikkje betalt' WHERE payment_status = 'ikke betalt'")
+        conn.execute(
+            "UPDATE members SET payment_status = 'ikkje betalt' WHERE payment_status = 'ikke betalt'"
+        )
         conn.executescript(
             """
             CREATE TABLE IF NOT EXISTS app_settings (
@@ -337,20 +373,30 @@ def init_db():
             if "duplicate column" not in str(e).lower():
                 raise
         default_ar = _default_medlemsbetalingsar()
-        conn.execute("UPDATE payments SET for_year = ? WHERE for_year IS NULL", (default_ar,))
-        if not conn.execute("SELECT 1 FROM app_settings WHERE key = 'medlemsbetalingsar'").fetchone():
+        conn.execute(
+            "UPDATE payments SET for_year = ? WHERE for_year IS NULL", (default_ar,)
+        )
+        if not conn.execute(
+            "SELECT 1 FROM app_settings WHERE key = 'medlemsbetalingsar'"
+        ).fetchone():
             conn.execute(
                 "INSERT INTO app_settings (key, value) VALUES ('medlemsbetalingsar', ?)",
                 (str(default_ar),),
             )
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_payments_for_year ON payments(for_year)")
-        conn.execute("INSERT OR IGNORE INTO app_settings(key,value) VALUES ('superkul_grense_ore','500')")
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_payments_for_year ON payments(for_year)"
+        )
+        conn.execute(
+            "INSERT OR IGNORE INTO app_settings(key,value) VALUES ('superkul_grense_ore','500')"
+        )
         _oppdater_alle_fra_innbetalingar(conn)
         conn.commit()
+    init_privacy(get_db)
 
 
 def require_admin(f):
     from functools import wraps
+
     @wraps(f)
     def inner(*args, **kwargs):
         if not app.extensions["styre_auth_valid"]():
@@ -358,6 +404,7 @@ def require_admin(f):
                 return jsonify({"error": "Ikkje innlogga"}), 401
             return redirect(url_for("login"))
         return f(*args, **kwargs)
+
     return inner
 
 
@@ -375,6 +422,7 @@ app.jinja_env.globals["url_prefix"] = URL_PREFIX  # for fetch()-base i JS
 install_auth(app, get_db, prefix_url)
 
 from tilskipingar import install_calendar
+
 install_calendar(app, require_admin)
 
 
@@ -386,51 +434,10 @@ def index():
 
 # —— Offentleg innmeldingsskjema (ingen innlogging) ——
 
+
 @app.route("/innmelding")
 def innmelding_page():
-    return render_template("innmelding.html")
-
-
-def _send_innmelding_epost(to_email: str, fornamn: str, mellomnamn: str, etternamn: str, email: str, phone: str, adresse: str, postnummer: str, poststad: str, birth_date: str, membership_type: str) -> tuple[bool, str]:
-    """Send innmeldings-epost til styret. Returnerer (success, feilmelding)."""
-    full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-    body = f"""Ny innmelding via nettskjema – registrer i Bygdelista:
-
-Fornamn:     {fornamn}
-Mellomnamn:  {mellomnamn or '(tom)'}
-Etternamn:   {etternamn}
-Epost:       {email}
-Telefon:     {phone or '(tom)'}
-Adresse:     {adresse or '(tom)'}
-Postnummer:  {postnummer or '(tom)'}
-Poststad:    {poststad or '(tom)'}
-Fødselsdato: {birth_date or '(tom)'}
-Medlemstype: {_medlemstype_visning(membership_type, med_beskrivelse=True)}
-
-——
-Logg inn i Bygdelista og bruk «Legg til medlem» med opplysningane over.
-"""
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = f"Ny innmelding: {full_name}"
-    msg["From"] = os.environ.get("INNMELDING_EPOST_FRA", "noreply@oslobygda.no")
-    msg["To"] = to_email
-    msg["Date"] = formatdate(localtime=True)
-
-    host = os.environ.get("SMTP_HOST", "").strip()
-    port = int(os.environ.get("SMTP_PORT", "587"))
-    user = os.environ.get("SMTP_USER", "").strip()
-    password = os.environ.get("SMTP_PASSWORD", "").strip()
-    if not host or not user or not password:
-        return False, "E-post ikkje konfigurert (manglar SMTP_HOST, SMTP_USER, SMTP_PASSWORD)"
-
-    try:
-        with smtplib.SMTP(host, port, timeout=15) as s:
-            s.starttls()
-            s.login(user, password)
-            s.send_message(msg)
-        return True, ""
-    except Exception as e:
-        return False, str(e)
+    return redirect(prefix_url("new_signup"), code=302)
 
 
 def _newsletter_provider() -> str:
@@ -438,7 +445,9 @@ def _newsletter_provider() -> str:
     return provider if provider in {"brevo", "mailerlite"} else "brevo"
 
 
-def _brevo_request(method: str, path: str, api_key: str, body: dict | None = None) -> tuple[int, dict]:
+def _brevo_request(
+    method: str, path: str, api_key: str, body: dict | None = None
+) -> tuple[int, dict]:
     url = f"https://api.brevo.com/v3/{path.lstrip('/')}"
     data = None if body is None else json.dumps(body).encode("utf-8")
     req = Request(
@@ -466,39 +475,16 @@ def _brevo_request(method: str, path: str, api_key: str, body: dict | None = Non
         return 0, {"message": str(e)}
 
 
-def _brevo_add_contact(email: str, fornamn: str, mellomnamn: str, etternamn: str, phone: str, adresse: str, postnummer: str, poststad: str, birth_date: str, membership_type: str, api_key: str, list_id: int) -> tuple[bool, str]:
-    full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-    attrs = {
-        "FIRSTNAME": fornamn or "",
-        "LASTNAME": etternamn or "",
-        "NAME": full_name,
-        "PHONE": phone or "",
-        "ADDRESS": adresse or "",
-        "ZIP": postnummer or "",
-        "CITY": poststad or "",
-        "BIRTH_DATE": birth_date or "",
-        "MEMBERSHIP_TYPE": membership_type or "vanleg",
-        "MIDDLENAME": mellomnamn or "",
-    }
-    body = {
-        "email": email,
-        "attributes": attrs,
-        "listIds": [int(list_id)],
-        "updateEnabled": True,
-    }
-    status, payload = _brevo_request("POST", "/contacts", api_key, body)
-    if status in (200, 201, 204):
-        return True, ""
-    msg = payload.get("message") or payload.get("code") or str(payload)
-    return False, msg
-
-
 def _brevo_fetch_list_contacts(api_key: str, list_id: int) -> tuple[list[dict], str]:
     contacts = []
     limit = 500
     offset = 0
     while True:
-        status, payload = _brevo_request("GET", f"/contacts/lists/{int(list_id)}/contacts?limit={limit}&offset={offset}", api_key)
+        status, payload = _brevo_request(
+            "GET",
+            f"/contacts/lists/{int(list_id)}/contacts?limit={limit}&offset={offset}",
+            api_key,
+        )
         if status != 200:
             return [], payload.get("message", f"Brevo status {status}")
         batch = payload.get("contacts") or []
@@ -509,14 +495,24 @@ def _brevo_fetch_list_contacts(api_key: str, list_id: int) -> tuple[list[dict], 
     return contacts, ""
 
 
-def _mailerlite_fetch_group_subscribers(token: str, group_id: str) -> tuple[list[dict], str]:
+def _mailerlite_fetch_group_subscribers(
+    token: str, group_id: str
+) -> tuple[list[dict], str]:
     """Hent alle abonnentar i ei gruppe (Connect API, cursor-paginering). Returnerer (liste med dict, feilmelding)."""
     out = []
     cursor = None
     url_base = f"https://connect.mailerlite.com/api/groups/{group_id}/subscribers"
     while True:
-        url = f"{url_base}?limit=100" if cursor is None else f"{url_base}?limit=100&cursor={cursor}"
-        req = Request(url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json"}, method="GET")
+        url = (
+            f"{url_base}?limit=100"
+            if cursor is None
+            else f"{url_base}?limit=100&cursor={cursor}"
+        )
+        req = Request(
+            url,
+            headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+            method="GET",
+        )
         try:
             with urlopen(req, timeout=20, context=_SSL_CTX) as res:
                 data = json.loads(res.read().decode())
@@ -530,103 +526,14 @@ def _mailerlite_fetch_group_subscribers(token: str, group_id: str) -> tuple[list
     return out, ""
 
 
-def _mailerlite_add_subscriber(email: str, fornamn: str, mellomnamn: str, etternamn: str, token: str, group_id: str) -> tuple[bool, str]:
-    """Legg til eller oppdater abonnent i MailerLite. Returnerer (success, feilmelding)."""
-    full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-    body = {
-        "email": email,
-        "fields": {
-            "name": fornamn or full_name,
-            "last_name": etternamn or "",
-        },
-        "groups": [group_id],
-    }
-    req = Request(
-        "https://connect.mailerlite.com/api/subscribers",
-        data=json.dumps(body).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        },
-        method="POST",
-    )
-    try:
-        with urlopen(req, timeout=15, context=_SSL_CTX) as res:
-            if res.status in (200, 201):
-                return True, ""
-            return False, f"MailerLite svarte med {res.status}"
-    except HTTPError as e:
-        try:
-            err_body = json.loads(e.read().decode())
-            msg = err_body.get("message", str(e))
-        except Exception:
-            msg = str(e)
-        return False, msg
-    except (URLError, OSError) as e:
-        return False, str(e)
-
-
 @app.route("/api/innmelding", methods=["POST"])
 def api_innmelding():
-    """Offentleg: send innmelding til folk@oslobygda.no (epost) og (valfritt) til MailerLite. Styret registrerer manuelt i Bygdelista."""
-    data = request.get_json() or {}
-    fornamn = (data.get("fornamn") or "").strip()
-    mellomnamn = (data.get("mellomnamn") or "").strip()
-    etternamn = (data.get("etternamn") or "").strip()
-    email = (data.get("email") or "").strip().lower()
-    phone = (data.get("phone") or "").strip()
-    adresse = (data.get("adresse") or "").strip()
-    postnummer = (data.get("postnummer") or "").strip()
-    poststad = (data.get("poststad") or "").strip()
-    birth_date = (data.get("birth_date") or "").strip()  # ISO YYYY-MM-DD
-    membership_type = (data.get("membership_type") or "vanleg").strip()
-    if membership_type not in {"vanleg", "kul"}:
-        return jsonify({"error": "Ugyldig medlemstype."}), 400
-    consent = data.get("consent") is True
-
-    if not consent:
-        return jsonify({"error": "Du må godta at vi lagrar og brukar opplysningane for medlemskap og nyhendebrev."}), 400
-    if not fornamn or not etternamn:
-        return jsonify({"error": "Fornamn og etternamn er påkrevd."}), 400
-    if not email:
-        return jsonify({"error": "Epost er påkrevd."}), 400
-
-    to_email = os.environ.get("INNMELDING_EPOST_TIL", "folk@oslobygda.no").strip()
-    epost_ok, epost_err = _send_innmelding_epost(to_email, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type)
-
-    subscribe_ok = True
-    subscribe_err = ""
-    provider = _newsletter_provider()
-    if provider == "brevo":
-        api_key = os.environ.get("BREVO_API_KEY", "").strip()
-        list_id_raw = (os.environ.get("BREVO_INNMELDING_LIST_ID") or os.environ.get("BREVO_LIST_ID", "")).strip()
-        if api_key and list_id_raw:
-            try:
-                list_id = int(list_id_raw)
-            except ValueError:
-                subscribe_ok, subscribe_err = False, "BREVO_LIST_ID må vere eit heiltal"
-            else:
-                subscribe_ok, subscribe_err = _brevo_add_contact(email, fornamn, mellomnamn, etternamn, phone, adresse, postnummer, poststad, birth_date, membership_type, api_key, list_id)
-    else:
-        token = os.environ.get("MAILERLITE_API_TOKEN", "").strip()
-        group_id = (os.environ.get("MAILERLITE_INNMELDING_GROUP_ID") or os.environ.get("MAILERLITE_GROUP_ID", "")).strip()
-        if token and group_id:
-            subscribe_ok, subscribe_err = _mailerlite_add_subscriber(email, fornamn, mellomnamn, etternamn, token, group_id)
-
-    if not epost_ok and not subscribe_ok:
-        return jsonify({"error": f"Kunne ikkje sende innmeldinga. E-post: {epost_err}. Nyhendebrev: {subscribe_err}"}), 500
-    if not epost_ok:
-        return jsonify({"message": "Du er lagt til i nyhendebrev-lista.", "warning": f"E-post til styret kunne ikkje sendast: {epost_err}. Kontakt folk@oslobygda.no for å fullføre innmeldinga."}), 201
-    if not subscribe_ok:
-        return jsonify({"message": "Innmeldinga er sendt til styret. Du vil bli registrert i Bygdelista snart.", "warning": f"Kunne ikkje legge til i nyhendebrev-lista: {subscribe_err}"}), 201
-
-    default_msg = "Takk for innmeldinga! Vi har sendt henne til styret (folk@oslobygda.no), og du er lagt til i nyhendebrev-lista. Styret registrerer deg i Bygdelista så snart dei ser henne."
-    msg = os.environ.get("INNMELDING_SUCCESS_MESSAGE", default_msg).strip() or default_msg
-    return jsonify({"message": msg}), 201
+    """Utgått API. Ikkje send e-post eller opprett kontaktar utan betaling."""
+    return jsonify({"error": "Dette skjemaet er avvikla. Bruk /bli-medlem."}), 410
 
 
 # —— API (berre for innlogga styret) ——
+
 
 @app.route("/api/sync-contacts", methods=["POST"])
 @require_admin
@@ -635,9 +542,13 @@ def api_sync_contacts():
     provider = _newsletter_provider()
     if provider == "brevo":
         api_key = os.environ.get("BREVO_API_KEY", "").strip()
-        list_id_raw = (os.environ.get("BREVO_MEDLEMMAR_LIST_ID") or os.environ.get("BREVO_INNMELDING_LIST_ID") or os.environ.get("BREVO_LIST_ID", "")).strip()
+        list_id_raw = (os.environ.get("BREVO_MEDLEMMAR_LIST_ID") or "").strip()
         if not api_key or not list_id_raw:
-            return jsonify({"error": "BREVO_API_KEY og BREVO_LIST_ID (eller BREVO_MEDLEMMAR_LIST_ID) må vere satt."}), 400
+            return jsonify(
+                {
+                    "error": "Medlemsimport krev BREVO_API_KEY og ei eiga BREVO_MEDLEMMAR_LIST_ID. Nyhendebrevlista er ikkje ei medlemsliste."
+                }
+            ), 400
         try:
             list_id = int(list_id_raw)
         except ValueError:
@@ -647,15 +558,23 @@ def api_sync_contacts():
             return jsonify({"error": f"Kunne ikkje hente frå Brevo: {err}"}), 502
     else:
         token = os.environ.get("MAILERLITE_API_TOKEN", "").strip()
-        group_id = (os.environ.get("MAILERLITE_MEDLEMMAR_GROUP_ID") or os.environ.get("MAILERLITE_GROUP_ID", "")).strip()
+        group_id = (
+            os.environ.get("MAILERLITE_MEDLEMMAR_GROUP_ID")
+            or os.environ.get("MAILERLITE_GROUP_ID", "")
+        ).strip()
         if not token or not group_id:
-            return jsonify({"error": "MAILERLITE_API_TOKEN og MAILERLITE_GROUP_ID (eller MAILERLITE_MEDLEMMAR_GROUP_ID) må vere satt."}), 400
+            return jsonify(
+                {
+                    "error": "MAILERLITE_API_TOKEN og MAILERLITE_GROUP_ID (eller MAILERLITE_MEDLEMMAR_GROUP_ID) må vere satt."
+                }
+            ), 400
         subscribers, err = _mailerlite_fetch_group_subscribers(token, group_id)
         if err:
             return jsonify({"error": f"Kunne ikkje hente frå MailerLite: {err}"}), 502
 
     now = datetime.now(timezone.utc).isoformat()
     added = 0
+
     def _normalize_medlemstype(val):
         if not val:
             return "vanleg"
@@ -664,37 +583,105 @@ def api_sync_contacts():
             return "kul"
         return "vanleg"
 
-    with get_db() as conn:
+    with managed_db(get_db) as conn:
         for s in subscribers:
             email = (s.get("email") or "").strip().lower()
             if not email:
                 continue
-            if conn.execute("SELECT 1 FROM members WHERE email = ?", (email,)).fetchone():
+            if conn.execute(
+                "SELECT 1 FROM members WHERE email = ?", (email,)
+            ).fetchone():
+                continue
+            if conn.execute(
+                "SELECT 1 FROM privacy_jobs WHERE email=?", (email,)
+            ).fetchone():
                 continue
             fields = s.get("fields") or {}
             if provider == "brevo":
                 fields = s.get("attributes") or {}
             # Skjema-felt (Subscribers → Fields): fornamn, mellomnamn, etternamn, adresse, medlemstype, fodselsdato + name/last_name/city/zip/phone
-            fornamn = (fields.get("fornamn") or fields.get("FIRSTNAME") or fields.get("name") or fields.get("NAME") or "").strip() or "–"
-            etternamn = (fields.get("etternamn") or fields.get("LASTNAME") or fields.get("last_name") or "").strip() or "–"
-            mellomnamn = (fields.get("mellomnamn") or fields.get("MIDDLENAME") or fields.get("company") or "").strip()
+            fornamn = (
+                fields.get("fornamn")
+                or fields.get("FIRSTNAME")
+                or fields.get("name")
+                or fields.get("NAME")
+                or ""
+            ).strip() or "–"
+            etternamn = (
+                fields.get("etternamn")
+                or fields.get("LASTNAME")
+                or fields.get("last_name")
+                or ""
+            ).strip() or "–"
+            mellomnamn = (
+                fields.get("mellomnamn")
+                or fields.get("MIDDLENAME")
+                or fields.get("company")
+                or ""
+            ).strip()
             phone = (fields.get("phone") or fields.get("PHONE") or "").strip()
-            adresse = (fields.get("adresse") or fields.get("ADDRESS") or fields.get("state") or "").strip()
-            poststad = (fields.get("poststad") or fields.get("CITY") or fields.get("city") or "").strip()
-            postnummer = (fields.get("postnummer") or fields.get("ZIP") or fields.get("zip") or fields.get("z_i_p") or "").strip()
-            membership_type = _normalize_medlemstype(fields.get("medlemstype") or fields.get("MEMBERSHIP_TYPE") or fields.get("country"))
-            birth_date = (fields.get("fodselsdato") or fields.get("BIRTH_DATE") or fields.get("birthday") or fields.get("birth_date") or "").strip() or None
+            adresse = (
+                fields.get("adresse")
+                or fields.get("ADDRESS")
+                or fields.get("state")
+                or ""
+            ).strip()
+            poststad = (
+                fields.get("poststad") or fields.get("CITY") or fields.get("city") or ""
+            ).strip()
+            postnummer = (
+                fields.get("postnummer")
+                or fields.get("ZIP")
+                or fields.get("zip")
+                or fields.get("z_i_p")
+                or ""
+            ).strip()
+            membership_type = _normalize_medlemstype(
+                fields.get("medlemstype")
+                or fields.get("MEMBERSHIP_TYPE")
+                or fields.get("country")
+            )
+            birth_date = (
+                fields.get("fodselsdato")
+                or fields.get("BIRTH_DATE")
+                or fields.get("birthday")
+                or fields.get("birth_date")
+                or ""
+            ).strip() or None
             full_name = _build_full_name(fornamn, mellomnamn, etternamn)
             consent_at = s.get("subscribed_at") or s.get("createdAt") or now
             conn.execute(
                 """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, created_at, updated_at)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, "ikkje betalt", consent_at, now, now),
+                (
+                    full_name,
+                    fornamn,
+                    mellomnamn,
+                    etternamn,
+                    email,
+                    phone,
+                    adresse,
+                    postnummer,
+                    poststad,
+                    birth_date,
+                    membership_type,
+                    "ikkje betalt",
+                    consent_at,
+                    now,
+                    now,
+                ),
             )
             added += 1
         conn.commit()
     provider_label = "Brevo" if provider == "brevo" else "MailerLite"
-    return jsonify({"message": f"{added} nye medlemmar importert frå {provider_label}." if added else f"Ingen nye å hente frå {provider_label}.", "added": added})
+    return jsonify(
+        {
+            "message": f"{added} nye medlemmar importert frå {provider_label}."
+            if added
+            else f"Ingen nye å hente frå {provider_label}.",
+            "added": added,
+        }
+    )
 
 
 @app.route("/api/sync-mailerlite", methods=["POST"])
@@ -712,7 +699,7 @@ def _build_full_name(fornamn, mellomnamn, etternamn):
 @require_admin
 def list_members():
     try:
-        with get_db() as conn:
+        with managed_db(get_db) as conn:
             ar = _get_medlemsbetalingsar(conn)
             rows = conn.execute(
                 """SELECT m.id, m.full_name, m.fornamn, m.mellomnamn, m.etternamn, m.email, m.phone, m.adresse, m.postnummer, m.poststad,
@@ -720,13 +707,15 @@ def list_members():
                           COALESCE(SUM(CASE WHEN p.for_year = ? THEN p.amount_ore ELSE 0 END), 0) AS total_paid_ore
                    FROM members m
                    LEFT JOIN payments p ON p.member_id = m.id
+                   WHERE m.privacy_deleted=0
                    GROUP BY m.id
                    ORDER BY m.full_name""",
                 (ar,),
             ).fetchall()
         return jsonify([dict(r) for r in rows])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        app.logger.exception("Kunne ikkje hente medlemsoversikta")
+        return jsonify({"error": "Kunne ikkje hente medlemsoversikta."}), 500
 
 
 @app.route("/api/members", methods=["POST"])
@@ -757,11 +746,27 @@ def create_member():
         payment_status = "ikkje betalt"
 
     now = datetime.now(timezone.utc).isoformat()
-    with get_db() as conn:
+    with managed_db(get_db) as conn:
         cur = conn.execute(
             """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, created_at, updated_at)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, now, now),
+            (
+                full_name,
+                fornamn,
+                mellomnamn,
+                etternamn,
+                email,
+                phone,
+                adresse,
+                postnummer,
+                poststad,
+                birth_date,
+                membership_type,
+                payment_status,
+                consent_at,
+                now,
+                now,
+            ),
         )
         conn.commit()
         mid = cur.lastrowid
@@ -771,8 +776,10 @@ def create_member():
 @app.route("/api/members/<int:mid>", methods=["GET", "PUT", "DELETE"])
 @require_admin
 def member(mid):
-    with get_db() as conn:
-        row = conn.execute("SELECT * FROM members WHERE id = ?", (mid,)).fetchone()
+    with managed_db(get_db) as conn:
+        row = conn.execute(
+            "SELECT * FROM members WHERE id = ? AND privacy_deleted=0", (mid,)
+        ).fetchone()
     if not row:
         return jsonify({"error": "Medlem finst ikkje"}), 404
     row = dict(row)
@@ -782,38 +789,58 @@ def member(mid):
 
     if request.method == "PUT":
         data = request.get_json() or {}
-        fornamn = (data.get("fornamn") or row.get("fornamn") or "").strip()
-        mellomnamn = (data.get("mellomnamn") or row.get("mellomnamn") or "").strip()
-        etternamn = (data.get("etternamn") or row.get("etternamn") or "").strip()
+        fornamn = (data.get("fornamn", row.get("fornamn")) or "").strip()
+        mellomnamn = (data.get("mellomnamn", row.get("mellomnamn")) or "").strip()
+        etternamn = (data.get("etternamn", row.get("etternamn")) or "").strip()
         full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-        email = (data.get("email") or row["email"]).strip().lower()
-        phone = (data.get("phone") or row.get("phone") or "").strip()
-        adresse = (data.get("adresse") or row.get("adresse") or "").strip()
-        postnummer = (data.get("postnummer") or row.get("postnummer") or "").strip()
-        poststad = (data.get("poststad") or row.get("poststad") or "").strip()
-        birth_date = (data.get("birth_date") or row.get("birth_date") or "").strip() or None
-        membership_type = (data.get("membership_type") or row["membership_type"]).strip()
-        payment_status = (data.get("payment_status") or row["payment_status"]).strip()
+        email = (data.get("email", row.get("email")) or "").strip().lower()
+        phone = (data.get("phone", row.get("phone")) or "").strip()
+        adresse = (data.get("adresse", row.get("adresse")) or "").strip()
+        postnummer = (data.get("postnummer", row.get("postnummer")) or "").strip()
+        poststad = (data.get("poststad", row.get("poststad")) or "").strip()
+        birth_date = (
+            data.get("birth_date", row.get("birth_date")) or ""
+        ).strip() or None
+        membership_type = (
+            data.get("membership_type", row.get("membership_type")) or ""
+        ).strip()
+        payment_status = (
+            data.get("payment_status", row.get("payment_status")) or ""
+        ).strip()
         if not fornamn or not etternamn:
             return jsonify({"error": "Fornamn og etternamn er påkrevd"}), 400
         if not email:
             return jsonify({"error": "Epost er påkrevd"}), 400
         now = datetime.now(timezone.utc).isoformat()
-        with get_db() as conn:
+        with managed_db(get_db) as conn:
             conn.execute(
                 """UPDATE members SET full_name=?, fornamn=?, mellomnamn=?, etternamn=?, email=?, phone=?, adresse=?, postnummer=?, poststad=?, birth_date=?, membership_type=?, payment_status=?, updated_at=?
                    WHERE id=?""",
-                (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, now, mid),
+                (
+                    full_name,
+                    fornamn,
+                    mellomnamn,
+                    etternamn,
+                    email,
+                    phone,
+                    adresse,
+                    postnummer,
+                    poststad,
+                    birth_date,
+                    membership_type,
+                    payment_status,
+                    now,
+                    mid,
+                ),
             )
             conn.commit()
         return jsonify({"message": "Oppdatert"})
 
     if request.method == "DELETE":
-        with get_db() as conn:
-            conn.execute("DELETE FROM payments WHERE member_id = ?", (mid,))
-            conn.execute("DELETE FROM members WHERE id = ?", (mid,))
-            conn.commit()
-        return jsonify({"message": "Medlem sletta"}), 200
+        with managed_db(get_db) as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            result, status = erase_member(conn, mid)
+        return jsonify(result), status
 
     return jsonify({"error": "Ugyldig metode"}), 405
 
@@ -821,15 +848,18 @@ def member(mid):
 @app.route("/api/members/<int:mid>/payments", methods=["GET", "POST"])
 @require_admin
 def member_payments(mid):
-    with get_db() as conn:
-        member_exists = conn.execute("SELECT 1 FROM members WHERE id = ?", (mid,)).fetchone()
+    with managed_db(get_db) as conn:
+        member_exists = conn.execute(
+            "SELECT 1 FROM members WHERE id = ? AND privacy_deleted=0", (mid,)
+        ).fetchone()
         if not member_exists:
             return jsonify({"error": "Medlem finst ikkje"}), 404
 
         if request.method == "GET":
             ar = _get_medlemsbetalingsar(conn)
             rows = conn.execute(
-                """SELECT id, amount_ore, paid_at, note, created_at, for_year
+                """SELECT id, amount_ore, paid_at, note, created_at, for_year,
+                          EXISTS(SELECT 1 FROM signup_orders WHERE payment_id=payments.id) AS vipps
                    FROM payments
                    WHERE member_id = ?
                    ORDER BY paid_at DESC, id DESC""",
@@ -873,40 +903,69 @@ def member_payments(mid):
         )
         _oppdater_fra_innbetalingar(conn, mid)
         conn.commit()
-        return jsonify({"id": cur.lastrowid, "message": "Betaling registrert. Betalingsstatus og medlemstype er oppdaterte."}), 201
+        return jsonify(
+            {
+                "id": cur.lastrowid,
+                "message": "Betaling registrert. Betalingsstatus og medlemstype er oppdaterte.",
+            }
+        ), 201
 
 
-@app.route('/api/members/<int:mid>/payments/<int:pid>', methods=['DELETE'])
+@app.route("/api/members/<int:mid>/payments/<int:pid>", methods=["DELETE"])
 @require_admin
 def delete_member_payment(mid, pid):
-    with get_db() as conn:
-        conn.execute('BEGIN IMMEDIATE')
-        payment = conn.execute('SELECT for_year FROM payments WHERE id=? AND member_id=?', (pid, mid)).fetchone()
+    with managed_db(get_db) as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        payment = conn.execute(
+            "SELECT for_year FROM payments WHERE id=? AND member_id=?", (pid, mid)
+        ).fetchone()
         if not payment:
-            return jsonify({'error':'Betalinga finst ikkje på denne medlemmen.'}), 404
+            return jsonify({"error": "Betalinga finst ikkje på denne medlemmen."}), 404
+        if conn.execute(
+            "SELECT 1 FROM signup_orders WHERE payment_id=?", (pid,)
+        ).fetchone():
+            return jsonify(
+                {
+                    "error": "Vipps-betalingar må refunderast og avstemmast. Dei kan ikkje slettast som manuelle feilregistreringar."
+                }
+            ), 409
         year = _get_medlemsbetalingsar(conn)
-        if payment['for_year'] != year or conn.execute('SELECT 1 FROM medlemsar_arkiv WHERE ar=?', (payment['for_year'],)).fetchone():
-            return jsonify({'error':'Betalingar frå avslutta medlemsår kan ikkje slettast her.'}), 409
-        conn.execute('DELETE FROM payments WHERE id=? AND member_id=?', (pid, mid))
+        if (
+            payment["for_year"] != year
+            or conn.execute(
+                "SELECT 1 FROM medlemsar_arkiv WHERE ar=?", (payment["for_year"],)
+            ).fetchone()
+        ):
+            return jsonify(
+                {"error": "Betalingar frå avslutta medlemsår kan ikkje slettast her."}
+            ), 409
+        conn.execute("DELETE FROM payments WHERE id=? AND member_id=?", (pid, mid))
         _oppdater_fra_innbetalingar(conn, mid, reset_empty=True)
         conn.commit()
-    return jsonify({'message':'Betalingsregistreringa er sletta. Status og medlemstype er oppdaterte.'})
+    return jsonify(
+        {
+            "message": "Betalingsregistreringa er sletta. Status og medlemstype er oppdaterte."
+        }
+    )
 
 
-@app.route('/api/innstillingar/kontingent', methods=['GET', 'PUT'])
+@app.route("/api/innstillingar/kontingent", methods=["GET", "PUT"])
 @require_admin
 def kontingent_innstillingar():
-    with get_db() as conn:
-        if request.method == 'PUT':
+    with managed_db(get_db) as conn:
+        if request.method == "PUT":
             data = request.get_json() or {}
             try:
-                ore = _nok_to_ore(data.get('superkul_grense_nok'), allow_zero=True)
+                ore = _nok_to_ore(data.get("superkul_grense_nok"), allow_zero=True)
             except ValueError as error:
-                return jsonify({'error':str(error)}), 400
-            conn.execute("INSERT INTO app_settings(key,value) VALUES ('superkul_grense_ore',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (str(ore),))
+                return jsonify({"error": str(error)}), 400
+            conn.execute(
+                "INSERT INTO app_settings(key,value) VALUES ('superkul_grense_ore',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                (str(ore),),
+            )
             _oppdater_alle_fra_innbetalingar(conn)
             conn.commit()
-        return jsonify({'superkul_grense_ore':_get_superkul_grense(conn)})
+        return jsonify({"superkul_grense_ore": _get_superkul_grense(conn)})
 
 
 @app.route("/api/okonomi-sammendrag", methods=["GET"])
@@ -915,7 +974,7 @@ def kontingent_innstillingar():
 def api_medlemsoversikt():
     """Samanlagd medlemstal (alder) + innbetaling/arkiv for gjeldande medlemsår."""
     idag = date.today()
-    with get_db() as conn:
+    with managed_db(get_db) as conn:
         ar = _get_medlemsbetalingsar(conn)
         tot = conn.execute(
             "SELECT COALESCE(SUM(amount_ore), 0) FROM payments WHERE for_year = ?",
@@ -928,7 +987,9 @@ def api_medlemsoversikt():
         ark = conn.execute(
             "SELECT ar, totalt_ore, antall_medlemer_med_betaling, oppretta FROM medlemsar_arkiv ORDER BY ar DESC"
         ).fetchall()
-        fødsel_rader = conn.execute("SELECT birth_date FROM members").fetchall()
+        fødsel_rader = conn.execute(
+            "SELECT birth_date FROM members WHERE privacy_deleted=0"
+        ).fetchall()
     al_0_25 = 0
     al_26_eldre = 0
     al_ukjent = 0
@@ -977,7 +1038,7 @@ def api_medlemsar_lukk():
             400,
         )
     now = datetime.now(timezone.utc).isoformat()
-    with get_db() as conn:
+    with managed_db(get_db) as conn:
         ar = _get_medlemsbetalingsar(conn)
         if bekreft != ar:
             return (
@@ -1036,37 +1097,63 @@ def _medlemstype_visning(membership_type: str, *, med_beskrivelse: bool = False)
     return "Kul (5 kr)" if med_beskrivelse else "Kul"
 
 
+def _csv_cell(value):
+    text = str(value)
+    if text.lstrip().startswith(("=", "+", "-", "@")) or text.startswith(
+        ("\t", "\r", "\n")
+    ):
+        return "'" + text
+    return text
+
+
 @app.route("/api/export/excel")
 @require_admin
 def export_excel():
     """Last ned medlemslista som CSV (Excel-kompatibel)."""
-    with get_db() as conn:
+    with managed_db(get_db) as conn:
         rows = conn.execute(
             """SELECT fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad,
                       birth_date, membership_type, payment_status, consent_at
-               FROM members ORDER BY full_name"""
+               FROM members WHERE privacy_deleted=0 ORDER BY full_name"""
         ).fetchall()
     buf = io.StringIO()
     writer = csv.writer(buf, delimiter=";")
-    writer.writerow([
-        "Fornamn", "Mellomnamn", "Etternamn", "Epost", "Telefon", "Adresse",
-        "Postnummer", "Poststad", "Fødselsdato", "Medlemstype", "Betalingsstatus", "Samtykke"
-    ])
+    writer.writerow(
+        [
+            "Fornamn",
+            "Mellomnamn",
+            "Etternamn",
+            "Epost",
+            "Telefon",
+            "Adresse",
+            "Postnummer",
+            "Poststad",
+            "Fødselsdato",
+            "Medlemstype",
+            "Betalingsstatus",
+            "Samtykke",
+        ]
+    )
     for r in rows:
-        writer.writerow([
-            r["fornamn"] or "",
-            r["mellomnamn"] or "",
-            r["etternamn"] or "",
-            r["email"] or "",
-            r["phone"] or "",
-            r["adresse"] or "",
-            r["postnummer"] or "",
-            r["poststad"] or "",
-            r["birth_date"] or "",
-            _medlemstype_visning(r["membership_type"] or "vanleg"),
-            r["payment_status"] or "",
-            r["consent_at"] or "",
-        ])
+        writer.writerow(
+            [
+                _csv_cell(value)
+                for value in [
+                    r["fornamn"] or "",
+                    r["mellomnamn"] or "",
+                    r["etternamn"] or "",
+                    r["email"] or "",
+                    r["phone"] or "",
+                    r["adresse"] or "",
+                    r["postnummer"] or "",
+                    r["poststad"] or "",
+                    r["birth_date"] or "",
+                    _medlemstype_visning(r["membership_type"] or "vanleg"),
+                    r["payment_status"] or "",
+                    r["consent_at"] or "",
+                ]
+            ]
+        )
     # UTF-8 med BOM slik at Excel opnar teiknsettet riktig
     body = "\ufeff" + buf.getvalue()
     return Response(
@@ -1079,8 +1166,10 @@ def export_excel():
 @app.route("/api/gdpr/export/<int:mid>")
 @require_admin
 def gdpr_export(mid):
-    with get_db() as conn:
-        row = conn.execute("SELECT * FROM members WHERE id = ?", (mid,)).fetchone()
+    with managed_db(get_db) as conn:
+        row = conn.execute(
+            "SELECT * FROM members WHERE id = ? AND privacy_deleted=0", (mid,)
+        ).fetchone()
     if not row:
         return jsonify({"error": "Medlem finst ikkje"}), 404
     return jsonify(dict(row))
@@ -1089,42 +1178,104 @@ def gdpr_export(mid):
 @app.route("/api/gdpr/delete/<int:mid>", methods=["POST"])
 @require_admin
 def gdpr_delete(mid):
-    with get_db() as conn:
-        conn.execute("DELETE FROM members WHERE id = ?", (mid,))
-        conn.commit()
-    return jsonify({"message": "Medlem sletta"}), 200
-
+    with managed_db(get_db) as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        result, status = erase_member(conn, mid)
+    return jsonify(result), status
 
 
 def _signup_newsletter(member):
     # Berre nødvendige kontaktfelt vert overførte. Aldri nullstill avmeldingsstatus.
-    key=os.environ.get('BREVO_API_KEY','').strip()
-    list_id=os.environ.get('BREVO_INNMELDING_LIST_ID') or os.environ.get('BREVO_LIST_ID','')
+    key = os.environ.get("BREVO_API_KEY", "").strip()
+    list_id = os.environ.get("BREVO_INNMELDING_LIST_ID") or os.environ.get(
+        "BREVO_LIST_ID", ""
+    )
     if not key or not str(list_id).isdigit():
         return False
-    status,_=_brevo_request('POST','/contacts',key,{
-        'email':member['email'],
-        'attributes':{'FIRSTNAME':member['fornamn'],'LASTNAME':member['etternamn']},
-        'listIds':[int(list_id)],'updateEnabled':True})
-    return status in (200,201,204)
+    status, _ = _brevo_request(
+        "POST",
+        "/contacts",
+        key,
+        {
+            "email": member["email"],
+            "attributes": {
+                "FIRSTNAME": member["fornamn"],
+                "LASTNAME": member["etternamn"],
+            },
+            "listIds": [int(list_id)],
+            "updateEnabled": True,
+        },
+    )
+    return status in (200, 201, 204)
+
+
+def _delete_brevo_contact(email):
+    key = os.environ.get("BREVO_API_KEY", "").strip()
+    if not key:
+        return False
+    status, _ = _brevo_request("DELETE", "/contacts/" + quote(email, safe=""), key)
+    return status in (204, 404)
+
+
+def _privacy_maintenance():
+    # Lesekontroll kvar 30. dag held òg API-nøkkelen i bruk når det er få innmeldingar.
+    key = os.environ.get("BREVO_API_KEY", "").strip()
+    list_id = os.environ.get("BREVO_INNMELDING_LIST_ID") or os.environ.get(
+        "BREVO_LIST_ID", ""
+    )
+    now = int(time.time())
+    if key and str(list_id).isdigit():
+        with managed_db(get_db) as db:
+            row = db.execute(
+                "SELECT value FROM app_settings WHERE key='brevo_api_last_check'"
+            ).fetchone()
+        if not row or now - int(row[0]) >= 30 * 86400:
+            status, _ = _brevo_request(
+                "GET", "/contacts/lists/" + str(int(list_id)), key
+            )
+            if status == 200:
+                with managed_db(get_db) as db:
+                    db.execute(
+                        "INSERT INTO app_settings(key,value) VALUES ('brevo_api_last_check',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                        (str(now),),
+                    )
+            else:
+                app.logger.warning(
+                    "Brevo API-kontroll feila. Kontroller tilgang og listeoppsett."
+                )
+    return process_privacy_jobs(get_db, _delete_brevo_contact)
 
 
 from ny_innmelding import install_signup
-install_signup(app,get_db,_get_medlemsbetalingsar,_get_superkul_grense,_signup_newsletter,require_admin)
-app.config.setdefault('MAX_CONTENT_LENGTH',65536)
+
+install_signup(
+    app,
+    get_db,
+    _get_medlemsbetalingsar,
+    _get_superkul_grense,
+    _signup_newsletter,
+    require_admin,
+    _privacy_maintenance,
+)
+app.config["MAX_CONTENT_LENGTH"] = 65536
+
 
 def main():
     # Tydelig melding om database-kryptering ved oppstart
     if DB_KEY:
         if _use_sqlcipher:
-            sys.stderr.write("Database: kryptert (SQLCipher). medlemsregister.db er ikkje lesbar som rein tekst.\n")
+            sys.stderr.write(
+                "Database: kryptert (SQLCipher). medlemsregister.db er ikkje lesbar som rein tekst.\n"
+            )
         else:
             sys.stderr.write(
                 "Database: UKRYPTERT. MEDLEMSREGISTER_DB_KEY er satt, men sqlcipher3 er ikkje tilgjengeleg.\n"
                 "For kryptering: installer libsqlcipher (macOS: brew install sqlcipher), deretter pip install sqlcipher3\n"
             )
     else:
-        sys.stderr.write("Database: ukyrptert (ingen MEDLEMSREGISTER_DB_KEY). Sett key i .env for kryptering.\n")
+        sys.stderr.write(
+            "Database: ukyrptert (ingen MEDLEMSREGISTER_DB_KEY). Sett key i .env for kryptering.\n"
+        )
     init_db()
     port = int(os.environ.get("PORT", 5001))
     # Ved driftsetjing: la serveren lytte på 0.0.0.0

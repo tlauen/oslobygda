@@ -1,4 +1,5 @@
 """Nyinnmelding: varig ordre før Vipps-kall, stadfesta trekk før bokføring."""
+
 import base64
 from contextlib import closing
 from datetime import date, datetime, timezone
@@ -17,7 +18,7 @@ from dotenv import dotenv_values, set_key
 from flask import abort, redirect, render_template, request, session
 from vipps_client import VippsClient, VippsError, amount_ore
 
-SCHEMA='''
+SCHEMA = """
 CREATE TABLE IF NOT EXISTS signup_orders (
  reference TEXT PRIMARY KEY, browser_key TEXT NOT NULL, email TEXT NOT NULL,
  details TEXT NOT NULL, amount_ore INTEGER NOT NULL, for_year INTEGER NOT NULL,
@@ -30,9 +31,18 @@ CREATE TABLE IF NOT EXISTS signup_orders (
 );
 CREATE INDEX IF NOT EXISTS signup_email ON signup_orders(email,environment);
 CREATE TABLE IF NOT EXISTS signup_limits (bucket TEXT PRIMARY KEY, count INTEGER NOT NULL, expires REAL NOT NULL);
-'''
-FIELDS={'fornamn':100,'mellomnamn':100,'etternamn':100,'email':254,'phone':30,
-        'adresse':200,'postnummer':4,'poststad':100,'birth_date':10}
+"""
+FIELDS = {
+    "fornamn": 100,
+    "mellomnamn": 100,
+    "etternamn": 100,
+    "email": 254,
+    "phone": 30,
+    "adresse": 200,
+    "postnummer": 4,
+    "poststad": 100,
+    "birth_date": 10,
+}
 
 
 def init_signup(get_db):
@@ -42,355 +52,666 @@ def init_signup(get_db):
 
 
 def credentials(environment):
-    if environment=='test':
-        config=dotenv_values(Path(__file__).resolve().parent/'.env.vipps-test')
+    if environment == "test":
+        config = dotenv_values(Path(__file__).resolve().parent / ".env.vipps-test")
     else:
-        config=os.environ
+        config = os.environ
     return config
 
 
 def client_for(environment, msn=None):
-    config=credentials(environment)
-    client=VippsClient(*(config.get(key,'') for key in ('VIPPS_CLIENT_ID','VIPPS_CLIENT_SECRET','VIPPS_SUBSCRIPTION_KEY','VIPPS_MSN')),environment=environment)
-    if msn and client.headers['Merchant-Serial-Number']!=msn:
-        raise VippsError('Salseininga er endra. Administrator må kontrollere denne ordren.')
+    config = credentials(environment)
+    client = VippsClient(
+        *(
+            config.get(key, "")
+            for key in (
+                "VIPPS_CLIENT_ID",
+                "VIPPS_CLIENT_SECRET",
+                "VIPPS_SUBSCRIPTION_KEY",
+                "VIPPS_MSN",
+            )
+        ),
+        environment=environment,
+    )
+    if msn and client.headers["Merchant-Serial-Number"] != msn:
+        raise VippsError(
+            "Salseininga er endra. Administrator må kontrollere denne ordren."
+        )
     return client
 
 
 def validate(values):
-    data={key:values.get(key,'').strip() for key in FIELDS}
-    if any(len(data[k])>maximum or any(ord(c)<32 for c in data[k]) for k,maximum in FIELDS.items()):
-        raise ValueError('Kontroller lengda og teikna i felta.')
-    if not all(data[k] for k in ('fornamn','etternamn','email','phone','adresse','postnummer','poststad')):
-        raise ValueError('Fyll ut alle obligatoriske felt.')
-    data['email']=data['email'].casefold()
-    if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',data['email']):
-        raise ValueError('Skriv ei gyldig e-postadresse.')
-    if not re.fullmatch(r'[0-9]{4}',data['postnummer']):
-        raise ValueError('Postnummeret må ha fire siffer.')
-    phone=re.sub(r'[ ()-]','',data['phone'])
-    if not re.fullmatch(r'\+?[0-9]{8,15}',phone):
-        raise ValueError('Skriv eit gyldig telefonnummer.')
-    data['phone']=phone
-    if data['birth_date']:
+    data = {key: values.get(key, "").strip() for key in FIELDS}
+    if any(
+        len(data[k]) > maximum or any(ord(c) < 32 for c in data[k])
+        for k, maximum in FIELDS.items()
+    ):
+        raise ValueError("Kontroller lengda og teikna i felta.")
+    if not all(
+        data[k]
+        for k in (
+            "fornamn",
+            "etternamn",
+            "email",
+            "phone",
+            "adresse",
+            "postnummer",
+            "poststad",
+        )
+    ):
+        raise ValueError("Fyll ut alle obligatoriske felt.")
+    data["email"] = data["email"].casefold()
+    if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", data["email"]):
+        raise ValueError("Skriv ei gyldig e-postadresse.")
+    if not re.fullmatch(r"[0-9]{4}", data["postnummer"]):
+        raise ValueError("Postnummeret må ha fire siffer.")
+    phone = re.sub(r"[ ()-]", "", data["phone"])
+    if not re.fullmatch(r"\+?[0-9]{8,15}", phone):
+        raise ValueError("Skriv eit gyldig telefonnummer.")
+    data["phone"] = phone
+    if data["birth_date"]:
         try:
-            born=date.fromisoformat(data['birth_date'])
-            if born>date.today() or born.year<1900:
+            born = date.fromisoformat(data["birth_date"])
+            if born > date.today() or born.year < 1900:
                 raise ValueError()
         except ValueError:
-            raise ValueError('Kontroller fødselsdatoen.') from None
-    if values.get('terms')!='1':
-        raise ValueError('Du må godta salsvilkåra før du går vidare.')
-    ore=amount_ore(values.get('amount',''))
-    if ore<500:
-        raise ValueError('Medlemskap kostar minst 5 kroner.')
-    return data,ore
+            raise ValueError("Kontroller fødselsdatoen.") from None
+    if values.get("terms") != "1":
+        raise ValueError("Du må godta salsvilkåra før du går vidare.")
+    ore = amount_ore(values.get("amount", ""))
+    if ore < 500:
+        raise ValueError("Medlemskap kostar minst 5 kroner.")
+    return data, ore
 
 
 class SignupService:
-    def __init__(self,get_db,get_year,get_threshold,newsletter):
-        self.db=get_db
-        self.get_year=get_year
-        self.get_threshold=get_threshold
-        self.newsletter=newsletter
+    def __init__(self, get_db, get_year, get_threshold, newsletter):
+        self.db = get_db
+        self.get_year = get_year
+        self.get_threshold = get_threshold
+        self.newsletter = newsletter
 
-    def order(self,reference):
+    def order(self, reference):
         with closing(self.db()) as db:
-            row=db.execute('SELECT * FROM signup_orders WHERE reference=?',(reference,)).fetchone()
+            row = db.execute(
+                "SELECT * FROM signup_orders WHERE reference=?", (reference,)
+            ).fetchone()
             return dict(row) if row else None
 
-    def new(self,values,browser_key,environment,ip):
-        data,ore=validate(values)
-        config=credentials(environment)
-        msn=config.get('VIPPS_MSN','')
+    def new(self, values, browser_key, environment, ip):
+        data, ore = validate(values)
+        config = credentials(environment)
+        msn = config.get("VIPPS_MSN", "")
         if not msn:
-            raise ValueError('Betaling er ikkje sett opp enno.')
-        now=time.time()
-        stamp=datetime.now(timezone.utc).isoformat()
+            raise ValueError("Betaling er ikkje sett opp enno.")
+        now = time.time()
+        stamp = datetime.now(timezone.utc).isoformat()
         with closing(self.db()) as db:
-            db.execute('BEGIN IMMEDIATE')
-            old=db.execute('SELECT reference FROM signup_orders WHERE browser_key=? AND environment=?',(browser_key,environment)).fetchone()
+            db.execute("BEGIN IMMEDIATE")
+            old = db.execute(
+                "SELECT reference FROM signup_orders WHERE browser_key=? AND environment=?",
+                (browser_key, environment),
+            ).fetchone()
             if old:
                 db.rollback()
                 return old[0]
-            bucket=hashlib.sha256(ip.encode()).hexdigest()
-            db.execute('DELETE FROM signup_limits WHERE expires<?',(now,))
-            limit=db.execute('SELECT count FROM signup_limits WHERE bucket=?',(bucket,)).fetchone()
-            if limit and limit[0]>=10:
-                raise ValueError('For mange forsøk. Prøv igjen om ein time.')
-            db.execute('INSERT INTO signup_limits VALUES (?,1,?) ON CONFLICT(bucket) DO UPDATE SET count=count+1',(bucket,now+3600))
-            existing=db.execute('SELECT 1 FROM members WHERE lower(trim(email))=?',(data['email'],)).fetchone()
-            pending=db.execute("SELECT 1 FROM signup_orders WHERE email=? AND environment=? AND status NOT IN ('ABORTED','EXPIRED','TERMINATED')",(data['email'],environment)).fetchone()
+            bucket = hashlib.sha256(ip.encode()).hexdigest()
+            db.execute("DELETE FROM signup_limits WHERE expires<?", (now,))
+            limit = db.execute(
+                "SELECT count FROM signup_limits WHERE bucket=?", (bucket,)
+            ).fetchone()
+            if limit and limit[0] >= 10:
+                raise ValueError("For mange forsøk. Prøv igjen om ein time.")
+            db.execute(
+                "INSERT INTO signup_limits VALUES (?,1,?) ON CONFLICT(bucket) DO UPDATE SET count=count+1",
+                (bucket, now + 3600),
+            )
+            existing = db.execute(
+                "SELECT 1 FROM members WHERE lower(trim(email))=?", (data["email"],)
+            ).fetchone()
+            pending = db.execute(
+                "SELECT 1 FROM signup_orders WHERE email=? AND environment=? AND status NOT IN ('ABORTED','EXPIRED','TERMINATED')",
+                (data["email"], environment),
+            ).fetchone()
             if existing or pending:
                 db.commit()
-                raise ValueError('Me kan ikkje starte ei ny innmelding med denne e-postadressa. Har du meldt deg inn før, kontakt folk@oslobygda.no.')
-            ref='ny-'+secrets.token_hex(16)
-            db.execute('''INSERT INTO signup_orders(reference,browser_key,email,details,amount_ore,for_year,environment,msn,create_key,capture_key,newsletter,created_at,consent_at)
-                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-                       (ref,browser_key,data['email'],json.dumps(data),ore,self.get_year(db),environment,msn,secrets.token_hex(16),secrets.token_hex(16),int(values.get('newsletter')=='1'),now,stamp))
+                raise ValueError(
+                    "Me kan ikkje starte ei ny innmelding med denne e-postadressa. Har du meldt deg inn før, kontakt folk@oslobygda.no."
+                )
+            ref = "ny-" + secrets.token_hex(16)
+            db.execute(
+                """INSERT INTO signup_orders(reference,browser_key,email,details,amount_ore,for_year,environment,msn,create_key,capture_key,newsletter,created_at,consent_at)
+                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    ref,
+                    browser_key,
+                    data["email"],
+                    json.dumps(data),
+                    ore,
+                    self.get_year(db),
+                    environment,
+                    msn,
+                    secrets.token_hex(16),
+                    secrets.token_hex(16),
+                    int(values.get("newsletter") == "1"),
+                    now,
+                    stamp,
+                ),
+            )
             db.commit()
         return ref
 
-    def create(self,reference,return_url):
-        order=self.order(reference)
-        if order['redirect_url']:
-            return order['redirect_url']
-        result=client_for(order['environment'],order['msn']).create(reference,order['amount_ore'],return_url,order['create_key'])
-        url=result.get('redirectUrl','')
-        parts=urlsplit(url)
-        if parts.scheme!='https' or not parts.hostname or parts.username or parts.password:
-            raise VippsError('Vipps gav ikkje ei gyldig betalingsadresse. Prøv same betaling igjen.')
+    def create(self, reference, return_url):
+        order = self.order(reference)
+        if order["redirect_url"]:
+            return order["redirect_url"]
+        result = client_for(order["environment"], order["msn"]).create(
+            reference, order["amount_ore"], return_url, order["create_key"]
+        )
+        url = result.get("redirectUrl", "")
+        parts = urlsplit(url)
+        if (
+            parts.scheme != "https"
+            or not parts.hostname
+            or parts.username
+            or parts.password
+        ):
+            raise VippsError(
+                "Vipps gav ikkje ei gyldig betalingsadresse. Prøv same betaling igjen."
+            )
         with closing(self.db()) as db:
-            db.execute("UPDATE signup_orders SET redirect_url=?,status='CREATED' WHERE reference=? AND status='new'",(url,reference))
+            db.execute(
+                "UPDATE signup_orders SET redirect_url=?,status='CREATED' WHERE reference=? AND status='new'",
+                (url, reference),
+            )
             db.commit()
         return url
 
-    def reconcile(self,reference):
-        original=self.order(reference)
-        if original and original['status']=='complete':
-            result=client_for(original['environment'],original['msn']).get(reference)
-            self.check_result(original,result)
-            if result['aggregate']['refundedAmount']['value'] or result['aggregate']['capturedAmount']['value']!=original['amount_ore']:
+    def reconcile(self, reference):
+        original = self.order(reference)
+        if original and original["status"] == "complete":
+            result = client_for(original["environment"], original["msn"]).get(reference)
+            self.check_result(original, result)
+            if (
+                result["aggregate"]["refundedAmount"]["value"]
+                or result["aggregate"]["capturedAmount"]["value"]
+                != original["amount_ore"]
+            ):
                 with closing(self.db()) as db:
-                    db.execute("UPDATE signup_orders SET status='review',problem='Refusjon eller endra trekk etter bokføring. Styret må avstemme betalinga.' WHERE reference=? AND status='complete'",(reference,))
+                    db.execute(
+                        "UPDATE signup_orders SET status='review',problem='Refusjon eller endra trekk etter bokføring. Styret må avstemme betalinga.' WHERE reference=? AND status='complete'",
+                        (reference,),
+                    )
                     db.commit()
             return
-        now=time.time()
-        lease=secrets.token_hex(16)
+        now = time.time()
+        lease = secrets.token_hex(16)
         with closing(self.db()) as db:
             # Delt lås mellom web workers og vedlikehaldsjobben. Ingen nettverk under DB-låsen.
-            row=db.execute("UPDATE signup_orders SET lease_until=?,lease_token=?,checked_at=? WHERE reference=? AND lease_until<? AND checked_at<? AND status NOT IN ('complete','review','ABORTED','EXPIRED','TERMINATED')",(now+120,lease,now,reference,now,now-5))
+            row = db.execute(
+                "UPDATE signup_orders SET lease_until=?,lease_token=?,checked_at=? WHERE reference=? AND lease_until<? AND checked_at<? AND status NOT IN ('complete','review','ABORTED','EXPIRED','TERMINATED','redacted')",
+                (now + 120, lease, now, reference, now, now - 5),
+            )
             db.commit()
-            if row.rowcount!=1:
+            if row.rowcount != 1:
                 return
         try:
-            order=self.order(reference)
-            client=client_for(order['environment'],order['msn'])
-            result=client.get(reference)
-            self.check_result(order,result)
-            aggregate=result['aggregate']
-            captured=aggregate['capturedAmount']['value']
-            if result['state']=='AUTHORIZED' and captured==0 and aggregate['cancelledAmount']['value']==0 and aggregate['refundedAmount']['value']==0:
-                if aggregate['authorizedAmount']['value']!=order['amount_ore']:
-                    raise VippsError('Reservert beløp stemmer ikkje. Administrator må kontrollere betalinga.')
-                client.capture(reference,order['amount_ore'],order['capture_key'])
-                result=client.get(reference)
-                self.check_result(order,result)
-                captured=result['aggregate']['capturedAmount']['value']
-            if result['state']=='AUTHORIZED' and captured==order['amount_ore'] and result['aggregate']['refundedAmount']['value']==0 and result['aggregate']['cancelledAmount']['value']==0:
-                self.finalize(reference,lease)
+            order = self.order(reference)
+            client = client_for(order["environment"], order["msn"])
+            result = client.get(reference)
+            self.check_result(order, result)
+            aggregate = result["aggregate"]
+            captured = aggregate["capturedAmount"]["value"]
+            if (
+                result["state"] == "AUTHORIZED"
+                and captured == 0
+                and aggregate["cancelledAmount"]["value"] == 0
+                and aggregate["refundedAmount"]["value"] == 0
+            ):
+                if aggregate["authorizedAmount"]["value"] != order["amount_ore"]:
+                    raise VippsError(
+                        "Reservert beløp stemmer ikkje. Administrator må kontrollere betalinga."
+                    )
+                client.capture(reference, order["amount_ore"], order["capture_key"])
+                result = client.get(reference)
+                self.check_result(order, result)
+                captured = result["aggregate"]["capturedAmount"]["value"]
+            if (
+                result["state"] == "AUTHORIZED"
+                and captured == order["amount_ore"]
+                and result["aggregate"]["refundedAmount"]["value"] == 0
+                and result["aggregate"]["cancelledAmount"]["value"] == 0
+            ):
+                self.finalize(reference, lease)
             else:
-                unusual=any(result['aggregate'][k]['value'] for k in ('capturedAmount','cancelledAmount','refundedAmount'))
-                terminal_unpaid=result['state'] in ('ABORTED','EXPIRED','TERMINATED') and captured==0 and result['aggregate']['refundedAmount']['value']==0
-                state=result['state'] if terminal_unpaid or (not unusual and result['state'] in ('CREATED','AUTHORIZED')) else 'review'
+                unusual = any(
+                    result["aggregate"][k]["value"]
+                    for k in ("capturedAmount", "cancelledAmount", "refundedAmount")
+                )
+                terminal_unpaid = (
+                    result["state"] in ("ABORTED", "EXPIRED", "TERMINATED")
+                    and captured == 0
+                    and result["aggregate"]["refundedAmount"]["value"] == 0
+                )
+                state = (
+                    result["state"]
+                    if terminal_unpaid
+                    or (not unusual and result["state"] in ("CREATED", "AUTHORIZED"))
+                    else "review"
+                )
                 with closing(self.db()) as db:
-                    db.execute('UPDATE signup_orders SET status=?,problem=? WHERE reference=? AND lease_token=?',(state,'' if state!='review' else 'Kontroller betalingsstatus',reference,lease))
+                    db.execute(
+                        "UPDATE signup_orders SET status=?,problem=? WHERE reference=? AND lease_token=?",
+                        (
+                            state,
+                            "" if state != "review" else "Kontroller betalingsstatus",
+                            reference,
+                            lease,
+                        ),
+                    )
                     db.commit()
-        except (VippsError,ValueError,KeyError,TypeError):
+        except (VippsError, ValueError, KeyError, TypeError):
             with closing(self.db()) as db:
-                db.execute("UPDATE signup_orders SET problem='Betalingsstatus må kontrollerast på nytt' WHERE reference=? AND lease_token=?",(reference,lease))
+                db.execute(
+                    "UPDATE signup_orders SET problem='Betalingsstatus må kontrollerast på nytt' WHERE reference=? AND lease_token=?",
+                    (reference, lease),
+                )
                 db.commit()
-            raise VippsError('Kunne ikkje stadfeste betalinga enno. Prøv statuskontrollen igjen seinare.') from None
+            raise VippsError(
+                "Kunne ikkje stadfeste betalinga enno. Prøv statuskontrollen igjen seinare."
+            ) from None
         finally:
             with closing(self.db()) as db:
-                db.execute('UPDATE signup_orders SET lease_until=0 WHERE reference=? AND lease_token=?',(reference,lease))
+                db.execute(
+                    "UPDATE signup_orders SET lease_until=0 WHERE reference=? AND lease_token=?",
+                    (reference, lease),
+                )
                 db.commit()
 
     @staticmethod
-    def check_result(order,result):
-        if type(result['amount'].get('value')) is not int or result['reference']!=order['reference'] or result['amount']!={'currency':'NOK','value':order['amount_ore']}:
-            raise VippsError('Beløp eller referanse stemmer ikkje.')
-        for key in ('authorizedAmount','cancelledAmount','capturedAmount','refundedAmount'):
-            amount=result['aggregate'][key]
-            if amount.get('currency')!='NOK' or type(amount.get('value')) is not int or amount['value']<0:
-                raise VippsError('Ugyldig betalingsbeløp.')
+    def check_result(order, result):
+        if (
+            type(result["amount"].get("value")) is not int
+            or result["reference"] != order["reference"]
+            or result["amount"] != {"currency": "NOK", "value": order["amount_ore"]}
+        ):
+            raise VippsError("Beløp eller referanse stemmer ikkje.")
+        for key in (
+            "authorizedAmount",
+            "cancelledAmount",
+            "capturedAmount",
+            "refundedAmount",
+        ):
+            amount = result["aggregate"][key]
+            if (
+                amount.get("currency") != "NOK"
+                or type(amount.get("value")) is not int
+                or amount["value"] < 0
+            ):
+                raise VippsError("Ugyldig betalingsbeløp.")
 
-    def finalize(self,reference,lease):
+    def finalize(self, reference, lease):
         with closing(self.db()) as db:
-            db.execute('BEGIN IMMEDIATE')
-            order=dict(db.execute('SELECT * FROM signup_orders WHERE reference=?',(reference,)).fetchone())
-            if order['status']=='complete' or order['lease_token']!=lease:
+            db.execute("BEGIN IMMEDIATE")
+            order = dict(
+                db.execute(
+                    "SELECT * FROM signup_orders WHERE reference=?", (reference,)
+                ).fetchone()
+            )
+            if order["status"] == "complete" or order["lease_token"] != lease:
                 return
-            if order['environment']=='test':
-                db.execute("UPDATE signup_orders SET status='complete',problem='' WHERE reference=?",(reference,))
+            if order["environment"] == "test":
+                db.execute(
+                    "UPDATE signup_orders SET status='complete',problem='' WHERE reference=?",
+                    (reference,),
+                )
                 db.commit()
                 return
-            data=json.loads(order['details'])
-            if db.execute('SELECT 1 FROM members WHERE lower(trim(email))=?',(order['email'],)).fetchone():
-                db.execute("UPDATE signup_orders SET status='review',problem='Betalt, men e-post finst i registeret. Må handterast av styret.' WHERE reference=?",(reference,))
+            data = json.loads(order["details"])
+            if db.execute(
+                "SELECT 1 FROM members WHERE lower(trim(email))=?", (order["email"],)
+            ).fetchone():
+                db.execute(
+                    "UPDATE signup_orders SET status='review',problem='Betalt, men e-post finst i registeret. Må handterast av styret.' WHERE reference=?",
+                    (reference,),
+                )
                 db.commit()
                 return
-            stamp=datetime.now(timezone.utc).isoformat()
-            kind='kul' if order['amount_ore']>self.get_threshold(db) else 'vanleg'
-            mid=db.execute('''INSERT INTO members(full_name,fornamn,mellomnamn,etternamn,email,phone,adresse,postnummer,poststad,birth_date,membership_type,payment_status,consent_at,created_at,updated_at)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-                (' '.join(data[k] for k in ('fornamn','mellomnamn','etternamn') if data[k]),*(data[k] for k in FIELDS),kind,'betalt' if order['for_year']==self.get_year(db) else 'ikkje betalt',order['consent_at'],stamp,stamp)).lastrowid
-            pid=db.execute('INSERT INTO payments(member_id,amount_ore,paid_at,note,created_at,for_year) VALUES (?,?,?,?,?,?)',
-                (mid,order['amount_ore'],stamp,'Vipps '+reference,stamp,order['for_year'])).lastrowid
-            db.execute("UPDATE signup_orders SET status='complete',member_id=?,payment_id=?,problem='' WHERE reference=?",(mid,pid,reference))
+            stamp = datetime.now(timezone.utc).isoformat()
+            kind = "kul" if order["amount_ore"] > self.get_threshold(db) else "vanleg"
+            mid = db.execute(
+                """INSERT INTO members(full_name,fornamn,mellomnamn,etternamn,email,phone,adresse,postnummer,poststad,birth_date,membership_type,payment_status,consent_at,created_at,updated_at)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    " ".join(
+                        data[k]
+                        for k in ("fornamn", "mellomnamn", "etternamn")
+                        if data[k]
+                    ),
+                    *(data[k] for k in FIELDS),
+                    kind,
+                    "betalt"
+                    if order["for_year"] == self.get_year(db)
+                    else "ikkje betalt",
+                    order["consent_at"],
+                    stamp,
+                    stamp,
+                ),
+            ).lastrowid
+            pid = db.execute(
+                "INSERT INTO payments(member_id,amount_ore,paid_at,note,created_at,for_year) VALUES (?,?,?,?,?,?)",
+                (
+                    mid,
+                    order["amount_ore"],
+                    stamp,
+                    "Vipps " + reference,
+                    stamp,
+                    order["for_year"],
+                ),
+            ).lastrowid
+            db.execute(
+                "UPDATE signup_orders SET status='complete',member_id=?,payment_id=?,problem='' WHERE reference=?",
+                (mid, pid, reference),
+            )
             db.commit()
 
-    def sync_newsletter(self,reference):
-        order=self.order(reference)
-        if not order or order['environment']!='production' or order['status']!='complete' or not order['newsletter'] or order['newsletter_done']:
+    def sync_newsletter(self, reference):
+        order = self.order(reference)
+        if (
+            not order
+            or order["environment"] != "production"
+            or order["status"] != "complete"
+            or not order["newsletter"]
+            or order["newsletter_done"]
+        ):
             return False
         with closing(self.db()) as db:
-            member=db.execute('SELECT * FROM members WHERE id=?',(order['member_id'],)).fetchone()
+            member = db.execute(
+                "SELECT * FROM members WHERE id=?", (order["member_id"],)
+            ).fetchone()
             if not member:
                 return False
-            member=dict(member)
+            member = dict(member)
         if self.newsletter(member):
             with closing(self.db()) as db:
-                db.execute('UPDATE signup_orders SET newsletter_done=1 WHERE reference=?',(reference,))
+                db.execute(
+                    "UPDATE signup_orders SET newsletter_done=1 WHERE reference=?",
+                    (reference,),
+                )
                 db.commit()
             return True
         return False
 
 
-def webhook_valid(req,secret):
+def webhook_valid(req, secret):
     try:
-        stamp=req.headers['x-ms-date']
-        if abs(time.time()-parsedate_to_datetime(stamp).timestamp())>300:
+        stamp = req.headers["x-ms-date"]
+        if abs(time.time() - parsedate_to_datetime(stamp).timestamp()) > 300:
             return False
-        digest=base64.b64encode(hashlib.sha256(req.get_data()).digest()).decode()
-        if not hmac.compare_digest(digest,req.headers.get('x-ms-content-sha256','')):
+        digest = base64.b64encode(hashlib.sha256(req.get_data()).digest()).decode()
+        if not hmac.compare_digest(digest, req.headers.get("x-ms-content-sha256", "")):
             return False
-        path=req.full_path.rstrip('?')
-        signed=f'POST\n{path}\n{stamp};{req.host};{digest}'
-        signature=base64.b64encode(hmac.new(secret.encode(),signed.encode(),hashlib.sha256).digest()).decode()
-        expected='HMAC-SHA256 SignedHeaders=x-ms-date;host;x-ms-content-sha256&Signature='+signature
-        return hmac.compare_digest(expected,req.headers.get('Authorization',''))
-    except (KeyError,ValueError,TypeError,OverflowError):
+        path = req.full_path.rstrip("?")
+        signed = f"POST\n{path}\n{stamp};{req.host};{digest}"
+        signature = base64.b64encode(
+            hmac.new(secret.encode(), signed.encode(), hashlib.sha256).digest()
+        ).decode()
+        expected = (
+            "HMAC-SHA256 SignedHeaders=x-ms-date;host;x-ms-content-sha256&Signature="
+            + signature
+        )
+        return hmac.compare_digest(expected, req.headers.get("Authorization", ""))
+    except (KeyError, ValueError, TypeError, OverflowError):
         return False
 
 
-def install_signup(app,get_db,get_year,get_threshold,newsletter,require_admin):
-    service=SignupService(get_db,get_year,get_threshold,newsletter)
-    app.extensions['signup_service']=service
+def install_signup(
+    app,
+    get_db,
+    get_year,
+    get_threshold,
+    newsletter,
+    require_admin,
+    privacy_maintenance=lambda: 0,
+):
+    service = SignupService(get_db, get_year, get_threshold, newsletter)
+    app.extensions["signup_service"] = service
 
     def mode():
-        selected=os.environ.get('VIPPS_SIGNUP_MODE','disabled')
-        if selected not in ('test','production'):
-            abort(503,'Nyinnmelding med Vipps er ikkje opna enno.')
+        selected = os.environ.get("VIPPS_SIGNUP_MODE", "disabled")
+        if selected == "production-preview":
+            if not app.extensions["styre_auth_valid"]():
+                abort(
+                    503,
+                    "Nyinnmelding er snart klar. Kontakt folk@oslobygda.no i mellomtida.",
+                )
+            return "production"
+        if selected not in ("test", "production"):
+            abort(503, "Nyinnmelding med Vipps er ikkje opna enno.")
         return selected
 
-    @app.route('/bli-medlem',methods=['GET','POST'])
+    @app.route("/bli-medlem", methods=["GET", "POST"])
     def new_signup():
-        environment=mode()
-        key=session.setdefault('signup_key',secrets.token_urlsafe(32))
-        values={};error=None
-        if request.method=='POST':
-            values=request.form.to_dict()
+        environment = mode()
+        key = session.setdefault("signup_key", secrets.token_urlsafe(32))
+        values = {}
+        error = None
+        if request.method == "POST":
+            values = request.form.to_dict()
             try:
-                if values.get('website'):
-                    raise ValueError('Ugyldig innsending.')
-                reference=service.new(values,key,environment,request.remote_addr or 'unknown')
-                session['signup_reference']=reference
-                return redirect('/bli-medlem/status',code=303)
+                if values.get("website"):
+                    raise ValueError("Ugyldig innsending.")
+                reference = service.new(
+                    values, key, environment, request.remote_addr or "unknown"
+                )
+                session["signup_reference"] = reference
+                return redirect("/bli-medlem/status", code=303)
             except ValueError as exc:
-                error=str(exc)
-                app.logger.warning('Nyinnmelding: validering stoppa innsendinga (%s)',error)
+                error = str(exc)
+                app.logger.warning(
+                    "Nyinnmelding: validering stoppa innsendinga (%s)", error
+                )
         with closing(get_db()) as db:
-            year=get_year(db); threshold=get_threshold(db)
-        return render_template('ny_innmelding.html',values=values,error=error,environment=environment,year=year,threshold=threshold),400 if error else 200
+            year = get_year(db)
+            threshold = get_threshold(db)
+        return render_template(
+            "ny_innmelding.html",
+            values=values,
+            error=error,
+            environment=environment,
+            year=year,
+            threshold=threshold,
+        ), 400 if error else 200
 
     def owned():
-        reference=session.get('signup_reference','')
-        order=service.order(reference)
-        if not order or order['environment']!=mode():
+        reference = session.get("signup_reference", "")
+        order = service.order(reference)
+        if not order or order["status"] == "redacted" or order["environment"] != mode():
             abort(404)
         return order
 
-    @app.route('/bli-medlem/status',methods=['GET','POST'])
+    @app.route("/bli-medlem/status", methods=["GET", "POST"])
     def signup_status():
-        order=owned();error=None
-        if request.method=='POST':
+        order = owned()
+        error = None
+        if request.method == "POST":
             try:
-                if request.form.get('action')=='pay':
-                    origin=os.environ.get('VIPPS_PUBLIC_ORIGIN','https://bygdelista.oslobygda.no').rstrip('/')
-                    return redirect(service.create(order['reference'],origin+'/bli-medlem/status'),code=303)
-                service.reconcile(order['reference'])
+                if request.form.get("action") == "pay":
+                    origin = os.environ.get(
+                        "VIPPS_PUBLIC_ORIGIN", "https://bygdelista.oslobygda.no"
+                    ).rstrip("/")
+                    return redirect(
+                        service.create(
+                            order["reference"], origin + "/bli-medlem/status"
+                        ),
+                        code=303,
+                    )
+                service.reconcile(order["reference"])
             except VippsError as exc:
-                error=str(exc)
-            order=service.order(order['reference'])
-        return render_template('innmelding_status.html',order=order,error=error,environment=order['environment'])
+                error = str(exc)
+            order = service.order(order["reference"])
+        return render_template(
+            "innmelding_status.html",
+            order=order,
+            error=error,
+            environment=order["environment"],
+        )
 
-    @app.route('/bli-medlem/prov-igjen',methods=['POST'])
+    @app.route("/bli-medlem/prov-igjen", methods=["POST"])
     def signup_restart():
-        order=owned()
-        if order['status'] not in ('ABORTED','EXPIRED','TERMINATED'):
+        order = owned()
+        if order["status"] not in ("ABORTED", "EXPIRED", "TERMINATED"):
             abort(409)
-        session.pop('signup_reference',None)
-        session['signup_key']=secrets.token_urlsafe(32)
-        return redirect('/bli-medlem',code=303)
+        session.pop("signup_reference", None)
+        session["signup_key"] = secrets.token_urlsafe(32)
+        return redirect("/bli-medlem", code=303)
 
-    @app.route('/vipps/webhook/<environment>',methods=['POST'])
+    @app.route("/vipps/webhook/<environment>", methods=["POST"])
     def signup_webhook(environment):
-        if environment not in ('test','production'):
+        if environment not in ("test", "production"):
             abort(404)
-        secret=credentials(environment).get('VIPPS_WEBHOOK_SECRET','')
-        if not secret or not webhook_valid(request,secret):
+        secret = credentials(environment).get("VIPPS_WEBHOOK_SECRET", "")
+        if not secret or not webhook_valid(request, secret):
             abort(401)
-        payload=request.get_json(silent=True) or {}
-        reference=payload.get('reference','')
-        order=service.order(reference) if isinstance(reference,str) else None
-        if order and order['environment']==environment and str(payload.get('msn',''))==order['msn']:
+        payload = request.get_json(silent=True) or {}
+        reference = payload.get("reference", "")
+        order = service.order(reference) if isinstance(reference, str) else None
+        if (
+            order
+            and order["environment"] == environment
+            and str(payload.get("msn", "")) == order["msn"]
+        ):
             try:
                 service.reconcile(reference)
             except VippsError:
-                return '',503
-        return '',200
+                return "", 503
+        return "", 200
 
-    @app.route('/innmeldingar')
+    @app.route("/innmeldingar")
     @require_admin
     def signup_overview():
         with closing(get_db()) as db:
-            orders=[dict(row) for row in db.execute('SELECT reference,email,amount_ore,for_year,status,problem,newsletter,newsletter_done,environment FROM signup_orders ORDER BY created_at DESC LIMIT 100')]
-        return render_template('innmeldingar.html',orders=orders)
+            orders = [
+                dict(row)
+                for row in db.execute(
+                    "SELECT reference,email,amount_ore,for_year,status,problem,newsletter,newsletter_done,environment FROM signup_orders ORDER BY created_at DESC LIMIT 100"
+                )
+            ]
+        return render_template("innmeldingar.html", orders=orders)
 
-    @app.cli.command('innmelding-testmodus')
+    @app.cli.command("innmelding-testmodus")
     def test_mode():
-        config=credentials('test')
-        if not all(config.get(key) for key in ('VIPPS_CLIENT_ID','VIPPS_CLIENT_SECRET','VIPPS_SUBSCRIPTION_KEY','VIPPS_MSN')):
-            raise SystemExit('Legg inn testnøklar med konfigurer_vipps.py først.')
-        env=Path(__file__).resolve().parent/'.env'
-        env.touch(mode=0o600,exist_ok=True);env.chmod(0o600)
-        set_key(env,'VIPPS_SIGNUP_MODE','test')
-        print('Testmodus er valt. Produksjonsnøklane er bevarte. Trykk Web → Reload, og opne /bli-medlem.')
+        config = credentials("test")
+        if not all(
+            config.get(key)
+            for key in (
+                "VIPPS_CLIENT_ID",
+                "VIPPS_CLIENT_SECRET",
+                "VIPPS_SUBSCRIPTION_KEY",
+                "VIPPS_MSN",
+            )
+        ):
+            raise SystemExit("Legg inn testnøklar med konfigurer_vipps.py først.")
+        env = Path(__file__).resolve().parent / ".env"
+        env.touch(mode=0o600, exist_ok=True)
+        env.chmod(0o600)
+        set_key(env, "VIPPS_SIGNUP_MODE", "test")
+        print(
+            "Testmodus er valt. Produksjonsnøklane er bevarte. Trykk Web → Reload, og opne /bli-medlem."
+        )
 
-    @app.cli.command('innmelding-webhook')
+    @app.cli.command("innmelding-produksjonsprove")
+    def production_preview():
+        """Vel produksjonsprøve berre for innlogga styret. Ikkje opne offentleg."""
+        client_for("production")  # Kontroller berre at alle verdiar er sette.
+        env = Path(__file__).resolve().parent / ".env"
+        env.touch(mode=0o600, exist_ok=True)
+        env.chmod(0o600)
+        set_key(env, "VIPPS_SIGNUP_MODE", "production-preview")
+        print(
+            "Produksjonsprøve er vald for innlogga styret. Registrer produksjonswebhook og trykk Web → Reload. Publikum får ikkje tilgang."
+        )
+
+    @app.cli.command("innmelding-webhook")
     def register_webhook():
-        environment=os.environ.get('VIPPS_SIGNUP_MODE','disabled')
-        if environment not in ('test','production'):
-            raise SystemExit('Vel testmodus før webhook blir registrert.')
-        config=credentials(environment)
-        if config.get('VIPPS_WEBHOOK_SECRET'):
-            print('Webhook er allereie sett opp. Ingen ny registrering utført.')
+        environment = os.environ.get("VIPPS_SIGNUP_MODE", "disabled")
+        if environment == "production-preview":
+            environment = "production"
+        if environment not in ("test", "production"):
+            raise SystemExit("Vel testmodus før webhook blir registrert.")
+        config = credentials(environment)
+        if config.get("VIPPS_WEBHOOK_SECRET"):
+            print("Webhook er allereie sett opp. Ingen ny registrering utført.")
             return
-        origin=os.environ.get('VIPPS_PUBLIC_ORIGIN','https://bygdelista.oslobygda.no').rstrip('/')
-        result=client_for(environment)._authenticated('POST','/webhooks/v1/webhooks',{
-            'url':origin+'/vipps/webhook/'+environment,
-            'events':['epayments.payment.'+event+'.v1' for event in ('authorized','captured','aborted','expired','terminated','cancelled','refunded')]})
-        secret=result.get('secret','');webhook_id=result.get('id','')
-        if not isinstance(secret,str) or not secret or not isinstance(webhook_id,str) or not webhook_id:
-            raise SystemExit('Kunne ikkje stadfeste webhook-oppsettet. Kontroller registreringa i Vipps-portalen før nytt forsøk.')
-        env=Path(__file__).resolve().parent/('.env.vipps-test' if environment=='test' else '.env')
-        env.touch(mode=0o600,exist_ok=True);env.chmod(0o600)
-        set_key(env,'VIPPS_WEBHOOK_SECRET',secret);set_key(env,'VIPPS_WEBHOOK_ID',webhook_id)
-        print('Webhook registrert og løyndomen lagra. Trykk Web → Reload før du testar ei betaling.')
+        origin = os.environ.get(
+            "VIPPS_PUBLIC_ORIGIN", "https://bygdelista.oslobygda.no"
+        ).rstrip("/")
+        result = client_for(environment)._authenticated(
+            "POST",
+            "/webhooks/v1/webhooks",
+            {
+                "url": origin + "/vipps/webhook/" + environment,
+                "events": [
+                    "epayments.payment." + event + ".v1"
+                    for event in (
+                        "authorized",
+                        "captured",
+                        "aborted",
+                        "expired",
+                        "terminated",
+                        "cancelled",
+                        "refunded",
+                    )
+                ],
+            },
+        )
+        secret = result.get("secret", "")
+        webhook_id = result.get("id", "")
+        if (
+            not isinstance(secret, str)
+            or not secret
+            or not isinstance(webhook_id, str)
+            or not webhook_id
+        ):
+            raise SystemExit(
+                "Kunne ikkje stadfeste webhook-oppsettet. Kontroller registreringa i Vipps-portalen før nytt forsøk."
+            )
+        env = Path(__file__).resolve().parent / (
+            ".env.vipps-test" if environment == "test" else ".env"
+        )
+        env.touch(mode=0o600, exist_ok=True)
+        env.chmod(0o600)
+        set_key(env, "VIPPS_WEBHOOK_SECRET", secret)
+        set_key(env, "VIPPS_WEBHOOK_ID", webhook_id)
+        print(
+            "Webhook registrert og løyndomen lagra. Trykk Web → Reload før du testar ei betaling."
+        )
 
-    @app.cli.command('innmelding-vedlikehald')
+    @app.cli.command("innmelding-vedlikehald")
     def maintain():
         """Stadfest uferdige betalingar og prøv Brevo-køen på nytt."""
         with closing(get_db()) as db:
-            refs=[r[0] for r in db.execute("SELECT reference FROM signup_orders WHERE status NOT IN ('complete','review','ABORTED','EXPIRED','TERMINATED') ORDER BY checked_at LIMIT 100")]
-            news=[r[0] for r in db.execute("SELECT reference FROM signup_orders WHERE environment='production' AND status='complete' AND newsletter=1 AND newsletter_done=0 LIMIT 100")]
-        problems=0
+            refs = [
+                r[0]
+                for r in db.execute(
+                    "SELECT reference FROM signup_orders WHERE status NOT IN ('complete','review','ABORTED','EXPIRED','TERMINATED','redacted') ORDER BY checked_at LIMIT 100"
+                )
+            ]
+            news = [
+                r[0]
+                for r in db.execute(
+                    "SELECT reference FROM signup_orders WHERE environment='production' AND status='complete' AND newsletter=1 AND newsletter_done=0 LIMIT 100"
+                )
+            ]
+        privacy_done = privacy_maintenance()
+        problems = 0
         for ref in refs:
             try:
                 service.reconcile(ref)
-            except (VippsError,ValueError):
-                problems+=1
+            except (VippsError, ValueError):
+                problems += 1
         for ref in news:
             service.sync_newsletter(ref)
-        print(f'Kontrollert {len(refs)} betalingar; {problems} må prøvast igjen. Handsama {len(news)} Brevo-oppføringar.')
+        print(
+            f"Kontrollert {len(refs)} betalingar; {problems} må prøvast igjen. Handsama {len(news)} Brevo-oppføringar og {privacy_done} slettingar."
+        )

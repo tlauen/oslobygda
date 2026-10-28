@@ -69,7 +69,7 @@ Det finst no ein fullauto-flyt som sender nyhendebrev via Brevo API:
 
 Backup:
 - MailerLite manuell/backup workflow: `.github/workflows/nyhendebrev.yml`
-- MailerLite backup-script: `skript/send_nyhendebrev_mailerlite.rb`
+- MailerLite backup-script: `arkiv/mailerlite/send_nyhendebrev_mailerlite.rb`
 - Tekstgenerator for manuell backup: `brev/tekstgenerator.md`
 
 ## Lisens
@@ -117,3 +117,37 @@ brukar same kjelde. GitHub-token skal berre liggje i `.env` på PythonAnywhere.
 Den offentlege kalendersida brukar `lutar/kalender.js` til å flytte hendingar til
 historikken når sluttida i Oslo er passert, uavhengig av når sida sist vart bygd.
 Kontroller klokkefiltreringa med `node skript/test_kalender.js`.
+
+## Felles kode for nettsida og Bygdelista
+
+Footeren har éi kjelde: `_tillegg/kolofon.html` og `lutar/kolofon.css`.
+Jekyll inkluderer malen direkte; Flask les han med namnerommet `nettstad/` og
+leverer same CSS-fil frå `/felles/kolofon.css`. Ikkje opprett kopiar under
+`medlemsregister/fast/` eller `medlemsregister/malar/`. Ved driftsetjing må
+`_tillegg/kolofon.html` og `lutar/kolofon.css` liggje på serveren saman med appen.
+
+Python-avhengnadene står i `medlemsregister/requirements-common.txt`.
+`requirements.txt` legg til SQLCipher for lokal bruk, medan
+`requirements-pythonanywhere.txt` brukar den felles lista utan SQLCipher.
+Dei eksisterande installasjonskommandoane fungerer som før.
+
+Frå `medlemsregister/` kan testane køyrast mot mellombelse testdatabasar med
+`python -m unittest discover -s tests`. Kalenderklokka har eigne kontrollar:
+`node skript/test_kalender.js`. Ingen av desse sender e-post eller betalingar.
+
+## Bilete, styre og dokument
+
+- Legg JPG, PNG, WebP eller AVIF i `lutar/bilete/pobb/`. Alle bileta i mappa blir
+  viste på pøbbsida ved neste Jekyll-bygg, sorterte etter filnamn. Bruk gjerne
+  dato først i namnet. Det trengst ingen registrering av kvart bilete.
+- Valfrie bildetekstar og meir presis alternativ tekst kan leggjast i
+  `_data/pobb_bilete.yml`, med filnamnet som nøkkel.
+- Endre `_data/styre.yml` for namn, rolle og biletestig. Eit manglande portrett
+  viser initialar; legg bilete i `lutar/bilete/styret/` når dei er klare.
+- Dokumentkorta på «Om laget» kjem frå `_data/dokument.yml`.
+- `_data/nav.yml` er felles menydata. Mobil viser alle fire vala, utan nedtrekk.
+- Forklaringa av «frilynt» står éin gong i footeren. `kontekstlenkje.html` kan
+  brukast fleire stader på sida og opnar same forklaringsboks.
+
+Gamle Brevo-skjema og MailerLite-skript er flytta til `arkiv/`, som ikkje blir
+publisert av Jekyll. Den manuelle MailerLite-workflowen peikar til arkivstigen.

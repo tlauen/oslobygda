@@ -1,10 +1,3 @@
-Flask>=3.0.0
-Werkzeug>=3.0.0
-python-dotenv>=1.0.0
-certifi>=2024.0.0
-# Valgfritt: for kryptert database (MEDLEMSREGISTER_DB_KEY). Krev libsqlcipher (macOS: brew install sqlcipher).
+# Lokalt med SQLCipher (krev libsqlcipher).
+-r requirements-common.txt
 sqlcipher3>=0.5.0
-
-PyOTP>=2.9.0,<3
-segno>=1.6,<2
-PyYAML>=6,<7

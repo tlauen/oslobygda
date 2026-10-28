@@ -28,6 +28,7 @@
     <header class="toppfelt">
       <h1>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</h1>
       <a href="{{ prefix_url('signup_overview') }}">Innmeldingar</a>
+      <a href="{{ prefix_url('new_signup') }}">Innmeldingsskjema</a>
       <a href="{{ prefix_url('event_editor') }}">Tilskipingar</a>
       <form method="post" action="{{ prefix_url('logout') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -510,7 +511,7 @@
             <span>${p.for_year != null ? escapeHtml(String(p.for_year)) : "–"}</span>
             <span>${escapeHtml(formaterDato(p.paid_at))}</span>
             <span>${escapeHtml(p.note || "")}<br>
-            ${p.for_year === ar ? `<button type="button" class="btn sekundaer" data-slett-betaling="${Number(p.id)}" data-belop="${Number(p.amount_ore)}" data-ar="${Number(p.for_year)}">Slett</button>` : '<span>Avslutta år</span>'}</span>
+            ${p.vipps ? '<span>Vipps – må avstemmast ved refusjon</span>' : p.for_year === ar ? `<button type="button" class="btn sekundaer" data-slett-betaling="${Number(p.id)}" data-belop="${Number(p.amount_ore)}" data-ar="${Number(p.for_year)}">Slett</button>` : '<span>Avslutta år</span>'}</span>
           </div>
         `).join("");
       } catch (e) {
@@ -654,14 +655,15 @@
     }
 
     async function slettMedlem(id) {
-      if (!confirm("Er du sikker på at du vil slette dette medlemmet? Dette kan ikkje angrast.")) return;
+      if (!confirm("Slette medlemsopplysningar og eventuell styretilgang? Bokførte beløp blir bevarte utan kontaktopplysningar.")) return;
       try {
         const r = await fetch(API + "/api/gdpr/delete/" + id, { method: "POST", credentials: "same-origin" });
-        if (!r.ok) throw new Error("Sletting feila");
-        setStatus("Medlem sletta.");
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || "Sletting feila");
+        setStatus(data.message || "Medlem sletta.");
         const medlemmar = await hentMedlemmar();
         renderListe(medlemmar);
-      } catch (e) { setStatus("Kunne ikkje slette.", true); }
+      } catch (e) { setStatus(e.message || "Kunne ikkje slette.", true); }
     }
 
     betalingSkjema.addEventListener("submit", async (e) => {

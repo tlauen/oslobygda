@@ -44,6 +44,6 @@ Scriptet brukar kampanjenamn med dato for å unngå dobbel utsending.
 Dette ligg framleis i repoet for beredskap:
 
 - Workflow (manuell): `.github/workflows/nyhendebrev.yml`
-- Script: `skript/send_nyhendebrev_mailerlite.rb`
-- Avansert tidlegare variant: `skript/send_nyhendebrev_mailerlite_advanced.rb`
+- Script: `arkiv/mailerlite/send_nyhendebrev_mailerlite.rb`
+- Avansert tidlegare variant: `arkiv/mailerlite/send_nyhendebrev_mailerlite_advanced.rb`
 - Manuell tekstbackup: `brev/tekstgenerator.md`
