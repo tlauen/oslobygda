@@ -31,7 +31,7 @@ description: "Folkemusikk, dans og gode møte i Oslo. Sjå kva som skjer, og bli
 <section class="framside__medlem" aria-labelledby="medlem-tittel">
   <div>
     <p class="framside__overtekst">Plass til fleire i laget</p>
-    <h2 id="medlem-tittel">Glad i det me finn på?<br>Bli ein av oss.</h2>
+    <h2 id="medlem-tittel">Glad i det me finn på?<br>Bli med då vel!</h2>
     <p>For ein femkroning blir du medlem i Oslobygda kulturlag og støttar arbeidet for levande folkekultur i hovudstaden.</p>
     <div class="framside__handlingar">
       <a class="framside__knapp" href="{{ '/bli-medlem/' | relative_url }}">Ja, eg vil bli medlem <span aria-hidden="true">→</span></a>
