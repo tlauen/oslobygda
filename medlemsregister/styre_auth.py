@@ -63,7 +63,7 @@ def install_auth(app, get_db, prefix_url):
 
     @app.before_request
     def protect_changes():
-        if request.method not in ('GET', 'HEAD', 'OPTIONS') and request.endpoint != 'api_innmelding':
+        if request.method not in ('GET', 'HEAD', 'OPTIONS') and request.endpoint not in ('api_innmelding','signup_webhook'):
             expected = session.get('csrf_token', '')
             supplied = request.headers.get('X-CSRF-Token') or request.form.get('csrf_token', '')
             if not expected or not hmac.compare_digest(expected.encode(), supplied.encode()):

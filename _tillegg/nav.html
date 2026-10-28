@@ -1,22 +1,9 @@
-<nav class="meny">
-
-  <button class="meny-vekslar" aria-label="Meny">
-    <span class="ikon-opne">☰</span>
-    <span class="ikon-lukk">✕</span>
-  </button>
-
-  <div class="meny-skrivebord">
-    {% for item in site.data.nav %}
-    <a href="{{ item.path | relative_url }}"{% if item.path == '/bli-medlem/' %} class="meny-framheva"{% endif %}>{{ item.label }}</a>
-    {% endfor %}
+<nav class="nettstad-meny" aria-label="Hovudmeny">
+  <a class="nettstad-logo" href="{{ '/' | relative_url }}" aria-label="Oslobygda kulturlag – framsida"><img src="{{ '/lutar/bilete/logo_oslobygda.svg' | relative_url }}" alt="Oslobygda kulturlag" width="152" height="56"></a>
+  <div class="nettstad-lenkjer">
+    {% for item in site.data.nav %}<a href="{{ item.path | relative_url }}"{% if item.path == '/bli-medlem/' %} class="nettstad-medlem"{% endif %}{% if page.url == item.path %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}
   </div>
-
-  <div class="meny-dekke" id="menyDekke">
-    <div class="meny-dekke__meny">
-      {% for item in site.data.nav %}
-      <a href="{{ item.path | relative_url }}"{% if item.path == '/bli-medlem/' %} class="meny-framheva"{% endif %}>{{ item.label }}</a>
-      {% endfor %}
-    </div>
-  </div>
-
+  <details class="nettstad-mobil"><summary>Meny</summary><div>
+    {% for item in site.data.nav %}<a href="{{ item.path | relative_url }}"{% if page.url == item.path %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}
+  </div></details>
 </nav>

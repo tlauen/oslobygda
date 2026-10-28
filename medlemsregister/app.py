@@ -270,6 +270,8 @@ def _alder_år(fødsel: date, idag: date) -> int:
 
 
 def init_db():
+    from ny_innmelding import init_signup
+    init_signup(get_db)
     init_auth_db(get_db)
     with get_db() as conn:
         conn.execute("PRAGMA foreign_keys = ON")
@@ -1092,6 +1094,24 @@ def gdpr_delete(mid):
         conn.commit()
     return jsonify({"message": "Medlem sletta"}), 200
 
+
+
+def _signup_newsletter(member):
+    # Berre nødvendige kontaktfelt vert overførte. Aldri nullstill avmeldingsstatus.
+    key=os.environ.get('BREVO_API_KEY','').strip()
+    list_id=os.environ.get('BREVO_INNMELDING_LIST_ID') or os.environ.get('BREVO_LIST_ID','')
+    if not key or not str(list_id).isdigit():
+        return False
+    status,_=_brevo_request('POST','/contacts',key,{
+        'email':member['email'],
+        'attributes':{'FIRSTNAME':member['fornamn'],'LASTNAME':member['etternamn']},
+        'listIds':[int(list_id)],'updateEnabled':True})
+    return status in (200,201,204)
+
+
+from ny_innmelding import install_signup
+install_signup(app,get_db,_get_medlemsbetalingsar,_get_superkul_grense,_signup_newsletter,require_admin)
+app.config.setdefault('MAX_CONTENT_LENGTH',65536)
 
 def main():
     # Tydelig melding om database-kryptering ved oppstart

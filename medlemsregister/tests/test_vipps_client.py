@@ -1,6 +1,8 @@
 import unittest
+import io
+from urllib.error import HTTPError
 from unittest.mock import patch
-from vipps_client import VippsClient, amount_ore
+from vipps_client import VippsClient, VippsError, amount_ore
 
 
 class VippsClientTests(unittest.TestCase):
@@ -35,3 +37,30 @@ class VippsClientTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 client.capture('bygdelista-123456',True,'key')
             request.assert_not_called()
+
+
+    def test_safe_auth_error_diagnostics(self):
+        client=VippsClient('test-id','test-secret','test-key','123456')
+        for message,expected in (
+            ('Access denied due to invalid subscription key. secret-example','Subscription key'),
+            ('invalid_client secret-example','Client ID'),
+            ('unexpected secret-example','HTTP 401'),
+        ):
+            import json
+            error=HTTPError('https://api.vipps.no/accesstoken/get',401,'Unauthorized',{},io.BytesIO(json.dumps({'message':message}).encode()))
+            with patch.object(client.opener,'open',side_effect=error):
+                with self.assertRaises(VippsError) as caught:
+                    client._request('POST','/accesstoken/get',{})
+            self.assertIn(expected,str(caught.exception))
+            self.assertNotIn('secret-example',str(caught.exception))
+
+
+    def test_safe_bad_request_diagnostics(self):
+        client=VippsClient('test-id','test-secret','test-key','123456')
+        error=HTTPError('https://api.vipps.no/accesstoken/get',400,'Bad Request',{},io.BytesIO(b'{"error":"invalid_client","error_description":"AADSTS7000215: Invalid client secret secret-example"}'))
+        with patch.object(client.opener,'open',side_effect=error):
+            with self.assertRaises(VippsError) as caught:
+                client._request('POST','/accesstoken/get',{})
+        self.assertIn('AADSTS7000215',str(caught.exception))
+        self.assertIn('Client secret',str(caught.exception))
+        self.assertNotIn('secret-example',str(caught.exception))

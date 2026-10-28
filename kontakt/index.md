@@ -1,9 +1,5 @@
 ---
-layout: standard
-title: Kontakt oss
-permalink: /kontakt/
+layout: vidaresending
+title: Kontakt Oslobygda
+redirect_to: /#kontakt
 ---
-
-# Kontakt oss
-
-Du kan sende epost til oss på <u>folk (krøllalfa) oslobygda.no</u>, evt. prate med Torbjørn på ein av pøbbane. 

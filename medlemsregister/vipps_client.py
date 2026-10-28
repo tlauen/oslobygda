@@ -63,8 +63,43 @@ class VippsClient:
                 return json.loads(response.read())
         except HTTPError as error:
             status = error.code
-            error.close()
-            raise VippsError(f'Vipps svarte med HTTP {status}.') from None
+            detail=''
+            try:
+                payload=json.loads(error.read(65536))
+                message=json.dumps(payload,ensure_ascii=True)
+                lowered=message.lower()
+                # Berre faste lokale tekstar vert viste, aldri leverandørresponsen.
+                if status==401 and isinstance(message,str):
+                    lowered=message.lower()
+                    if 'invalid subscription key' in lowered or 'subscription not found' in lowered:
+                        detail=' Vipps avviser Subscription key. Kontroller primary/secondary-nøkkelen for rett miljø og salseining.'
+                    elif 'missing subscription key' in lowered:
+                        detail=' Vipps melder at Subscription key manglar i førespurnaden.'
+                    elif 'invalid client' in lowered or 'invalid_client' in lowered or 'invalid credentials' in lowered:
+                        detail=' Vipps avviser innloggingsopplysningane. Kontroller Client ID og Client secret.'
+                if status==400:
+                    if 'aadsts7000215' in lowered or 'invalid_client' in lowered or 'invalid client secret' in lowered:
+                        detail=' Autentiseringa vart avvist: kontroller Client ID og den nye Client secret-verdien (ikkje ein Secret ID).'
+                    elif 'aadsts700016' in lowered:
+                        detail=' Autentiseringa fann ikkje klienten. Kontroller Client ID og miljø.'
+                    elif 'aadsts7000222' in lowered:
+                        detail=' Autentiseringa melder at Client secret er utgått.'
+                    elif 'client_secret' in lowered or 'client_id' in lowered:
+                        detail=' Feilsvaret viser til Client ID eller Client secret.'
+                    elif 'merchant-serial-number' in lowered:
+                        detail=' Feilsvaret viser til Merchant Serial Number (MSN).'
+                    elif 'subscription' in lowered:
+                        detail=' Feilsvaret viser til Subscription key.'
+                    else:
+                        detail=' Vipps avviste formatet eller innhaldet i autentiseringsførespurnaden.'
+                    codes=sorted(set(re.findall(r'AADSTS[0-9]{4,10}',message,re.IGNORECASE)))
+                    if codes:
+                        detail+=' Feilkode: '+', '.join(code.upper() for code in codes)+'.'
+            except (ValueError,OSError):
+                pass
+            finally:
+                error.close()
+            raise VippsError(f'Vipps svarte med HTTP {status}.'+detail) from None
         except (URLError, OSError, ValueError):
             raise VippsError('Kunne ikkje stadfeste svaret frå Vipps. Kontroller status før nytt forsøk.') from None
 

@@ -1,0 +1,35 @@
+{% extends 'innmelding_base.html' %}
+{% block content %}
+<div class="signup-layout">
+  <aside class="signup-intro">
+    <p class="eyebrow">Oslobygda kulturlag</p>
+    <h1>Ver med på<br> det som skjer.</h1>
+    <p class="intro-text">Folkemusikk, dans og gode lag. Bli ein del av Oslobygda.</p>
+    <div class="membership-card"><span class="eyebrow">Medlemskap {{ year }}</span><p class="membership-price">Frå 5 <span>kr / kalenderår</span></p><p><strong>Kul</strong> for 5 kr.<br> <strong>Superkul</strong> når du betalar meir enn {{ '%.2f'|format(threshold/100)|replace('.',',') }} kr.</p></div>
+    <p class="small-note">Allereie medlem? <a href="mailto:folk@oslobygda.no">Kontakt oss</a> om fornying.</p>
+  </aside>
+  <section class="form-card" aria-labelledby="form-title">
+    <ol class="progress" aria-label="Innmeldingssteg"><li aria-current="step"><span>1</span> Om deg</li><li><span>2</span> Betaling</li><li><span>3</span> Velkomen</li></ol>
+    <div class="card-heading"><h2 id="form-title">Bli medlem</h2><p>Fyll inn opplysningane dine, så går du vidare til Vipps. Felt merkte * må fyllast ut.</p></div>
+    {% if error %}<div class="error-notice" id="skjemafeil" tabindex="-1" role="alert"><strong>Innmeldinga vart ikkje send</strong><br>{{ error }}</div>{% endif %}
+    <form method="post" class="signup-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <fieldset><legend>Kontaktopplysningar</legend><div class="field-grid">
+      {% for name,label,type,required,maximum,autocomplete in [('fornamn','Fornamn','text',true,100,'given-name'),('etternamn','Etternamn','text',true,100,'family-name'),('mellomnamn','Mellomnamn (valfritt)','text',false,100,'additional-name'),('phone','Telefon','tel',true,30,'tel'),('email','E-post','email',true,254,'email'),('adresse','Adresse','text',true,200,'street-address'),('postnummer','Postnummer','text',true,4,'postal-code'),('poststad','Poststad','text',true,100,'address-level2'),('birth_date','Fødselsdato (valfritt)','date',false,10,'bday')] %}
+        <div class="field{% if name in ('email','adresse') %} field-wide{% endif %}{% if name=='postnummer' %} field-postcode{% endif %}"><label for="{{ name }}">{{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}</label><input id="{{ name }}" name="{{ name }}" type="{{ type }}" maxlength="{{ maximum }}" autocomplete="{{ autocomplete }}" value="{{ values.get(name,'') }}" {% if name=='postnummer' %}inputmode="numeric" pattern="[0-9]{4}"{% endif %} {% if required %}required{% endif %}></div>
+      {% endfor %}
+      </div></fieldset>
+      <fieldset class="payment-section"><legend>Medlemspengar</legend><p>Vel beløpet du vil bidra med. Minst 5 kr.</p><div class="amount-field"><label for="amount">Beløp *</label><div class="amount-input"><input id="amount" name="amount" type="number" min="5" max="1000000" step="1" inputmode="numeric" value="{{ values.get('amount','5') }}" required><span aria-hidden="true">kr</span></div></div></fieldset>
+      <fieldset class="consents"><legend>Før du går vidare</legend>
+        <label class="check-row"><input type="checkbox" name="terms" value="1" required {% if values.get('terms') %}checked{% endif %}><span>Eg godtek <a href="https://oslobygda.no/salsvilkar/" target="_blank" rel="noopener">salsvilkåra</a>, inkludert 14 dagars angrerett. *</span></label>
+        <label class="check-row newsletter-choice"><input type="checkbox" name="newsletter" value="1" {% if values.get('newsletter') %}checked{% endif %}><span>Ja takk, send meg nyhendebrev.<small>Valfritt. Du kan melde deg av i kvart nyhendebrev.</small></span></label>
+      </fieldset>
+      <details class="privacy-note"><summary>Slik brukar me opplysningane dine</summary><p>Oslobygda kulturlag lagrar opplysningane for å administrere medlemskap og betaling. Vipps handsamar betalinga. Vel du nyhendebrev, sender me namn og e-postadresse til Brevo. For innsyn, retting eller sletting, kontakt <a href="mailto:folk@oslobygda.no">folk@oslobygda.no</a>. Les meir om <a href="https://oslobygda.no/personvern/">personvern</a>.</p></details>
+      <div hidden aria-hidden="true"><label>La dette feltet stå tomt<input name="website" tabindex="-1" autocomplete="off"></label></div>
+      {% if error %}<p class="error-inline">{{ error }}</p>{% endif %}
+      <button class="button button-primary" type="submit">Gå vidare til betaling <span aria-hidden="true">→</span></button><p class="submit-note">Du stadfestar betalinga i Vipps i neste steg.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}{% if error %}<script>document.getElementById('skjemafeil').focus();</script>{% endif %}{% endblock %}

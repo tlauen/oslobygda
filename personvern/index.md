@@ -9,7 +9,7 @@ Oslobygda kulturlag tar personvern på alvor. Denne sida forklarer kort korleis 
 
 ## Kjeks
 
-Nettsida bruker **kjeks** i innmeldingsskjemaet (på [Bli medlem](/bli-medlem/)) og i skjemaet for å melde seg på [nyhendebrevet](/brev/). Skjemaa er levert av **Brevo**; dei set små informasjonsfiler (kjeks) for at skjemaet skal fungere.
+Nettsida bruker **kjeks** i innmeldingsskjemaet (på [Bli medlem](/bli-medlem/)). Skjemaa er levert av **Brevo**; dei set små informasjonsfiler (kjeks) for at skjemaet skal fungere.
 
 - [Brevo cookie policy](https://www.brevo.com/legal/privacypolicy/) (ekstern lenke)
 
@@ -21,4 +21,4 @@ Når du melder deg inn i laget eller på nyhendebrevet, lagrar vi (eller Brevo p
 
 ## Spørsmål?
 
-[Ta kontakt](/kontakt/)!
+[Ta kontakt](mailto:folk@oslobygda.no)!

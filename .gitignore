@@ -30,3 +30,5 @@ skript/.publish_debug/
 skript/.publish_events_state.json
 **/__pycache__/
 *.pyc
+# Separate Vipps test credentials
+.env.vipps-test

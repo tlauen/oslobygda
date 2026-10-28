@@ -1,59 +1,100 @@
-# Innmelding med Vipps – under utvikling
+# Nye medlemmar med Vipps – testversjon
 
-Status: berre API-klienten (`vipps_client.py`) er implementert og lokalt testa med
-simulerte API-svar. Han er ikkje kopla til innmeldingsskjemaet eller publisert.
-Ingen verkeleg betaling er oppretta. Dagens innmeldingsløysing er uendra.
+`ny_innmelding.py` har eige skjema på `/bli-medlem`, status på
+`/bli-medlem/status` og styreoversikt på `/innmeldingar`. Flyten er stengd som
+standard (`VIPPS_SIGNUP_MODE=disabled`). Den gamle offentlege innmeldingssida er
+ikkje lagd om; ikkje lenk til den nye før full test og produksjonsaktivering.
 
-## Det laget må ordne
+Produksjonsnøklar er stadfesta av brukaren. Den komplette betalingsflyten er
+lokalt testa med simulerte Vipps-svar; verkeleg testapp/testbetaling står att.
 
-Bestill **Integrert betaling** for Oslobygda i Vipps-bedriftsportalen, med eiga
-API-integrering og nettstad `https://bygdelista.oslobygda.no`. Eksisterande
-Vippsnummer med valfritt beløp er ikkje åleine nok.
+## Test på PythonAnywhere
 
-Avklar avtale/pris i bestillinga. Brukaren har valt løysinga omtalt med standardpris
-2,99 % + 1 kr per betaling; faktisk avtale er styrande.
+1. Køyr `konfigurer_vipps.py` med den vanlege venv-Pythonen. Vel `test`, og legg
+   inn alle fire verdiane frå testsalseininga. Dei blir lagra i `.env.vipps-test`
+   (600); produksjonsnøklane i `.env` blir ikkje endra.
+2. Frå medlemsregister-mappa, med venv aktiv:
 
-Hent testtilgang og salseiningsnøklar frå portalen. Nødvendige verdiar er:
+   ```bash
+   python -m flask --app app innmelding-testmodus
+   ```
 
-- Client ID → `VIPPS_CLIENT_ID`
-- Client secret → `VIPPS_CLIENT_SECRET`
-- Subscription key (primary eller secondary) → `VIPPS_SUBSCRIPTION_KEY`
-- Merchant Serial Number (MSN) → `VIPPS_MSN`
-- `VIPPS_ENVIRONMENT=test` (standard). Produksjon krev uttrykkeleg `production`.
+3. Trykk **Web → Reload**. Opne `https://bygdelista.oslobygda.no/bli-medlem`.
+   Det skal tydeleg stå TEST. Bruk fiktive kontaktopplysningar og Vipps sin testapp.
+4. Registrer test-webhook og trykk **Web → Reload** på nytt:
 
-Løyndomar skal leggjast direkte i serverkonfigurasjonen, ikkje i chat eller Git.
-Ein testkonto/testapp og testnøklar må brukast under integrasjonstesten.
+   ```bash
+   python -m flask --app app innmelding-webhook
+   ```
 
-## Neste implementasjonssteg
+5. Test fullført betaling, avbrot, gjenteken statuskontroll, og at lukka nettlesar
+   ikkje hindrar behandling via webhook/vedlikehald. Ingen testdata blir lagra som
+   verkelege medlemmar eller sende til Brevo. Testar blir viste separat i
+   styreoversikta. Nøklane blir aldri sende til nettlesaren.
 
-- Same innmeldingsskjema for medlemsopplysningar og valfritt beløp i NOK.
-  Beløpet må validerast i øre på serveren; Vipps krev minst 1 kr.
-- Eiga innmeldings-/betalingsrad med medlemsår, beløp, unik referanse og faste
-  idempotensnøklar vert lagra før API-kallet. Eit avbrot må ikkje lage dobbel betaling.
-- Returner `redirectUrl` frå Vipps til nettlesaren uendra.
-- Retursida skal berre vise status. Ein retur frå Vipps er ikkje prov på betaling.
-- Verifiser webhook-signaturen og hent betalingsstatus frå Vipps på serveren.
-  Godkjend reservasjon må trekkjast (capture). Kontroller faktisk trekt beløp før bokføring.
-- Bokfør éin gong per referanse, atomisk med betalingsstatus og rett medlemsår.
-  E-post/telefon til betalaren må ikkje brukast for å gjette kva medlem betalinga gjeld.
-- Ikkje overskriv eksisterande medlemsopplysningar eller styretilgang frå offentleg skjema.
-  Fornying av eksisterande medlemskap må få sikker kopling/eiga stadfesting.
-- Handter avbroten/utgått betaling, forseinka og dupliserte hendingar, nettverksfeil,
-  refusjon og avstemming også når nettlesaren aldri kjem tilbake.
-- Nyhendebrev har eige valfritt samtykke. Meld inn i Brevo etter stadfesta innmelding;
-  nyhendebrevfeil må ikkje miste ei betaling. Forbrukartekst/vilkår og personverntekst
-  må spegle den faktiske løysinga før produksjonsstart.
+## Betaling og gjenoppretting
 
-## Før aktivering
+Ordre med kontaktopplysningar, medlemsår, beløp og faste idempotensnøklar blir
+lagra før betalingsoppretting. Nettverksfeil blir prøvde igjen på same ordre.
+Ein retur-GET har ingen betalingssideeffektar. Statusknappen gjer ein CSRF-verna
+POST som hentar status frå Vipps, trekkjer heile reservasjonen med fast nøkkel,
+hentar status igjen og bokfører først når fullt trekk i NOK er stadfesta.
 
-Test full flyt mot Vipps sitt testmiljø, også dobbel innsending, avbrot,
-refusjon, webhook-signatur og gjenoppretting. Fullfør Vipps si integrasjonssjekkliste.
-Ta backup og legg berre om den offentlege innmeldingslenkja når heile flyten er verifisert.
+Webhooks har HMAC-kontroll av rå body, path/query, host og dato, med fem minutt
+klokkeslingringsmonn. Verken webhook-payload eller retur frå nettlesaren blir brukt
+som prov på betaling: status blir henta direkte frå Vipps. DB-lås/lease vernar
+mot samtidige arbeidarar, og medlem/betaling/ordrestadfesting blir lagra i same
+transaksjon. Refusjon etter bokføring blir flagga for manuell avstemming; ingen
+betaling eller medlemsdata blir automatisk sletta ved refusjon.
+
+Legg òg inn ein **timeleg Scheduled task** på PythonAnywhere som reserve ved
+manglande webhook og for Brevo-køen:
+
+```bash
+cd /home/oslobygda/oslobygda/medlemsregister && /home/oslobygda/.virtualenvs/bygdelista/bin/python -m flask --app app innmelding-vedlikehald
+```
+
+Køyringa viser berre tal, ikkje personopplysningar/nøklar. Ho prøver høgst 100
+uferdige betalingar og 100 Brevo-kontaktar per gong. «review» i styreoversikta
+krev manuell kontroll. Hald oversikta under oppsyn, særleg etter driftsavbrot.
+
+## Nye medlemmar og Brevo
+
+Eksisterande e-postadresser og andre pågåande innmeldingar med same adresse blir
+stoppa før betalingsoppretting. Det blir aldri gjetta medlem ut frå Vipps-betalaren.
+Dersom adressa blir registrert av styret medan betaling pågår, blir ei stadfesta
+betaling sett til manuell kontroll utan å endre det eksisterande medlemmet.
+
+Eige valfritt nyhendebrevsamtykke blir lagra med tidspunkt. Berre stadfesta
+produksjonsmedlemskap med samtykke blir sende til Brevo. Køen sender berre namn
+og e-post, med upsert for trygg gjentaking og utan å nullstille avmeldingsstatus.
+Dette krev `BREVO_API_KEY` og `BREVO_INNMELDING_LIST_ID` (evt. `BREVO_LIST_ID`).
+SMTP-nøkkelen kan ikkje brukast som Brevo API-nøkkel. Manglande Brevo-oppsett
+stoppar ikkje medlemsregistrering; kontakten ventar i køen.
+
+## Før produksjonsaktivering
+
+- Verifiser heile flyten mot testappen, også webhook og reservejobb.
+- Kontroller Brevo API-oppsett, liste og nyhendebrevsamtykke.
+- Ta databasebackup. Stadfest pris, salsvilkår og faktisk medlemsår i skjemaet.
+- Set `VIPPS_SIGNUP_MODE=production` uttrykkeleg, registrer produksjonswebhook,
+  Reload, og gjer ein kontrollert produksjonstest før den offentlege lenkja blir endra.
+- Oppdater den offentlege innmeldingssida og steng den gamle manuelle API-flyten.
+- Fastset rutine for sletting av personopplysningar i ufullførte ordre og ved
+  sletting av medlemskap. Ordrehistorikk skal gjennomgåast saman med medlemsdata;
+  ho blir førebels ikkje automatisk rotert eller sletta.
+- Refusjon og avstemming blir handterte av styret. Denne versjonen har ikkje
+  ein refusjonsknapp eller automatisk fornying av eksisterande medlemskap.
+
+## Eksisterande medlemmar – separat seinare arbeid
+
+Direkte push (`PUSH_MESSAGE`) krev særskild godkjenning og har bruksavgrensingar.
+Avklar med Vipps at kontingentinnkreving er tillate før dette blir implementert.
+Ingen oppkrav til eksisterande medlemmar blir sende av denne versjonen.
 
 ## Offisiell dokumentasjon
 
-- <https://developer.vippsmobilepay.com/docs/APIs/access-token-api/standard-authentication/>
-- <https://developer.vippsmobilepay.com/docs/APIs/epayment-api/api-guide/operations/create/>
-- <https://developer.vippsmobilepay.com/docs/APIs/epayment-api/api-guide/operations/capture/>
-- <https://developer.vippsmobilepay.com/docs/APIs/webhooks-api/request-authentication/>
-- <https://developer.vippsmobilepay.com/docs/APIs/epayment-api/checklist/>
+- https://developer.vippsmobilepay.com/docs/APIs/epayment-api/api-guide/operations/create/
+- https://developer.vippsmobilepay.com/docs/APIs/epayment-api/api-guide/operations/get_info/
+- https://developer.vippsmobilepay.com/docs/APIs/epayment-api/api-guide/operations/capture/
+- https://developer.vippsmobilepay.com/docs/APIs/webhooks-api/request-authentication/

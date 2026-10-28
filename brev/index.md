@@ -1,24 +1,12 @@
 ---
 layout: standard
-title: Meld deg på nyhendebrevet
-brevo_skjema: true
+title: Nyhendebrev for medlemmar
 ---
 
-# Nyhendebrev frå Oslobygda kulturlag
+# Nyhendebrev for medlemmar
 
-<p class="kjeks-merknad">Skjemaet brukar kjeks (leverandør Brevo). <a href="{{ '/personvern/' | relative_url }}">Les meir om kjeks og personvern</a>.</p>
+Nyhendebrevet er ein medlemsfordel i Oslobygda kulturlag. Du kan velje det til når du melder deg inn, og melde deg av i kvart brev.
 
-{% if site.brevo_newsletter_form_url != nil and site.brevo_newsletter_form_url != "" %}
-{% include brevo-skjema-nyhendebrev.html %}
-{% else %}
-<p><em>Brevo-skjema for nyhendebrev er ikkje sett opp enno. Legg inn <code>brevo_newsletter_form_url</code> i <code>_config.yml</code>.</em></p>
-{% endif %}
+[Bli medlem]({{ '/bli-medlem/' | relative_url }})
 
-## Nerde-greier:
-
-- **Komande tilskipingar (tekst)**: <a href="{{ '/api/tilskipingar.txt' | absolute_url }}">{{ '/api/tilskipingar.txt' | absolute_url }}</a>
-- **Komande tilskipingar (JSON)**: <a href="{{ '/api/tilskipingar.json' | absolute_url }}">{{ '/api/tilskipingar.json' | absolute_url }}</a>
-- **Tekstgenerator (manuell backup)**: <a href="{{ '/brev/tekstgenerator/' | absolute_url }}">{{ '/brev/tekstgenerator/' | absolute_url }}</a>
-- **Førehandvising av epost** <a href="{{ '/skript/forehandsvising_nyhendebrev.html' | absolute_url }}">{{ '/skript/forehandsvising_nyhendebrev.html' | absolute_url }}</a>
-- **Kalender**: <a href="{{ '/kalender/' | absolute_url }}">{{ '/kalender/' | absolute_url }}</a>
-- **Kalender (ICS)**: <a href="{{ '/kalender.ics' | absolute_url }}">{{ '/kalender.ics' | absolute_url }}</a>
+Er du allereie medlem og ønskjer nyhendebrevet? Send ein e-post til [folk@oslobygda.no](mailto:folk@oslobygda.no).

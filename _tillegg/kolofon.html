@@ -1,15 +1,31 @@
-<p>
-  <strong>{{ site.title }} </strong>
-</p>
-<p>
-  <span class="dempa">frilynt · folkeleg · litt for seint heim</span>
-</p>
-
-<p class="dempa">
-  {% if site.salsvilkar_publiserte %}<a href="{{ '/salsvilkar/' | relative_url }}">Salsvilkår for medlemskap</a> · {% endif %}
-  <a href="{{ '/personvern/' | relative_url }}">Personvern og kjeks</a> · Bygd med <a href="https://github.com/tlauen/oslobygda">GitHub Pages</a>. Bidra gjerne!
-</p>
-
-<div class="kolofon-logo" aria-hidden="true">
-  <span class="kolofon-logo__merke"></span>
+<div class="felles-kolofon__innhald">
+  <div class="felles-kolofon__oversikt">
+    <div><strong>Oslobygda kulturlag</strong><p><button class="ordforklaring" type="button" popovertarget="frilynt-forklaring" aria-controls="frilynt-forklaring" aria-expanded="false">frilynt</button> · folkeleg · litt for seint heim</p>
+      <aside class="ordforklaring-boks" id="frilynt-forklaring" popover aria-label="Forklaring av frilynt"><button class="ordforklaring-lukk" type="button" popovertarget="frilynt-forklaring" popovertargetaction="hide" aria-label="Lukk forklaringa">×</button><strong>Frilynt</strong><p>Å vere frilynt betyr å vere fordomsfri og tolerant, og å sjå mennesket for kva det er og kva det kan vekse seg til å bli.</p></aside></div>
+    <address id="kontakt"><strong>Ta kontakt</strong><a href="mailto:folk@oslobygda.no">folk@oslobygda.no</a><span>Eller slå av ein prat på neste pøbb.</span></address>
+  </div>
+  <p class="felles-kolofon__lenkjer"><a href="https://oslobygda.no/salsvilkar/">Salsvilkår for medlemskap</a><span aria-hidden="true"> · </span><a href="https://oslobygda.no/personvern/">Personvern og kjeks</a><span aria-hidden="true"> · </span><a href="https://github.com/tlauen/oslobygda">Bidra på GitHub</a></p>
+  <div class="felles-kolofon__logo" aria-hidden="true"><img src="https://oslobygda.no/lutar/bilete/logo_oslobygda.svg" alt="" width="160" height="160" loading="lazy"></div>
+  <script>
+  (() => {
+    const root = document.currentScript.parentElement;
+    const button = root.querySelector('.ordforklaring');
+    const box = root.querySelector('.ordforklaring-boks');
+    const position = () => {
+      if (!box.matches(':popover-open')) return;
+      const anchor = button.getBoundingClientRect();
+      const width = box.offsetWidth, height = box.offsetHeight;
+      const left = Math.max(16, Math.min(anchor.left, innerWidth - width - 16));
+      const top = anchor.top >= height + 24 ? anchor.top - height - 10 : anchor.bottom + 10;
+      box.style.left = left + 'px';
+      box.style.top = Math.max(16, Math.min(top, innerHeight - height - 16)) + 'px';
+    };
+    box.addEventListener('toggle', event => {
+      button.setAttribute('aria-expanded', String(event.newState === 'open'));
+      position();
+    });
+    window.addEventListener('resize', position);
+    window.addEventListener('scroll', position, true);
+  })();
+  </script>
 </div>
