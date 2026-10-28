@@ -6,9 +6,9 @@ description: "Folkemusikk, dans og gode møte i Oslo. Sjå kva som skjer, og bli
 
 <section class="helt" aria-labelledby="framside-tittel">
   <div class="helt__innhald">
-    <p class="framside__overtekst">Oslobygda kulturlag · sidan 2021</p>
+    <p class="framside__overtekst">Folkemusikkpøbb i Oslo · sidan 2021</p>
     <h1 id="framside-tittel" class="helt__tittel">Byliv med bygdepuls.</h1>
-    <p class="helt__ingress">Folkemusikk, dans og gode møte i Oslo. Kom ned i kjellaren på Kaffistova – me lagar liv på Folkemusikkpøbben!</p>
+    <p class="helt__ingress">Folkemusikk, dans og kjekke folk i Oslo. Kom ned i kjellaren på Kaffistova og bli med på Folkemusikkpøbb!</p>
     <div class="framside__handlingar">
       <a class="framside__knapp framside__knapp--lys" href="#det-skjer">Sjå kva som skjer <span aria-hidden="true">↓</span></a>
       <a class="framside__tekstlenkje" href="{{ '/bli-medlem/' | relative_url }}">Bli medlem for ein femmar <span aria-hidden="true">↗</span></a>
