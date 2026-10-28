@@ -2,6 +2,7 @@
 .om-modul{margin:3rem 0}.om-modul>h2{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.5rem);font-weight:450;margin:.35rem 0 1.4rem}
 .modul-etikett{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#5e5c55;margin:0}
 .styre-grid,.dokument-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media(min-width:761px){.styre-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .styre-kort{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#fffefa}
 .styre-kort>img,.styre-portrett{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;max-height:330px;height:auto}
 .styre-portrett{display:grid;place-items:center;font:450 4rem var(--serif);color:#3e5839;background:#e1eddc}.styre-kort:nth-child(even) .styre-portrett{background:#e4f0f4;color:#345d6e}

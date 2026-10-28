@@ -29,6 +29,45 @@ Dette oppsettet brukar vanleg SQLite. Det opnar ikkje ein eksisterande
 SQLCipher-kryptert database. Eventuell flytting av medlemsdata må gjerast
 separat, med tryggingskopi og kontroll av kryptering først.
 
+## Fast oppdateringsrutine
+
+PythonAnywhere har ei eiga, rein Git-kjelde i `/home/oslobygda/oslobygda-kjelde`.
+Den aktive appen ligg framleis i `/home/oslobygda/oslobygda`; ikkje rediger filer
+direkte i nokon av desse mappene. Rediger lokalt og push til `main` først.
+
+Etter at du har committa og pusha, køyr dette i PythonAnywhere sin Bash-konsoll:
+
+```bash
+python3 /home/oslobygda/oppdater-bygdelista.py
+```
+
+Gå så til **Web → Reload bygdelista.oslobygda.no**, og last nettsida på nytt.
+GitHub Pages publiserer hovudnettsida automatisk; denne kommandoen oppdaterer
+Python-appen på PythonAnywhere.
+
+Kommandoen hentar `main`, sjekkar Python-syntaks, tek kodebackup og kopierer
+berre godkjende kodefiler, malar og nødvendige felles footer-/menyfiler.
+`.env`, Vipps-testnøklar, databasar og byggjemapper blir ikkje kopierte.
+Ingen medlemsregistrering, betaling eller e-postsending blir starta.
+
+Du kan sjå om det er kode å oppdatere utan å endre den aktive appen:
+
+```bash
+python3 /home/oslobygda/oppdater-bygdelista.py --dry-run
+```
+
+Ved endringar i `requirements-common.txt` eller `requirements-pythonanywhere.txt`,
+køyr òg før Reload:
+
+```bash
+/home/oslobygda/.virtualenvs/bygdelista/bin/pip install -r /home/oslobygda/oslobygda/medlemsregister/requirements-pythonanywhere.txt
+```
+
+Oppdateringsprogrammet si kjelde er `skript/oppdater_bygdelista.py` i repoet;
+serverkopien ligg i heimemappa slik at kommandoen alltid er på same stad.
+Kodebackup blir lagra i `/home/oslobygda/Bygdelista-backup/kode-for-oppdatering-*.tar.gz`.
+Dette kjem i tillegg til den vanlege databasebackupen.
+
 ## Hemmelege verdiar
 
 Opprett `medlemsregister/.env` på serveren, med filrettar berre for eigaren
