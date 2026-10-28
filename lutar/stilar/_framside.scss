@@ -9,7 +9,8 @@
   background-color: #202b26;
 }
 .helt::before { background: linear-gradient(90deg, rgba(15,28,23,.94), rgba(15,28,23,.72)); }
-.helt__innhald { display: block; padding: 0; text-align: left; }
+.helt__innhald { display: block; padding: 0; text-align: left; justify-items: start; }
+.helt__innhald > .framside__overtekst { text-align: left; margin-inline: 0; }
 .helt__tittel { font-size: clamp(2.6rem, 6vw, 4.4rem); max-width: 10ch; margin: .8rem 0 1rem; letter-spacing: -.035em; }
 .helt__ingress { max-width: 43ch; font-size: 1.1rem; }
 .helt__logo { position: relative; width: 100%; }
