@@ -25,9 +25,11 @@ def erase_member(db, mid):
         return {"error": "Medlem finst ikkje"}, 404
     email = row["email"].strip().casefold()
     orders = db.execute(
-        "SELECT reference,email,status,environment FROM signup_orders WHERE member_id=? OR (email<>? AND lower(trim(email))=?)",
+        "SELECT reference,email,status,environment,confirmation_status FROM signup_orders WHERE member_id=? OR (email<>? AND lower(trim(email))=?)",
         (mid, "", email),
     ).fetchall()
+    if any(o['confirmation_status'] == 'sending' for o in orders):
+        return {"error": "Ein stadfestingsmail er under sending. Vent til sendinga er avklart før sletting."}, 409
     if any(
         o["environment"] == "production"
         and o["status"]

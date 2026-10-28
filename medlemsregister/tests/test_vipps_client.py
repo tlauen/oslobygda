@@ -22,6 +22,7 @@ class VippsClientTests(unittest.TestCase):
             create=request.call_args_list[1]
             self.assertEqual(create.args[2]['Idempotency-Key'],'saved-create-key')
             self.assertEqual(create.args[3]['amount']['value'],10000)
+            self.assertEqual(create.args[3]['profile'], {'scope': 'name phoneNumber'})
             self.assertNotIn('client_secret',create.args[2])
             capture=request.call_args_list[2]
             self.assertEqual(capture.args[3]['modificationAmount']['value'],10000)

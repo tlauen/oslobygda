@@ -117,3 +117,27 @@ og kontroller medlemsliste, betalingsreferanse, webhook og nyhendebrevval før
 er stengd for publikum. Testnøklane blir bevarte separat.
 
 Reservejobben gjer ein lesekontroll av Brevo-lista kvar 30. dag, slik at API-nøkkelen ikkje blir inaktiv ved få innmeldingar. Ingen testkontakt eller e-post blir oppretta av denne kontrollen.
+
+## Betalaropplysningar og stadfesting
+
+Nye betalingsførespurnader ber om `profile.scope: name phoneNumber`.
+Betalaren samtykkjer i Vipps. Berre namn og telefon frå det kontrollerte
+betalingssvaret blir lagra i ordren; medlemsopplysningane frå skjemaet blir
+ikkje overskrivne. Eldre betalingar får ikkje profilopplysningar i etterkant.
+Styret ser betalar og telefon under «Nye innmeldingar».
+
+Etter stadfesta betaling blir ein transaksjonsmail send til e-postadressa i
+innmeldingsskjemaet via eksisterande SMTP-oppsett. Mailen inneheld år, beløp,
+betalingsreferanse, kontakt og lenkje til salsvilkåra. Nyhendebrev er uavhengig.
+Testbetalingar sender ikkje mail. Eldre innmeldingar blir merkte `skipped`,
+slik at ei utrulling ikkje sender gamle stadfestingar automatisk.
+
+Ordren har `confirmation_status`: `pending`, `sending`, `sent`, `review` eller
+`skipped`. Atomisk krav på sendinga hindrar parallelle utsendingar. Ved ein
+kjend avvisingsfeil prøver `innmelding-vedlikehald` på nytt. Ved uvisst SMTP-utfall
+(`review`), eller prosessavbrot under `sending`, må administrator kontrollere
+leveringsloggen i Brevo før eventuell ny sending. SMTP garanterer ikkje nøyaktig
+éi levering. Ikkje nullstill denne statusen blindt.
+
+Ved personvernsletting blir òg Vipps-betalarnamn og telefon sletta, og ventande
+stadfestingsmail stoppa. Sletting blir avvist medan ei sending pågår.

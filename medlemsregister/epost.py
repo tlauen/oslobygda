@@ -17,14 +17,12 @@ def send_message(message):
         )
     else:
         smtp = smtplib.SMTP(os.environ["SMTP_HOST"], port, timeout=15)
-    accepted = False
     try:
         if port != 465:
             smtp.starttls(context=context)
         smtp.login(os.environ["SMTP_USER"], os.environ["SMTP_PASSWORD"])
         try:
             smtp.send_message(message)
-            accepted = True
         except smtplib.SMTPResponseException:
             # Ein eksplisitt SMTP-feil betyr at tenaren avviste sendinga.
             raise
@@ -38,6 +36,7 @@ def send_message(message):
         try:
             smtp.quit()
         except Exception:
-            smtp.close()
-            if not accepted:
+            try:
+                smtp.close()
+            except Exception:
                 pass

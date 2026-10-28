@@ -6,6 +6,7 @@
   {% if error %}<div class="error-notice" role="alert">{{ error }}</div>{% endif %}
   {% if order.status=='complete' %}
     <div class="status-mark" aria-hidden="true">✓</div><p class="eyebrow">Alt er i orden</p><h1>{{ 'Testen er fullført' if environment=='test' else 'Velkomen i Oslobygda!' }}</h1><p>Betalinga er stadfesta. {{ 'Ingen testopplysningar er sende til medlemsregisteret eller Brevo.' if environment=='test' else 'Medlemskapen og betalinga er registrerte. Me gler oss til å sjå deg!' }}</p><a class="button button-primary" href="https://oslobygda.no/kalender/">Sjå kva du kan glede deg til <span aria-hidden="true">→</span></a>
+    {% if environment=='production' %}<p class="small-note">{% if order.confirmation_status=='sent' %}Stadfesting er send til e-postadressa du oppgav.{% else %}Du får òg ei stadfesting på e-post. Medlemskapen er registrert sjølv om e-posten tek litt tid.{% endif %}</p>{% endif %}
   {% elif order.status=='review' %}
     <h1>Me må sjå på innmeldinga</h1><p>Styret må kontrollere denne innmeldinga. Kontakt <a href="mailto:folk@oslobygda.no">folk@oslobygda.no</a> og oppgi referansen nedanfor. Ikkje betal på nytt.</p>
   {% elif order.status in ('ABORTED','EXPIRED','TERMINATED') %}

@@ -13,7 +13,8 @@ class BoardAuthTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.patches = [patch.object(module, 'DB_PATH', Path(self.tmp.name) / 'test.db'),
-                        patch.object(module, 'DB_KEY', ''), patch.object(module, '_use_sqlcipher', False)]
+                        patch.object(module, 'DB_KEY', ''), patch.object(module, '_use_sqlcipher', False),
+                        patch.object(module.app.extensions['signup_service'], 'confirmation', return_value=False)]
         for p in self.patches:
             p.start()
         module.app.config.update(TESTING=True, SECRET_KEY='test-only-key', SESSION_COOKIE_SECURE=False)

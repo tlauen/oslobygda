@@ -29,3 +29,8 @@
 - [x] Sjølvbetent «Gløymt passord?» med e-postkode og eksisterande TOTP; avsluttar gamle innloggingar. Utrulla og skjema kontrollert på PythonAnywhere. 77 Python-testar bestått. Ingen passord er endra eller e-post send under utrullinga.
 
 - Brevo-overføring blir no prøvd straks etter betalingskontroll/webhook, med vedlikehaldskø som reserve. 79 Python-testar bestått.
+
+- [x] Stadfestingsmail etter betalt innmelding, separat frå nyhendebrev; varig sendestatus og vern mot doble callbacks.
+- [x] Nye Vipps-betalingar ber om samtykke til namn og telefon, lagra separat som betalaropplysningar og tekne med i personvernsletting.
+
+- Stadfestingsmail og betalarprofil er utrulla. SMTP aksepterte stadfestinga for 6-kronersprøva. 85 Python-testar bestått. Vipps-profilsamtykket må framleis prøvast i ein ny betalingsflyt; den gamle betalinga kan ikkje få nytt samtykke i etterkant.
