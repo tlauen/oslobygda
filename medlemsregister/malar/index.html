@@ -54,7 +54,6 @@
     </details>
     <p>
       <button type="button" class="btn" id="btn-ny">Legg til medlem</button>
-      <button type="button" class="btn sekundaer" id="btn-sync-contacts">Hent nye frå nyhendebrev-lista</button>
       <a href="{{ prefix_url('export_excel') }}" class="btn sekundaer" download>Last ned til Excel</a>
     </p>
 
@@ -573,7 +572,6 @@
     document.getElementById("btn-avbryt").addEventListener("click", lukkModal);
     document.getElementById("btn-betaling-avbryt").addEventListener("click", lukkBetalingModal);
     document.getElementById("btn-ny").addEventListener("click", () => openModal(null));
-    document.getElementById("btn-sync-contacts").addEventListener("click", syncContacts);
 
     listeEl.addEventListener("click", (e) => {
       const toggleEl = e.target.closest("[data-action=\"toggle-payment\"]");
@@ -623,23 +621,6 @@
 
     modal.addEventListener("click", (e) => { if (e.target === modal) lukkModal(); });
     betalingModal.addEventListener("click", (e) => { if (e.target === betalingModal) lukkBetalingModal(); });
-
-    async function syncContacts() {
-      const btn = document.getElementById("btn-sync-contacts");
-      btn.disabled = true;
-      setStatus("Hentar kontaktar …");
-      try {
-        const r = await fetch(API + "/api/sync-contacts", { method: "POST", credentials: "same-origin" });
-        const data = await r.json().catch(() => ({}));
-        setStatus(data.message || (data.error ? "Feil: " + data.error : "Ferdig"));
-        if (data.error) setStatus(data.error, true);
-        if (r.ok && (data.added || 0) > 0) {
-          const medlemmar = await hentMedlemmar();
-          renderListe(medlemmar);
-        }
-      } catch (e) { setStatus("Kunne ikkje hente: " + e.message, true); }
-      btn.disabled = false;
-    }
 
     async function eksporterMedlem(id) {
       try {

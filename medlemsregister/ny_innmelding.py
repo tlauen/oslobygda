@@ -51,6 +51,7 @@ def init_signup(get_db):
         db.executescript(SCHEMA)
         columns = {row[1] for row in db.execute("PRAGMA table_info(signup_orders)")}
         for name, definition in (
+            ('overview_archived', 'INTEGER NOT NULL DEFAULT 0'),
             ('renewal_member_id', 'INTEGER'),
             ('renewal_link_id', 'INTEGER'),
             ('period_revision', 'INTEGER'),
@@ -730,7 +731,7 @@ def install_signup(
             orders = [
                 dict(row)
                 for row in db.execute(
-                    "SELECT reference,email,amount_ore,for_year,status,problem,newsletter,newsletter_done,environment,payer_name,payer_phone,confirmation_status FROM signup_orders ORDER BY created_at DESC LIMIT 100"
+                    "SELECT reference,email,amount_ore,for_year,status,problem,newsletter,newsletter_done,environment,payer_name,payer_phone,confirmation_status FROM signup_orders WHERE overview_archived=0 ORDER BY created_at DESC LIMIT 100"
                 )
             ]
         return render_template("innmeldingar.html", orders=orders)

@@ -156,12 +156,12 @@ class CleanupTests(TestCase):
                     "BREVO_MEDLEMMAR_LIST_ID": "",
                 },
             ),
-            patch.object(module, "_brevo_fetch_list_contacts") as provider,
+            patch.object(module, "_brevo_request") as provider,
         ):
             response = self.client.post(
                 "/api/sync-contacts", headers={"X-CSRF-Token": self.token()}
             )
-            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.status_code, 410)
             provider.assert_not_called()
 
     def test_database_is_closed_on_commit_and_exception(self):

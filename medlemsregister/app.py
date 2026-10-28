@@ -447,11 +447,6 @@ def innmelding_page():
     return redirect(prefix_url("new_signup"), code=302)
 
 
-def _newsletter_provider() -> str:
-    provider = (os.environ.get("NEWSLETTER_PROVIDER") or "brevo").strip().lower()
-    return provider if provider in {"brevo", "mailerlite"} else "brevo"
-
-
 def _brevo_request(
     method: str, path: str, api_key: str, body: dict | None = None
 ) -> tuple[int, dict]:
@@ -482,57 +477,6 @@ def _brevo_request(
         return 0, {"message": str(e)}
 
 
-def _brevo_fetch_list_contacts(api_key: str, list_id: int) -> tuple[list[dict], str]:
-    contacts = []
-    limit = 500
-    offset = 0
-    while True:
-        status, payload = _brevo_request(
-            "GET",
-            f"/contacts/lists/{int(list_id)}/contacts?limit={limit}&offset={offset}",
-            api_key,
-        )
-        if status != 200:
-            return [], payload.get("message", f"Brevo status {status}")
-        batch = payload.get("contacts") or []
-        contacts.extend(batch)
-        if len(batch) < limit:
-            break
-        offset += limit
-    return contacts, ""
-
-
-def _mailerlite_fetch_group_subscribers(
-    token: str, group_id: str
-) -> tuple[list[dict], str]:
-    """Hent alle abonnentar i ei gruppe (Connect API, cursor-paginering). Returnerer (liste med dict, feilmelding)."""
-    out = []
-    cursor = None
-    url_base = f"https://connect.mailerlite.com/api/groups/{group_id}/subscribers"
-    while True:
-        url = (
-            f"{url_base}?limit=100"
-            if cursor is None
-            else f"{url_base}?limit=100&cursor={cursor}"
-        )
-        req = Request(
-            url,
-            headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
-            method="GET",
-        )
-        try:
-            with urlopen(req, timeout=20, context=_SSL_CTX) as res:
-                data = json.loads(res.read().decode())
-        except (HTTPError, URLError, OSError, json.JSONDecodeError) as e:
-            return [], str(e)
-        for s in data.get("data") or []:
-            out.append(s)
-        cursor = (data.get("meta") or {}).get("next_cursor")
-        if not cursor:
-            break
-    return out, ""
-
-
 @app.route("/api/innmelding", methods=["POST"])
 def api_innmelding():
     """Utgått API. Ikkje send e-post eller opprett kontaktar utan betaling."""
@@ -545,150 +489,8 @@ def api_innmelding():
 @app.route("/api/sync-contacts", methods=["POST"])
 @require_admin
 def api_sync_contacts():
-    """Hent kontaktar frå nyhendebrevleverandør og legg til nye i Bygdelista."""
-    provider = _newsletter_provider()
-    if provider == "brevo":
-        api_key = os.environ.get("BREVO_API_KEY", "").strip()
-        list_id_raw = (os.environ.get("BREVO_MEDLEMMAR_LIST_ID") or "").strip()
-        if not api_key or not list_id_raw:
-            return jsonify(
-                {
-                    "error": "Medlemsimport krev BREVO_API_KEY og ei eiga BREVO_MEDLEMMAR_LIST_ID. Nyhendebrevlista er ikkje ei medlemsliste."
-                }
-            ), 400
-        try:
-            list_id = int(list_id_raw)
-        except ValueError:
-            return jsonify({"error": "BREVO_LIST_ID må vere eit heiltal."}), 400
-        subscribers, err = _brevo_fetch_list_contacts(api_key, list_id)
-        if err:
-            return jsonify({"error": f"Kunne ikkje hente frå Brevo: {err}"}), 502
-    else:
-        token = os.environ.get("MAILERLITE_API_TOKEN", "").strip()
-        group_id = (
-            os.environ.get("MAILERLITE_MEDLEMMAR_GROUP_ID")
-            or os.environ.get("MAILERLITE_GROUP_ID", "")
-        ).strip()
-        if not token or not group_id:
-            return jsonify(
-                {
-                    "error": "MAILERLITE_API_TOKEN og MAILERLITE_GROUP_ID (eller MAILERLITE_MEDLEMMAR_GROUP_ID) må vere satt."
-                }
-            ), 400
-        subscribers, err = _mailerlite_fetch_group_subscribers(token, group_id)
-        if err:
-            return jsonify({"error": f"Kunne ikkje hente frå MailerLite: {err}"}), 502
-
-    now = datetime.now(timezone.utc).isoformat()
-    added = 0
-
-    def _normalize_medlemstype(val):
-        if not val:
-            return "vanleg"
-        v = (val or "").strip().lower()
-        if "kul" in v or v == "k":
-            return "kul"
-        return "vanleg"
-
-    with managed_db(get_db) as conn:
-        for s in subscribers:
-            email = (s.get("email") or "").strip().lower()
-            if not email:
-                continue
-            if conn.execute(
-                "SELECT 1 FROM members WHERE email = ?", (email,)
-            ).fetchone():
-                continue
-            if conn.execute(
-                "SELECT 1 FROM privacy_jobs WHERE email=?", (email,)
-            ).fetchone():
-                continue
-            fields = s.get("fields") or {}
-            if provider == "brevo":
-                fields = s.get("attributes") or {}
-            # Skjema-felt (Subscribers → Fields): fornamn, mellomnamn, etternamn, adresse, medlemstype, fodselsdato + name/last_name/city/zip/phone
-            fornamn = (
-                fields.get("fornamn")
-                or fields.get("FIRSTNAME")
-                or fields.get("name")
-                or fields.get("NAME")
-                or ""
-            ).strip() or "–"
-            etternamn = (
-                fields.get("etternamn")
-                or fields.get("LASTNAME")
-                or fields.get("last_name")
-                or ""
-            ).strip() or "–"
-            mellomnamn = (
-                fields.get("mellomnamn")
-                or fields.get("MIDDLENAME")
-                or fields.get("company")
-                or ""
-            ).strip()
-            phone = (fields.get("phone") or fields.get("PHONE") or "").strip()
-            adresse = (
-                fields.get("adresse")
-                or fields.get("ADDRESS")
-                or fields.get("state")
-                or ""
-            ).strip()
-            poststad = (
-                fields.get("poststad") or fields.get("CITY") or fields.get("city") or ""
-            ).strip()
-            postnummer = (
-                fields.get("postnummer")
-                or fields.get("ZIP")
-                or fields.get("zip")
-                or fields.get("z_i_p")
-                or ""
-            ).strip()
-            membership_type = _normalize_medlemstype(
-                fields.get("medlemstype")
-                or fields.get("MEMBERSHIP_TYPE")
-                or fields.get("country")
-            )
-            birth_date = (
-                fields.get("fodselsdato")
-                or fields.get("BIRTH_DATE")
-                or fields.get("birthday")
-                or fields.get("birth_date")
-                or ""
-            ).strip() or None
-            full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-            consent_at = s.get("subscribed_at") or s.get("createdAt") or now
-            conn.execute(
-                """INSERT INTO members (full_name, fornamn, mellomnamn, etternamn, email, phone, adresse, postnummer, poststad, birth_date, membership_type, payment_status, consent_at, created_at, updated_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    full_name,
-                    fornamn,
-                    mellomnamn,
-                    etternamn,
-                    email,
-                    phone,
-                    adresse,
-                    postnummer,
-                    poststad,
-                    birth_date,
-                    membership_type,
-                    "ikkje betalt",
-                    consent_at,
-                    now,
-                    now,
-                ),
-            )
-            added += 1
-        conn.commit()
-    provider_label = "Brevo" if provider == "brevo" else "MailerLite"
-    return jsonify(
-        {
-            "message": f"{added} nye medlemmar importert frå {provider_label}."
-            if added
-            else f"Ingen nye å hente frå {provider_label}.",
-            "added": added,
-        }
-    )
+    """Avvikla: Bygdelista er hovudregisteret, Brevo tek imot nyhendebrevkontaktar."""
+    return jsonify({"error":"Import frå nyhendebrevlista er avvikla. Nye medlemmar blir registrerte i Bygdelista gjennom innmelding."}),410
 
 
 @app.route("/api/sync-mailerlite", methods=["POST"])
