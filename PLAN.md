@@ -16,13 +16,13 @@
 - [ ] Portrett av styret må leggjast til av laget; modulen har namn, rolle og initialar.
 - [x] Kontrollert ekte produksjonsbetaling på 6 kr utført av brukaren; medlem, betaling og Superkul-type stadfesta.
 - [x] Stadfesta medlemsregistrering og Brevo-kontakt i rett liste med namn.
-- [ ] Offentleg opning av innmeldingsskjemaet: produksjonsmodus er lagra på PythonAnywhere; ventar på Web → Reload og anonym kontroll av den køyrande sida.
+- [x] Offentleg opning av innmeldingsskjemaet. Produksjonsmodus og Reload utførte; anonym HTTP 200, skjemafelt og vidarelenkje frå oslobygda.no verifiserte 28. oktober 2026.
 
 ## Kontroll og utrulling
 
 - 71 Python-testar bestått; Ruby-testar køyrde med Homebrew Ruby; kalendertestar og `git diff --check` bestått.
 - Jekyll-bygg og visuell kontroll av mobilmeny, galleri, forklaring og innmeldingsskjema gjennomførte.
-- Bygdelista er oppdatert på PythonAnywhere. Ekte produksjonsbetaling og Brevo-overføring er stadfesta. Produksjonsmodus er no lagra; offentleg opning ventar på Web → Reload og anonym kontroll.
+- Bygdelista er oppdatert på PythonAnywhere. Ekte produksjonsbetaling og Brevo-overføring er stadfesta. Produksjonsmodus er aktiv, og offentleg tilgang er stadfesta etter Web → Reload.
 - Offentleg nettside er klar lokalt, men ikkje committa eller pusha.
 - Lesekontroll av produksjon viste fungerande innlogging og felles CSS, og ingen ventande Brevo-kontaktar eller slettingar. Ingen produksjonssynkronisering vart starta manuelt.
 
