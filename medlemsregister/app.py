@@ -227,6 +227,13 @@ def _nok_to_ore(value, *, allow_zero=False):
 
 
 def _get_superkul_grense(conn):
+    from kontingent import period
+    try:
+        policy=period(conn,_get_medlemsbetalingsar(conn))
+        if policy and policy["superkul_ore"] is not None:
+            return policy["superkul_ore"]
+    except sqlite3.OperationalError:
+        pass
     row = conn.execute(
         "SELECT value FROM app_settings WHERE key='superkul_grense_ore'"
     ).fetchone()
@@ -959,10 +966,14 @@ def kontingent_innstillingar():
                 ore = _nok_to_ore(data.get("superkul_grense_nok"), allow_zero=True)
             except ValueError as error:
                 return jsonify({"error": str(error)}), 400
+            current_year=_get_medlemsbetalingsar(conn)
+            if ore!=_get_superkul_grense(conn) and conn.execute("SELECT 1 FROM signup_orders WHERE for_year=? AND environment='production' AND create_attempted=1 LIMIT 1",(current_year,)).fetchone():
+                return jsonify({'error':'Satsen er låst etter at produksjonsbetalingar er starta.'}),409
             conn.execute(
                 "INSERT INTO app_settings(key,value) VALUES ('superkul_grense_ore',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
                 (str(ore),),
             )
+            conn.execute("UPDATE membership_periods SET superkul_ore=?,revision=revision+1 WHERE year=?",(ore,_get_medlemsbetalingsar(conn)))
             _oppdater_alle_fra_innbetalingar(conn)
             conn.commit()
         return jsonify({"superkul_grense_ore": _get_superkul_grense(conn)})
@@ -1261,6 +1272,9 @@ install_signup(
 )
 app.config["MAX_CONTENT_LENGTH"] = 65536
 
+
+from kontingent import install_renewals
+install_renewals(app,get_db,require_admin)
 
 def main():
     # Tydelig melding om database-kryptering ved oppstart

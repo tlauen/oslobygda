@@ -5,7 +5,7 @@
     <p class="eyebrow">Oslobygda kulturlag</p>
     <h1>Ver med på<br> det som skjer.</h1>
     <p class="intro-text">Folkemusikk, dans og kjekke folk. Bli ein del av Oslobygda!</p>
-    <div class="membership-card"><span class="eyebrow">Medlemskap {{ year }}</span><p class="membership-price">Frå 5 <span>kr / kalenderår</span></p><p><strong>Kul</strong> for 5 kr.<br> <strong>Superkul</strong> når du betalar meir enn {{ '%.2f'|format(threshold/100)|replace('.',',') }} kr.</p></div>
+    <div class="membership-card"><span class="eyebrow">Medlemskap {{ year }}</span><p class="membership-price">Frå {{ '%.2f'|format(minimum/100)|replace('.',',') }} <span>kr / kalenderår</span></p><p><strong>Kul</strong> for {{ minimum/100 }} kr.<br> <strong>Superkul</strong> når du betalar meir enn {{ '%.2f'|format(threshold/100)|replace('.',',') }} kr.</p></div>
     <p class="small-note">Allereie medlem? <a href="mailto:folk@oslobygda.no">Kontakt oss</a> om fornying.</p>
   </aside>
   <section class="form-card" aria-labelledby="form-title">
@@ -20,7 +20,7 @@
       {% endfor %}
       </div></fieldset>
       <p class="small-note">I Vipps blir du beden om å dele namn og telefonnummer til betalaren, slik at me kan følgje opp betaling og eventuell refusjon. Desse opplysningane blir lagra separat frå medlemsopplysningane. Du får stadfesting på e-post etter betaling.</p>
-      <fieldset class="payment-section"><legend>Medlemspengar</legend><p>Vel beløpet du vil bidra med. Minst 5 kr.</p><div class="amount-field"><label for="amount">Beløp *</label><div class="amount-input"><input id="amount" name="amount" type="number" min="5" max="1000000" step="1" inputmode="numeric" value="{{ values.get('amount','5') }}" required><span aria-hidden="true">kr</span></div></div></fieldset>
+      <fieldset class="payment-section"><legend>Medlemspengar</legend><p>Vel beløpet du vil bidra med. Minst {{ minimum/100 }} kr.</p><div class="amount-field"><label for="amount">Beløp *</label><div class="amount-input"><input id="amount" name="amount" type="number" min="{{ minimum/100 }}" max="1000000" step="0.01" inputmode="decimal" value="{{ values.get('amount',minimum/100) }}" required><span aria-hidden="true">kr</span></div></div></fieldset>
       <fieldset class="consents"><legend>Før du går vidare</legend>
         <label class="check-row"><input type="checkbox" name="terms" value="1" required {% if values.get('terms') %}checked{% endif %}><span>Eg godtek <a href="https://oslobygda.no/salsvilkar/" target="_blank" rel="noopener">salsvilkåra</a>, inkludert 14 dagars angrerett. *</span></label>
         <label class="check-row newsletter-choice"><input type="checkbox" name="newsletter" value="1" {% if values.get('newsletter') %}checked{% endif %}><span>Ja takk, send meg nyhendebrev.<small>Valfritt. Du kan melde deg av i kvart nyhendebrev.</small></span></label>

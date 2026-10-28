@@ -15,7 +15,7 @@ def send_confirmation(order):
     message['From'] = 'Oslobygda kulturlag <folk@oslobygda.no>'
     message['To'] = order['email']
     message['Reply-To'] = 'folk@oslobygda.no'
-    message['Subject'] = 'No er du med i Oslobygda! 🎉'
+    message['Subject'] = (f"Medlemskapen for {order['for_year']} er fornya – Oslobygda" if order.get('renewal_member_id') else 'No er du med i Oslobygda! 🎉')
     message['Date'] = formatdate(localtime=False, usegmt=True)
     message['Message-ID'] = f"<innmelding-{order['reference']}@oslobygda.no>"
     amount = f"{order['amount_ore'] // 100},{order['amount_ore'] % 100:02d}"

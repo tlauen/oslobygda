@@ -25,8 +25,8 @@ def erase_member(db, mid):
         return {"error": "Medlem finst ikkje"}, 404
     email = row["email"].strip().casefold()
     orders = db.execute(
-        "SELECT reference,email,status,environment,confirmation_status FROM signup_orders WHERE member_id=? OR (email<>? AND lower(trim(email))=?)",
-        (mid, "", email),
+        "SELECT reference,email,status,environment,confirmation_status FROM signup_orders WHERE member_id=? OR renewal_member_id=? OR (email<>? AND lower(trim(email))=?)",
+        (mid,mid, "", email),
     ).fetchall()
     if any(o['confirmation_status'] == 'sending' for o in orders):
         return {"error": "Ein stadfestingsmail er under sending. Vent til sendinga er avklart før sletting."}, 409
@@ -39,6 +39,7 @@ def erase_member(db, mid):
         return {
             "error": "Medlemmen har ei pågåande betaling eller ei betaling til kontroll. Avklar denne før sletting."
         }, 409
+    db.execute("UPDATE renewal_links SET revoked=1 WHERE member_id=?",(mid,))
     addresses = {email} | {o["email"].strip().casefold() for o in orders if o["email"]}
     for address in addresses:
         if address:
@@ -54,7 +55,7 @@ def erase_member(db, mid):
     )
     for order in orders:
         db.execute(
-            "UPDATE signup_orders SET payer_name='',payer_phone='',confirmation_status='skipped',details='{}',email='',browser_key='',consent_at='',status='redacted',newsletter=0,newsletter_done=1,member_id=NULL,lease_token=NULL,lease_until=0,problem='' WHERE reference=?",
+            "UPDATE signup_orders SET payer_name='',payer_phone='',confirmation_status='skipped',details='{}',email='',browser_key='',consent_at='',status='redacted',newsletter=0,newsletter_done=1,member_id=NULL,renewal_member_id=NULL,renewal_link_id=NULL,lease_token=NULL,lease_until=0,problem='' WHERE reference=?",
             (order["reference"],),
         )
     if db.execute("SELECT 1 FROM payments WHERE member_id=?", (mid,)).fetchone():
