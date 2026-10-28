@@ -20,4 +20,4 @@ Kan du tenkje deg å hjelpe til med organisering, leie ein jam-session eller spe
 {% include kalenderabonnement.html %}
 
 
-{% include pobb-galleri.html %}
+{% include pobb-instagram.html %}

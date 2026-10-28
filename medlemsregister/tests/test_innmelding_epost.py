@@ -89,11 +89,23 @@ class ReceiptTransportTests(unittest.TestCase):
             self.assertTrue(send_confirmation({'email':'member@example.org','amount_ore':678,'for_year':2026,'reference':'ny-example123'}))
         msg = send.call_args.args[0]
         self.assertEqual(msg['To'], 'member@example.org')
+        self.assertEqual(msg['From'], 'Oslobygda kulturlag <folk@oslobygda.no>')
         self.assertEqual(msg['Reply-To'], 'folk@oslobygda.no')
-        self.assertIn('6,78 kr', msg.get_content())
-        self.assertIn('ny-example123', msg.get_content())
-        self.assertIn('2026', msg.get_content())
-        self.assertNotIn('nyhendebrev', msg.get_content())
+        self.assertIn('6,78 kronene', msg.get_body(preferencelist=('plain',)).get_content())
+        self.assertIn('ny-example123', msg.get_body(preferencelist=('plain',)).get_content())
+        self.assertIn('2026', msg.get_body(preferencelist=('plain',)).get_content())
+        self.assertNotIn('nyhendebrev', msg.get_body(preferencelist=('plain',)).get_content())
+        self.assertIn('<strong>6,78 kronene</strong>', msg.get_body(preferencelist=('html',)).get_content())
+        self.assertEqual(msg['Subject'], 'No er du med i Oslobygda! 🎉')
+
+    def test_first_name_is_member_name_and_html_is_escaped(self):
+        with patch('innmelding_epost.mail_ready', return_value=True), patch.dict('os.environ', {'STYRE_EPOST_FRA':'noreply@example.org'}), patch('innmelding_epost.send_message') as send:
+            send_confirmation({'email':'member@example.org','amount_ore':600,'for_year':2026,'reference':'ny-example123','details':'{"fornamn":"<b>Test</b>"}', 'payer_name':'Someone Else'})
+        msg = send.call_args.args[0]
+        self.assertIn('Hei, <b>Test</b>!', msg.get_body(preferencelist=('plain',)).get_content())
+        html = msg.get_body(preferencelist=('html',)).get_content()
+        self.assertIn('Hei, &lt;b&gt;Test&lt;/b&gt;!', html)
+        self.assertNotIn('Someone Else', html)
 
     def test_smtp_known_rejection_and_unknown_outcome(self):
         msg = EmailMessage(); msg.set_content('test')
