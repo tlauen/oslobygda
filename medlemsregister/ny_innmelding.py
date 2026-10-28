@@ -477,6 +477,14 @@ def install_signup(
     service = SignupService(get_db, get_year, get_threshold, newsletter)
     app.extensions["signup_service"] = service
 
+    def sync_newsletter_safely(reference):
+        # Brevo er uavhengig av bokføringa. Feil blir liggjande i den varige køen.
+        try:
+            return service.sync_newsletter(reference)
+        except Exception:
+            app.logger.error("Brevo-overføring feila. Innmeldinga ligg i kø for nytt forsøk.")
+            return False
+
     def mode():
         selected = os.environ.get("VIPPS_SIGNUP_MODE", "disabled")
         if selected == "production-preview":
@@ -547,6 +555,7 @@ def install_signup(
                         code=303,
                     )
                 service.reconcile(order["reference"])
+                sync_newsletter_safely(order["reference"])
             except VippsError as exc:
                 error = str(exc)
             order = service.order(order["reference"])
@@ -583,6 +592,7 @@ def install_signup(
         ):
             try:
                 service.reconcile(reference)
+                sync_newsletter_safely(reference)
             except VippsError:
                 return "", 503
         return "", 200
@@ -711,7 +721,7 @@ def install_signup(
             except (VippsError, ValueError):
                 problems += 1
         for ref in news:
-            service.sync_newsletter(ref)
+            sync_newsletter_safely(ref)
         print(
             f"Kontrollert {len(refs)} betalingar; {problems} må prøvast igjen. Handsama {len(news)} Brevo-oppføringar og {privacy_done} slettingar."
         )

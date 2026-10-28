@@ -14,8 +14,9 @@
 - [x] Automatisk pøbbgalleri, styremodul og dokumentkort.
 - [x] Frilynt-forklaring på «Om laget»; synleg fireval-meny på mobil.
 - [ ] Portrett av styret må leggjast til av laget; modulen har namn, rolle og initialar.
-- [ ] Kontrollert ekte produksjonsbetaling utført av brukaren.
-- [ ] Stadfeste medlemsregistrering, Brevo-synkronisering og offentleg opning etter produksjonsprøva.
+- [x] Kontrollert ekte produksjonsbetaling på 6 kr utført av brukaren; medlem, betaling og Superkul-type stadfesta.
+- [x] Stadfesta medlemsregistrering og Brevo-kontakt i rett liste med namn.
+- [ ] Offentleg opning av innmeldingsskjemaet.
 
 ## Kontroll og utrulling
 
@@ -26,3 +27,5 @@
 - Lesekontroll av produksjon viste fungerande innlogging og felles CSS, og ingen ventande Brevo-kontaktar eller slettingar. Ingen produksjonssynkronisering vart starta manuelt.
 
 - [x] Sjølvbetent «Gløymt passord?» med e-postkode og eksisterande TOTP; avsluttar gamle innloggingar. Utrulla og skjema kontrollert på PythonAnywhere. 77 Python-testar bestått. Ingen passord er endra eller e-post send under utrullinga.
+
+- Brevo-overføring blir no prøvd straks etter betalingskontroll/webhook, med vedlikehaldskø som reserve. 79 Python-testar bestått.

@@ -137,3 +137,33 @@ class SignupTests(unittest.TestCase):
         self.assertEqual(self.count('members'),0)
         self.assertEqual(self.count('payments'),0)
         client.capture.assert_not_called()
+
+    def test_status_syncs_newsletter_immediately_and_retries_after_failure(self):
+        ref = self.new()
+        client = Mock()
+        client.get.return_value = self.details(ref, 10000)
+        with self.client.session_transaction() as session:
+            session['signup_reference'] = ref
+        with patch.dict('os.environ', {'VIPPS_SIGNUP_MODE': 'production'}), patch('ny_innmelding.client_for', return_value=client), patch.object(self.service, 'newsletter', side_effect=[RuntimeError('private detail'), True]) as news:
+            with self.assertLogs(module.app.logger, level='ERROR') as logs:
+                response = self.client.post('/bli-medlem/status', data={'csrf_token': self.token()})
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn('private detail', str(logs.output))
+            self.assertEqual(self.service.order(ref)['status'], 'complete')
+            self.assertFalse(self.service.order(ref)['newsletter_done'])
+            response = self.client.post('/bli-medlem/status', data={'csrf_token': self.token()})
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(self.service.order(ref)['newsletter_done'])
+            self.assertEqual(news.call_count, 2)
+        self.assertEqual(self.count('payments'), 1)
+
+    def test_webhook_syncs_paid_consent_and_does_not_repeat(self):
+        ref = self.new()
+        client = Mock()
+        client.get.return_value = self.details(ref, 10000)
+        with patch('ny_innmelding.webhook_valid', return_value=True), patch('ny_innmelding.credentials', return_value={'VIPPS_WEBHOOK_SECRET':'test-only'}), patch('ny_innmelding.client_for', return_value=client), patch.object(self.service, 'newsletter', return_value=True) as news:
+            for _ in range(2):
+                response = self.client.post('/vipps/webhook/production', json={'reference': ref, 'msn': '123456'})
+                self.assertEqual(response.status_code, 200)
+            news.assert_called_once()
+        self.assertTrue(self.service.order(ref)['newsletter_done'])
