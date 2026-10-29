@@ -1,14 +1,17 @@
-# Legg portrett i lutar/bilete/styret/ og fyll inn bilete-stigen.
-- namn: Torbjørn Bergwitz Lauen
-  rolle: Styreleiar
-  initialar: Torbjørn
-  bilete: /lutar/bilete/styret/torbjorn-lauen.jpg
-- namn: Signe Dorthea Krohn Gjessing
-  rolle: Nestleiar
-  bilete_posisjon: center 20%
-  initialar: Signe
-  bilete: /lutar/bilete/styret/signe_gjessing-foto-lucas_ibanez_fæhn.jpg
-- namn: Mattias Thedens
-  rolle: Medlem
-  initialar: Mattias
-  bilete: /lutar/bilete/styret/mattias-thedens.webp
+# Felles kjelde for nettsida og årsmeldinga. Bevar tidlegare år og biletfiler.
+gjeldande_ar: 2026
+ar:
+  '2026':
+  - namn: Torbjørn Bergwitz Lauen
+    rolle: Styreleiar
+    initialar: Torbjørn
+    bilete: /lutar/bilete/styret/torbjorn-lauen.jpg
+  - namn: Signe Dorthea Krohn Gjessing
+    rolle: Nestleiar
+    bilete_posisjon: center 20%
+    initialar: Signe
+    bilete: /lutar/bilete/styret/signe_gjessing-foto-lucas_ibanez_fæhn.jpg
+  - namn: Mattias Thedens
+    rolle: Medlem
+    initialar: Mattias
+    bilete: /lutar/bilete/styret/mattias-thedens.webp

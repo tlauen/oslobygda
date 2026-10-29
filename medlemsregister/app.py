@@ -50,7 +50,8 @@ DB_PATH = APP_DIR / "medlemsregister.db"
 try:
     from dotenv import load_dotenv
 
-    load_dotenv(APP_DIR / ".env")
+    if os.environ.get("BYGDELISTA_LOCAL_TEST") != "1":
+        load_dotenv(APP_DIR / ".env")
 except ImportError:
     pass
 
@@ -405,6 +406,16 @@ def init_db():
         _oppdater_alle_fra_innbetalingar(conn)
         conn.commit()
     init_privacy(get_db)
+    from arsdokument import init_documents
+    init_documents(get_db)
+    from rekneskap import init_ledger
+    init_ledger(get_db)
+    from offentleg_rekneskap import init_public_ledger
+    init_public_ledger(get_db)
+    from budsjett import init_budgets
+    init_budgets(get_db)
+    from betalingsimport import init_payment_import
+    init_payment_import(get_db)
 
 
 def require_admin(f):
@@ -432,17 +443,37 @@ def prefix_url(endpoint, **values):
 app.jinja_env.globals["prefix_url"] = prefix_url
 app.jinja_env.globals["url_prefix"] = URL_PREFIX  # for fetch()-base i JS
 
+from okonomi import install_ledger
+install_ledger(app, get_db, require_admin, lambda: DB_PATH)
+from budsjett_vising import install_budgets
+install_budgets(app, get_db, require_admin)
+from betalingsimport_vising import install_payment_import
+install_payment_import(app, get_db, require_admin)
+from arsmote_utskrift import install_print
+install_print(app, get_db, require_admin)
+
 install_auth(app, get_db, prefix_url)
 
 from tilskipingar import install_calendar
 
 install_calendar(app, require_admin)
 
+from arsdokument import install_documents
+install_documents(app, get_db, require_admin)
+
 
 @app.route("/")
 @require_admin
 def index():
     return render_template("index.html")
+
+
+@app.get("/medlemsliste/hjelp")
+@require_admin
+def member_help():
+    response=app.make_response(render_template("medlemsliste_hjelp.html"))
+    response.headers["Cache-Control"]="no-store"
+    return response
 
 
 # —— Offentleg innmeldingsskjema (ingen innlogging) ——
@@ -729,6 +760,8 @@ def delete_member_payment(mid, pid):
         ).fetchone()
         if not payment:
             return jsonify({"error": "Betalinga finst ikkje på denne medlemmen."}), 404
+        if conn.execute("SELECT 1 FROM payment_ledger_links WHERE payment_id=?", (pid,)).fetchone() or conn.execute("SELECT 1 FROM ledger_journals WHERE source_kind='membership_payment' AND source_id=?", (str(pid),)).fetchone():
+            return jsonify({"error": "Betalinga er kopla til bokført rekneskap og kan ikkje slettast. Rett rekneskapen med sporbar reversering."}), 409
         if conn.execute(
             "SELECT 1 FROM signup_orders WHERE payment_id=?", (pid,)
         ).fetchone():
@@ -1071,7 +1104,7 @@ install_signup(
     _privacy_maintenance,
     confirmation=send_confirmation,
 )
-app.config["MAX_CONTENT_LENGTH"] = 65536
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
 from kontingent import install_renewals
@@ -1099,6 +1132,9 @@ def main():
     host = "0.0.0.0" if os.environ.get("MEDLEMSREGISTER_PRODUCTION") else "127.0.0.1"
     app.run(host=host, port=port, debug=os.environ.get("FLASK_DEBUG", "0") == "1")
 
+
+from styremodul import install_board
+install_board(app,require_admin)
 
 if __name__ == "__main__":
     main()

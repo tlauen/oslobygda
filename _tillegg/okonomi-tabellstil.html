@@ -1,0 +1,52 @@
+<style>
+.okonomi-tabell .kategori-sum>th,.okonomi-tabell .kategori-sum>td{background:#e1eddc;font-size:1rem;font-weight:750;border-top:2px solid #88b97f;padding-top:1rem;padding-bottom:1rem}
+.okonomi-tabell .resultat-sum>th,.okonomi-tabell .resultat-sum>td{background:#f5f0df;font-size:1.1rem;font-weight:750;border-top:2px solid #b9ad86}
+.okonomi-tabell tbody tr:hover>th,.okonomi-tabell tbody tr:hover>td,.okonomi-tabell tbody tr:focus-within>th,.okonomi-tabell tbody tr:focus-within>td{background:#edf3f5!important}
+</style>
+<style>
+.okonomi-tabell{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse}
+.okonomi-tabell th,.okonomi-tabell td{white-space:normal;overflow-wrap:anywhere;padding:.7rem}
+.okonomi-tabell:has(thead th:nth-child(3):last-child) thead th:first-child{width:48%}
+@media(max-width:650px){
+.okonomi-tabell thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.okonomi-tabell,.okonomi-tabell tbody{display:block;width:100%}
+.okonomi-tabell tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-bottom:1px solid #dedcd4}
+.okonomi-tabell tr>th{grid-column:1/-1}
+.okonomi-tabell td::before{content:attr(data-column);display:block;font-size:.75rem;font-weight:650;margin-bottom:.3rem}
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+ document.querySelectorAll('.arsmote-kropp table, .okonomi-tabell').forEach(table=>{
+  if(!table.dataset.viewControl){
+   table.dataset.viewControl='yes';
+   const button=document.createElement('button');button.type='button';button.className='tabell-vising';
+   table.classList.add('kompakt-tabell');
+   button.textContent='Detaljert vising';button.setAttribute('aria-pressed','true');
+   button.addEventListener('click',()=>{const compact=table.classList.toggle('kompakt-tabell');button.setAttribute('aria-pressed',String(compact));button.textContent=compact?'Detaljert vising':'Kompakt vising';});
+   table.parentElement.insertBefore(button,table);
+  }
+  const labels=Array.from(table.querySelectorAll('thead th'),th=>th.textContent.trim());
+  table.querySelectorAll('tbody tr').forEach(row=>{
+   Array.from(row.cells).forEach((cell,index)=>{if(cell.tagName==='TD')cell.dataset.column=labels[index]||'';});
+  });
+ });
+});
+</script>
+
+<style>.tabell-vising{font:inherit;font-size:.8rem;background:transparent;border:1px solid #b5beb3;border-radius:7px;padding:.5rem .75rem;margin-bottom:.75rem;cursor:pointer}.okonomi-tabell.kompakt-tabell th,.okonomi-tabell.kompakt-tabell td{padding:.4rem .5rem;font-size:.85rem}</style>
+
+<style>.okonomi-tabell.kompakt-tabell .kategori-note{display:none!important}</style>
+
+<style>
+.transaksjonsliste .transaksjon-tittel { display:block; font-weight:650; line-height:1.5; }
+.transaksjonsliste .transaksjon-meta { display:block; margin-top:.25rem; font-size:.78rem; font-weight:400; color:#5e5c55; overflow-wrap:anywhere; }
+.transaksjonsliste .transaksjon-type { display:block; margin-top:.35rem; font-size:.75rem; font-weight:500; color:#315c38; }
+.transaksjonsliste .transaksjon-belop { white-space:nowrap; font-weight:650; font-variant-numeric:tabular-nums; }
+@media(min-width:651px) {
+ .arsmote-kropp table.transaksjonsliste,.okonomi-tabell.transaksjonsliste { table-layout:fixed; width:100%; }
+ .arsmote-kropp table.transaksjonsliste tr>:first-child,.okonomi-tabell.transaksjonsliste tr>:first-child { width:22%; }
+ .arsmote-kropp table.transaksjonsliste tr>:nth-child(2),.okonomi-tabell.transaksjonsliste tr>:nth-child(2) { width:53%; text-align:left; }
+ .arsmote-kropp table.transaksjonsliste tr>:last-child,.okonomi-tabell.transaksjonsliste tr>:last-child { width:25%; text-align:right; }
+}
+</style>

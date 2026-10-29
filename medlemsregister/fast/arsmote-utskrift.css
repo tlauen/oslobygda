@@ -1,0 +1,90 @@
+@page { size: A4 portrait; margin: 18mm 16mm 20mm; }
+* { box-sizing: border-box; }
+body { margin: 0; color: #172524; background: #ecefec; font: 11pt/1.5 Georgia, "Times New Roman", serif; }
+.toolbar { max-width: 210mm; margin: 1rem auto; padding: .8rem 1rem; font-family: system-ui, sans-serif; background: white; }
+.toolbar button { font: inherit; padding: .5em 1em; cursor: pointer; }
+.paper { max-width: 210mm; margin: 1rem auto; padding: 18mm 16mm 20mm; background: white; }
+.organization { font: 10pt/1.4 system-ui, sans-serif; letter-spacing: .04em; margin: 0 0 8mm; }
+h1 { font-size: 23pt; line-height: 1.15; margin: 0 0 5mm; }
+h2 { font-size: 15pt; line-height: 1.3; margin: 8mm 0 3mm; }
+h3 { font-size: 12pt; margin: 5mm 0 2mm; }
+h1,h2,h3,caption { break-after: avoid; }
+p { margin: 0 0 3mm; orphans: 3; widows: 3; }
+.metadata { border-top: 1px solid #637874; border-bottom: 1px solid #637874; padding: 3mm 0; margin-bottom: 6mm; font: 9pt/1.5 system-ui, sans-serif; }
+.document-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+table { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font: 9pt/1.35 system-ui, sans-serif; table-layout: fixed; }
+caption { text-align: left; font-weight: bold; margin-bottom: 2mm; }
+th,td { padding: 2mm 1.5mm; border-bottom: 1px solid #b6c3be; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+thead th { border-bottom: 1.5px solid #3a514c; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; page-break-inside: avoid; }
+.amount { text-align: right; font-variant-numeric: tabular-nums; }
+.total th,.total td { font-weight: bold; border-top: 1px solid #3a514c; }
+.transactions { font-size: 8pt; }
+.transactions .date { width: 19%; }
+.transactions .reference { width: 23%; }
+.transactions .amount { width: 18%; }
+.footnote { font: 9pt/1.4 system-ui, sans-serif; }
+@media print {
+  body { background: white; color: black; font-size: 10.5pt; }
+  .toolbar { display: none !important; }
+  .paper { max-width: none; margin: 0; padding: 0; }
+  a { color: inherit; text-decoration: none; }
+}
+@media screen and (max-width: 700px) {
+  .paper { margin: 0; padding: 1rem; }
+  h1 { font-size: 20pt; }
+  th,td { padding: 1.5mm .8mm; }
+}
+
+/* Safari held blokker samla meir påliteleg enn tabellrader ved utskrift. */
+.transaction { break-inside: avoid; page-break-inside: avoid; border-bottom: 1px solid #b6c3be; padding: 2.5mm 0; }
+.transaction p { margin: 0 0 1mm; }
+.transaction-heading { font-variant-numeric: tabular-nums; }
+.transaction-category { color: #3a514c; }
+
+.balance-section { break-inside: avoid; page-break-inside: avoid; }
+
+.transaction-top { display:flex; justify-content:space-between; align-items:baseline; gap:5mm; font-variant-numeric:tabular-nums; }
+.transaction-top time { color:#3a514c; font-size:8pt; }
+.transaction-amount { white-space:nowrap; font-size:10pt; }
+.transaction-title { font-size:10pt; font-weight:650; line-height:1.4; }
+.transaction-category,.transaction-kind { font-size:8pt; line-height:1.4; }
+/* Same strukturerte årsmelding som førehandsvisinga, tilpassa papir. */
+.arsmelding-helt { border-bottom:2pt solid #315c38; padding:2mm 0 6mm; margin-bottom:6mm; }
+.arsmelding-overline { font:8pt system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:#315c38; }
+.arsmelding-helt h2 { font-size:28pt; line-height:1.1; max-width:18ch; margin:2mm 0 4mm; }
+.arsmelding-tal { display:flex; gap:4mm; margin:6mm 0; break-inside:avoid; }
+.arsmelding-tal section { flex:1; min-width:0; padding:4mm; background:#e7efdf; border:1pt solid #bfcfb7; border-radius:3mm; }
+.arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
+.arsmelding-tal section:nth-child(3) { background:#f5edda; }
+.arsmelding-tal strong { font-size:28pt; line-height:1.1; }
+.arsmelding-tal h3 { font: bold 9pt/1.3 system-ui,sans-serif; margin:3mm 0 2mm; }
+.arsmelding-tal p { font:8pt/1.5 system-ui,sans-serif; }
+.arsmelding-tekst { white-space:pre-wrap; overflow-wrap:anywhere; }
+.arsmelding-seksjon { font-size:17pt; margin:8mm 0 4mm; break-after:avoid; }
+.arsmelding-aktivitet { border-top:1pt solid #dedcd4; border-left:3pt solid #b99b44; padding:4mm; margin:0 0 3mm; break-inside:avoid; }
+.arsmelding-aktivitet.status-completed { border-left-color:#42744a; }
+.arsmelding-aktivitet.status-cancelled { border-left-color:#a34b45; background:#fff1ed; }
+.arsmelding-dato { display:flex; justify-content:space-between; gap:4mm; font:9pt system-ui,sans-serif; margin-bottom:2mm; }
+.arsmelding-dato span { font-weight:bold; }
+.arsmelding-aktivitet h4 { font-size:12pt; line-height:1.4; margin:2mm 0; break-after:avoid; }
+.arsmelding-stad,.arsmelding-deltakarar { font:9pt/1.5 system-ui,sans-serif; color:#315c38; }
+.arsmelding-styre { display:flex; gap:5mm; break-inside:avoid; }
+.arsmelding-styre article { flex:1; min-width:0; }
+.arsmelding-styre img { width:100%; height:42mm; object-fit:cover; border-radius:3mm; }
+.arsmelding-styre p { font:9pt system-ui,sans-serif; margin:2mm 0; }
+.arsmelding-styre h4 { font-size:11pt; margin:0; }
+@media print { .arsmelding-vising { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+
+.account-group { break-after:avoid; page-break-after:avoid; }
+.account-group th { padding:4mm 2mm 2mm; font: bold 13pt/1.3 Georgia,serif; text-align:left; background:#e4f0f4; color:#173e50; border-top:1.5pt solid #637874; }
+.total th,.total td { border-top:1pt solid #637874; background:#f1f5ed; font-weight:bold; }
+.final-total th,.final-total td { border-top:2pt double #315c38; font-size:11pt; padding-top:3mm; }
+
+/* Tre tydelege felt, som i transaksjonslista på skjerm. */
+.transaction { display:flex; align-items:flex-start; gap:4mm; padding:4mm 0; }
+.transaction-date { flex:0 0 23mm; font:8pt/1.5 system-ui,sans-serif; color:#3a514c; }
+.transaction-content { flex:1; min-width:0; overflow-wrap:anywhere; }
+.transaction>.transaction-amount { flex:0 0 29mm; text-align:right; font: bold 9pt/1.5 system-ui,sans-serif; font-variant-numeric:tabular-nums; }
+.transaction-title { margin-top:0; }

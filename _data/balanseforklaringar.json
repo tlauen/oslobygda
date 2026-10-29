@@ -1,0 +1,10 @@
+{
+  "bank": "Pengar på bankkontoen til laget.",
+  "vipps": "Betalingar laget har fått via Vipps, men som enno ikkje er overførte til banken.",
+  "cash": "Kontantar laget har. Pengar som alt er betalte vidare via Vipps, skal ikkje teljast her òg.",
+  "prepaid": "Den delen av betalte kostnader som gjeld seinare år, til dømes eit abonnement.",
+  "receivable": "Pengar andre skuldar laget, som laget enno ikkje har fått.",
+  "private": "Pengar laget skuldar personar som har betalt utgifter for laget med eigne pengar.",
+  "payable": "Rekningar som er registrerte som utgifter, men som laget enno ikkje har betalt.",
+  "equity": "Det laget eig, minus det laget skuldar. Inkluderer opparbeidd overskot eller underskot; er ikkje ein eigen bankkonto."
+}

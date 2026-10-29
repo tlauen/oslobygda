@@ -22,19 +22,12 @@
       return originalFetch(input, options);
     };
   </script>
-</head>
-<body>
+<link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}"></head>
+<body class="bygdelista-kropp">
   <div class="omslag">
+    {% include '_bygdelista_topp.html' %}{% include '_bygdelista_undermeny.html' %}
     <header class="toppfelt">
-      <h1>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</h1>
-      <a href="{{ prefix_url('annual_fees') }}">Kontingentår og fornying</a>
-      <a href="{{ prefix_url('signup_overview') }}">Innmeldingar</a>
-      <a href="{{ prefix_url('new_signup') }}">Innmeldingsskjema</a>
-      <a href="{{ prefix_url('event_editor') }}">Tilskipingar</a>
-      <form method="post" action="{{ prefix_url('logout') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <button type="submit">Logg ut</button>
-      </form>
+      <h1>Medlemsliste</h1>
     </header>
 
     <div class="medlemsoversikt-panel" id="medlemsoversikt-panel" aria-live="polite">
@@ -45,7 +38,7 @@
     </div>
     <details>
       <summary>Kontingentinnstillingar</summary>
-      <form id="kontingent-innstillingar">
+      <form id="kontingent-innstillingar" class="medlemsskjema">
         <label for="superkul-grense">Grense for Superkul (kr)</label>
         <input id="superkul-grense" type="number" min="0" step="0.01" required disabled>
         <p>Meir enn grensa samla i gjeldande medlemsår gir Superkul; opp til grensa gir Kul. Registrert innbetaling gir Betalt. Styret blir ikkje endra automatisk. Endring av grensa oppdaterer også eksisterande innbetalingar for gjeldande år.</p>
@@ -95,7 +88,8 @@
   <div id="modal-dekke" class="modal-dekke er-skjult" aria-hidden="true">
     <div class="modal-vindauge" role="dialog" aria-labelledby="modal-tittel">
       <h2 id="modal-tittel">Legg til medlem</h2>
-      <form id="medlem-skjema">
+      <form id="medlem-skjema" class="medlemsskjema">
+        <p class="skjema-hjelp skjema-brei">Felt merkte med * må fyllast ut. Kontaktopplysningane blir berre viste internt.</p>
         <input type="hidden" id="medlem-id" />
         <div class="felt">
           <label for="fornamn">Fornamn *</label>
@@ -162,7 +156,8 @@
   <div id="betaling-dekke" class="modal-dekke er-skjult" aria-hidden="true">
     <div class="modal-vindauge" role="dialog" aria-labelledby="betaling-tittel">
       <h2 id="betaling-tittel">Registrer betaling</h2>
-      <form id="betaling-skjema">
+      <form id="betaling-skjema" class="medlemsskjema">
+        <p class="skjema-hjelp skjema-brei">Registrer ei betaling medlemmen allereie har gjort. Dette oppdaterer medlemslista; sjølve innkoma må også vere med i rekneskapen.</p>
         <input type="hidden" id="betaling-medlem-id" />
         <div class="felt">
           <label for="betaling-belop">Beløp (NOK) *</label>

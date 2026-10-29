@@ -14,7 +14,7 @@ ikkje last opp lokal `.env` eller medlemsdatabasen som del av koden.
 
 Footer-malen kjem direkte frå `_tillegg/kolofon.html`, og footer-CSS frå
 `lutar/kolofon.css` og `lutar/topp.css`; menyen blir lesen frå `_data/nav.yml`. Desse må vere med på serveren, i tillegg til
-`medlemsregister/`. Flask leverer CSS-en på `/felles/kolofon.css`; den vanlege
+`medlemsregister/`. Årsmøte-/økonomisidene krev òg `_data/rekneskapskategoriar.json`. Flask leverer CSS-en på `/felles/kolofon.css`; den vanlege
 `/fast/`-koplinga skal stå uendra. Det finst ingen eigne footer-kopiar i appen.
 
 I Bash-konsollen, med ein Python-versjon som òg er tilgjengeleg i Web-fana:
@@ -124,3 +124,57 @@ gjenoppretting. Kopiar utanfor PythonAnywhere er førebels ein manuell rutine.
 - <https://help.pythonanywhere.com/pages/Flask/>
 - <https://help.pythonanywhere.com/pages/CustomDomains/>
 - <https://help.pythonanywhere.com/pages/HTTPSSetup/>
+
+
+## Intern økonomi og bilag (steg 5)
+
+Sjå [REKNESKAP.md](REKNESKAP.md) før funksjonen blir teken i bruk. Nye økonomitabellar
+blir oppretta ved initialisering. Bilag skal lagrast utanfor kode- og statiske mapper,
+standard `/home/oslobygda/bygdelista-data/bilag`, eventuelt styrt med
+`BYGDELISTA_BILAG_DIR`. Ingen offentleg filkopling skal peike dit.
+
+Bruk appens virtuelle miljø til backup. `backup.py` inkluderer bilag automatisk når
+økonomitabellane finst. Ved bilagsoppsett i `.env`, bruk `backup_kommando.py` som
+les dette oppsettet. Test eit komplett økonomibackupsett og kontroller diskbruk før
+drift. Setta er lokale og ukrypterte; Proton-overføring er ikkje konfigurert.
+
+
+## Offentlege årsdokument (steg 6)
+
+Sjå [PUBLISERING.md](PUBLISERING.md) før oppsett. Eigen dokumenttoken, publiserte
+sidestubbar og ein vedlikehaldsjobb må konfigurerast før løpande tal kjem på nettsida.
+Koden aktiverer ikkje publisering berre ved installasjon. Arbeidaren
+`python -m flask --app app publiser-arsdokument` skriv berre kølagde, validerte
+og uttrykkeleg valde offentlege dokument. Køyr fyrst etter kontrollert oppsett.
+
+
+## Medlemsinntekter og kontrollert import (steg 8)
+
+Sjå [BETALINGSIMPORT.md](BETALINGSIMPORT.md). Funksjonen er avslått som standard og
+opprettar ingen jobb automatisk. Etter eksplisitt aktivering og kontrollert prøving
+kan `python -m flask --app app importer-medlemsbetalingar --hent-vipps` brukast til
+lesing av produksjonsstatus/hendingslogg og bokføring av kvalifiserte nye inntekter.
+Kommandoen startar ikkje Vipps-trekk eller refusjonar. Historiske/manuelle betalingar,
+gebyr og bankoppgjer må framleis avstemmast separat. Ikkje aktiver før reelle
+opningssaldoar og tidlegare føringar er gjennomgått.
+
+## Sluttkontroll og kryptert eksport
+
+Sjå [SLUTTKONTROLL.md](SLUTTKONTROLL.md) før utrulling og
+[BACKUP.md](BACKUP.md) for dei nye krypterings- og prøvekommandoane.
+Lokale backupsett er framleis ukrypterte; berre særskild eksport blir kryptert.
+Proton-opplasting og nedlasting må prøvast manuelt før ekstern backup er kontrollert.
+
+## Oppdatering med årsmøte og økonomi
+
+Bruk den konkrete rekkjefølgja i [SLUTTKONTROLL.md](SLUTTKONTROLL.md). Før Reload
+må den oppdaterte versjonen av oppdateringsskriptet ha kopiert kategorinotane frå
+`_data/rekneskapskategoriar.json`, og avhengnadene må vere installerte i eksisterande
+appmiljø. Ta og prøv databasebackup før oppdatering. WSGI initialiserer dei nye
+tabellane ved oppstart. Ingen publiserings- eller betalingsjobb blir aktivert av dette.
+
+## Ny årsmøte- og økonomileveranse
+
+Følg [UTRULLING.md](UTRULLING.md) før oppdatering. Der er oppdatert filoversikt,
+styrelagring, backup, røykprøve og tilbakeføring samla. Ingen lokal testdata skal
+kopierast til produksjon.

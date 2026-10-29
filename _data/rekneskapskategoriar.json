@@ -1,0 +1,12 @@
+{
+  "membership": "Medlemspengar for medlemsåret. Enkeltbetalingar blir berre viste som éin samla årssum offentleg.",
+  "grants": "Støtte frå til dømes kommune, fond eller andre organisasjonar.",
+  "donations": "Frivillige gåver utan krav om ei konkret motyting.",
+  "event_income": "Billettar, deltakarbetaling og anna innkome frå tilskipingar.",
+  "interest": "Renter banken har godskrive laget. Før beløpet på datoen det står bokført på kontoutskrifta.",
+  "other_income": "Anna innkome som ikkje passar i kategoriane ovanfor.",
+  "domain": "Domene, nettside, PythonAnywhere, e-post og andre digitale abonnement.",
+  "events": "Utgifter til tilskipingar, til dømes honorar, lokale, servering og utstyr til tilskipinga.",
+  "fees": "Gebyr frå banken eller betalingstenester som Vipps.",
+  "other_expense": "Andre utgifter som ikkje passar i kategoriane ovanfor."
+}

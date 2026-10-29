@@ -1,7 +1,9 @@
 # Backup på PythonAnywhere
 
 Last opp `backup.py` i `/home/oslobygda/oslobygda/medlemsregister/`.
-Skriptet brukar berre Python-standardbiblioteket og vanleg SQLite, ikkje SQLCipher.
+Rein databasebackup brukar berre Python-standardbiblioteket og vanleg SQLite, ikkje SQLCipher.
+Etter at økonomimodulen er initialisert, inkluderer skriptet òg bilag gjennom
+`okonomi_backup.py` og `bilag.py`; køyr då med appen sitt virtuelle miljø.
 Det les ikkje `.env`, skriv ikkje ut medlemsdata og endrar ikkje aktiv database.
 
 ## Første køyring og dagleg oppgåve
@@ -9,6 +11,10 @@ Det les ikkje `.env`, skriv ikkje ut medlemsdata og endrar ikkje aktiv database.
 Køyr i Bash-konsollen:
 
     /home/oslobygda/.virtualenvs/bygdelista/bin/python /home/oslobygda/oslobygda/medlemsregister/backup.py
+
+Når økonomitabellane finst blir resultatet ei `okonomi-DATO-ID`-mappe med database,
+bilag og manifest. Før dette er resultatet den vanlege databasefila.
+Sjå [REKNESKAP.md](REKNESKAP.md) for samla backup og bilagssti.
 
 Forventa resultat er `Backup og prøve av gjenoppretting: OK` og filstigen.
 Kvar kopi vert verifisert med integritets- og referansekontroll, og gjenoppretta
@@ -19,13 +25,15 @@ Vel eit tidspunkt om natta. Kontroller oppgåveloggen etter første automatiske 
 og deretter jamleg; oppsettet sender ikkje eigne feilvarsel.
 
 Standard mappe er `/home/oslobygda/Bygdelista-backup`. Dei 30 nyaste kopiane
-vert behaldne (30 filer, ikkje nødvendigvis 30 dagar). Berre etter ein vellukka ny
+vert behaldne per backuptype (ikkje nødvendigvis 30 dagar). Gamle databasefiler
+blir ikkje automatisk fjerna når ein går over til samla økonomibackup. Berre etter ein vellukka ny
 backup vert gamle filer sletta. Mappa vert oppretta med tilgang berre for eigaren,
 og backupfilene får rettar 600. Kopiane inneheld både medlemsdata og TOTP-nøklar.
 
 ## Test ein nedlasta kopi
 
-Last ned ei ny backupfil via **Files**. Ho skal òg testast utanfor PythonAnywhere,
+Last ned ei ny backupfil eller eit komplett økonomibackupsett via **Files**.
+For eit økonomisett må både database, manifest og bilag bevarast saman. Ho skal òg testast utanfor PythonAnywhere,
 til dømes på Mac-en med kommandoen under (bruk faktisk filstig):
 
     python3 /sti/til/backup.py --verify /sti/til/medlemsregister-DATO.db
@@ -56,4 +64,31 @@ Gjennomfør sjølve byteoperasjonen med hjelp dersom du er usikker.
 `backup.sh` kallar no same konsistente backup gjennom `backup_kommando.py`.
 Han les `.env` med python-dotenv i staden for å køyre innhaldet som shell-kode.
 Bruk `BYGDELISTA_PYTHON` for å velje Python frå eit virtuelt miljø. Den daglege
-PythonAnywhere-oppgåva kan framleis køyre `backup.py` direkte som før.
+PythonAnywhere-oppgåva kan framleis køyre `backup.py` direkte når bilagsmappa
+er standard eller gitt med `--bilag-dir`. Ved oppsett i `.env`, bruk
+`backup_kommando.py` slik at den rette bilagsstien blir lesen.
+
+## Kryptert kopi til Proton Drive
+
+Installer oppdaterte `requirements-common.txt` i appens virtuelle miljø. Frå
+`medlemsregister`, med det same miljøet aktivert:
+
+    python -m flask --app app okonomi-backup --directory /home/oslobygda/bygdelista-data/backup
+    python -m flask --app app okonomi-krypter-backup /sti/til/komplett-backupsett --output /home/oslobygda/bygdelista-data/backup-eksport.bygdebackup
+
+Bruk den konkrete settmappa frå første kommando. Vel eit nytt filnamn for kvar
+eksport; eksisterande filer blir ikkje overskrivne. Passfrasen blir etterspurd skjult,
+må ha minst 16 teikn og skal oppbevarast separat frå backupfilene, tilgjengeleg for
+styret. Tap av passfrasen gjer kopien ubrukeleg.
+
+Eksporten bruker AES-256-GCM og scrypt og prøver faktisk dekryptering og isolert
+gjenoppretting før fila blir ferdig. Lokale originalsett er framleis ukrypterte.
+Last ned berre eksportfila og last henne manuelt opp til laget sin Proton Drive.
+Last så fila ned att og køyr, i eit miljø med dei same modulane installerte:
+
+    python -m flask --app app okonomi-prove-kryptert-backup /sti/til/nedlasta.bygdebackup
+
+Prøva endrar ikkje aktiv database. Noter dato og resultat. Først etter denne prøva
+kan den eksterne kopien reknast som kontrollert. Sjølve Proton-opplastinga og
+nedlastingsprøva er enno ikkje utførte. Automatisk Proton-synkronisering er ikkje sett opp.
+Sjå også [SLUTTKONTROLL.md](SLUTTKONTROLL.md).

@@ -1,0 +1,70 @@
+/* Felles visuell profil for medlemsregister og årsmøte/økonomi. */
+.bygdelista-kropp { --bg:#fcf9f3; --text:#12110e; --line:#dedcd4; --panel-strong:#fffefa; --kort-radius:12px; --serif:Georgia,"Times New Roman",serif; }
+.bygdelista-kropp .omslag { max-width:1120px; padding:2.5rem 2rem 5rem; margin:auto; }
+.bygdelista-topp { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; }
+.bygdelista-kropp .arsmote-overline { margin:0 0 .4rem; font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#5e5c55; }
+.bygdelista-kropp .arsmote-merke { margin:0; font:1.8rem/1.15 var(--serif); letter-spacing:-.035em; }
+.bygdelista-kropp .arsmote-intern { padding:.4rem .8rem; border:1px solid #ccdec6; border-radius:100px; background:#e1eddc; font-size:.75rem; }
+.bygdelista-kropp .toppfelt { gap:.75rem; align-items:baseline; margin:1.5rem 0; }
+.bygdelista-kropp .toppfelt h1 { font:450 clamp(2rem,4.2vw,3.25rem)/1.2 var(--serif); letter-spacing:-.035em; flex-basis:100%; }
+.bygdelista-kropp .toppfelt a { color:inherit; font-size:.88rem; text-underline-offset:.2em; }
+.bygdelista-kropp .btn,.bygdelista-kropp button { border-radius:8px; }
+.bygdelista-kropp .btn:not(.sekundaer),.bygdelista-kropp .toppfelt button { background:#a8d8a0; color:#182c18; border:1px solid #88b97f; }
+.bygdelista-kropp details { border:1px solid var(--line); border-radius:12px; padding:1.25rem; background:#fffefa; margin:1rem 0; }
+.bygdelista-kropp summary { font-weight:650; cursor:pointer; }
+.bygdelista-kropp .tabell-ramme { border:1px solid var(--line); border-radius:12px; background:#fffefa; }
+.bygdelista-kropp .tabell-ramme thead th { background:#f5f0df; }
+.bygdelista-kropp .tabell-ramme tbody tr:hover>td { background:#edf3f5; }
+.bygdelista-kropp :is(a,button,input,select,textarea,summary):focus-visible { outline:3px solid #206582; outline-offset:3px; }
+@media(max-width:650px){.bygdelista-kropp .omslag{padding:1.5rem 1rem 3rem}.bygdelista-kropp .toppfelt{gap:.75rem}}
+.bygdelista-undermeny { display:flex; flex-wrap:wrap; gap:.4rem; padding:0 0 1.5rem; margin:0 0 2.5rem; border-bottom:1px solid #dedcd4; }
+.bygdelista-undermeny a { display:block; padding:.6rem 1rem; border:1px solid transparent; border-radius:100px; background:transparent; color:inherit; font-size:.88rem; text-decoration:none; }
+.bygdelista-undermeny a:hover { background:#f2eee5; }
+.bygdelista-undermeny a[aria-current="page"] { background:#e4f0f4; border-color:#8bb8cb; color:#173e50; font-weight:650; }
+.bygdelista-kontroll { display:flex; align-items:center; gap:.75rem; }
+.bygdelista-kropp .bygdelista-kontroll form { display:block; border:0; background:none; box-shadow:none; margin:0; padding:0; }
+.bygdelista-kropp .bygdelista-kontroll button { background:transparent; border:1px solid #dedcd4; color:#12110e; padding:.4rem .75rem; font-size:.8rem; min-height:2.3rem; }
+@media(max-width:650px){.bygdelista-undermeny{gap:.3rem;margin-bottom:1.75rem}.bygdelista-undermeny a{padding:.5rem .7rem;font-size:.8rem}.bygdelista-kontroll{flex-wrap:wrap;justify-content:flex-end}.bygdelista-kontroll .arsmote-intern{display:none}}
+.rekneskap-meny { display:flex; flex-wrap:wrap; gap:.4rem; margin:1rem 0 1.5rem; padding:.6rem; background:#f0ede4; border-radius:12px; }
+.rekneskap-meny a { padding:.55rem .8rem; border-radius:8px; text-decoration:none; color:inherit; font-size:.85rem; }
+.rekneskap-meny a[aria-current="page"] { background:#fffefa; font-weight:700; box-shadow:0 1px 4px #332c1c12; }
+.rekneskap-meny a:hover { background:#e4f0f4; }
+#registrer-post { scroll-margin-top:1rem; }
+
+/* Medlemsadministrasjon: same felt, flater og knappar som økonomiskjemaa. */
+.bygdelista-kropp .medlemsskjema { display:grid; gap:1.25rem; min-width:0; margin:1.25rem 0; padding:2rem; background:#fffefa; border:1px solid var(--line); border-radius:16px; box-shadow:0 6px 30px #332c1c06; }
+.bygdelista-kropp .medlemsskjema .felt { margin:0; min-width:0; }
+.bygdelista-kropp .medlemsskjema label { display:grid; gap:.45rem; margin:0; font-size:.8rem; font-weight:600; }
+.bygdelista-kropp .medlemsskjema :is(input:not([type="hidden"]):not([type="checkbox"]),select,textarea) { display:block; box-sizing:border-box; width:100%; max-width:100%; min-width:0; min-height:2.75rem; padding:.6rem .75rem; font:inherit; font-size:1rem; color:var(--text); background:#fff; border:1px solid #cbc9c0; border-radius:7px; }
+.bygdelista-kropp .medlemsskjema textarea { min-height:8rem; resize:vertical; line-height:1.6; }
+.bygdelista-kropp .medlemsskjema :is(input,select,textarea):hover { border-color:#92978b; }
+.bygdelista-kropp .medlemsskjema label:has(input[type="checkbox"]) { display:flex; align-items:flex-start; gap:.65rem; font-weight:400; font-size:.95rem; }
+.bygdelista-kropp .medlemsskjema input[type="checkbox"] { width:1.2rem; height:1.2rem; flex-shrink:0; margin:.15rem 0 0; accent-color:#315c38; }
+.bygdelista-kropp .medlemsskjema button { justify-self:start; min-height:2.75rem; padding:.65rem 1rem; font:inherit; font-weight:650; cursor:pointer; background:#a8d8a0; color:#182c18; border:1px solid #88b97f; }
+.bygdelista-kropp .medlemsskjema button.sekundaer { background:#fffefa; border-color:#cbc9c0; color:var(--text); }
+.bygdelista-kropp .medlemsskjema button:hover { background:#e1eddc; }
+.bygdelista-kropp .medlemsskjema button:disabled { opacity:.55; cursor:not-allowed; }
+.bygdelista-kropp .medlemsskjema p { margin:0; line-height:1.6; }
+.bygdelista-kropp .medlemsskjema .skjema-hjelp { font-size:.9rem; color:#5e5c55; }
+.bygdelista-kropp .modal-vindauge { box-sizing:border-box; width:calc(100% - 2rem); max-width:720px; padding:2rem; background:#fffefa; border-radius:16px; box-shadow:0 20px 70px #332c1c30; }
+.bygdelista-kropp .modal-vindauge h2 { font:1.7rem/1.2 var(--serif); }
+.bygdelista-kropp .modal-vindauge .medlemsskjema { padding:0; border:0; box-shadow:none; margin-bottom:0; }
+.bygdelista-kropp .medlemsskjema .knappar { margin:0; display:flex; flex-wrap:wrap; gap:.65rem; }
+@media(min-width:700px) {
+ .bygdelista-kropp .medlemsskjema { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .bygdelista-kropp .medlemsskjema > :is(p,button,.knappar,.skjema-brei,#betaling-historikk),.bygdelista-kropp .medlemsskjema > label:has(input[type="checkbox"]),.bygdelista-kropp .medlemsskjema > .felt:has(textarea) { grid-column:1/-1; }
+}
+@media(max-width:699px) {
+ .bygdelista-kropp .medlemsskjema,.bygdelista-kropp .modal-vindauge { padding:1.25rem; }
+}
+.styre-redigering { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.5rem; }
+.styre-redigering article { padding:1.25rem; border:1px solid var(--line); border-radius:12px; background:#fffefa; }
+.styre-redigering img { max-width:100%; }
+
+.bygdelista-kropp .medlemsskjema > a.btn { justify-self:start; width:fit-content; max-width:100%; text-align:center; }
+.bygdelista-kropp form { scroll-margin-top:1.5rem; }
+.skjema-retur-melding { position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); z-index:200; box-sizing:border-box; width:max-content; max-width:calc(100% - 2rem); padding:1rem 1.25rem; border:1px solid #8bb8cb; border-radius:12px; background:#e4f0f4; color:#173e50; box-shadow:0 6px 30px #332c1c25; display:flex; align-items:center; gap:1rem; font:1rem/1.5 system-ui; }
+.skjema-retur-melding span { max-width:65ch; }
+.skjema-retur-melding button { background:transparent; border:1px solid #8bb8cb; border-radius:6px; padding:.4rem .65rem; cursor:pointer; }
+
+#rekneskap-meny,#bilag-meny { scroll-margin-top:1rem; }

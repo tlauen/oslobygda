@@ -1,0 +1,5 @@
+---
+layout: null
+permalink: /api/arsdokument/2026.json
+---
+{{ site.data.arsdokument["2026"] | jsonify }}

@@ -1,0 +1,239 @@
+/* Årsmøte og økonomi: avgrensa til dei nye sidene. */
+.arsmote-kropp .omslag { max-width: 1120px; padding: 1.5rem 1.25rem 4rem; }
+.arsmote-kropp h1 { font-family: var(--serif); font-size: clamp(1.8rem,4vw,2.7rem); line-height: 1.2; }
+.arsmote-kropp h2 { margin: 2rem 0 .75rem; font-family: var(--serif); font-size: 1.45rem; }
+.arsmote-kropp h3 { margin-top: 1.5rem; }
+.arsmote-kropp p { max-width: 78ch; }
+.arsmote-nav { display: flex; flex-wrap: wrap; gap: .5rem; padding: .75rem 0 1.25rem; border-bottom: 1px solid var(--line); margin-bottom: 1.5rem; }
+.arsmote-nav a { padding: .45rem .8rem; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--text); background: var(--panel-strong); }
+.arsmote-nav a[aria-current="page"] { background: var(--accent3); border-color: #577851; font-weight: 650; }
+.arsmote-kropp form { display: grid; gap: .9rem; background: var(--panel-strong); border: 1px solid var(--line); border-radius: var(--kort-radius); padding: 1.25rem; margin: .85rem 0; }
+.arsmote-kropp label { display: grid; gap: .35rem; margin: 0; font-size: .95rem; font-weight: 550; }
+.arsmote-kropp input:not([type="hidden"]):not([type="checkbox"]),
+.arsmote-kropp select,.arsmote-kropp textarea { display: block; width: 100%; max-width: 100%; min-height: 2.75rem; padding: .6rem .75rem; color: var(--text); background: white; font: inherit; border: 1px solid #8d968d; border-radius: 6px; }
+.arsmote-kropp textarea { min-height: 6rem; resize: vertical; line-height: 1.6; }
+.arsmote-kropp label:has(input[type="checkbox"]) { display: flex; align-items: flex-start; gap: .65rem; font-weight: 400; }
+.arsmote-kropp input[type="checkbox"] { width: 1.2rem; height: 1.2rem; min-width: 1.2rem; margin: .15rem 0 0; accent-color: #315c38; }
+.arsmote-kropp button { justify-self: start; max-width: 100%; min-height: 2.75rem; padding: .65rem 1rem; border: 1px solid #6d8265; border-radius: 7px; background: var(--accent3); color: #182c18; font: inherit; font-weight: 650; cursor: pointer; }
+.arsmote-kropp button:hover { background: #97ca8f; }
+.arsmote-kropp button:disabled { opacity: .55; cursor: not-allowed; }
+.arsmote-kropp :is(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline: 3px solid #255f81; outline-offset: 3px; }
+.arsmote-kropp fieldset { min-width: 0; border: 1px solid var(--line); border-radius: 7px; padding: 1rem; display: grid; gap: .9rem; }
+.arsmote-kropp legend { font-weight: 700; padding: 0 .4rem; }
+.arsmote-kropp [role="alert"] { max-width: none; background: #fff0ed; color: #8e1c16; border: 1px solid #ce847d; border-radius: 7px; padding: 1rem; }
+.arsmote-kropp details { border: 1px solid var(--line); border-radius: 7px; padding: 1rem; margin: 1rem 0; background: var(--panel); }
+.arsmote-kropp summary { cursor: pointer; font-weight: 650; }
+.tabell-rull { overflow-x: auto; width: 100%; margin: .5rem 0 1.25rem; }
+.arsmote-kropp table { width: 100%; border-collapse: collapse; background: white; }
+.arsmote-kropp th,.arsmote-kropp td { padding: .75rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+.arsmote-kropp thead th { background: var(--accent); font-size: .9rem; }
+.arsmote-kropp tbody th { font-weight: 550; }
+.arsmote-kropp table input { min-width: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.arsmote-kropp section { margin-top: 1.5rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+@media(max-width: 650px) {
+  .arsmote-kropp .omslag { padding: 1rem .75rem 3rem; }
+  .arsmote-kropp form { padding: .9rem; }
+  .arsmote-kropp .toppfelt { display: block; }
+
+  .arsmote-kropp input,.arsmote-kropp select,.arsmote-kropp textarea { font-size: 16px; }
+  .arsmote-nav a { font-size: .9rem; }
+}
+
+.tabell-rull::before { content: ""; }
+
+
+/* Same varme papirflate, mjuke kort og rolege hierarki som innmeldinga. */
+.arsmote-kropp { --line: #dedcd4; --panel-strong: #fffefa; --dempa: #5e5c55; }
+.arsmote-kropp .omslag { max-width: 1120px; padding: 2.5rem 2rem 5rem; }
+.arsmote-kropp a { color: inherit; text-underline-offset: .2em; }
+.arsmote-identitet { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.5rem; }
+.arsmote-overline { margin: 0 0 .4rem; font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dempa); }
+.arsmote-merke { margin: 0; font: 1.8rem/1.15 var(--serif); letter-spacing: -.035em; }
+.arsmote-merke span { display: block; margin-top: .45rem; font: .8rem/1.5 system-ui,sans-serif; color: var(--dempa); letter-spacing: 0; }
+.arsmote-intern { padding: .4rem .8rem; border: 1px solid #ccdec6; border-radius: 100px; background: #e1eddc; font-size: .75rem; white-space: nowrap; }
+.arsmote-nav { gap: .4rem; padding: 0 0 1.5rem; margin: 0 0 2.5rem; }
+.arsmote-nav a { background: transparent; border-color: transparent; padding: .6rem 1rem; font-size: .88rem; }
+.arsmote-nav a:hover { background: #f2eee5; }
+.arsmote-nav a[aria-current="page"] { background: #e4f0f4; border-color: #8bb8cb; color: #173e50; }
+.arsmote-kropp .toppfelt { align-items: baseline; flex-wrap: wrap; gap: .75rem; margin: 0 0 1.25rem; padding: 0; border: 0; }
+.arsmote-kropp h1 { font-weight: 450; letter-spacing: -.035em; font-size: clamp(2rem,4.2vw,3.25rem); margin: 0; }
+.arsmote-kropp h2 { font-weight: 450; letter-spacing: -.025em; margin-top: 2.5rem; }
+.arsmote-kropp h3 { font-size: 1rem; }
+.arsmote-ingress { color: var(--dempa); font-size: 1.05rem; }
+.arsmote-kropp form { border-radius: 16px; padding: 2rem; margin: 1.25rem 0; gap: 1.25rem; box-shadow: 0 6px 30px #332c1c06; }
+.arsmote-kropp label { font-size: .8rem; font-weight: 600; gap: .45rem; }
+.arsmote-kropp input:not([type="hidden"]):not([type="checkbox"]),.arsmote-kropp select,.arsmote-kropp textarea { border-color: #cbc9c0; border-radius: 7px; font-size: 1rem; min-width: 0; }
+.arsmote-kropp input:hover,.arsmote-kropp textarea:hover,.arsmote-kropp select:hover { border-color: #92978b; }
+.arsmote-kropp button { background: #a8d8a0; border-color: #88b97f; border-radius: 8px; padding: .75rem 1.1rem; font-size: .9rem; }
+.arsmote-kropp fieldset { background: #fcf9f3; border-radius: 12px; padding: 1.25rem; }
+.arsmote-kropp details { border-radius: 12px; padding: 1.25rem; }
+.arsmote-kropp details form { box-shadow: none; }
+.arsmote-status { background: #e1eddc; border: 1px solid #ccdec6; padding: 1rem 1.25rem; border-radius: 12px; }
+.saldo-kort { list-style: none; display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: .75rem; padding: 0; }
+.saldo-kort li { padding: 1rem 1.25rem; background: #fffefa; border: 1px solid var(--line); border-radius: 12px; font-variant-numeric: tabular-nums; }
+.postliste { padding: 0; list-style: none; display: grid; gap: 1rem; }
+.postliste>li { border: 1px solid var(--line); border-radius: 12px; background: #fffefa; padding: 1.25rem; }
+.postliste p { color: var(--dempa); font-size: .85rem; overflow-wrap: anywhere; }
+.arsmote-kropp thead th { background: #f5f0df; }
+.arsmote-hopp { position: absolute; top: -6rem; left: 1rem; padding: .75rem 1rem; background: white; z-index: 20; }
+.arsmote-hopp:focus { top: 1rem; }
+@media(min-width: 760px) {
+ .arsmote-kropp form:not(:has(table)) { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .arsmote-kropp form> :is(p,fieldset,div,button),.arsmote-kropp form>label:has(textarea),.arsmote-kropp form>label:has(input[type="checkbox"]),.arsmote-kropp form>label:has(input[type="file"]) { grid-column: 1/-1; }
+ .arsmote-kropp form>button { justify-self: start; }
+}
+@media(max-width: 650px) {
+ .arsmote-kropp .omslag { padding: 1.5rem 1rem 3rem; }
+ .arsmote-kropp form { padding: 1.25rem; }
+ .arsmote-nav { margin-bottom: 1.75rem; gap: .3rem; }
+ .arsmote-nav a { padding: .5rem .7rem; font-size: .8rem; }
+ .arsmote-kropp .toppfelt a { display: inline-block; margin-top: .75rem; font-size: .85rem; }
+}
+.arsmote-kropp form[method="get"] { display: flex; flex-wrap: wrap; align-items: end; padding: 1rem 1.25rem; gap: .75rem; box-shadow: none; }
+.arsmote-kropp form[method="get"]>label { width: 12rem; max-width: 100%; }
+.rekneskap-hjelp { background: #e4f0f4; border: 1px solid #c0d8e2; border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+.rekneskap-hjelp ol { padding-left: 1.3rem; }
+.rekneskap-hjelp li { margin: .4rem 0; }
+.arsmote-kropp .feltforklaring { color: #5e5c55; font-size: .85rem; font-weight: 400; line-height: 1.6; }
+.arsmote-kropp label small.feltforklaring { display: block; }
+.omgrepshjelp dl { max-width: 76ch; }
+.omgrepshjelp dt { font-weight: 650; margin-top: 1rem; }
+.omgrepshjelp dd { margin: .25rem 0 1rem; color: #4a4a44; }
+.bilag-tal { display: inline-block; font-size: .75rem; font-weight: 400; padding: .15rem .55rem; border-radius: 100px; background: #e1eddc; margin-left: .5rem; }
+.arsmote-kropp .kategori-note { display: block; font-size: .78rem; line-height: 1.5; font-weight: 400; color: #5e5c55; max-width: 48ch; margin: .3rem 0; }
+
+/* Gruppeoverskrifter skal skilje seg tydeleg frå dei enkelte kategoriane. */
+.arsmote-kropp .kategori-gruppe th {
+  padding: 1.4rem .75rem .8rem;
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  background: #e4f0f4;
+  border-top: 2px solid #8bb8cb;
+  border-bottom: 1px solid #c0d8e2;
+  color: #173e50;
+}
+.arsmote-kropp .kategori-sum > :is(th,td) { background: #e1eddc; font-size: 1rem; font-weight: 750; border-top: 2px solid #88b97f; padding-top: 1rem; padding-bottom: 1rem; }
+.arsmote-kropp .resultat-sum > :is(th,td) { background: #f5f0df; font-size: 1.1rem; font-weight: 750; border-top: 2px solid #b9ad86; }
+.arsmote-kropp tbody tr:hover > :is(th,td),.arsmote-kropp tbody tr:focus-within > :is(th,td) { background: #edf3f5; }
+
+/* Økonomitabellar skal passe sida; medlemslista sitt breie oppsett gjeld ikkje her. */
+.arsmote-kropp .tabell-rull { min-width: 0; overflow: visible; }
+.arsmote-kropp form { min-width: 0; }
+.arsmote-kropp table { min-width: 0; max-width: 100%; table-layout: fixed; }
+.arsmote-kropp th,.arsmote-kropp td { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.arsmote-kropp table:has(thead th:nth-child(3):last-child) thead th:first-child { width: 48%; }
+.arsmote-kropp table input { width: 100%; max-width: 100%; }
+@media(max-width: 650px) {
+ .arsmote-kropp table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+ .arsmote-kropp table,.arsmote-kropp table tbody { display: block; width: 100%; }
+ .arsmote-kropp table tr { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border-bottom: 1px solid var(--line); padding: .6rem 0; }
+ .arsmote-kropp table tr>th { grid-column: 1/-1; }
+ .arsmote-kropp table th,.arsmote-kropp table td { border: 0; padding: .6rem; }
+ .arsmote-kropp table td::before { content: attr(data-column); display: block; font-size: .7rem; font-weight: 650; color: #5e5c55; margin-bottom: .35rem; }
+ .arsmote-kropp table .kategori-gruppe,.arsmote-kropp table .kategori-sum,.arsmote-kropp table .resultat-sum { padding: 0; }
+ .arsmote-kropp table .kategori-sum { background: #e1eddc; }
+ .arsmote-kropp table .resultat-sum { background: #f5f0df; }
+}
+
+.arsmote-kropp .tabell-vising { background: transparent; border-color: #b5beb3; font-size: .8rem; min-height: 2.3rem; padding: .4rem .75rem; margin-bottom: .75rem; }
+.arsmote-kropp .kompakt-tabell :is(th,td) { padding: .4rem .5rem; font-size: .85rem; }
+.arsmote-kropp .kompakt-tabell .kategori-note { font-size: .72rem; line-height: 1.4; }
+.arsmote-kropp .kompakt-tabell .kategori-gruppe th { font-size: 1.3rem; padding: .8rem .5rem; }
+
+.hjelp-innhald { display:flex; flex-wrap:wrap; gap:.5rem 1rem; padding:1rem 0; margin-bottom:1rem; font-size:.9rem; }
+.hjelp-sider dt { font-weight:700; margin-top:1.25rem; }
+.hjelp-sider dd { margin:.35rem 0 1rem; max-width:78ch; color:var(--text); }
+.hjelp-steg { padding-left:1.6rem; max-width:80ch; }
+.hjelp-steg li { padding-left:.4rem; margin:1rem 0; }
+.hjelp-steg li::marker { font-weight:750; color:#173e50; }
+.arsmote-kropp section[id] { scroll-margin-top:1.5rem; }
+#post-bilag-upload[hidden] { display:none !important; }
+#post-feil:not([hidden]) { padding:1rem; border:1px solid #ce847d; background:#fff0ed; color:#8e1c16; border-radius:8px; }
+#post-feil[hidden] { display:none !important; }
+
+#vipps-samla[hidden]{display:none!important}
+#post-form [hidden] { display:none !important; }
+
+.arsmote-kropp .kompakt-tabell .kategori-note { display:none; }
+
+/* Redaksjonell årsmelding med nøkkeltal og tidslinje. */
+.arsmelding-vising { margin:1.5rem 0 3rem; padding:clamp(1.2rem,4vw,3rem); background:#fffefa; border:1px solid #dedcd4; border-radius:20px; }
+.arsmelding-helt { padding:1rem 0 2rem; border-bottom:2px solid #315c38; }
+.arsmelding-overline { text-transform:uppercase; letter-spacing:.15em; font-size:.75rem; font-weight:700; color:#315c38; }
+.arsmelding-helt h2 { max-width:17ch; font:clamp(2rem,5vw,3.8rem)/1.08 Georgia,serif; letter-spacing:-.035em; margin:.75rem 0; }
+.arsmelding-tal { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin:2rem 0; }
+.arsmelding-tal section { padding:1.4rem; border-radius:12px; background:#e7efdf; }
+.arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
+.arsmelding-tal section:nth-child(3) { background:#f5edda; }
+.arsmelding-tal strong { font:3.3rem/1 Georgia,serif; color:#173e30; }
+.arsmelding-tal h3 { font-size:1rem; margin:.8rem 0 .5rem; }
+.arsmelding-tal p { font-size:.8rem; line-height:1.5; margin:0; }
+.arsmelding-tekst { white-space:pre-wrap; line-height:1.8; max-width:72ch; }
+.arsmelding-seksjon { font:1.8rem Georgia,serif; margin:2.5rem 0 1.2rem; }
+.arsmelding-aktivitet { display:grid; grid-template-columns:8rem minmax(0,1fr); gap:1.5rem; border-top:1px solid #dedcd4; padding:1.5rem 0; }
+.arsmelding-dato time { display:block; font:1.9rem Georgia,serif; }
+.arsmelding-dato span { display:block; font-size:.75rem; margin-top:.5rem; }
+.arsmelding-aktivitet h4 { font:1.3rem/1.4 Georgia,serif; margin:0; }
+.arsmelding-stad { font-size:.85rem; color:#5e5c55; }
+.arsmelding-deltakarar { display:inline-block; padding:.35rem .65rem; background:#e7efdf; border-radius:30px; font-size:.8rem; }
+@media(max-width:650px) { .arsmelding-tal { grid-template-columns:1fr; }.arsmelding-aktivitet { grid-template-columns:1fr; gap:.75rem; }.arsmelding-dato { display:flex; align-items:center; gap:1rem; } }
+.arsmelding-aktivitet { border-left:4px solid #b99b44; padding-left:1rem; }
+.arsmelding-aktivitet.status-completed { border-left-color:#42744a; }
+.arsmelding-aktivitet.status-cancelled { border-left-color:#a34b45; background:#fff1ed; }
+.arsmelding-aktivitet .arsmelding-dato span { width:fit-content; padding:.3rem .55rem; border-radius:6px; background:#f5edda; color:#655015; font-weight:650; }
+.arsmelding-aktivitet.status-completed .arsmelding-dato span { background:#e7efdf; color:#254a2a; }
+.arsmelding-aktivitet.status-cancelled .arsmelding-dato span { background:#f6dcd5; color:#7b2925; }
+.arsmelding-styre { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1.5rem; }
+.arsmelding-styre img { width:100%; height:auto; aspect-ratio:1; object-fit:cover; border-radius:12px; }
+.arsmelding-styre p { margin:.75rem 0 .3rem; font-size:.8rem; color:#315c38; }
+.arsmelding-styre h4 { margin:0; font:1.2rem/1.4 Georgia,serif; }
+.arsmote-kropp .tilskiping-redigering { grid-column:1/-1; margin:0; padding:1rem; }
+.tilskiping-redigering summary { display:flex; justify-content:space-between; align-items:center; gap:.75rem; list-style:disclosure-closed; }
+.tilskiping-redigering summary>span:first-child::before { content:'▸ '; }
+.tilskiping-redigering[open] summary>span:first-child::before { content:'▾ '; }
+.tilskiping-redigering fieldset { margin-top:1rem; }
+.tilskiping-status { flex-shrink:0; font-size:.75rem; padding:.35rem .6rem; border-radius:6px; background:#f5edda; color:#655015; }
+.tilskiping-status.status-completed { background:#e7efdf; color:#254a2a; }
+.tilskiping-status.status-cancelled { background:#f6dcd5; color:#7b2925; }
+@media(max-width:650px){.tilskiping-redigering summary{align-items:flex-start;flex-direction:column}}
+.arsavslutning-liste { padding-left:1.5rem; }
+.arsavslutning-liste>li { margin:1.5rem 0; padding:1rem; border:1px solid #dedcd4; border-radius:12px; background:#fffefa; }
+.arsavslutning-liste>li::marker { font-weight:700; color:#315c38; }
+.arsavslutning-liste>li.arsavslutning-done { border-left:4px solid #42744a; }
+.arsavslutning-liste>li.arsavslutning-difference { border-left:4px solid #a34b45; }
+.arsavslutning-liste details { margin:0; border:0; padding:0; }
+.arsavslutning-liste summary { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; }
+
+.transaksjonsliste .transaksjon-tittel { display:block; font-weight:650; line-height:1.5; }
+.transaksjonsliste .transaksjon-meta { display:block; margin-top:.25rem; font-size:.78rem; font-weight:400; color:#5e5c55; overflow-wrap:anywhere; }
+.transaksjonsliste .transaksjon-type { display:block; margin-top:.35rem; font-size:.75rem; font-weight:500; color:#315c38; }
+.transaksjonsliste .transaksjon-belop { white-space:nowrap; font-weight:650; font-variant-numeric:tabular-nums; }
+@media(min-width:651px) {
+ .arsmote-kropp table.transaksjonsliste,.okonomi-tabell.transaksjonsliste { table-layout:fixed; width:100%; }
+ .arsmote-kropp table.transaksjonsliste tr>:first-child,.okonomi-tabell.transaksjonsliste tr>:first-child { width:22%; }
+ .arsmote-kropp table.transaksjonsliste tr>:nth-child(2),.okonomi-tabell.transaksjonsliste tr>:nth-child(2) { width:53%; text-align:left; }
+ .arsmote-kropp table.transaksjonsliste tr>:last-child,.okonomi-tabell.transaksjonsliste tr>:last-child { width:25%; text-align:right; }
+}
+.bokfort-topp { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; }
+.bokfort-referanse { font-size:.8rem; color:#5e5c55; }
+.bokfort-belop { white-space:nowrap; font-size:1.2rem; font-variant-numeric:tabular-nums; }
+.arsmote-kropp .bokfort-tittel { font:1.25rem/1.4 Georgia,serif; margin:.75rem 0; }
+.postliste .bokfort-verknad { padding:.8rem 1rem; background:#f1f5ed; border-radius:8px; }
+.postliste .bokfort-verknad p { margin:.35rem 0; color:#203526; line-height:1.6; }
+.bokfort-bilag { display:flex; flex-wrap:wrap; gap:.5rem; margin:.75rem 0; }
+.arsmote-kropp .bokfort-detaljar { background:transparent; padding:.75rem 0 0; border:0; border-top:1px solid #dedcd4; border-radius:0; margin:.75rem 0 0; }
+.bokfort-detaljar dt { font-weight:650; font-size:.85rem; margin-top:.75rem; }
+.bokfort-detaljar dd { margin:.25rem 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.postliste .bokfort-retting { color:#7b2925; background:#fff1ed; padding:.75rem; border-radius:7px; }
+@media(max-width:450px){.bokfort-topp{align-items:flex-start;flex-direction:column;gap:.3rem}}
+
+.arsmote-kropp .bokfort-tittel { font-weight:650; }
+
+.bilagsliste { list-style:none; padding:0; display:grid; gap:1rem; }
+.bilagsliste>li { padding:1.25rem; border:1px solid var(--line); border-radius:12px; background:#fffefa; }
+.arsmote-kropp .bilag-filnamn { margin:.75rem 0 1rem; font-size:1.1rem; font-weight:650; overflow-wrap:anywhere; }
+.bilag-kontrollsum { font: .8rem/1.6 monospace; overflow-wrap:anywhere; }
+.bilag-erstatning { padding:.75rem; border-radius:7px; background:#e4f0f4; font-size:.85rem; }

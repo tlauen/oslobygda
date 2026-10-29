@@ -65,13 +65,24 @@ def main():
     parser.add_argument('--db', type=Path, default=Path(__file__).resolve().parent / 'medlemsregister.db')
     parser.add_argument('--directory', type=Path, default=Path.home() / 'Bygdelista-backup')
     parser.add_argument('--keep', type=int, default=30)
+    parser.add_argument('--bilag-dir', type=Path, default=Path(os.environ.get('BYGDELISTA_BILAG_DIR', str(Path.home() / 'bygdelista-data' / 'bilag'))), help='Privat bilagsmappe for samla økonomibackup.')
     parser.add_argument('--verify', type=Path, help='Prøv gjenoppretting av denne backupfila utan å endre aktiv database.')
     args = parser.parse_args()
     if args.verify:
-        verify_restore(args.verify)
+        if args.verify.is_dir():
+            from okonomi_backup import verify_bundle_restore
+            verify_bundle_restore(args.verify)
+        else:
+            verify_restore(args.verify)
         print('Gjenoppretting i mellombels database og integritetskontroll: OK.')
     else:
-        result = create_backup(args.db, args.directory, args.keep)
+        with closing(connect_readonly(args.db)) as source:
+            has_ledger = source.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='ledger_receipts'").fetchone()
+        if has_ledger:
+            from okonomi_backup import create_bundle
+            result = create_bundle(args.db, args.bilag_dir, args.directory, args.keep,include_board=True)
+        else:
+            result = create_backup(args.db, args.directory, args.keep)
         print(f'Backup og prøve av gjenoppretting: OK. Fil: {result}')
 
 

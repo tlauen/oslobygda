@@ -149,3 +149,8 @@ class VippsClient:
             raise ValueError('Ugyldig beløp eller manglande idempotensnøkkel.')
         return self._authenticated('POST','/epayment/v1/payments/'+reference+'/capture',
                                    {'modificationAmount':{'currency':'NOK','value':ore}},idempotency_key)
+
+
+    def events(self, reference):
+        """Les hendingslogg; ingen betalingssideeffektar."""
+        return self._authenticated('GET','/epayment/v1/payments/'+self._reference(reference)+'/events')
