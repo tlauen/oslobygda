@@ -1,6 +1,5 @@
 # Arkiv – ikkje aktiv nettsidekode
 
-- `brevo-skjema/`: gamle offentlege innmeldings- og nyhendebrevskjema. Ikkje i bruk.
-- `mailerlite/`: eldre utsendingsskript. Den manuelle reserve-workflowen peikar hit.
-
-Brevo og Vipps er dei aktive integrasjonane. Arkivet er ekskludert frå Jekyll-bygget.
+`brevo-skjema/` inneheld gamle offentlege innmeldings- og nyhendebrevskjema.
+Dei er ikkje i bruk. Aktiv innmelding går gjennom Bygdelista og Vipps.
+Arkivet er ekskludert frå Jekyll-bygget; eldre versjonar finst òg i Git.

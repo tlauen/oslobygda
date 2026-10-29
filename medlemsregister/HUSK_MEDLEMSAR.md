@@ -4,7 +4,7 @@ Bruk denne lista når styret skal starte **nytt innbetingsår** og samtidig beva
 
 ## Før du lukkar året
 
-1. **Backup av databasen** – kopier `medlemsregister.db` (og ev. nøkkel/`.env` om du bruker SQLCipher) til ei trygg mappe. Dette er ditt sikra utgangspunkt om noko skulle gå gale.
+1. **Backup av databasen** – følg [backuprettleiinga](BACKUP.md) og verifiser kopien. Ikkje kopier ei aktiv SQLite-fil direkte; bruk den konsistente backupmetoden. Ta vare på eventuell krypteringsnøkkel separat.
 
 2. **Kontroll i styregrensesnittet** – opne Bygdelista, panel **Medlemsoversikt** (øvst):
    - sjekk at **totalt innbetalt** og tal på medlemmar med innbetaling samsvarar med konto/kassabok (cirka).
@@ -31,4 +31,4 @@ Bruk denne lista når styret skal starte **nytt innbetingsår** og samtidig beva
 
 ---
 
-*Fila `medlemsregister/README.md` skildrar òg `MEDLEMSBETALING_AR` og kva lukking av medlemsår gjer i detalj.*
+Sjå [årlege satsar og fornying](FORNYING.md) før nye oppkrav. Lukking av medlemsåret opnar ikkje automatisk kontingentbetaling for det nye året.

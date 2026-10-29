@@ -39,11 +39,6 @@ Test brukar eige kampanjenamn (`Test – nyhendebrev – …`) slik at det ikkje
 
 Scriptet brukar kampanjenamn med dato for å unngå dobbel utsending.
 
-## MailerLite backup (dvale)
+## Manuell tekst
 
-Dette ligg framleis i repoet for beredskap:
-
-- Workflow (manuell): `.github/workflows/nyhendebrev.yml`
-- Script: `arkiv/mailerlite/send_nyhendebrev_mailerlite.rb`
-- Avansert tidlegare variant: `arkiv/mailerlite/send_nyhendebrev_mailerlite_advanced.rb`
-- Manuell tekstbackup: `brev/tekstgenerator.md`
+`brev/tekstgenerator.md` lagar tekst frå kalenderen for manuell bruk.

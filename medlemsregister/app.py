@@ -499,13 +499,6 @@ def api_sync_contacts():
     return jsonify({"error":"Import frå nyhendebrevlista er avvikla. Nye medlemmar blir registrerte i Bygdelista gjennom innmelding."}),410
 
 
-@app.route("/api/sync-mailerlite", methods=["POST"])
-@require_admin
-def api_sync_mailerlite():
-    """Bakoverkompatibel alias til /api/sync-contacts."""
-    return api_sync_contacts()
-
-
 def _build_full_name(fornamn, mellomnamn, etternamn):
     return " ".join(filter(None, [fornamn, mellomnamn, etternamn])).strip()
 

@@ -1,7 +1,7 @@
 # Bygdelista på PythonAnywhere EU
 
 Konto: `oslobygda` på <https://eu.pythonanywhere.com/>.
-Planlagt adresse: `https://bygdelista.oslobygda.no`.
+Adresse: `https://bygdelista.oslobygda.no`.
 
 Innlogging brukar personlege styrekontoar med passord og autentiseringsapp
 (TOTP). Vipps Login er ikkje nødvendig. Vent med ekte medlemsdata til HTTPS,
@@ -13,7 +13,7 @@ Legg prosjektet i `/home/oslobygda/oslobygda`. Bruk berre kodefilene frå Git;
 ikkje last opp lokal `.env` eller medlemsdatabasen som del av koden.
 
 Footer-malen kjem direkte frå `_tillegg/kolofon.html`, og footer-CSS frå
-`lutar/kolofon.css`; menyen blir lesen frå `_data/nav.yml`. Desse må vere med på serveren, i tillegg til
+`lutar/kolofon.css` og `lutar/topp.css`; menyen blir lesen frå `_data/nav.yml`. Desse må vere med på serveren, i tillegg til
 `medlemsregister/`. Flask leverer CSS-en på `/felles/kolofon.css`; den vanlege
 `/fast/`-koplinga skal stå uendra. Det finst ingen eigne footer-kopiar i appen.
 

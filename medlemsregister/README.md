@@ -9,6 +9,7 @@ har éi felles kjelde i repoet.
 - Personlege styrekontoar med passord, TOTP og e-poststadfesting.
 - Medlemsliste, innbetalingar, medlemsår, eksport og personvernhandtering.
 - Nye medlemmar på `/bli-medlem`: Vipps, stadfesta trekk og valfritt nyhendebrev.
+- Årlege kontingentsatsar og personlege fornyingslenkjer med Vipps.
 - Innmeldingsoversikt for styret på `/innmeldingar`.
 - Oppretting og redigering av komande tilskipingar på `/tilskipingar`.
 
@@ -41,7 +42,7 @@ python -m unittest discover -s tests
 
 - `_data/nav.yml`: same fire menyval på nettsida og i innmeldingsflyten.
 - `_tillegg/kolofon.html`: éin footer-mal med ordforklaring og logo.
-- `lutar/kolofon.css`: éi CSS-kjelde, levert av Flask på `/felles/kolofon.css`.
+- `lutar/kolofon.css` og `lutar/topp.css`: felles CSS, levert under `/felles/`.
 
 Desse filene må følgje med serverkoden. Ikkje kopier berre `medlemsregister/`.
 
@@ -52,6 +53,7 @@ Desse filene må følgje med serverkoden. Ikkje kopier berre `medlemsregister/`.
 - [Styrekontoar](STYREKONTOAR.md): oppretting og sperring.
 - [Tilskipingar](TILSKIPINGAR.md): GitHub-tilgang og kalenderpublisering.
 - [Backup](BACKUP.md): konsistent SQLite-backup og testa gjenoppretting.
+- [Fornying](FORNYING.md): vedtak, opning av kontingentår og personlege lenkjer.
 - [Medlemsår](HUSK_MEDLEMSAR.md): årsavslutning.
 
 Løyndomar ligg berre i `.env` og `.env.vipps-test` (600), aldri i Git eller
@@ -62,7 +64,7 @@ miljøspesifikke avhengnader.
 Brevo-utgang er berre for betalte produksjonsinnmeldingar som vel nyhendebrev.
 `BREVO_INNMELDING_LIST_ID` peikar til nyhendebrevlista. Eventuell manuell import
 frå Brevo krev ei eiga, uttrykkeleg `BREVO_MEDLEMMAR_LIST_ID`; appen fell aldri
-tilbake til nyhendebrevlista som medlemsregister. MailerLite er berre reservekode.
+tilbake til nyhendebrevlista som medlemsregister.
 
 ## Sletting og rekneskap
 
