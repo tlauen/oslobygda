@@ -6,7 +6,7 @@
 {% assign report_versions = report.versions | where: 'kind', 'arsmelding' | sort: 'version_id' | reverse %}
 {% for version in report_versions %}
 <article id="versjon-{{ version.version_id | escape }}">
-  <h2>{{ version.title | escape }}</h2>
+  {% if version.title != page.title %}<h2>{{ version.title | escape }}</h2>{% endif %}
   <p>{% if version.status == 'approved' %}Godkjend av årsmøtet {{ version.decision_date | escape }}{% else %}Førebels / framlegg til årsmøtet{% endif %}</p>
   {% if version.presentation %}{% include arsmelding-presentasjon.html %}{% else %}<div class="arsmelding-vising arsmelding-tekst">{{ version.body | escape }}</div>{% endif %}
 </article>
