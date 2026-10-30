@@ -20,12 +20,15 @@
 {% if kind=='budsjett' %}<p class="footnote">Fast dokumentkopi. Seinare endringar i arbeidsutkast eller rekneskap endrar ikkje denne kopien.</p>{% endif %}
 </main><script>
 if(new URLSearchParams(location.search).has('embed')){document.body.classList.add('embedded');}
-const sendHeight=()=>{if(parent!==window&&location.origin!=='null')parent.postMessage({type:'bygdelista-document-height',height:document.documentElement.scrollHeight},location.origin);};
+const sendHeight=()=>{if(parent!==window&&location.origin!=='null')parent.postMessage({type:'bygdelista-document-height',height:Math.ceil(document.querySelector('.paper').getBoundingClientRect().bottom + window.scrollY + 24)},location.origin);};
 document.querySelectorAll('table').forEach(table=>{
  table.classList.add('kompakt-tabell');
  const toggle=document.createElement('button');toggle.type='button';toggle.className='tabell-vising';toggle.textContent='Detaljert vising';toggle.setAttribute('aria-pressed','false');
  toggle.addEventListener('click',()=>{const compact=table.classList.toggle('kompakt-tabell');toggle.textContent=compact?'Detaljert vising':'Kompakt vising';toggle.setAttribute('aria-pressed',String(!compact));});
  table.before(toggle);
 });
-new ResizeObserver(sendHeight).observe(document.body);window.addEventListener('load',sendHeight);
+new ResizeObserver(sendHeight).observe(document.querySelector('.paper'));
+window.addEventListener('load',sendHeight);
+document.fonts?.ready.then(sendHeight);
+sendHeight();
 </script></body></html>
