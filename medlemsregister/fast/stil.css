@@ -128,52 +128,59 @@ body {
   text-align: center;
   font-size: 0.95rem;
 }
-/* Eitt ekte felt bevarer autofyll, innliming og vanleg tastaturnavigering.
-   Dei seks rutene er berre dekorasjon og lagar ingen ekstra skjemafelt. */
+/* Eitt ekte felt for autofyll; dekorative ruter blir aktiverte av JS. */
 .innlogging-koderuter {
   position: relative;
-  width: 14.75rem;
-  overflow: hidden;
-  border-radius: 6px;
+  width: 100%;
+  max-width: 18rem;
   height: 3rem;
   margin-top: 0.5rem;
 }
-.innlogging-kodebakgrunn {
+.innlogging-kodebakgrunn { display: none; }
+.innlogging-boks .innlogging-kode {
+  height: 100%;
+  margin: 0;
+  font: 1.5rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.innlogging-koderuter.er-klar .innlogging-kodebakgrunn {
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.25rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.3rem;
   pointer-events: none;
 }
 .innlogging-kodebakgrunn span {
+  display: grid;
+  place-items: center;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 6px;
+  font: 1.5rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
-.innlogging-boks .innlogging-kode {
+.innlogging-koderuter.er-klar .innlogging-kode {
   position: absolute;
-  inset: 0 auto 0 0;
-  /* Plass til bokstavavstanden etter siste siffer hindrar at feltet
-     rullar teksten sidelengs når alle seks siffera er skrivne. */
-  width: calc(100% + 2.5rem);
-  height: 100%;
-  margin: 0;
-  border: 0;
-  border-radius: 6px;
+  inset: 0;
   background: transparent;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 1.5rem;
-  line-height: normal;
-  letter-spacing: calc(2.5rem - 1ch);
-  padding: 0 0 0 calc((2.5rem - 0.25rem - 1ch) / 2);
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: transparent;
+  border-color: transparent;
+}
+.innlogging-koderuter.er-klar .innlogging-kode::selection {
+  background: transparent;
 }
 .innlogging-koderuter:focus-within {
   outline: 3px solid #206582;
   outline-offset: 3px;
+  border-radius: 6px;
 }
-.innlogging-boks .innlogging-kode:focus-visible {
-  outline: none;
+.innlogging-koderuter:focus-within .er-aktiv {
+  border-color: #206582;
+  box-shadow: inset 0 0 0 1px #206582;
+}
+.innlogging-koderuter:focus-within .er-markert {
+  background: #dcecf3;
 }
 .innlogging-kodehjelp {
   margin: 0.5rem 0 1.25rem;
@@ -594,3 +601,5 @@ tr:hover td:not(:last-child) {
 .bygdelista-delar a[aria-current="page"] { background: #fffefa; color: #12110e; box-shadow: 0 1px 4px #332c1c12; }
 .bygdelista-delar a:hover { background: #e4f0f4; }
 .bygdelista-delar a:focus-visible { outline: 3px solid #206582; outline-offset: 3px; }
+
+.innlogging-boks .innlogging-koderuter .innlogging-kode:focus-visible { outline: none; }
