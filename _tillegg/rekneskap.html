@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
+<div class="offentleg-okonomi">
 <h1>{{ page.title | escape }}</h1>
 {% assign year_data = site.data.arsdokument[page.report_year] %}
 {% if year_data %}
@@ -9,3 +11,5 @@
 {% if fixed_reports.size == 0 and year_data.ledger_latest == nil %}<p>Ingen rekneskap er publisert enno.</p>{% endif %}
 {% else %}<p>Ingen rekneskap er publisert enno.</p>{% endif %}
 <p><a href="{{ '/om/rekneskap/' | relative_url }}">Alle rekneskapsår</a></p>
+
+</div>
