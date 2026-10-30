@@ -76,7 +76,8 @@ class ReportTests(unittest.TestCase):
         key=self.report()['activities'][1]['key']
         form['activity_'+key+'_status']='unconfirmed'
         self.update('save_report',form)
-        with self.assertRaises(ValueError): self.service.freeze(self.doc_id,self.doc()['revision'],'meeting','','styret')
+        self.service.freeze(self.doc_id,self.doc()['revision'],'meeting','','styret')
+        with self.assertRaises(ValueError): self.service.freeze(self.doc_id,self.doc()['revision'],'approved','2026-01-01','styret')
         self.import_events([])
         self.assertTrue(self.report()['activities'][0]['source_missing'])
         with self.assertRaises(DocumentConflict):
@@ -134,3 +135,14 @@ class ReportTests(unittest.TestCase):
             response=self.client.post(f'/arsmote/{self.doc_id}',data=dict(action='import_calendar',revision=before,csrf_token=csrf))
         self.assertEqual(response.status_code,503)
         self.assertEqual(self.doc()['revision'],before)
+
+    def test_validation_error_keeps_editor_save_enabled(self):
+        import re
+        self.create();self.import_events([self.event()])
+        fixtures.BoardAuthTests.login(self)
+        response=self.client.post(f'/arsmote/{self.doc_id}',data=dict(csrf_token=self.token(),action='freeze',revision=self.doc()['revision'],status='approved',decision_date='2026-01-01'))
+        self.assertEqual(response.status_code,400)
+        self.assertIn('Lagre årsmeldinga',response.get_data(as_text=True))
+        self.assertFalse(re.search(r'<button[^>]*\bdisabled',response.get_data(as_text=True)))
+        form=self.form();form.update(csrf_token=self.token(),action='save_report',revision=self.doc()['revision'])
+        self.assertEqual(self.client.post(f'/arsmote/{self.doc_id}',data=form).status_code,302)

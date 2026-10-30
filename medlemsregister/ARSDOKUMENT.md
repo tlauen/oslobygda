@@ -103,3 +103,12 @@ rekneskapspostar. Reelle rekneskapsdata kan fyllast inn når den samla løysinga
 Faste versjonar har no eiga utskriftsvising for lagring som PDF i nettlesaren.
 Sjå [UTSKRIFT.md](UTSKRIFT.md). Faktisk PDF-paginering skal kontrollerast visuelt
 i sluttgjennomgangen før produksjonsbruk.
+
+## Førebelse faste årsmeldingar gjennom året
+
+«Førebels / framlegg til årsmøtet» kan lagrast og køyrast gjennom vanleg
+publiseringskontroll sjølv om valde tilskipingar enno har «Ikkje stadfesta» status.
+Statusen blir bevart, ikkje endra til gjennomført. Berre «Godkjend av årsmøtet»
+krev at statusane er avklarte. Endra eller fjerna kalenderkjelder må framleis
+kontrollerast før ein fast kopi blir lagra. Vanlege valideringsfeil lèt deg rette
+og lagre vidare; berre ein konflikt med eit nyare utkast sperrar innsending.

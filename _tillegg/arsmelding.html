@@ -5,7 +5,7 @@
 {% for version in report_versions %}
 <article id="versjon-{{ version.version_id | escape }}">
   <h2>{{ version.title | escape }}</h2>
-  <p>{% if version.status == 'approved' %}Godkjend av årsmøtet {{ version.decision_date | escape }}{% else %}Til årsmøtet – framlegg{% endif %} · Møteår {{ version.meeting_year | escape }} · Versjon {{ version.version_id | escape }}</p>
+  <p>{% if version.status == 'approved' %}Godkjend av årsmøtet {{ version.decision_date | escape }}{% else %}Førebels / framlegg til årsmøtet{% endif %} · Møteår {{ version.meeting_year | escape }} · Versjon {{ version.version_id | escape }}</p>
   <div style="white-space: pre-wrap">{{ version.body | escape }}</div>
 </article>
 {% else %}<p>Årsmeldinga er ikkje publisert enno.</p>{% endfor %}

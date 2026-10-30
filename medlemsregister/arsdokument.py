@@ -236,7 +236,7 @@ class Documents:
             if doc['kind'] != 'arsmelding' or not doc['body'].strip():
                 raise ValueError('Årsmeldinga må ha tekst før ein fast versjon kan lagrast.')
             if doc['report_json'] != '{}':
-                check_ready(report_from(doc))
+                check_ready(report_from(doc),allow_unconfirmed=status=='meeting')
             old = db.execute('SELECT id,decision_date FROM annual_versions WHERE document_id=? AND source_revision=? AND status=?',
                              (doc_id, doc['revision'], status)).fetchone()
             if old:
@@ -311,7 +311,7 @@ def install_documents(app, get_db, require_admin):
                 abort(404)
             versions = db.execute('SELECT * FROM annual_versions WHERE document_id=? ORDER BY id DESC', (doc_id,)).fetchall()
         return render_template('arsdokument.html', doc=doc, versions=versions, error=error,
-                               submitted=request.form if status != 200 else {}, report=report_from(doc), activity_statuses=STATUSES), status
+                               submitted=request.form if status != 200 else {}, report=report_from(doc), activity_statuses=STATUSES,conflict=status==409), status
 
     @app.get('/arsmote/styrebilete/<filename>')
     @require_admin

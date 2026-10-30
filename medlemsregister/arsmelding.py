@@ -121,9 +121,9 @@ def compose(report):
     return '\n\n'.join(section for section in sections if section)
 
 
-def check_ready(report):
+def check_ready(report,allow_unconfirmed=False):
     for item in report['activities']:
-        if item['included'] and item['status'] == 'unconfirmed':
-            raise ValueError('Stadfest status for alle valde aktivitetar før du lagrar ein fast versjon.')
+        if item['included'] and item['status'] == 'unconfirmed' and not allow_unconfirmed:
+            raise ValueError('Stadfest status for alle valde aktivitetar før du lagrar ein godkjend årsversjon.')
         if item['included'] and (item.get('source_missing') or item.get('source_changed')):
-            raise ValueError('Kontroller og stadfest endra eller fjerna kalenderoppføringar før du lagrar ein fast versjon.')
+            raise ValueError('Kontroller og stadfest endra eller fjerna kalenderoppføringar før du lagrar ein godkjend årsversjon.')
