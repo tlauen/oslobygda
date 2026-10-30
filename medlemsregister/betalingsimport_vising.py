@@ -30,6 +30,9 @@ def install_payment_import(app,get_db,require_admin):
                     elif action=='book':
                         if request.form.get('no_duplicate')!='yes': raise ValueError('Stadfest at betalinga ikkje alt er bokført, heller ikkje som del av ein samla post.')
                         service.book(pid,request.form.get('evidence_id'),actor,True)
+                    elif action=='correct_reversed':
+                        if request.form.get('confirmed')!='yes': raise ValueError('Stadfest retta kjelde og at betalinga ikkje er bokført på nytt.')
+                        service.correct_reversed(pid,request.form.get('evidence_id'),int(request.form.get('old_journal_id','')),actor)
                     elif action=='link': service.link(pid,request.form.get('evidence_id'),int(request.form.get('journal_id','')),actor)
                     else: raise ValueError('Ugyldig handling.')
                 try: app.extensions['public_ledger'].refresh_enabled(actor)
@@ -50,7 +53,8 @@ def install_payment_import(app,get_db,require_admin):
                     if item['linked']:
                         journal=db.execute('SELECT day FROM ledger_journals WHERE id=?',(item['linked'],)).fetchone()
                         if not journal or (evidence and journal['day']!=evidence['day']): item['problem']='Bokført dato avvik frå kjeldedato. Rett med sporbar korrigering.'
-                        if db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(item['linked'],)).fetchone(): item['problem']='Kopla post er reversert. Manuell avstemming er nødvendig.'
+                        if db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(item['linked'],)).fetchone():
+                            item['reversed']=True;item['problem']='Kopla post er reversert. Kontroller dato og konto på nytt før du brukar rettingsknappen.'
                     if evidence and evidence['refunded_ore']: item['problem']='Vipps-refusjon observert. Kontroller og registrer refusjon mot originalposten.'
                     err=db.execute('SELECT message FROM payment_import_errors WHERE payment_id=?',(payment['id'],)).fetchone()
                     if err and not item['problem']: item['problem']=err[0]

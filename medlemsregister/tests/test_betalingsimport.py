@@ -134,3 +134,20 @@ class ImportTests(unittest.TestCase):
         self.assertEqual(response.status_code,200)
         self.assertIn('Intern Namneprøve',response.get_data(as_text=True))
         self.assertIn('Betaling '+str(pid),response.get_data(as_text=True))
+
+    def test_correct_reversed_payment_preserves_history_and_prevents_duplicates(self):
+        self.opening();pid,_=self.payment()
+        evidence=self.service.attest(pid,'2026-01-05','bank','Vipps-dokumentasjon','styret')
+        old=self.service.book(pid,evidence,'styret')
+        with self.assertRaises(ValueError):self.service.correct_reversed(pid,evidence,old,'styret')
+        self.ledger.reverse(old,'2026-01-06','Feil betalingskonto','styret','undo-payment')
+        fresh=self.service.attest(pid,'2026-01-05','vipps','Rett konto frå Vipps','styret')
+        new=self.service.correct_reversed(pid,fresh,old,'styret')
+        self.assertNotEqual(old,new)
+        self.assertEqual(self.service.correct_reversed(pid,fresh,old,'styret'),new)
+        self.assertEqual(self.service.book(pid,fresh,'styret'),new)
+        with managed_db(module.get_db) as db:
+            self.assertEqual(self.service._linked(db,pid),new)
+            self.assertEqual(db.execute('SELECT journal_id FROM payment_ledger_links WHERE payment_id=?',(pid,)).fetchone()[0],old)
+            totals=dict(db.execute('SELECT account,SUM(amount_ore) FROM ledger_lines GROUP BY account'))
+            self.assertEqual(totals['bank'],0);self.assertEqual(totals['vipps'],10000);self.assertEqual(totals['membership'],-10000)

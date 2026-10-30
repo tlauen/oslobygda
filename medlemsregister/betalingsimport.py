@@ -32,7 +32,11 @@ def init_payment_import(get_db):
           payment_id INTEGER PRIMARY KEY,message TEXT NOT NULL,checked_at TEXT NOT NULL
         );
         ''')
-        for table in ('payment_evidence','payment_ledger_links'):
+        db.execute("""CREATE TABLE IF NOT EXISTS payment_ledger_corrections (
+          id INTEGER PRIMARY KEY,payment_id INTEGER NOT NULL,old_journal_id INTEGER NOT NULL UNIQUE REFERENCES ledger_journals(id),
+          journal_id INTEGER NOT NULL UNIQUE REFERENCES ledger_journals(id),evidence_id INTEGER NOT NULL REFERENCES payment_evidence(id),
+          actor TEXT NOT NULL,created_at TEXT NOT NULL)""")
+        for table in ('payment_evidence','payment_ledger_links','payment_ledger_corrections'):
             for operation in ('UPDATE','DELETE'):
                 db.execute(f'''CREATE TRIGGER IF NOT EXISTS {table}_no_{operation.lower()} BEFORE {operation} ON {table}
                   BEGIN SELECT RAISE(ABORT,'Importhistorikken er fast'); END''')
@@ -151,6 +155,8 @@ class PaymentImport:
         return payment,order,evidence
 
     def _linked(self,db,pid):
+        correction=db.execute('SELECT journal_id FROM payment_ledger_corrections WHERE payment_id=? ORDER BY id DESC LIMIT 1',(pid,)).fetchone()
+        if correction: return correction[0]
         row=db.execute('SELECT journal_id FROM payment_ledger_links WHERE payment_id=?',(pid,)).fetchone()
         if row: return row[0]
         row=db.execute("SELECT id FROM ledger_journals WHERE state='posted' AND source_kind='membership_payment' AND source_id=?",(str(pid),)).fetchone()
@@ -191,6 +197,24 @@ class PaymentImport:
                                   'Medlemskontingent','Betalingsår '+str(payment['for_year']),actor,'member-import-'+str(pid),
                                   evidence['note'],source_kind='membership_payment',source_id=str(pid))
             db.execute('INSERT INTO payment_ledger_links(payment_id,journal_id,evidence_id,actor,created_at) VALUES (?,?,?,?,?)',(pid,jid,evidence['id'],actor,stamp()))
+            db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
+            return jid
+
+    def correct_reversed(self,pid,evidence_id,old_jid,actor):
+        with managed_db(self.get_db) as db:
+            db.execute('BEGIN IMMEDIATE');payment,order,evidence=self._evidence(db,pid)
+            if evidence['id']!=int(evidence_id): raise ValueError('Kjeldekontrollen er endra. Opne betalinga på nytt.')
+            existing=self._linked(db,pid)
+            prior=db.execute('SELECT journal_id FROM payment_ledger_corrections WHERE payment_id=? AND old_journal_id=?',(pid,int(old_jid))).fetchone()
+            if prior: return prior[0]
+            if existing!=int(old_jid) or not db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(existing,)).fetchone():
+                raise ValueError('Berre den reverserte, kopla posten kan rettast her.')
+            if self._candidates(db,payment,evidence): raise ValueError('Det finst ei mogleg eksisterande føring. Avklar henne før ny bokføring.')
+            jid=self.ledger._post(db,evidence['day'],[(evidence['account'],payment['amount_ore'],''),('membership',-payment['amount_ore'],'')],
+                'Medlemskontingent','Retta betalingskonto etter reversert P'+str(existing),actor,'member-correction-'+str(pid)+'-'+str(existing),
+                evidence['note'],source_kind='membership_payment_correction',source_id=str(pid)+'-'+str(existing))
+            db.execute('INSERT INTO payment_ledger_corrections(payment_id,old_journal_id,journal_id,evidence_id,actor,created_at) VALUES (?,?,?,?,?,?)',
+                (pid,existing,jid,evidence['id'],actor,stamp()))
             db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
             return jid
 
