@@ -151,3 +151,22 @@ class ImportTests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT journal_id FROM payment_ledger_links WHERE payment_id=?',(pid,)).fetchone()[0],old)
             totals=dict(db.execute('SELECT account,SUM(amount_ore) FROM ledger_lines GROUP BY account'))
             self.assertEqual(totals['bank'],0);self.assertEqual(totals['vipps'],10000);self.assertEqual(totals['membership'],-10000)
+
+    def test_group_link_preserves_ledger_checks_sum_and_prevents_double_use(self):
+        self.opening();a,mid=self.payment(amount=500);b,_=self.payment(amount=700)
+        with managed_db(module.get_db) as db:db.execute('UPDATE payments SET for_year=2026 WHERE id IN (?,?)',(a,b))
+        jid=self.ledger.post(dict(kind='income',day='2026-01-10',amount='12',account='bank',category='membership',public_text='Samla medlemspengar',evidence_note='Overføring frå privat innsamling'),'styret','group-journal')
+        with self.assertRaises(ValueError):self.service.link_group([a],jid,'Dokumentert bankoverføring','styret')
+        self.service.link_group([a,b],jid,'Dokumentert bankoverføring','styret')
+        self.assertEqual(self.service.link_group([b,a],jid,'Gjenteken innsending','styret'),jid)
+        with managed_db(module.get_db) as db:
+            self.assertEqual(self.service._linked(db,a),jid);self.assertEqual(self.service._linked(db,b),jid)
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM ledger_journals').fetchone()[0],1)
+        fixtures.BoardAuthTests.login(self)
+        page=self.client.get('/okonomi/betalingar')
+        self.assertIn('Med i samlepost P'+str(jid),page.get_data(as_text=True))
+        self.assertEqual(self.client.delete(f'/api/members/{mid}/payments/{a}',headers={'X-CSRF-Token':self.token()}).status_code,409)
+        with self.assertRaises(ValueError):self.service.link_group([a,b],jid+100,'Test','styret')
+        self.ledger.reverse(jid,'2026-01-11','Feil samlepost','styret','reverse-group')
+        with managed_db(module.get_db) as db:
+            with self.assertRaises(ValueError):self.service._check_group(db,jid)

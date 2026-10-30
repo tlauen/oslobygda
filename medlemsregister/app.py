@@ -760,7 +760,7 @@ def delete_member_payment(mid, pid):
         ).fetchone()
         if not payment:
             return jsonify({"error": "Betalinga finst ikkje på denne medlemmen."}), 404
-        if conn.execute("SELECT 1 FROM payment_ledger_links WHERE payment_id=?", (pid,)).fetchone() or conn.execute("SELECT 1 FROM ledger_journals WHERE source_kind='membership_payment' AND source_id=?", (str(pid),)).fetchone():
+        if conn.execute("SELECT 1 FROM payment_group_links WHERE payment_id=?", (pid,)).fetchone() or conn.execute("SELECT 1 FROM payment_ledger_links WHERE payment_id=?", (pid,)).fetchone() or conn.execute("SELECT 1 FROM ledger_journals WHERE source_kind='membership_payment' AND source_id=?", (str(pid),)).fetchone():
             return jsonify({"error": "Betalinga er kopla til bokført rekneskap og kan ikkje slettast. Rett rekneskapen med sporbar reversering."}), 409
         if conn.execute(
             "SELECT 1 FROM signup_orders WHERE payment_id=?", (pid,)

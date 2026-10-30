@@ -36,7 +36,10 @@ def init_payment_import(get_db):
           id INTEGER PRIMARY KEY,payment_id INTEGER NOT NULL,old_journal_id INTEGER NOT NULL UNIQUE REFERENCES ledger_journals(id),
           journal_id INTEGER NOT NULL UNIQUE REFERENCES ledger_journals(id),evidence_id INTEGER NOT NULL REFERENCES payment_evidence(id),
           actor TEXT NOT NULL,created_at TEXT NOT NULL)""")
-        for table in ('payment_evidence','payment_ledger_links','payment_ledger_corrections'):
+        db.execute("""CREATE TABLE IF NOT EXISTS payment_group_links (
+          payment_id INTEGER PRIMARY KEY REFERENCES payments(id),journal_id INTEGER NOT NULL REFERENCES ledger_journals(id),
+          amount_ore INTEGER NOT NULL,note TEXT NOT NULL,actor TEXT NOT NULL,created_at TEXT NOT NULL)""")
+        for table in ('payment_evidence','payment_ledger_links','payment_ledger_corrections','payment_group_links'):
             for operation in ('UPDATE','DELETE'):
                 db.execute(f'''CREATE TRIGGER IF NOT EXISTS {table}_no_{operation.lower()} BEFORE {operation} ON {table}
                   BEGIN SELECT RAISE(ABORT,'Importhistorikken er fast'); END''')
@@ -155,6 +158,8 @@ class PaymentImport:
         return payment,order,evidence
 
     def _linked(self,db,pid):
+        group=db.execute('SELECT journal_id FROM payment_group_links WHERE payment_id=?',(pid,)).fetchone()
+        if group:return group[0]
         correction=db.execute('SELECT journal_id FROM payment_ledger_corrections WHERE payment_id=? ORDER BY id DESC LIMIT 1',(pid,)).fetchone()
         if correction: return correction[0]
         row=db.execute('SELECT journal_id FROM payment_ledger_links WHERE payment_id=?',(pid,)).fetchone()
@@ -162,7 +167,49 @@ class PaymentImport:
         row=db.execute("SELECT id FROM ledger_journals WHERE state='posted' AND source_kind='membership_payment' AND source_id=?",(str(pid),)).fetchone()
         return row[0] if row else None
 
+    def _check_group(self,db,jid):
+        rows=db.execute('SELECT g.amount_ore,p.amount_ore current_amount FROM payment_group_links g LEFT JOIN payments p ON p.id=g.payment_id WHERE g.journal_id=?',(jid,)).fetchall()
+        if not rows or any(r['current_amount']!=r['amount_ore'] for r in rows):raise ValueError('Medlemsbetalingane i samleposten er endra. Manuell kontroll er nødvendig.')
+        amount=sum(r['amount_ore'] for r in rows)
+        journal=db.execute('SELECT * FROM ledger_journals WHERE id=?',(jid,)).fetchone()
+        lines=sorted(tuple(r) for r in db.execute('SELECT account,amount_ore FROM ledger_lines WHERE journal_id=?',(jid,)))
+        if not journal or journal['state']!='posted' or lines!=sorted([('bank',amount),('membership',-amount)]) or db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(jid,)).fetchone():
+            raise ValueError('Samleposten avvik eller er reversert. Manuell kontroll er nødvendig.')
+
+    def link_group(self,pids,jid,note,actor):
+        ids=[int(pid) for pid in pids]
+        if not ids or len(ids)>200 or len(set(ids))!=len(ids):raise ValueError('Vel éin eller fleire ulike betalingar, maks 200.')
+        note=str(note or '').strip()
+        if not note or len(note)>1000:raise ValueError('Forklar dokumentasjonen for den samla bankoverføringa, maks 1000 teikn.')
+        jid=int(jid)
+        with managed_db(self.get_db) as db:
+            db.execute('BEGIN IMMEDIATE')
+            existing=db.execute('SELECT payment_id FROM payment_group_links WHERE journal_id=?',(jid,)).fetchall()
+            if existing:
+                if {r[0] for r in existing}==set(ids):self._check_group(db,jid);return jid
+                raise ValueError('Samleposten er allereie kopla til andre betalingar.')
+            payments=[]
+            for pid in ids:
+                payment,order=self._source(db,pid)
+                if order:raise ValueError('Betalingar gjennom innmeldingsskjemaet må kontrollerast mot Vipps kvar for seg.')
+                if self._linked(db,pid):raise ValueError('Ei vald betaling er allereie kopla til rekneskapen.')
+                payments.append(payment)
+            amount=sum(p['amount_ore'] for p in payments)
+            journal=db.execute('SELECT * FROM ledger_journals WHERE id=?',(jid,)).fetchone()
+            lines=sorted(tuple(r) for r in db.execute('SELECT account,amount_ore FROM ledger_lines WHERE journal_id=?',(jid,)))
+            if not journal or journal['state']!='posted' or journal['source_kind'] is not None or journal['reversal_of'] or lines!=sorted([('bank',amount),('membership',-amount)]):
+                raise ValueError('Posten må vere ein vanleg medlemspengepost til Bank, med nøyaktig same sum som dei valde betalingane.')
+            if db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(jid,)).fetchone():raise ValueError('Ein reversert post kan ikkje brukast.')
+            if db.execute('SELECT 1 FROM payment_ledger_links WHERE journal_id=?',(jid,)).fetchone() or db.execute('SELECT 1 FROM payment_ledger_corrections WHERE journal_id=?',(jid,)).fetchone():raise ValueError('Posten er allereie kopla.')
+            if any(str(p['for_year'])!=journal['day'][:4] for p in payments):raise ValueError('Medlemsåret må samsvare med året for samleposten. Kontroller årstala manuelt.')
+            for payment in payments:
+                db.execute('INSERT INTO payment_group_links VALUES (?,?,?,?,?,?)',(payment['id'],jid,payment['amount_ore'],note,actor,stamp()))
+                db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(payment['id'],))
+            return jid
+
     def _check_link(self,db,jid,payment,evidence):
+        if db.execute('SELECT 1 FROM payment_group_links WHERE payment_id=? AND journal_id=?',(payment['id'],jid)).fetchone():
+            self._check_group(db,jid);return
         journal=db.execute("SELECT * FROM ledger_journals WHERE id=? AND state='posted'",(jid,)).fetchone()
         lines=[tuple(r) for r in db.execute('SELECT account,amount_ore FROM ledger_lines WHERE journal_id=?',(jid,))]
         expected=sorted([(evidence['account'],payment['amount_ore']),('membership',-payment['amount_ore'])])
@@ -173,7 +220,7 @@ class PaymentImport:
         return [row[0] for row in db.execute('''SELECT j.id FROM ledger_journals j JOIN ledger_lines l ON l.journal_id=j.id
             WHERE j.state='posted' AND l.account='membership' AND l.amount_ore=? AND substr(j.day,1,4)=?
             AND j.reversal_of IS NULL AND NOT EXISTS(SELECT 1 FROM ledger_journals r WHERE r.reversal_of=j.id)
-            AND j.source_kind IS NULL AND NOT EXISTS(SELECT 1 FROM payment_ledger_links p WHERE p.journal_id=j.id)
+            AND j.source_kind IS NULL AND NOT EXISTS(SELECT 1 FROM payment_group_links g WHERE g.journal_id=j.id) AND NOT EXISTS(SELECT 1 FROM payment_ledger_links p WHERE p.journal_id=j.id)
             ORDER BY j.id''',(-payment['amount_ore'],evidence['day'][:4]))]
 
     def book(self,pid,evidence_id,actor,confirm_no_duplicate=False,automatic=False):
@@ -205,6 +252,7 @@ class PaymentImport:
             db.execute('BEGIN IMMEDIATE');payment,order,evidence=self._evidence(db,pid)
             if evidence['id']!=int(evidence_id): raise ValueError('Kjeldekontrollen er endra. Opne betalinga på nytt.')
             existing=self._linked(db,pid)
+            if db.execute('SELECT 1 FROM payment_group_links WHERE payment_id=?',(pid,)).fetchone():raise ValueError('Ein reversert samlepost må rettast samla, ikkje som ei enkeltbetaling.')
             prior=db.execute('SELECT journal_id FROM payment_ledger_corrections WHERE payment_id=? AND old_journal_id=?',(pid,int(old_jid))).fetchone()
             if prior: return prior[0]
             if existing!=int(old_jid) or not db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(existing,)).fetchone():
@@ -231,7 +279,7 @@ class PaymentImport:
             expected=sorted([(evidence['account'],payment['amount_ore']),('membership',-payment['amount_ore'])])
             if not journal or journal['source_kind'] is not None or journal['reversal_of'] or journal['day']!=evidence['day'] or sorted(tuple(r) for r in lines)!=expected or db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(jid,)).fetchone():
                 raise ValueError('Posten må ha same dato, beløp og betalingskonto utan andre inntekter eller rettingar.')
-            if db.execute('SELECT 1 FROM payment_ledger_links WHERE journal_id=?',(jid,)).fetchone(): raise ValueError('Posten er allereie kopla.')
+            if db.execute('SELECT 1 FROM payment_ledger_links WHERE journal_id=?',(jid,)).fetchone() or db.execute('SELECT 1 FROM payment_group_links WHERE journal_id=?',(jid,)).fetchone(): raise ValueError('Posten er allereie kopla.')
             db.execute('INSERT INTO payment_ledger_links(payment_id,journal_id,evidence_id,actor,created_at) VALUES (?,?,?,?,?)',(pid,jid,evidence['id'],actor,stamp()))
             db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
             return jid

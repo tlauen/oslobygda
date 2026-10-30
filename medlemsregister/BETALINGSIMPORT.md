@@ -118,3 +118,16 @@ Testane dekkjer årsskifte/tidssone, manuell attestering, eksisterande føring, 
 refusjon, duplikathendingar, feil/endra kjelde, reverserte postar, opt-in, gjenkøyring,
 GET-only klientoperasjonar og tilgang/CSRF. Ingen nettverkskall blir utførte i testane.
 Før produksjonsbruk står ein kontrollert lesetest mot faktisk salseining att.
+
+## Fleire historiske betalingar i ein bankpost
+
+For innsamling via privat Vipps/kontantar som er overført samla til bank: før
+éin vanleg medlemspengepost til Bank med heile beløpet og bankdatoen. Opne
+«Kople fleire betalingar til ein samlepost», vel dei aktuelle manuelle betalingane
+med «Vel til samlepost» i kvar rad, og oppgi P-nummer og dokumentasjon.
+Koplinga bokfører ingenting og bevarer betalingshistorikken. Beløpa må summere
+nøyaktig til bankposten. Posten må berre innehalde Bank og Medlemspengar, og
+medlemsåra må svare til året for posten. Skjemabetalingar med ePayment blir
+framleis kontrollerte enkeltvis mot Vipps. Ei betaling eller ein post som alt er
+kopla, kan ikkje brukast om att. Reversering eller endra betalingsbeløp viser
+avvik og krev manuell oppfølging; samla koplingar blir ikkje sletta.

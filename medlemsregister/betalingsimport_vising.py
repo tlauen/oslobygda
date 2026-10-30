@@ -21,6 +21,9 @@ def install_payment_import(app,get_db,require_admin):
                     enabled=request.form.get('enabled')=='yes'
                     if enabled and request.form.get('confirmed')!='yes': raise ValueError('Stadfest at opningsbalanse og historiske føringar er kontrollerte.')
                     service.configure(enabled,request.form.get('from_day'),actor)
+                elif action=='link_group':
+                    if request.form.get('confirmed')!='yes':raise ValueError('Stadfest dokumentasjonen og at betalingane inngår i samleposten.')
+                    service.link_group(request.form.getlist('payment_ids'),request.form.get('journal_id'),request.form.get('note'),actor)
                 else:
                     pid=int(request.form.get('payment_id',''))
                     if action=='attest':
@@ -48,13 +51,17 @@ def install_payment_import(app,get_db,require_admin):
                     evidence=db.execute('SELECT * FROM payment_evidence WHERE payment_id=? ORDER BY revision DESC LIMIT 1',(payment['id'],)).fetchone()
                     item['evidence']=dict(evidence) if evidence else None
                     item['linked']=service._linked(db,payment['id'])
+                    item['group']=db.execute('SELECT * FROM payment_group_links WHERE payment_id=?',(payment['id'],)).fetchone()
                     item['candidates']=service._candidates(db,payment,evidence) if evidence else []
                     item['problem']=''
                     if item['linked']:
                         journal=db.execute('SELECT day FROM ledger_journals WHERE id=?',(item['linked'],)).fetchone()
-                        if not journal or (evidence and journal['day']!=evidence['day']): item['problem']='Bokført dato avvik frå kjeldedato. Rett med sporbar korrigering.'
+                        if not journal or (not item['group'] and evidence and journal['day']!=evidence['day']): item['problem']='Bokført dato avvik frå kjeldedato. Rett med sporbar korrigering.'
                         if db.execute('SELECT 1 FROM ledger_journals WHERE reversal_of=?',(item['linked'],)).fetchone():
                             item['reversed']=True;item['problem']='Kopla post er reversert. Kontroller dato og konto på nytt før du brukar rettingsknappen.'
+                    if item.get('group'):
+                        try:service._check_group(db,item['linked'])
+                        except ValueError as exc:item['problem']=str(exc)
                     if evidence and evidence['refunded_ore']: item['problem']='Vipps-refusjon observert. Kontroller og registrer refusjon mot originalposten.'
                     err=db.execute('SELECT message FROM payment_import_errors WHERE payment_id=?',(payment['id'],)).fetchone()
                     if err and not item['problem']: item['problem']=err[0]
