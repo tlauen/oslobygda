@@ -17,8 +17,4 @@ Vil du bli med i laget? [Bli medlem her!]({{ site.innmelding_url }}) Kostar deg 
 
 {% include dokument.html %}
 
-[Årsmeldingar]({{ "/om/arsmeldingar/" | relative_url }})
-
-[Rekneskap]({{ "/om/rekneskap/" | relative_url }})
-
-[Budsjett]({{ "/om/budsjett/" | relative_url }})
+{% include arsmotesaker.html %}

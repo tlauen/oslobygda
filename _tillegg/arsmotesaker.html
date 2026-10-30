@@ -1,0 +1,8 @@
+<section class="om-modul" aria-labelledby="arsmotesaker-tittel">
+<p class="modul-etikett">Innsyn i laget</p><h2 id="arsmotesaker-tittel">Årsmøtesaker</h2>
+<div class="dokument-grid">
+{% assign titles = 'Årsmeldingar|Rekneskap|Budsjett' | split: '|' %}
+{% assign paths = '/om/arsmeldingar/|/om/rekneskap/|/om/budsjett/' | split: '|' %}
+{% assign descriptions = 'Tilskipingane, folka og arbeidet gjennom året.|Innkome, utgifter og kva laget eig og skuldar.|Planane for innkome og pengebruk framover.' | split: '|' %}
+{% for title in titles %}<a class="dokument-kort" href="{{ paths[forloop.index0] | relative_url | escape }}"><span class="dokument-type">Innsyn og årsmøtepapir</span><h3>{{ title }}</h3><p>{{ descriptions[forloop.index0] }}</p><span class="dokument-opne">Opne oversikta <span aria-hidden="true">↗</span></span></a>{% endfor %}
+</div></section>
