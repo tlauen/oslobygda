@@ -284,14 +284,24 @@
 @media(max-width:1000px){.arsmote-kropp .medlemsbetaling>summary{grid-template-columns:minmax(0,1fr) auto}.arsmote-kropp .medlemsbetaling .betaling-identitet{grid-column:1;grid-row:1}.arsmote-kropp .medlemsbetaling .betaling-belop{grid-column:2;grid-row:1}.arsmote-kropp .medlemsbetaling .betaling-dato{grid-column:1;grid-row:2}.arsmote-kropp .medlemsbetaling .betaling-status{grid-column:2;grid-row:2}}
 @media(max-width:420px){.arsmote-kropp .medlemsbetaling .betaling-status{grid-column:1/-1;grid-row:3;justify-self:start}.arsmote-kropp .medlemsbetaling .betaling-dato{grid-column:1/-1}}
 
-.arsmote-kropp .postliste { gap:.45rem; }
-.arsmote-kropp .postliste>li { padding:0; }
-.arsmote-kropp details.bokfort-post { margin:0; padding:.85rem 1rem; border:0; background:transparent; scroll-margin-top:1rem; }
-.bokfort-post>summary { display:grid; grid-template-columns:10rem minmax(0,1fr) auto; align-items:center; gap:.5rem 1rem; }
-.bokfort-post>summary .bokfort-referanse::before { content:'▸ '; }
-.bokfort-post[open]>summary .bokfort-referanse::before { content:'▾ '; }
-.bokfort-korttittel { font-size:.9rem; font-weight:600; overflow-wrap:anywhere; }
-.bokfort-korttittel small { display:block; margin-top:.2rem; font-size:.75rem; font-weight:400; color:#7b2925; }
-.bokfort-post>summary .bokfort-belop { font-size:.95rem; }
-.bokfort-innhald { margin-top:1rem; border-top:1px solid var(--line); padding-top:1rem; }
-@media(max-width:650px){.bokfort-post>summary{grid-template-columns:minmax(0,1fr) auto}.bokfort-post>summary .bokfort-referanse{grid-column:1;grid-row:1}.bokfort-post>summary .bokfort-belop{grid-column:2;grid-row:1}.bokfort-post>summary .bokfort-korttittel{grid-column:1/-1;grid-row:2}}
+/* Bokførte postar: ei samanhengande liste med tydelege kolonnar. */
+.arsmote-kropp .postliste { gap:0; }
+.arsmote-kropp .postliste>li { padding:0; border:0; border-bottom:1px solid var(--line); border-radius:0; background:transparent; }
+.arsmote-kropp .postliste>li:last-child { border-bottom:0; }
+.arsmote-kropp details.bokfort-post { margin:0; padding:0; border:0; border-radius:0; background:transparent; scroll-margin-top:1rem; }
+.arsmote-kropp .bokfort-post>summary { display:grid; grid-template-columns:11rem minmax(0,1fr) auto; align-items:center; gap:.6rem 1.5rem; padding:1rem .5rem; font:inherit; list-style:none; }
+.arsmote-kropp .bokfort-post>summary::-webkit-details-marker { display:none; }
+.arsmote-kropp .bokfort-post>summary:hover { background:#f1f5ed; }
+.arsmote-kropp .bokfort-post>summary .bokfort-referanse { font:inherit; color:var(--dempa); white-space:nowrap; }
+.arsmote-kropp .bokfort-post>summary .bokfort-referanse::before { content:'▸'; display:inline-block; width:1.25rem; }
+.arsmote-kropp .bokfort-post[open]>summary .bokfort-referanse::before { content:'▾'; }
+.arsmote-kropp .bokfort-korttittel { font:inherit; overflow-wrap:anywhere; }
+.arsmote-kropp .bokfort-korttittel small { display:block; margin-top:.3rem; font-size:.85em; color:#7b2925; }
+.arsmote-kropp .bokfort-post>summary .bokfort-belop { font:inherit; font-weight:650; font-variant-numeric:tabular-nums; text-align:right; padding-left:1rem; }
+.bokfort-innhald { margin:0 .5rem 1rem; border-top:1px solid var(--line); padding-top:1rem; }
+@media(max-width:700px){
+.arsmote-kropp .bokfort-post>summary { grid-template-columns:minmax(0,1fr) auto; gap:.65rem 1rem; }
+.arsmote-kropp .bokfort-post>summary .bokfort-referanse { grid-column:1; grid-row:1; }
+.arsmote-kropp .bokfort-post>summary .bokfort-belop { grid-column:2; grid-row:1; }
+.arsmote-kropp .bokfort-post>summary .bokfort-korttittel { grid-column:1/-1; grid-row:2; padding-left:1.25rem; }
+}
