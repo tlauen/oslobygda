@@ -117,3 +117,14 @@ versjons-ID-ar og avgrensa, validert schema, med budsjettbeløp og samla samanli
 Sidene `/om/budsjett/2027/` og `/api/arsdokument/2027.json` er klargjorde i koden.
 Nye budsjettår må ha tilsvarande sidestubbar før data blir publiserte.
 Sjå BUDSJETT.md for forslag, vedtak og intern oppfølging.
+
+## Utforming av offentleg årsmelding
+
+Nye eksportar frå strukturerte årsmeldingar har eit avgrensa `presentation`-felt
+med offentleg tekst, valde tilskipingar, gjesteoverslag, betalingstal og offentlege
+styreprofilar. Interne kjelderevisjonar, oppdateringsbrukarar og uvalde tilskipingar
+følgjer ikkje med. Feltet blir validert før overføring. Eldre teksteksportar kan
+framleis lesast, men manglar datagrunnlaget for kort og nøkkeltal.
+Etter oppdatering: lagre utkastet, lag ein ny førebels fast versjon, kontroller
+innhaldet og legg denne i kø. Køyr publiseringsjobben. Gamle faste kopiar og
+allereie kølagde eksportar blir ikkje omskrivne automatisk.

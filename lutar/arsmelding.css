@@ -1,0 +1,42 @@
+.arsmelding-vising { margin:1.5rem 0 3rem; padding:clamp(1.2rem,4vw,3rem); background:#fffefa; border:1px solid #dedcd4; border-radius:20px; }
+.arsmelding-helt { padding:1rem 0 2rem; border-bottom:2px solid #315c38; }
+.arsmelding-overline { text-transform:uppercase; letter-spacing:.15em; font-size:.75rem; font-weight:700; color:#315c38; }
+.arsmelding-helt h2 { max-width:17ch; font:clamp(2rem,5vw,3.8rem)/1.08 Georgia,serif; letter-spacing:-.035em; margin:.75rem 0; }
+.arsmelding-tal { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin:2rem 0; }
+.arsmelding-tal section { padding:1.4rem; border-radius:12px; background:#e7efdf; }
+.arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
+.arsmelding-tal section:nth-child(3) { background:#f5edda; }
+.arsmelding-tal strong { font:3.3rem/1 Georgia,serif; color:#173e30; }
+.arsmelding-tal h3 { font-size:1rem; margin:.8rem 0 .5rem; }
+.arsmelding-tal p { font-size:.8rem; line-height:1.5; margin:0; }
+.arsmelding-tekst { white-space:pre-wrap; line-height:1.8; max-width:72ch; }
+.arsmelding-seksjon { font:1.8rem Georgia,serif; margin:2.5rem 0 1.2rem; }
+.arsmelding-aktivitet { display:grid; grid-template-columns:8rem minmax(0,1fr); gap:1.5rem; border-top:1px solid #dedcd4; padding:1.5rem 0; }
+.arsmelding-dato time { display:block; font:1.9rem Georgia,serif; }
+.arsmelding-dato span { display:block; font-size:.75rem; margin-top:.5rem; }
+.arsmelding-aktivitet h4 { font:1.3rem/1.4 Georgia,serif; margin:0; }
+.arsmelding-stad { font-size:.85rem; color:#5e5c55; }
+.arsmelding-deltakarar { display:inline-block; padding:.35rem .65rem; background:#e7efdf; border-radius:30px; font-size:.8rem; }
+@media(max-width:650px) { .arsmelding-tal { grid-template-columns:1fr; }.arsmelding-aktivitet { grid-template-columns:1fr; gap:.75rem; }.arsmelding-dato { display:flex; align-items:center; gap:1rem; } }
+.arsmelding-aktivitet { border-left:4px solid #b99b44; padding-left:1rem; }
+.arsmelding-aktivitet.status-completed { border-left-color:#42744a; }
+.arsmelding-aktivitet.status-cancelled { border-left-color:#a34b45; background:#fff1ed; }
+.arsmelding-aktivitet .arsmelding-dato span { width:fit-content; padding:.3rem .55rem; border-radius:6px; background:#f5edda; color:#655015; font-weight:650; }
+.arsmelding-aktivitet.status-completed .arsmelding-dato span { background:#e7efdf; color:#254a2a; }
+.arsmelding-aktivitet.status-cancelled .arsmelding-dato span { background:#f6dcd5; color:#7b2925; }
+.arsmelding-styre { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1.5rem; }
+.arsmelding-styre img { width:100%; height:auto; aspect-ratio:1; object-fit:cover; border-radius:12px; }
+.arsmelding-styre p { margin:.75rem 0 .3rem; font-size:.8rem; color:#315c38; }
+.arsmelding-styre h4 { margin:0; font:1.2rem/1.4 Georgia,serif; }
+.arsmote-kropp .tilskiping-redigering { grid-column:1/-1; margin:0; padding:1rem; }
+.tilskiping-redigering summary { display:flex; justify-content:space-between; align-items:center; gap:.75rem; list-style:disclosure-closed; }
+.tilskiping-redigering summary>span:first-child::before { content:'▸ '; }
+.tilskiping-redigering[open] summary>span:first-child::before { content:'▾ '; }
+.tilskiping-redigering fieldset { margin-top:1rem; }
+.tilskiping-status { flex-shrink:0; font-size:.75rem; padding:.35rem .6rem; border-radius:6px; background:#f5edda; color:#655015; }
+.tilskiping-status.status-completed { background:#e7efdf; color:#254a2a; }
+.tilskiping-status.status-cancelled { background:#f6dcd5; color:#7b2925; }
+@media(max-width:650px){.tilskiping-redigering summary{align-items:flex-start;flex-direction:column}}
+
+.arsmelding-vising h3.arsmelding-seksjon{font:1.8rem/1.3 Georgia,serif;margin:2.5rem 0 1.2rem;color:#173e30}
+.arsmelding-vising .arsmelding-tal h3{font:600 1rem/1.4 system-ui,sans-serif}

@@ -116,6 +116,10 @@ def public_payload(row):
                    source_revision=row['source_revision'], status=row['status'],
                    title=snapshot['title'], body=snapshot['body'],
                    decision_date=row['decision_date'])
+    structured=json.loads(snapshot.get('report_json','{}'))
+    if structured:
+        from arsmelding_offentleg import presentation
+        payload['presentation']=presentation(structured)
     validate_public(payload)
     return payload
 
@@ -123,8 +127,11 @@ def public_payload(row):
 def validate_public(payload):
     fields = {'schema_version','version_id','kind','report_year','meeting_year',
               'source_revision','status','title','body','decision_date'}
-    if not isinstance(payload, dict) or set(payload) != fields:
+    if not isinstance(payload, dict) or set(payload) not in (fields,fields|{'presentation'}):
         raise ValueError('Ugyldige offentlege felt.')
+    if 'presentation' in payload:
+        from arsmelding_offentleg import validate_presentation
+        validate_presentation(payload['presentation'])
     if payload['schema_version'] != 1 or payload['kind'] != 'arsmelding':
         raise ValueError('Denne versjonen støttar berre offentleg årsmeldingstekst.')
     for key in ('version_id', 'source_revision'):
