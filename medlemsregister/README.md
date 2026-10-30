@@ -1,6 +1,6 @@
 # Bygdelista
 
-Flask-app for medlemsregisteret på `https://bygdelista.oslobygda.no`.
+Flask-app for medlemsadministrasjon, årsmøte og økonomi på `https://bygdelista.oslobygda.no`.
 Den offentlege nettsida blir bygd separat med Jekyll, men menydata og footer
 har éi felles kjelde i repoet.
 
@@ -12,6 +12,28 @@ har éi felles kjelde i repoet.
 - Årlege kontingentsatsar og personlege fornyingslenkjer med Vipps.
 - Innmeldingsoversikt for styret på `/innmeldingar`.
 - Oppretting og redigering av komande tilskipingar på `/tilskipingar`.
+- Årsfesta styre med namn, verv og portrett på `/styret`.
+- Strukturert årsmelding med kalenderimport og faste versjonar på `/arsmote`.
+- Rekneskap, bilag, balanse og stegvis årsslutt på `/okonomi`.
+- Budsjett og oppfølging på `/budsjett`.
+- Offentleg eksport, utskriftsvising og kryptert backup med gjenopprettingskontroll.
+
+## Årsmøte, økonomi og drift
+
+Start med [rekneskap](REKNESKAP.md), [årsdokument](ARSDOKUMENT.md) og
+[budsjett](BUDSJETT.md). Sjå også [betalingsimport](BETALINGSIMPORT.md),
+[publisering](PUBLISERING.md), [PDF/utskrift](UTSKRIFT.md) og [backup](BACKUP.md).
+Medlems- og økonomidelane har eigne hjelpesider i appen.
+
+Bruk [Nidarosbygda-rettleiinga](NIDAROSBYGDA-TEST.md) for isolert lokal prøving.
+Testdata, testkonto og prøvedato skal ikkje overførast til produksjon.
+Følg [UTRULLING.md](UTRULLING.md) og [PYTHONANYWHERE.md](PYTHONANYWHERE.md)
+ved serveroppdatering. Nye funksjonar i Git er ikkje prov på at dei køyrer på serveren.
+
+Styret-sida lagrar ei privat arbeidskjelde. Årsmeldinga hentar ein kopi for året;
+nettsida blir oppdatert via nedlastbar nettsidepakke. Ordinær økonomibackup tek
+med database, bilag, styredata og portrett. Produksjonskalender og kode blir
+bevarte i Git; konfigurasjonsløyndomar må sikrast separat.
 
 Gamle `/innmelding` sender vidare til det nye skjemaet. POST `/api/innmelding`
 er avvikla (410) og har ingen e-post- eller kontakt-sideeffektar.

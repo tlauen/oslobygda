@@ -7,7 +7,7 @@ stilar, men blir køyrde og publiserte kvar for seg.
 ## Kva som er bygd
 
 - **Nettsida:** Jekyll genererer statisk HTML frå Markdown, Liquid, YAML og SCSS.
-  Ho har framside, arrangementskalender med historikk og abonnement, pøbbgalleri,
+  Ho har framside, tilskipingskalender med historikk og abonnement, pøbbgalleri,
   informasjon om laget, styret, lover, dokument og kontaktinformasjon.
 - **Bygdelista:** Flask og SQLite på PythonAnywhere. Personlege styrekontoar med
   passord, TOTP og e-poststadfesting; medlemsliste, betalingar, eksport,
@@ -18,12 +18,49 @@ stilar, men blir køyrde og publiserte kvar for seg.
   brevet sju dagar før neste ikkje-avlyste pøbb med `pobb-` i UID-en.
   Kalenderen er felles datakjelde for nettside, kalenderabonnement og brev.
 
+## Årsmøte og økonomi i Bygdelista
+
+- **Årsmelding:** hent tilskipingar frå kalenderen, stadfest gjennomføring eller
+  avlysing, legg til gjesteoverslag og tekst, og hent styret for rapportåret.
+  Nøkkeltal og portrett blir viste i førehandsvising og PDF.
+- **Rekneskap og bilag:** spørsmålsbasert føring, Vipps-oppgjer, private utlegg,
+  balanse, retting ved reversering og privat dokumentlagring. Årssluttslista viser
+  kva saldokontrollar som er ferdige og kva som står att.
+- **Budsjett:** utkast, samanlikning med rekneskap og faste versjonar.
+- **Styret:** årsfesta registrering av namn, verv og portrett. Årsmeldinga lagrar
+  ein kopi; seinare endringar i styret endrar ikkje gamle dokumentkopiar.
+- **Offentleg vising:** berre tillatne felt blir eksporterte. Medlemspengar blir
+  viste samla; medlemsidentitetar, interne merknader og originalbilag er interne.
+  Kølegging er ikkje det same som stadfesta offentleg publisering.
+
+Kode for dette er slått saman til `main`. Det betyr ikkje at PythonAnywhere er
+oppdatert eller at integrasjonar er aktiverte. Følg
+[utrullingsplanen](medlemsregister/UTRULLING.md) før serveroppdatering.
+
+### Rettleiingar
+
+- [Årsdokument og versjonar](medlemsregister/ARSDOKUMENT.md)
+- [Rekneskap og bilag](medlemsregister/REKNESKAP.md)
+- [Budsjett](medlemsregister/BUDSJETT.md)
+- [Medlemsbetaling og kjeldekontroll](medlemsregister/BETALINGSIMPORT.md)
+- [Offentleg publisering](medlemsregister/PUBLISERING.md)
+- [Utskrift og PDF](medlemsregister/UTSKRIFT.md)
+- [Backup og kryptert eksport](medlemsregister/BACKUP.md)
+- [Isolert lokal prøving med Nidarosbygda](medlemsregister/NIDAROSBYGDA-TEST.md)
+- [Sluttkontroll](medlemsregister/SLUTTKONTROLL.md) og
+  [kontrollert utrulling](medlemsregister/UTRULLING.md)
+
+Hjelpesidene inne i Bygdelista forklarer den daglege arbeidsrekkjefølgja.
+Styret-sida gir ein nedlastbar nettsidepakke; ho publiserer ikkje automatisk til
+GitHub. Offentleg årsmeldingseksport er tekstbasert; intern vising og PDF bruker
+utforminga med nøkkeltal og bilete.
+
 ## Finn fram og endre innhald
 
 - `index.md` og undermapper med `index.md`: sidetekst og sidemetadata.
-- `_data/kalender.yml`: alle arrangement, også historiske.
+- `_data/kalender.yml`: alle tilskipingar, også historiske.
 - `_data/nav.yml`: felles meny for nettsida og innmeldingsflyten.
-- `_data/styre.yml`: namn, roller, portrett og plassering av portrett.
+- `_data/styre.yml`: årsfesta styre med namn, verv, portrett og gjeldande styreår.
 - `_data/dokument.yml`: dokumentkort på «Om laget».
 - `_utforming/`: sidemalar. `_tillegg/`: gjenbrukbare Liquid-/HTML-komponentar.
 - `lutar/stilar.scss` og `lutar/stilar/`: stilane til nettsida.
@@ -34,7 +71,7 @@ stilar, men blir køyrde og publiserte kvar for seg.
 - `lutar/bilete/styret/` og `lutar/dokument/`: portrett og nedlastbare dokument.
 - `_config.yml`: domene, språk, eksterne appadresser og byggjeinnstillingar.
 - `kalender.ics` og `_tillegg/icalendar.html`: kalenderstraumen.
-- `api/tilskipingar.json` og `.txt`: statiske arrangementseksportar frå same data.
+- `api/tilskipingar.json` og `.txt`: statiske tilskipingseksportar frå same data.
 - `medlemsregister/`: Python-kode, eigne HTML-malar, CSS, testar og driftsrettleiingar.
 - `skript/`: lokal førehandsvising, nyhendebrev, oppdatering av Bygdelista og testar.
 
@@ -44,9 +81,9 @@ frå nettsidebygget. `_site/` er generert utdata og skal ikkje redigerast.
 
 ### Kalender
 
-Behald `uid` når eit arrangement blir flytta eller endra; elles kan abonnentar
+Behald `uid` når ei tilskiping blir flytta eller endra; elles kan abonnentar
 få duplikat. Ved avlysing: behald rada og set `avlyst: true`. Behald historiske
-arrangement. `sluttdato` kan brukast for fleire dagar; sluttklokkeslett før start
+tilskipingar. `sluttdato` kan brukast for fleire dagar; sluttklokkeslett før start
 blir elles tolka som neste dag. `lutar/kalender.js` flyttar avslutta hendingar til
 historikken etter Oslo-tid, også mellom Jekyll-bygg.
 
