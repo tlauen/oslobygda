@@ -305,3 +305,14 @@
 .arsmote-kropp .bokfort-post>summary .bokfort-belop { grid-column:2; grid-row:1; }
 .arsmote-kropp .bokfort-post>summary .bokfort-korttittel { grid-column:1/-1; grid-row:2; padding-left:1.25rem; }
 }
+
+/* Hjelpetekstar skal ikkje strekkje og forskyve sjølve skjemafelta. */
+.arsmote-kropp #post-form label:not(:has(input[type="checkbox"])) {
+ display:flex; flex-direction:column; align-self:start; min-width:0; gap:.45rem;
+}
+.arsmote-kropp #post-form .post-feltnamn { line-height:1.5; }
+.arsmote-kropp #post-form :is(input,select,textarea) { margin:0; box-sizing:border-box; }
+.arsmote-kropp #post-form small.feltforklaring { margin:0; }
+@media(min-width:760px) {
+ .arsmote-kropp #post-form>label:not([hidden]):not(:has(textarea)) .post-feltnamn { min-height:3em; display:flex; align-items:flex-end; }
+}
