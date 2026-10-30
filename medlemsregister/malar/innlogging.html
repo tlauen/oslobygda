@@ -23,7 +23,13 @@
       <label for="password">Passord</label>
       <input type="password" id="password" name="password" required autocomplete="current-password" />
       <label for="code">Kode frå autentiseringsappen</label>
-      <input type="text" id="code" name="code" class="innlogging-kode" required inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" />
+      <div class="innlogging-koderuter">
+        <div class="innlogging-kodebakgrunn" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <input type="text" id="code" name="code" class="innlogging-kode" required inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" spellcheck="false" aria-describedby="kode-hjelp" />
+      </div>
+      <p id="kode-hjelp" class="innlogging-kodehjelp">Seks siffer frå autentiseringsappen.</p>
       <button type="submit" name="login">Logg inn</button>
     </form>
     <nav class="innlogging-val" aria-label="Hjelp med styrekonto">
