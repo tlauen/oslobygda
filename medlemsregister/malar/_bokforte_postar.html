@@ -1,14 +1,12 @@
 <ol class="postliste">
 {% for post in journals %}
 {% set total=namespace(value=0) %}{% for line in lines[post.id] if line.amount_ore>0 %}{% set total.value=total.value+line.amount_ore %}{% endfor %}
-<li id="post-{{ post.id }}">
-<div class="bokfort-topp"><span class="bokfort-referanse">P{{ post.id }} · <time datetime="{{ post.day }}">{{ post.day[8:10] }}.{{ post.day[5:7] }}.{{ post.day[:4] }}</time></span><strong class="bokfort-belop">{{ total.value|kroner }}</strong></div>
-<h3 class="bokfort-tittel">{{ post.public_text }}</h3>
+<li><details class="bokfort-post" id="post-{{ post.id }}"><summary><span class="bokfort-referanse">P{{ post.id }} · <time datetime="{{ post.day }}">{{ post.day[8:10] }}.{{ post.day[5:7] }}.{{ post.day[:4] }}</time></span><span class="bokfort-korttittel">{{ post.public_text }}{% if post.reversal_of %}<small>Retting av P{{ post.reversal_of }}</small>{% endif %}</span><strong class="bokfort-belop">{{ total.value|kroner }}</strong></summary><div class="bokfort-innhald">
 {% if post.reversal_of %}<p class="bokfort-retting">Retting: Opphevar post P{{ post.reversal_of }}. Dette flyttar ikkje pengar i banken.</p>{% endif %}
 <div class="bokfort-verknad">
 {% for line in lines[post.id] %}{% set kind=accounts[line.account][1] %}{% if kind in ['income','expense'] %}<p>{{ accounts[line.account][0] }} · {% if kind=='income' %}{{ 'Innkome' if line.amount_ore<0 else 'Reduksjon av innkome' }}{% else %}{{ 'Utgift' if line.amount_ore>0 else 'Reduksjon av utgift' }}{% endif %}: {{ (line.amount_ore|abs)|kroner }}</p>{% else %}<p>{{ accounts[line.account][0] }}{% if line.party %} – {{ line.party }}{% endif %}: {% if kind=='liability' %}{{ 'gjelda aukar' if line.amount_ore<0 else 'gjelda minkar' }}{% elif kind=='equity' %}{{ 'eigenkapitalen aukar' if line.amount_ore<0 else 'eigenkapitalen minkar' }}{% else %}{{ 'aukar' if line.amount_ore>0 else 'minkar' }}{% endif %} med {{ (line.amount_ore|abs)|kroner }}</p>{% endif %}{% endfor %}
 </div>
 <div class="bokfort-bilag">{% if post.receipt_id %}<a class="btn sekundaer" href="{{ prefix_url('ledger_receipt',receipt_id=post.receipt_id) }}">Opne bilag B{{ post.receipt_id }}</a>{% endif %}{% for extra in attachments[post.id] %}<a class="btn sekundaer" href="{{ prefix_url('ledger_receipt',receipt_id=extra.receipt_id) }}">Opne bilag B{{ extra.receipt_id }}</a>{% endfor %}</div>
 <details class="bokfort-detaljar"><summary>Dokumentasjon og tekniske detaljar</summary><dl><dt>Dokumentasjonsgrunnlag</dt><dd>{{ post.evidence_note or 'Sjå vedlagt bilag.' }}</dd>{% if post.internal_note %}<dt>Intern merknad</dt><dd>{{ post.internal_note }}</dd>{% endif %}<dt>Registrert av</dt><dd>{{ post.actor }}</dd></dl><h4>Rekneskapslinjer</h4><p>Fortegna nedanfor er tekniske rekneskapsfortegn. Forklaringa ovanfor viser kva posten betyr i praksis. Postbeløpet øvst er summen av dei positive linjene, ikkje ei ekstra innkome eller utgift.</p><ul>{% for line in lines[post.id] %}<li>{{ accounts[line.account][0] }}{% if line.party %} ({{ line.party }}){% endif %}: {{ line.amount_ore|kroner }}</li>{% endfor %}</ul></details>
-</li>{% else %}<li>Ingen postar i dette året.</li>{% endfor %}
+</div></details></li>{% else %}<li>Ingen postar i dette året.</li>{% endfor %}
 </ol>

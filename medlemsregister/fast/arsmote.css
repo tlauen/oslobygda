@@ -283,3 +283,15 @@
 .betaling-nummer { display:block; margin:.2rem 0 0 1em; font-size:.75rem; font-weight:400; color:#5e5c55; }
 @media(max-width:1000px){.arsmote-kropp .medlemsbetaling>summary{grid-template-columns:minmax(0,1fr) auto}.arsmote-kropp .medlemsbetaling .betaling-identitet{grid-column:1;grid-row:1}.arsmote-kropp .medlemsbetaling .betaling-belop{grid-column:2;grid-row:1}.arsmote-kropp .medlemsbetaling .betaling-dato{grid-column:1;grid-row:2}.arsmote-kropp .medlemsbetaling .betaling-status{grid-column:2;grid-row:2}}
 @media(max-width:420px){.arsmote-kropp .medlemsbetaling .betaling-status{grid-column:1/-1;grid-row:3;justify-self:start}.arsmote-kropp .medlemsbetaling .betaling-dato{grid-column:1/-1}}
+
+.arsmote-kropp .postliste { gap:.45rem; }
+.arsmote-kropp .postliste>li { padding:0; }
+.arsmote-kropp details.bokfort-post { margin:0; padding:.85rem 1rem; border:0; background:transparent; scroll-margin-top:1rem; }
+.bokfort-post>summary { display:grid; grid-template-columns:10rem minmax(0,1fr) auto; align-items:center; gap:.5rem 1rem; }
+.bokfort-post>summary .bokfort-referanse::before { content:'▸ '; }
+.bokfort-post[open]>summary .bokfort-referanse::before { content:'▾ '; }
+.bokfort-korttittel { font-size:.9rem; font-weight:600; overflow-wrap:anywhere; }
+.bokfort-korttittel small { display:block; margin-top:.2rem; font-size:.75rem; font-weight:400; color:#7b2925; }
+.bokfort-post>summary .bokfort-belop { font-size:.95rem; }
+.bokfort-innhald { margin-top:1rem; border-top:1px solid var(--line); padding-top:1rem; }
+@media(max-width:650px){.bokfort-post>summary{grid-template-columns:minmax(0,1fr) auto}.bokfort-post>summary .bokfort-referanse{grid-column:1;grid-row:1}.bokfort-post>summary .bokfort-belop{grid-column:2;grid-row:1}.bokfort-post>summary .bokfort-korttittel{grid-column:1/-1;grid-row:2}}
