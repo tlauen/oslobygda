@@ -45,4 +45,4 @@
 .arsmelding-tilbake:hover { background:#dbe7d0; text-decoration:none; }
 .arsmelding-tilbake:focus-visible { outline:3px solid #206582; outline-offset:3px; }
 
-#arsmotesaker-tittel { scroll-margin-top:2rem; }
+#arsmote { scroll-margin-top:2rem; }

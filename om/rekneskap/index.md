@@ -5,7 +5,7 @@ permalink: /om/rekneskap/
 ---
 
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
-<p><a class="arsmelding-tilbake" href="{{ '/om/' | relative_url }}#arsmotesaker-tittel"><span aria-hidden="true">←</span> Om laget</a></p>
+<p><a class="arsmelding-tilbake" href="{{ '/om/' | relative_url }}#arsmote"><span aria-hidden="true">←</span> Om laget</a></p>
 
 # Rekneskap
 
