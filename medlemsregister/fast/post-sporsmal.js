@@ -27,6 +27,7 @@
    kind=paid==='private'?'private_expense':paid==='unpaid'?'invoice':'expense';account=['bank','cash','vipps'].includes(paid)?paid:'bank';
    message=kind==='private_expense'?'Utgifta blir registrert, og laget får gjeld til personen som la ut.':kind==='invoice'?'Utgifta blir registrert som ei rekning laget skuldar leverandøren.':'Du registrerer ei utgift som laget har betalt.';
   }else if(purpose==='repayment'){kind='private_refund';message='Du registrerer ei tilbakebetaling som alt er gjord. Gjelda går ned; dette er inga ny utgift.';}
+  else if(purpose==='forgive'){kind='private_forgiveness';message='Gjelda til personen blir redusert, og beløpet blir ført som ei gåve. Ingen pengar blir flytta. Bruk same namn som på utlegget. Legg ved ei datert stadfesting frå personen som ettergir gjelda, eller skriv stadfestinga i dokumentasjonsgrunnlaget.';}
   else if(purpose==='pay_invoice'){kind='pay_invoice';message='Du registrerer at ei tidlegare ført rekning er betalt. Kostnaden blir ikkje telt på nytt.';}
   if(!advanced){field('kind').value=kind;field('account').value=account;}
   else kind=field('kind').value;
@@ -37,7 +38,7 @@
   field('category').replaceChildren(...originalOptions.filter(x=>allowed.includes(x.value)).map(x=>x.cloneNode(true)));
   if(allowed.includes(selected))field('category').value=selected;
   display('category',purpose==='other_income'||purpose==='expense'||advanced);
-  display('party',['private_expense','invoice','private_refund','pay_invoice'].includes(kind));
+  display('party',['private_expense','invoice','private_refund','private_forgiveness','pay_invoice'].includes(kind));
   display('fee',kind==='vipps_income_settled'||kind==='vipps_settlement');
   display('original_id',advanced&&kind==='refund_income');display('event_uid',advanced);display('payment_id',advanced);
   // The combined panel supplies only the extra date and confirmation; hide its technical introduction.

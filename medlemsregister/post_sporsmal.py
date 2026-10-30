@@ -26,6 +26,7 @@ def post_values(form):
         elif paid=='unpaid':values['kind']='invoice'
         elif paid in ('bank','cash','vipps'):values.update(kind='expense',account=paid)
         else:raise ValueError('Vel kven som betalte utgifta, eller at rekninga ikkje er betalt.')
+    elif purpose=='forgive':values['kind']='private_forgiveness'
     elif purpose=='repayment':values['kind']='private_refund'
     elif purpose=='pay_invoice':values['kind']='pay_invoice'
     elif purpose=='other':pass

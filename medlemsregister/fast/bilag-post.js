@@ -40,7 +40,7 @@
   for(const [name,label] of [['day','Dato'],['amount','Beløp'],['public_text','Offentleg skildring']]){
    if(!form.elements.namedItem(name).value.trim())missing.push(label);
   }
-  if(['private_expense','invoice','private_refund','pay_invoice'].includes(kind)&&!form.elements.namedItem('party').value.trim())missing.push('Namn på utleggshavar eller leverandør');
+  if(['private_expense','invoice','private_refund','private_forgiveness','pay_invoice'].includes(kind)&&!form.elements.namedItem('party').value.trim())missing.push('Namn på utleggshavar eller leverandør');
   if(!select.value&&!form.elements.namedItem('evidence_note').value.trim())missing.push('Bilag eller forklaring på dokumentasjon utan bilag');
   if(kind==='refund_income'&&!form.elements.namedItem('original_id').value.trim())missing.push('Originalpostnummer');
   if(kind==='vipps_income_settled'){

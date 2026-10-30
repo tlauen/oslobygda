@@ -28,6 +28,21 @@ class LedgerTests(unittest.TestCase):
     def totals(self,year=2026):
         with managed_db(module.get_db) as db: return year_balances(db,year)
 
+    def test_private_forgiveness_is_donation_without_bank_movement(self):
+        self.opening(bank='1000')
+        self.post(kind='private_expense',amount='350',category='events',party='Torbjørn')
+        key='forgiveness-key'
+        journal=self.post(key,kind='private_forgiveness',amount='200',party='Torbjørn')
+        self.assertEqual(self.post(key,kind='private_forgiveness',amount='200',party='Torbjørn'),journal)
+        totals=self.totals()
+        self.assertEqual(totals['bank'],100000)
+        self.assertEqual(totals['private'],-15000)
+        self.assertEqual(totals['donations'],-20000)
+        self.assertEqual(totals['events'],35000)
+        with self.assertRaises(ValueError): self.post(kind='private_forgiveness',amount='151',party='Torbjørn')
+        with self.assertRaises(ValueError): self.post(kind='private_forgiveness',amount='1',party='Annan')
+        with self.assertRaises(ValueError): self.post(kind='private_forgiveness',amount='1',party='')
+
     def test_private_expense_repayment_reversal_and_database_immutability(self):
         self.opening(bank='1000')
         self.post(kind='private_expense',amount='350',category='events',party='Torbjørn')

@@ -168,6 +168,9 @@ def make_lines(values):
         if category not in ACCOUNTS or ACCOUNTS[category][1]!='income': raise ValueError('Vel inntektskategori.')
         sign = -1 if kind=='refund_income' else 1
         return [(account,amount*sign,''),(category,-amount*sign,'')]
+    if kind=='private_forgiveness':
+        if not party: raise ValueError('Oppgi kven som ettergir gjelda.')
+        return [('private',amount,party),('donations',-amount,'')]
     if kind in ('private_refund','pay_invoice'):
         if not party: raise ValueError('Oppgi kven oppgjeret gjeld.')
         return [('private' if kind=='private_refund' else 'payable',amount,party),('bank',-amount,'')]
@@ -231,7 +234,7 @@ class Ledger:
         with managed_db(self.get_db) as db:
             db.execute('BEGIN IMMEDIATE')
             # Private repayments and invoice payments cannot silently overpay a party.
-            if values.get('kind') in ('private_refund','pay_invoice') and not db.execute('SELECT 1 FROM ledger_journals WHERE request_key=?',(request_key,)).fetchone():
+            if values.get('kind') in ('private_refund','private_forgiveness','pay_invoice') and not db.execute('SELECT 1 FROM ledger_journals WHERE request_key=?',(request_key,)).fetchone():
                 account=lines[0][0];party=lines[0][2]
                 owed=-balances(db,iso_day(values.get('day')),party).get(account,0)
                 if lines[0][1]>owed: raise ValueError('Oppgjeret er større enn registrert gjeld til denne motparten på datoen.')
