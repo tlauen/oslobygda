@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/lutar/arsmelding-tilskipingar.css' | relative_url }}">
+<p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}"><span aria-hidden="true">←</span> Alle årsmeldingar</a></p>
 <h1>{{ page.title | escape }}</h1>
 {% assign report = site.data.arsdokument[page.report_year] %}
 {% if report.versions %}
@@ -14,4 +15,3 @@
 </article>
 {% else %}<p>Årsmeldinga er ikkje publisert enno.</p>{% endfor %}
 {% else %}<p>Årsmeldinga er ikkje publisert enno.</p>{% endif %}
-<p><a href="{{ '/om/arsmeldingar/' | relative_url }}">Alle årsmeldingar</a></p>

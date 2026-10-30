@@ -40,3 +40,7 @@
 
 .arsmelding-vising h3.arsmelding-seksjon{font:1.8rem/1.3 Georgia,serif;margin:2.5rem 0 1.2rem;color:#173e30}
 .arsmelding-vising .arsmelding-tal h3{font:600 1rem/1.4 system-ui,sans-serif}
+
+.arsmelding-tilbake { display:inline-flex; align-items:center; justify-content:center; gap:.6rem; padding:.65rem 1rem; border:1px solid #bfcfb7; border-radius:8px; background:#e7efdf; color:#203e30; font:600 .9rem/1.5 system-ui,sans-serif; text-decoration:none; margin-bottom:.5rem; }
+.arsmelding-tilbake:hover { background:#dbe7d0; text-decoration:none; }
+.arsmelding-tilbake:focus-visible { outline:3px solid #206582; outline-offset:3px; }
