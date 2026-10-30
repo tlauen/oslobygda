@@ -341,3 +341,18 @@
 .arsmelding-alder dd { margin:0; font:1.8rem/1.1 Georgia,serif; color:#173e30; }
 @media screen and (max-width:600px) { .arsmelding-tal { grid-template-columns:1fr; } }
 @media print { .arsmelding-tal { gap:4mm; }.arsmelding-tal section { padding:4mm; }.arsmelding-tal section p { font-size:8pt; }.arsmelding-tal section h3 { font-size:10pt; } }
+
+/* Tre nøkkeltal, med alderssamansetning som eigen graf. */
+.arsmelding-tal { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.arsmelding-tal section:nth-child(1) { background:#edf2e7; }
+.arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
+.arsmelding-tal section:nth-child(3) { background:#f7f0e1; }
+.arsmelding-helt .arsmelding-tekst { margin-top:1rem; font:inherit; line-height:1.8; }
+.arsmelding-aldersgraf { margin:2rem 0; padding:1.5rem; border:1px solid #d9dfd3; border-radius:12px; break-inside:avoid; }
+.arsmelding-aldersgraf h3 { margin:0 0 1.25rem; font:600 1.1rem/1.4 system-ui,sans-serif; }
+.aldersgraf-rad { display:grid; grid-template-columns:7rem minmax(0,1fr) 2.5rem; align-items:center; gap:.75rem; margin:.75rem 0; font:.9rem/1.4 system-ui,sans-serif; }
+.aldersgraf-rad b { text-align:right; }
+.aldersgraf-spor { background:#edf0e9; border-radius:4px; height:1.25rem; overflow:hidden; }
+.aldersgraf-spor div { height:100%; background:#476a50; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+.arsmelding-aldersgraf p { margin:1rem 0 0; color:#50574b; font:.8rem/1.6 system-ui,sans-serif; }
+@media screen and (max-width:650px) { .arsmelding-tal { grid-template-columns:1fr; }.aldersgraf-rad { grid-template-columns:6rem minmax(0,1fr) 2rem; gap:.5rem; }.arsmelding-aldersgraf { padding:1rem; } }
