@@ -91,6 +91,16 @@ class PrintTests(unittest.TestCase):
         with patch('budsjett.today',return_value=date(2027,2,24)):
             approved=module.app.extensions['budgets'].freeze(2027,2,'approved','2027-02-24','styret')
         raw=self.client.get(f'/arsmote/utskrift/budsjett/{approved}').data.decode()
-        self.assertIn('Godkjend av årsmøtet',raw);self.assertIn('Vedtaksdato 2027-02-24',raw)
+        self.assertIn('Godkjend av årsmøtet',raw);self.assertIn('Vedtaksdato 24. februar 2027',raw)
         self.assertIn('5 000,00 kr',raw);self.assertIn('2 000,00 kr',raw);self.assertIn('3 000,00 kr',raw)
         self.assertIn('nulltal er ikkje ein stadfesta årsrekneskap',raw)
+        self.assertNotIn('Versjon budsjett-',raw)
+        self.assertNotIn('Møteår ',raw)
+        self.assertNotIn('henta 2026-',raw)
+
+class DocumentDateTests(unittest.TestCase):
+    def test_readable_dates_use_norwegian_time_and_months(self):
+        from dokumentvising import tidspunkt
+        self.assertEqual(tidspunkt('2026-10-30T15:45:43.738101+00:00'),'30. oktober 2026 kl. 16:45')
+        self.assertEqual(tidspunkt('2026-07-01T12:00:00+00:00'),'1. juli 2026 kl. 14:00')
+        self.assertEqual(tidspunkt('2026-10-30',False),'30. oktober 2026')

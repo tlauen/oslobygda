@@ -20,9 +20,9 @@
 {% if year_data %}
 {% assign fixed_reports = year_data.versions | where: 'kind', 'rekneskap' | sort: 'snapshot_number' | reverse %}
 {% assign approved = fixed_reports | where: 'status', 'approved' | first %}
-{% if approved %}<h2>Godkjend årsrekneskap</h2><p>Vedteken {{ approved.decision_date | escape }} · {{ approved.version_id | escape }}</p>{% include rekneskap-detaljar.html rekneskap=approved %}{% endif %}
+{% if approved %}<h2>Godkjend årsrekneskap</h2><p>Vedteken {{ approved.decision_date | date: '%d.%m.%Y' }} · {{ approved.version_id | escape }}</p>{% include rekneskap-detaljar.html rekneskap=approved %}{% endif %}
 {% if year_data.ledger_latest %}{% assign rekneskap = year_data.ledger_latest %}<h2>Førebels rekneskap{% if approved %} – løpande oversikt ved sida av godkjend versjon{% endif %}</h2>{% include rekneskap-detaljar.html rekneskap=rekneskap %}{% endif %}
-{% for version in fixed_reports %}<details id="{{ version.version_id | escape }}"><summary>{{ version.version_id | escape }} – {% if version.status == 'approved' %}Godkjend {{ version.decision_date | escape }}{% else %}Til årsmøtet, møteår {{ version.meeting_year | escape }}{% endif %}</summary>{% include rekneskap-detaljar.html rekneskap=version %}</details>{% endfor %}
+{% for version in fixed_reports %}<details id="{{ version.version_id | escape }}"><summary>{{ version.version_id | escape }} – {% if version.status == 'approved' %}Godkjend {{ version.decision_date | date: '%d.%m.%Y' }}{% else %}Til årsmøtet, møteår {{ version.meeting_year | escape }}{% endif %}</summary>{% include rekneskap-detaljar.html rekneskap=version %}</details>{% endfor %}
 {% if fixed_reports.size == 0 and year_data.ledger_latest == nil %}<p>Ingen rekneskap er publisert enno.</p>{% endif %}
 {% else %}<p>Ingen rekneskap er publisert enno.</p>{% endif %}
 

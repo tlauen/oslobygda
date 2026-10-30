@@ -16,8 +16,8 @@
 
 {% assign year_data = site.data.arsdokument[page.report_year] %}
 {% if year_data %}{% assign versions = year_data.versions | where: 'kind', 'budsjett' | sort: 'snapshot_number' | reverse %}{% assign approved = versions | where: 'status', 'approved' | first %}
-{% if approved %}<h2>Vedteke budsjett</h2><p>Vedteke {{ approved.decision_date | escape }} · {{ approved.version_id | escape }}</p>{% include budsjett-detaljar.html budsjett=approved %}{% elsif versions.size > 0 %}{% assign proposal = versions | first %}<h2>Styreforslag til årsmøtet</h2><p>{{ proposal.version_id | escape }} · møteår {{ proposal.meeting_year | escape }}</p>{% include budsjett-detaljar.html budsjett=proposal %}{% endif %}
-{% for version in versions %}<details id="{{ version.version_id | escape }}"><summary>{{ version.version_id | escape }} – {% if version.status == 'approved' %}vedteke {{ version.decision_date | escape }}{% else %}styreforslag til årsmøtet {{ version.meeting_year | escape }}{% endif %}</summary>{% include budsjett-detaljar.html budsjett=version %}</details>{% else %}<p>Ingen budsjett er publiserte enno.</p>{% endfor %}
+{% if approved %}<h2>Vedteke budsjett</h2><p>Vedteke {{ approved.decision_date | date: '%d.%m.%Y' }}</p>{% include budsjett-detaljar.html budsjett=approved %}{% elsif versions.size > 0 %}{% assign proposal = versions | first %}<h2>Styreforslag til årsmøtet</h2>{% include budsjett-detaljar.html budsjett=proposal %}{% endif %}
+{% for version in versions %}<details id="{{ version.version_id | escape }}"><summary>Budsjett – {% if version.status == 'approved' %}vedteke {{ version.decision_date | date: '%d.%m.%Y' }}{% else %}styreforslag til årsmøtet{% endif %}</summary>{% include budsjett-detaljar.html budsjett=version %}</details>{% else %}<p>Ingen budsjett er publiserte enno.</p>{% endfor %}
 {% else %}<p>Ingen budsjett er publiserte enno.</p>{% endif %}<p><a href="{{ '/om/budsjett/' | relative_url }}">Alle budsjett</a></p>
 
 </div>

@@ -23,7 +23,7 @@
 {% for version in report_versions limit:1 %}
 <article id="versjon-{{ version.version_id | escape }}">
   {% if version.title != page.title %}<h2>{{ version.title | escape }}</h2>{% endif %}
-  <p>{% if version.status == 'approved' %}Godkjend av årsmøtet {{ version.decision_date | escape }}{% else %}Førebels / framlegg til årsmøtet{% endif %}</p>
+  <p>{% if version.status == 'approved' %}Godkjend av årsmøtet {{ version.decision_date | date: '%d.%m.%Y' }}{% else %}Førebels / framlegg til årsmøtet{% endif %}</p>
   {% if version.presentation %}{% include arsmelding-presentasjon.html %}{% else %}<div class="arsmelding-vising arsmelding-tekst">{{ version.body | escape }}</div>{% endif %}
 </article>
 {% else %}<p>Årsmeldinga er ikkje publisert enno.</p>{% endfor %}
