@@ -105,6 +105,11 @@ class GithubDocuments:
             if (old['kind'],old['version_id'])==(payload['kind'],payload['version_id']):
                 if canonical(old)!=canonical(payload): raise PublicationError('Ein fast versjon har ulikt innhald i GitHub.')
                 return True
+        if payload['kind']=='arsmelding':
+            reports=[v for v in envelope['versions'] if v['kind']=='arsmelding']
+            if reports:
+                current=max(reports,key=lambda v:(v['status']=='approved',v['version_id']))
+                if (current['status']=='approved',current['version_id'])>(payload['status']=='approved',payload['version_id']): return True
         return False
 
     def store(self,payload,guard=lambda:None):
@@ -116,9 +121,17 @@ class GithubDocuments:
         for attempt in range(3):
             guard()
             envelope,sha=self.read(year)
-            if self.contains(envelope,payload): return sha or ''
-            if payload['status']=='provisional': envelope['ledger_latest']=payload
-            else: envelope['versions'].append(payload)
+            before=canonical(envelope)
+            present=self.contains(envelope,payload)
+            if not present:
+                if payload['status']=='provisional': envelope['ledger_latest']=payload
+                else: envelope['versions'].append(payload)
+            if payload['kind']=='arsmelding':
+                reports=[v for v in envelope['versions'] if v['kind']=='arsmelding']
+                if reports:
+                    current=max(reports,key=lambda v:(v['status']=='approved',v['version_id']))
+                    envelope['versions']=[v for v in envelope['versions'] if v['kind']!='arsmelding']+[current]
+            if canonical(envelope)==before: return sha or ''
             validate_envelope(envelope,year)
             body={'branch':self.branch,'message':f'Oppdater offentlege årsdokument {year}',
                   'content':base64.b64encode(canonical(envelope).encode()).decode()}

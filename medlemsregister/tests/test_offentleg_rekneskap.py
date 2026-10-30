@@ -164,3 +164,14 @@ class PublicLedgerTests(unittest.TestCase):
         bad=deepcopy(report);bad['opening']['items'][0]['account_number']='private'
         with self.assertRaises(ValueError): validate_ledger(bad,True)
         with self.assertRaises(ValueError): validate_ledger(report)
+
+    def test_current_annual_report_prioritizes_approval_and_never_rolls_back(self):
+        latest=dict(kind='arsmelding',status='meeting',version_id=3)
+        older=dict(kind='arsmelding',status='meeting',version_id=2)
+        approved=dict(kind='arsmelding',status='approved',version_id=1)
+        envelope=dict(versions=[latest],ledger_latest=None)
+        self.assertTrue(GithubDocuments.contains(envelope,older))
+        self.assertFalse(GithubDocuments.contains(envelope,approved))
+        envelope['versions']=[approved]
+        self.assertTrue(GithubDocuments.contains(envelope,latest))
+        self.assertFalse(GithubDocuments.contains(envelope,dict(approved,version_id=4)))

@@ -139,3 +139,11 @@ GitHub Pages må framleis byggje nettsida etter sending. Sida viser skilnad på
 sendt og stadfesta synleg. Bruk «Kontroller publisering / prøv igjen» ved behov.
 Ingen nettlesar-GET publiserer innhald. Manuell CLI og ein eventuell timeleg jobb
 kan framleis brukast for heile køa og for statusoppfølging.
+
+## Éi gjeldande årsmelding offentleg
+
+Årssida og den aktive offentlege årsdatafila har berre siste førebelse
+årsmelding, eller siste godkjende årsmelding når ei slik finst. Godkjend status
+har prioritet; ny publisering av eit eldre framlegg erstattar ikkje vedtaket.
+Rekneskap og budsjett i same datafil blir ikkje fjerna. Faste interne kopiar og
+Git-historikken blir bevarte, så dette er ikkje permanent sletting frå historikk.

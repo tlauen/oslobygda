@@ -4,7 +4,9 @@
 {% assign report = site.data.arsdokument[page.report_year] %}
 {% if report.versions %}
 {% assign report_versions = report.versions | where: 'kind', 'arsmelding' | sort: 'version_id' | reverse %}
-{% for version in report_versions %}
+{% assign approved_versions = report_versions | where: 'status', 'approved' %}
+{% if approved_versions.size > 0 %}{% assign report_versions = approved_versions %}{% endif %}
+{% for version in report_versions limit:1 %}
 <article id="versjon-{{ version.version_id | escape }}">
   {% if version.title != page.title %}<h2>{{ version.title | escape }}</h2>{% endif %}
   <p>{% if version.status == 'approved' %}Godkjend av årsmøtet {{ version.decision_date | escape }}{% else %}Førebels / framlegg til årsmøtet{% endif %}</p>
