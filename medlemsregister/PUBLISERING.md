@@ -147,3 +147,13 @@ kan framleis brukast for heile køa og for statusoppfølging.
 har prioritet; ny publisering av eit eldre framlegg erstattar ikkje vedtaket.
 Rekneskap og budsjett i same datafil blir ikkje fjerna. Faste interne kopiar og
 Git-historikken blir bevarte, så dette er ikkje permanent sletting frå historikk.
+
+## Rekneskap og budsjett utan konsoll
+
+Knappane for å publisere/aktivere rekneskap og lagre ein fast rekneskapsversjon
+sender no den aktuelle versjonen direkte. Kølista har «Publiser / kontroller
+status» for tidlegare lagra versjonar som ikkje er stadfesta synlege. Budsjettets
+publiseringsknapp sender tilsvarande berre den valde budsjettversjonen.
+Alle krev innlogging, CSRF og stadfesting. Nye løpande endringar som blir lagde i
+kø utan eit publiseringsklikk treng framleis ein planlagd publiseringsjobb, eller
+at brukaren trykkjer publiser. Nettsidebygg og overføring er ulike steg.

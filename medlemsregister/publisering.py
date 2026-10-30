@@ -222,3 +222,17 @@ class Publisher:
         finally:
             with managed_db(self.get_db) as db:
                 db.execute('UPDATE publication_worker SET owner=NULL,expires=0 WHERE id=1 AND owner=?',(owner,))
+
+
+def publish_from_button(app,target):
+    """Overfør berre dokumentet brukaren valde; bevar køa ved feil."""
+    from flask import flash
+    try:
+        result=app.extensions['document_publisher'].run(target=target,limit=1)
+        if result['busy']: message='Ei anna publisering pågår. Prøv igjen om litt.'
+        elif result['failed']: message='Sendinga feila. Sjå køstatus og prøv igjen.'
+        elif result['visible']: message='Dokumentet er stadfesta synleg på nettsida.'
+        elif result['stored']: message='Dokumentet er sendt til GitHub. Nettsida blir oppdatert når bygginga er ferdig.'
+        else: message='Ingen ny overføring var nødvendig. Sjå publiseringsstatusen.'
+    except PublicationError as exc: message=str(exc)
+    flash(message,'publisering')

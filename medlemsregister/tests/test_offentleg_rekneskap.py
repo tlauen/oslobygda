@@ -175,3 +175,17 @@ class PublicLedgerTests(unittest.TestCase):
         envelope['versions']=[approved]
         self.assertTrue(GithubDocuments.contains(envelope,latest))
         self.assertFalse(GithubDocuments.contains(envelope,dict(approved,version_id=4)))
+
+    def test_publish_ledger_button_runs_only_selected_snapshot(self):
+        self.setup_ledger()
+        fixtures.BoardAuthTests.login(self)
+        preview=self.public.preview(2026)
+        publisher=module.app.extensions['document_publisher']
+        with patch.object(publisher,'run',return_value=dict(busy=False,stored=1,visible=0,failed=0)) as run:
+            response=self.client.post('/okonomi/offentleg/2026',data=dict(csrf_token=self.token(),action='activate',confirmed='yes',revision=preview['source_revision'],as_of=preview['as_of']))
+        self.assertEqual(response.status_code,302)
+        with managed_db(module.get_db) as db:vid=db.execute('SELECT MAX(id) FROM public_ledger_versions').fetchone()[0]
+        run.assert_called_once_with(target=('ledger','rekneskap-'+str(vid)),limit=1)
+        with patch.object(publisher,'run') as run:
+            response=self.client.post('/okonomi/offentleg/2026',data=dict(csrf_token=self.token(),action='publish',version_id=vid))
+        self.assertEqual(response.status_code,400);run.assert_not_called()

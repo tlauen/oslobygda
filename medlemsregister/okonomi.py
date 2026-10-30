@@ -149,8 +149,17 @@ def install_ledger(app,get_db,require_admin,db_path):
                     if request.form.get('confirmed')!='yes': raise ValueError('Stadfest at innhaldet er kontrollert for offentleg publisering.')
                     if request.form.get('as_of')!=min(today().isoformat(),f'{year}-12-31'):
                         raise ValueError('Rapportdatoen er endra. Sjå førehandsvisinga på nytt.')
-                    if action=='activate': public_service.activate(year,actor,request.form.get('revision'))
-                    else: public_service.freeze(year,request.form.get('status'),request.form.get('meeting_year'),request.form.get('decision_date'),actor,request.form.get('revision'))
+                    if action=='activate': vid=public_service.activate(year,actor,request.form.get('revision'))
+                    else: vid=public_service.freeze(year,request.form.get('status'),request.form.get('meeting_year'),request.form.get('decision_date'),actor,request.form.get('revision'))
+                    from publisering import publish_from_button
+                    publish_from_button(app,('ledger','rekneskap-'+str(vid)))
+                elif action=='publish':
+                    if request.form.get('confirmed')!='yes': raise ValueError('Stadfest at dokumentet kan publiserast.')
+                    vid=int(request.form.get('version_id',''))
+                    with managed_db(get_db) as db:
+                        if not db.execute('SELECT 1 FROM public_ledger_versions WHERE id=? AND year=?',(vid,year)).fetchone(): raise ValueError('Vel ein versjon frå dette året.')
+                    from publisering import publish_from_button
+                    publish_from_button(app,('ledger','rekneskap-'+str(vid)))
                 elif action=='pause':
                     with managed_db(get_db) as db:
                         db.execute('BEGIN IMMEDIATE')

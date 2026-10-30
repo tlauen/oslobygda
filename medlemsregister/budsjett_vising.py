@@ -53,6 +53,8 @@ def install_budgets(app,get_db,require_admin):
         if request.method=='POST':
             if request.form.get('confirmed')!='yes': abort(400,'Stadfest at budsjettet kan publiserast offentleg.')
             service.enqueue(version_id,session['board_username'])
+            from publisering import publish_from_button
+            publish_from_button(app,('budget','budsjett-'+str(version_id)))
             return redirect(app.jinja_env.globals['prefix_url']('budget_version',version_id=version_id))
         with managed_db(get_db) as db:
             job=db.execute('SELECT * FROM budget_publication_queue WHERE version_id=?',(version_id,)).fetchone()
