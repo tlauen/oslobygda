@@ -5,7 +5,7 @@
 <article class="arsmelding-vising">
 <header class="arsmelding-helt"><p class="arsmelding-overline">Året i laget · {{ report_year }}</p><h2>{{ report.get('hero_title') or 'Eit år med kultur og fellesskap' }}</h2>{% if report.intro %}<div class="arsmelding-tekst">{{ report.intro }}</div>{% endif %}</header>
 <div class="arsmelding-tal" aria-label="Nøkkeltal for året">
-<section><strong>{{ report.membership.count if report.membership else '—' }}</strong><h3>Betalande medlemmar</h3><p>{% if report.membership %}Registrert betaling for medlemsåret {{ report.membership.year }}. Gratis medlemskap er ikkje med; dette er ikkje medlemstal ved årsskiftet.{% else %}Betalingstal er ikkje henta enno.{% endif %}</p></section>
+<section><strong>{{ report.membership.count if report.membership else '—' }}</strong><h3>{{ 'Teljande medlemmar' if report.membership and report.membership.get('includes_free') else 'Betalande medlemmar' }}</h3><p>{% if report.membership %}Registrert betaling for medlemsåret {{ report.membership.year }}. {% if report.membership.get('includes_free') %}Medlemer med «Gratis» ved uttrekket er òg med;{% else %}Gratis medlemskap er ikkje med i dette eldre uttrekket;{% endif %} dette er ikkje medlemstal ved årsskiftet.{% else %}Betalingstal er ikkje henta enno.{% endif %}</p></section>
 
 
 <section><strong>{{ numbers.events }}</strong><h3>Gjennomførte tilskipingar</h3><p>Tekne med i årsmeldinga og stadfesta som gjennomførte.{% set pending=activities|rejectattr('status','equalto','completed')|list %}{% if pending %} {{ pending|length }} andre kalenderoppføringar er viste nedanfor.{% endif %}</p></section>

@@ -214,6 +214,15 @@ class Documents:
                 count = archived[0] if archived else db.execute("""SELECT COUNT(*) FROM
                     (SELECT member_id FROM payments WHERE for_year=? GROUP BY member_id HAVING SUM(amount_ore)>0)""", (doc['report_year'],)).fetchone()[0]
                 report['membership'] = dict(year=doc['report_year'], count=count, source='archive' if archived else 'payments', checked_at=stamp())
+                if not archived:
+                    free_count = db.execute("""SELECT COUNT(*) FROM members m
+                        WHERE m.privacy_deleted=0 AND LOWER(TRIM(m.payment_status))='gratis'
+                        AND NOT EXISTS (SELECT 1 FROM payments p WHERE p.member_id=m.id
+                            AND p.for_year=? GROUP BY p.member_id HAVING SUM(p.amount_ore)>0)""",
+                        (doc['report_year'],)).fetchone()[0]
+                    report['membership']['count'] += free_count
+                    report['membership']['includes_free'] = True
+
                 from aldersfordeling import age_distribution
                 report['membership']['ages'] = age_distribution(
                     db.execute('SELECT birth_date FROM members WHERE privacy_deleted=0').fetchall(),

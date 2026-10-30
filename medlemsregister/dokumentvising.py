@@ -22,6 +22,8 @@ def structured(payload):
     result['membership']=dict(count=p['membership_count'],year=payload['report_year']) if p['membership_count'] is not None else None
     if result['membership'] is not None and p.get('ages'):
         result['membership']['ages'] = p['ages']
+    if result['membership'] is not None and p.get('includes_free'):
+        result['membership']['includes_free'] = True
     # Eldre offentlege eksportar mangla utsnitt. Bruk same offentlege årskjelde
     # som Om laget, berre når både person og bilete stemmer.
     import yaml

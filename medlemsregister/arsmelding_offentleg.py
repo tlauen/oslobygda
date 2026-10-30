@@ -13,6 +13,8 @@ def presentation(report):
     value['membership_count']=member['count'] if member else None
     if member and member.get('ages'):
         value['ages'] = dict(member['ages'])
+    if member and member.get('includes_free'):
+        value['includes_free'] = True
     board=report.get('board')
     value['board']=[{k:person.get(k,'') for k in ('namn','rolle','bilete','bilete_posisjon')} for person in board['people']] if board else []
     validate_presentation(value)
@@ -20,7 +22,7 @@ def presentation(report):
 
 def validate_presentation(value):
     textfields=('intro','organization','conclusion','hero_title','activities_title','organization_title','conclusion_title')
-    if not isinstance(value,dict) or set(value)-{'ages'}!=set(textfields)|{'activities','membership_count','board'}:raise ValueError('Ugyldig offentleg årsmeldingspresentasjon.')
+    if not isinstance(value,dict) or set(value)-{'ages','includes_free'}!=set(textfields)|{'activities','membership_count','board'}:raise ValueError('Ugyldig offentleg årsmeldingspresentasjon.')
     if any(not isinstance(value[k],str) or len(value[k])>30000 for k in textfields):raise ValueError('Ugyldig offentleg tekst.')
     if 'ages' in value:
         ages = value['ages']
@@ -29,6 +31,8 @@ def validate_presentation(value):
         if any(type(ages[k]) is not int or ages[k] < 0 for k in ('age_0_14','age_15_25','age_26_plus','unknown')):
             raise ValueError('Ugyldige alderstal.')
         date.fromisoformat(ages['as_of'])
+    if 'includes_free' in value and type(value['includes_free']) is not bool:
+        raise ValueError('Ugyldig medlemsgrunnlag.')
     count=value['membership_count']
     if count is not None and (type(count) is not int or count<0):raise ValueError('Ugyldig medlemstal.')
     if not isinstance(value['activities'],list) or not isinstance(value['board'],list):raise ValueError('Ugyldig offentleg liste.')

@@ -148,3 +148,12 @@ class ReportTests(unittest.TestCase):
         self.assertFalse(re.search(r'<button[^>]*\bdisabled',response.get_data(as_text=True)))
         form=self.form();form.update(csrf_token=self.token(),action='save_report',revision=self.doc()['revision'])
         self.assertEqual(self.client.post(f'/arsmote/{self.doc_id}',data=form).status_code,302)
+
+    def test_free_members_count_without_payment(self):
+        self.create()
+        with managed_db(module.get_db) as db:
+            db.execute("INSERT INTO members(full_name,email,membership_type,payment_status,consent_at,created_at,updated_at) VALUES ('Test','test@example.invalid','vanleg','gratis','2026-01-01','2026-01-01','2026-01-01')")
+        self.update('refresh_membership')
+        self.assertEqual(self.report()['membership']['count'], 1)
+        self.assertTrue(self.report()['membership']['includes_free'])
+        self.assertIn('Teljande medlemmar', self.doc()['body'])
