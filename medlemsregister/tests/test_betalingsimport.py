@@ -124,3 +124,13 @@ class ImportTests(unittest.TestCase):
         self.opening();pid,_=self.payment(True,environment='test')
         with self.assertRaises(ValueError): self.service.attest(pid,'2026-01-01','bank','Bankrapport','styret')
         with managed_db(module.get_db) as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM payment_evidence').fetchone()[0],0)
+
+    def test_internal_payment_list_shows_linked_member_name(self):
+        pid,mid=self.payment()
+        with managed_db(module.get_db) as db:db.execute('UPDATE members SET full_name=? WHERE id=?',('Intern Namneprøve',mid))
+        self.assertEqual(self.client.get('/okonomi/betalingar').status_code,302)
+        fixtures.BoardAuthTests.login(self)
+        response=self.client.get('/okonomi/betalingar')
+        self.assertEqual(response.status_code,200)
+        self.assertIn('Intern Namneprøve',response.get_data(as_text=True))
+        self.assertIn('Betaling '+str(pid),response.get_data(as_text=True))

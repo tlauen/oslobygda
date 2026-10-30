@@ -38,7 +38,7 @@ def install_payment_import(app,get_db,require_admin):
             except (ValueError,VippsError,TypeError) as exc: error=str(exc);status=400
         with managed_db(get_db) as db:
             rows=[]
-            for payment in db.execute('SELECT * FROM payments ORDER BY id DESC LIMIT 200'):
+            for payment in db.execute('SELECT p.*,m.full_name AS member_name FROM payments p LEFT JOIN members m ON m.id=p.member_id ORDER BY p.id DESC LIMIT 200'):
                 item=dict(payment)
                 try:
                     _,order=service._source(db,payment['id']);item['order']=order
