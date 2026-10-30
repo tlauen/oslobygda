@@ -111,7 +111,7 @@ def compose(report):
         lines = [f"{source['dato']} – {item.get('display_title') or source['tittel']}", STATUSES[item['status']]]
         if source['stad']: lines.append(source['stad'])
         if source['merknad']: lines.append(source['merknad'])
-        if item['participants'] is not None: lines.append(f"Registrert deltakartal: {item['participants']}")
+        if item['participants'] is not None: lines.append(f"Omlag {item['participants']} gjestar.")
         if item['comment']: lines.append(item['comment'])
         sections.append('\n'.join(lines))
     if report.get('board'):

@@ -88,3 +88,7 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .transaction-content { flex:1; min-width:0; overflow-wrap:anywhere; }
 .transaction>.transaction-amount { flex:0 0 29mm; text-align:right; font: bold 9pt/1.5 system-ui,sans-serif; font-variant-numeric:tabular-nums; }
 .transaction-title { margin-top:0; }
+
+.arsmelding-dato time { display:block; min-width:25mm; }
+.arsmelding-dato .arsmelding-dag { display:block; font:20pt/1.1 Georgia,serif; color:#173e30; }
+.arsmelding-dato .arsmelding-manad { display:block; margin-top:1mm; font:9pt/1.4 system-ui,sans-serif; color:#3a514c; }

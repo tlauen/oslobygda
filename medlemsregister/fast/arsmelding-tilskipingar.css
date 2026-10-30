@@ -1,0 +1,30 @@
+/* Felles tilskipingskort for førehandsvising og A4. */
+.arsmelding-vising .arsmelding-aktivitet {
+ display:grid; grid-template-columns:7.5em minmax(0,1fr); gap:1.5em;
+ border-top:1px solid #dedcd4; border-left:3px solid #b99b44;
+ padding:1.25em 1em; margin:0 0 .75em;
+ break-inside:avoid; page-break-inside:avoid;
+}
+.arsmelding-vising .arsmelding-dato { display:block; margin:0; font:inherit; }
+.arsmelding-vising .arsmelding-dato time { display:block; min-width:0; font:inherit; }
+.arsmelding-vising .arsmelding-dag { display:block; font:2.3em/1.1 Georgia,serif; color:#173e30; }
+.arsmelding-vising .arsmelding-manad { display:block; margin-top:.25em; font:.9em/1.4 system-ui,sans-serif; color:#5e5c55; }
+.arsmelding-vising .arsmelding-aktivitet .arsmelding-dato span { display:block; width:fit-content; margin-top:.65em; padding:.3em .55em; border-radius:6px; background:#f5edda; color:#655015; font:650 .75em/1.5 system-ui,sans-serif; }
+.arsmelding-vising .arsmelding-aktivitet.status-completed { border-left-color:#42744a; }
+.arsmelding-vising .arsmelding-aktivitet.status-cancelled { border-left-color:#a34b45; background:#fff1ed; }
+.arsmelding-vising .status-completed .arsmelding-dato span { background:#e7efdf; color:#254a2a; }
+.arsmelding-vising .status-cancelled .arsmelding-dato span { background:#f6dcd5; color:#7b2925; }
+.arsmelding-vising .arsmelding-aktivitet h4 { font:1.3em/1.4 Georgia,serif; margin:0 0 .5em; }
+.arsmelding-vising .arsmelding-aktivitet .arsmelding-stad { font:.85em/1.5 system-ui,sans-serif; color:#5e5c55; margin:0 0 .75em; }
+.arsmelding-vising .arsmelding-aktivitet .arsmelding-tekst { font-size:1em; line-height:1.8; margin:0 0 .75em; }
+.arsmelding-vising .arsmelding-deltakarar { display:inline-block; padding:.35em .65em; margin:.25em 0 0; background:#e7efdf; color:#254a2a; border-radius:30px; font:.8em/1.5 system-ui,sans-serif; }
+@media screen and (max-width:650px) {
+ .arsmelding-vising .arsmelding-aktivitet { grid-template-columns:1fr; gap:.75em; }
+ .arsmelding-vising .arsmelding-dato { display:flex; align-items:center; gap:1em; }
+}
+@media print { .arsmelding-vising .arsmelding-aktivitet { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+
+@media screen {
+ .arsmelding-vising .arsmelding-dato .arsmelding-dag { font-size:1.8rem; }
+ .arsmelding-vising .arsmelding-dato .arsmelding-manad { font-size:.9rem; }
+}
