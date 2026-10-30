@@ -32,6 +32,7 @@
   text.textContent=error?'Kontroller meldinga og felta før du prøver igjen.':messages.length?messages[0].textContent.trim():'Sida er oppdatert.';
   banner.append(text);
   const close=document.createElement('button');close.type='button';close.textContent='Lukk';close.addEventListener('click',()=>banner.remove());banner.append(close);document.body.append(banner);
+  if(!error&&!messages.length)setTimeout(()=>{if(!banner.contains(document.activeElement))banner.remove();},3000);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
    if(error){error.closest('details')?.setAttribute('open','');error.setAttribute('tabindex','-1');error.focus({preventScroll:true});error.scrollIntoView({block:'center'});}
    else if(!location.hash){
