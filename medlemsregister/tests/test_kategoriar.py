@@ -28,6 +28,24 @@ class CategoryTests(unittest.TestCase):
 
     def test_only_agreed_categories_and_no_legacy_notes(self):
         self.assertEqual({code for code,(_,kind) in ACCOUNTS.items() if kind in ('income','expense')},
-                         {'membership','grants','donations','event_income','interest','other_income','domain','events','fees','other_expense'})
+                         {'membership','grants','donations','event_income','interest','other_income','domain','events','beer','fees','other_expense'})
         self.assertEqual(set(module.app.jinja_env.globals['category_notes']),
                          {code for code,(_,kind) in ACCOUNTS.items() if kind in ('income','expense')})
+
+    def test_beer_expense_and_old_public_snapshots(self):
+        from database import managed_db
+        from offentleg_rekneskap import validate_ledger
+        from budsjett import validate_budget
+        import json
+        _,_,_,budget,_=self.versions()
+        module.app.extensions['ledger'].post(dict(kind='expense',day='2026-06-01',amount='250',account='bank',category='beer',public_text='Øl til musikarar',evidence_note='Kvittering'),'styret','beer-test')
+        report=module.app.extensions['public_ledger'].preview(2026)
+        self.assertEqual(next(r['amount_ore'] for r in report['categories'] if r['category']=='beer'),25000)
+        # Faste dokument frå før kategorien fanst skal framleis kunne lesast.
+        # Bruk ein gammal kopi utan føringa og utan den nye nullrada.
+        with managed_db(module.get_db) as db:
+            old=json.loads(db.execute('SELECT payload FROM public_ledger_versions ORDER BY id LIMIT 1').fetchone()[0])
+            old_budget=json.loads(db.execute('SELECT payload FROM budget_versions WHERE id=?',(budget,)).fetchone()[0])
+        old['categories']=[r for r in old['categories'] if r['category']!='beer']
+        old_budget['lines']=[r for r in old_budget['lines'] if r['category']!='beer']
+        validate_ledger(old);validate_budget(old_budget)

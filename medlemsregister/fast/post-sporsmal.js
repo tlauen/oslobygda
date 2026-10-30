@@ -34,7 +34,7 @@
   document.getElementById('post-avansert-hjelp').hidden=!advanced;
   display('kind',advanced);display('account',advanced);display('target',advanced&&kind==='transfer');
   const selected=field('category').value;
-  const allowed=purpose==='membership'?['membership']:purpose==='donations'?['donations']:purpose==='other_income'?['grants','event_income','interest','other_income']:purpose==='expense'?['domain','events','fees','other_expense']:originalOptions.map(x=>x.value);
+  const allowed=purpose==='membership'?['membership']:purpose==='donations'?['donations']:purpose==='other_income'?['grants','event_income','interest','other_income']:purpose==='expense'?['domain','events','beer','fees','other_expense']:originalOptions.map(x=>x.value);
   field('category').replaceChildren(...originalOptions.filter(x=>allowed.includes(x.value)).map(x=>x.cloneNode(true)));
   if(allowed.includes(selected))field('category').value=selected;
   display('category',purpose==='other_income'||purpose==='expense'||advanced);

@@ -158,7 +158,7 @@ def validate_ledger(value,allow_preview=False):
         if code not in ACCOUNTS or ACCOUNTS[code][1] not in ('income','expense') or code in seen: raise ValueError('Ugyldig kategori.')
         if (row['label'],row['kind'])!=ACCOUNTS[code]: raise ValueError('Ugyldig kategorinamn.')
         seen.add(code);number(row['amount_ore']);totals[code]=row['amount_ore']
-    if seen!={k for k,v in ACCOUNTS.items() if v[1] in ('income','expense')}: raise ValueError('Manglande kategoriar.')
+    if seen not in ({k for k,v in ACCOUNTS.items() if v[1] in ('income','expense')},{k for k,v in ACCOUNTS.items() if v[1] in ('income','expense')} - {'beer'}): raise ValueError('Manglande kategoriar.')
     detail_totals={}
     for row in value['transactions']:
         exact(row,{'date','public_ref','kind','category','label','description','amount_ore'})

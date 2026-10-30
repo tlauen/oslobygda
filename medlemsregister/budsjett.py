@@ -118,7 +118,7 @@ def validate_budget(value):
         seen.add(code)
         if type(line['amount_ore']) is not int or not 0<=line['amount_ore']<=10**12 or type(line['previous_ore']) is not int or abs(line['previous_ore'])>10**16:
             raise ValueError('Ugyldig beløp.')
-    if seen!=set(CATEGORIES): raise ValueError('Manglande budsjettkategoriar.')
+    if seen not in (set(CATEGORIES),set(CATEGORIES)-{'beer'}): raise ValueError('Manglande budsjettkategoriar.')
     for key in ('income_ore','expense_ore','result_ore','previous_income_ore','previous_expense_ore','previous_result_ore'):
         if type(value[key]) is not int: raise ValueError('Ugyldig sum.')
     prior_income=sum(line['previous_ore'] for line in value['lines'] if line['kind']=='income')

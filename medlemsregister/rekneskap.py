@@ -16,7 +16,7 @@ ACCOUNTS = {
     'grants': ('Tilskot', 'income'), 'donations': ('Gåver', 'income'),
     'event_income': ('Tilskipingar', 'income'), 'interest': ('Renteinnkome', 'income'),
     'other_income': ('Anna innkome', 'income'), 'domain': ('Digitale tenester', 'expense'),
-    'events': ('Tilskipingar', 'expense'), 'fees': ('Betalings- og bankgebyr', 'expense'),
+    'events': ('Tilskipingar', 'expense'), 'beer': ('Øl', 'expense'), 'fees': ('Betalings- og bankgebyr', 'expense'),
     'other_expense': ('Andre utgifter', 'expense'),
 }
 MONEY_ACCOUNTS = ('bank', 'vipps', 'cash')
