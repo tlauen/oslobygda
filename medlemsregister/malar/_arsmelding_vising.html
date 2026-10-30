@@ -20,7 +20,7 @@
 <section class="arsmelding-aldersgraf" aria-label="Aldersfordeling">
 <h3>Alderssamansetninga i laget</h3>
 {% for label, value in [('0–14 år',ages.age_0_14),('15–25 år',ages.age_15_25),('26+ år',ages.age_26_plus),('Ukjend alder',ages.unknown)] %}
-<div class="aldersgraf-rad"><span>{{ label }}</span><div class="aldersgraf-spor" aria-hidden="true"><div style="width:{{ (value * 100 / total) if total else 0 }}%"></div></div><b>{{ value }}</b></div>
+{% if label != 'Ukjend alder' or value > 0 %}<div class="aldersgraf-rad"><span>{{ label }}</span><div class="aldersgraf-spor" aria-hidden="true"><div style="width:{{ (value * 100 / total) if total else 0 }}%"></div></div><b>{{ value }}</b></div>{% endif %}
 {% endfor %}
 <p>Registrerte medlemer ved uttrekk. Alder per {{ ages.as_of }}. Uavhengig av betaling; ikkje historisk medlemstal ved årsskiftet.</p>
 </section>{% endif %}

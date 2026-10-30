@@ -23,6 +23,11 @@ class ReportPresentationTests(unittest.TestCase):
         report=dict(membership=dict(count=0,year=2026,ages=dict(age_0_14=0,age_15_25=0,age_26_plus=0,unknown=0,as_of='2026-12-31')),intro='Innleiing først',organization='',conclusion='',activities=[])
         html=env.get_template('_arsmelding_vising.html').render(report=report,report_year=2026)
         self.assertLess(html.index('Innleiing først'),html.index('Nøkkeltal for året'))
-        self.assertEqual(html.count('class="aldersgraf-rad"'),4)
+        self.assertEqual(html.count('class="aldersgraf-rad"'),3)
+        self.assertNotIn('Ukjend alder',html)
+        report['membership']['ages']['unknown']=1
+        with_unknown=env.get_template('_arsmelding_vising.html').render(report=report,report_year=2026)
+        self.assertIn('Ukjend alder',with_unknown)
+        self.assertEqual(with_unknown.count('class="aldersgraf-rad"'),4)
         self.assertIn('width:0%',html)
         self.assertNotIn('Aktivitetane, menneska og augneblikka',html)
