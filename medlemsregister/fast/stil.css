@@ -133,7 +133,8 @@ body {
 .innlogging-koderuter {
   position: relative;
   width: 14.75rem;
-  max-width: 100%;
+  overflow: hidden;
+  border-radius: 6px;
   height: 3rem;
   margin-top: 0.5rem;
 }
@@ -152,7 +153,10 @@ body {
 }
 .innlogging-boks .innlogging-kode {
   position: absolute;
-  inset: 0;
+  inset: 0 auto 0 0;
+  /* Plass til bokstavavstanden etter siste siffer hindrar at feltet
+     rullar teksten sidelengs når alle seks siffera er skrivne. */
+  width: calc(100% + 2.5rem);
   height: 100%;
   margin: 0;
   border: 0;
@@ -163,6 +167,13 @@ body {
   line-height: normal;
   letter-spacing: calc(2.5rem - 1ch);
   padding: 0 0 0 calc((2.5rem - 0.25rem - 1ch) / 2);
+}
+.innlogging-koderuter:focus-within {
+  outline: 3px solid #206582;
+  outline-offset: 3px;
+}
+.innlogging-boks .innlogging-kode:focus-visible {
+  outline: none;
 }
 .innlogging-kodehjelp {
   margin: 0.5rem 0 1.25rem;
