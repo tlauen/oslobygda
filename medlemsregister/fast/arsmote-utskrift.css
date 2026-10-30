@@ -72,7 +72,7 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .arsmelding-stad,.arsmelding-deltakarar { font:9pt/1.5 system-ui,sans-serif; color:#315c38; }
 .arsmelding-styre { display:flex; gap:5mm; break-inside:avoid; }
 .arsmelding-styre article { flex:1; min-width:0; }
-.arsmelding-styre img { width:100%; height:42mm; object-fit:cover; border-radius:3mm; }
+.arsmelding-styre img { display:block; width:100%; height:auto; aspect-ratio:1 / 1; object-fit:cover; object-position:center 25%; border-radius:3mm; }
 .arsmelding-styre p { font:9pt system-ui,sans-serif; margin:2mm 0; }
 .arsmelding-styre h4 { font-size:11pt; margin:0; }
 @media print { .arsmelding-vising { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
