@@ -4,9 +4,9 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Tilskipingar – Bygdelista</title>
   <link rel="stylesheet" href="{{ prefix_url('static',filename='stil.css') }}">
-</head>
-<body><main class="omslag">
-<header class="toppfelt"><h1>Tilskipingar</h1><a href="{{ prefix_url('index') }}">Til medlemslista</a></header>
+<link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}"></head>
+<body class="bygdelista-kropp"><main class="omslag">{% include '_bygdelista_topp.html' %}{% include '_bygdelista_undermeny.html' %}
+<header class="toppfelt"><h1>Tilskipingar</h1></header>
 <h2>Komande tilskipingar</h2>
 <ul>{% for event in upcoming %}<li>{{ event.dato }} kl. {{ event.start }} – {{ event.tittel }} <a href="{{ prefix_url('event_editor') }}?uid={{ event.uid|urlencode }}">Rediger</a></li>{% else %}<li>Ingen komande tilskipingar å vise.</li>{% endfor %}</ul>
 <h2>{{ 'Rediger tilskipinga' if editing else 'Legg til ei tilskiping' }}</h2>
@@ -15,7 +15,7 @@
 {% if message %}<p role="status">{{ message }}</p>{% endif %}
 {% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}
 {% if not ready %}<p class="feil">Publisering er ikkje sett opp enno. Kontakt administratoren før du fyller ut skjemaet.</p>{% endif %}
-<form method="post" class="innmelding-skjema">
+<form method="post" class="innmelding-skjema medlemsskjema">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="uid" value="{{ editing }}">
   <input type="hidden" name="revision" value="{{ revision }}">

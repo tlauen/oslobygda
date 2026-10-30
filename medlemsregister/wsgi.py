@@ -1,6 +1,9 @@
 """WSGI-inngang for PythonAnywhere. Sjå PYTHONANYWHERE.md før publisering."""
 import os
 
+if os.environ.get('BYGDELISTA_LOCAL_TEST') == '1':
+    raise RuntimeError('Lokal testmodus skal ikkje brukast i produksjons-WSGI.')
+
 from app import app as application, init_db
 
 

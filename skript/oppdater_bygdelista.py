@@ -11,7 +11,7 @@ import os
 from datetime import datetime, timezone
 
 REPOSITORY = 'https://github.com/tlauen/oslobygda.git'
-SHARED = {'_tillegg/kolofon.html', '_data/nav.yml', 'lutar/kolofon.css', 'lutar/topp.css'}
+SHARED = {'_data/styre.yml','_data/rekneskapskategoriar.json', '_data/balanseforklaringar.json', '_tillegg/kolofon.html', '_data/nav.yml', 'lutar/kolofon.css', 'lutar/topp.css'}
 CODE_SUFFIXES = {'.py', '.html', '.css', '.js', '.txt', '.md', '.sh', '.json', '.yml', '.yaml'}
 
 
@@ -19,6 +19,8 @@ def allowed(name):
     path = PurePosixPath(name)
     if path.is_absolute() or '..' in path.parts:
         return False
+    if name.startswith('lutar/bilete/styret/') and path.suffix.lower() in {'.jpg','.jpeg','.png','.webp'}:
+        return True
     if name in SHARED:
         return True
     if not name.startswith('medlemsregister/'):

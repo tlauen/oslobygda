@@ -1,0 +1,65 @@
+<!doctype html><html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Årsmøte og økonomi – Bygdelista</title><link rel="stylesheet" href="{{ prefix_url('static',filename='stil.css') }}"><link rel="stylesheet" href="{{ prefix_url('static',filename='arsmote.css') }}"><link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}"><link rel="stylesheet" href="{{ prefix_url('static',filename='arsmelding-tilskipingar.css') }}"></head>
+<body class="arsmote-kropp bygdelista-kropp"><main class="omslag">{% include '_arsmote_nav.html' %}<header class="toppfelt"><h1>Årsmøte og økonomi</h1></header>{% if doc %}<p><a class="btn" href="#forehandsvis-arsmelding">Førehandsvis årsmelding</a></p><p class="feltforklaring">Førehandsvisinga viser den lagra årsmeldinga. Lagre endringane dine først.</p>{% endif %}
+{% if error %}<p role="alert" class="feil">{{ error }}</p>{% endif %}
+{% if not doc %}
+<p>Her kan de opprette arbeidsutkast og lagre faste årsmøteversjonar av årsmeldinga. Kalenderimport og strukturert årsmelding er klare. Intern rekneskap er tilgjengeleg. Budsjett og offentleg eksport er tilgjengelege gjennom eigne inngangar.</p>
+<ul>{% for item in docs %}<li><a href="{{ prefix_url('annual_document',doc_id=item.id) }}">{{ item.title }}</a> – arbeidsutkast, revisjon {{ item.revision }}</li>{% else %}<li>Ingen årsdokument enno.</li>{% endfor %}</ul>
+<h2>Opprett årsmelding</h2><form method="post" class="innmelding-skjema"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="arsmelding">
+<label>Rapportår <input type="number" name="report_year" min="1900" max="2200" value="{{ year }}" required></label>
+<label>Møteår <input type="number" name="meeting_year" min="1900" max="2200" value="{{ year+1 }}" required></label><button>Opprett utkast</button></form>
+{% else %}
+<a href="{{ prefix_url('annual_documents') }}">Alle årsdokument</a><h2>{{ doc.title }}</h2><p>Arbeidsutkast, revisjon {{ doc.revision }}. Rapportår {{ doc.report_year }}. Sist endra av {{ doc.updated_by }}.</p>
+{% if error %}<p>Teksten du sende inn er bevart i skjemaet under. Kopier han før du lastar sida på nytt. Handlingane er sperra til du har opna siste versjon.</p>{% endif %}
+<h2>Hent kjeldedata</h2><p>Lagre teksta før du hentar kjeldedata eller legg til aktivitet. Kalenderimport tek berre med rapportåret, bevarer kommentarar og val og legg nye aktivitetar til utan å velje dei automatisk.</p>
+<section><h2>Styret i {{ doc.report_year }}</h2><p>Hent namn, verv og bilete frå den felles styremodulen. Årsmeldinga lagrar ein kopi for rapportåret; seinare styreendringar oppdaterer ikkje kopien automatisk.</p><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ doc.revision }}"><button name="action" value="refresh_board">Hent styret for {{ doc.report_year }}</button><button name="action" value="remove_board">Ta bort styremodulen</button></form>{% if report.get('board') %}<p>{{ report.board.people|length }} styremedlemmar er henta for {{ report.board.year }}.</p>{% endif %}</section>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ doc.revision }}"><button name="action" value="import_calendar" {% if error %}disabled{% endif %}>Hent kalender for {{ doc.report_year }}</button><button name="action" value="refresh_membership" {% if error %}disabled{% endif %}>Hent betalingstal for medlemsåret</button><button name="action" value="remove_membership" {% if error %}disabled{% endif %}>Ta bort betalingstal</button></form>
+{% if report.source_revision %}<p>Kalendergrunnlag: {{ report.source_revision }}</p>{% endif %}
+{% if report.membership %}<p>Medlemmar med registrert betaling for medlemsåret {{ report.membership.year }}: {{ report.membership.count }} ({{ 'årsarkiv' if report.membership.source=='archive' else 'betalingsregister' }}). Dette er ikkje medlemstal ved årsskiftet. Gratis medlemskap er ikkje med. Tala blir berre endra når du hentar dei på nytt.</p>{% endif %}
+<form method="post" class="innmelding-skjema" id="report-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="save_report"><input type="hidden" name="revision" value="{{ doc.revision }}">
+<label>Tittel <input name="title" maxlength="200" value="{{ submitted.get('title',doc.title) }}" required></label>
+<label>Møteår <input type="number" name="meeting_year" min="1900" max="2200" value="{{ submitted.get('meeting_year',doc.meeting_year) }}" required></label>
+<details><summary>Titlar i førehandsvisinga</summary>
+{% for field,label,default in [('hero_title','Hovudoverskrift','Eit år med kultur og fellesskap'),('activities_title','Aktivitetsoverskrift','Gjennom året'),('organization_title','Organisasjonsoverskrift','Styret og organisasjonen'),('conclusion_title','Avsluttande overskrift','Vegen vidare')] %}<label>{{ label }}<input name="{{ field }}" maxlength="200" value="{{ submitted.get(field,report.get(field,default)) }}"></label>{% endfor %}</details>
+<label>Innleiing <textarea name="intro" rows="8" maxlength="30000">{{ submitted.get('intro', report.intro) }}</textarea></label>
+{% if submitted.get('body') %}<label>Tidlegare innsend tekst (kopier før du lastar på nytt)<textarea>{{ submitted.body }}</textarea></label>{% endif %}
+<h2>Tilskipingar</h2><p>Nye tilskipingar er med som standard. Stadfest om kvar tilskiping vart gjennomført eller avlyst. Ein passert dato tyder ikkje automatisk gjennomført.</p>
+{% for item in report.activities %}{% set prefix='activity_' ~ item.key ~ '_' %}
+{% set shown_status=submitted.get(prefix ~ 'status',item.status) %}
+<details class="tilskiping-redigering"><summary><span>{{ item.source.dato }} – {{ item.get('display_title') or item.source.tittel }}</span> <span class="tilskiping-status status-{{ shown_status }}">{{ activity_statuses[shown_status] }}</span></summary><fieldset><legend>Rediger tilskipinga</legend>
+{% if submitted.get('action')=='save_report' %}{% set included=submitted.get(prefix ~ 'included')=='yes' %}{% else %}{% set included=item.included %}{% endif %}
+<label>Tittel i årsmeldinga (valfri overstyring)<input name="{{ prefix }}display_title" maxlength="500" value="{{ submitted.get(prefix ~ 'display_title',item.get('display_title','')) }}" placeholder="{{ item.source.tittel }}"></label><label><input type="checkbox" name="{{ prefix }}included" value="yes" {% if included %}checked{% endif %}> Ta med i årsmeldinga</label>
+{% if item.origin=='manual' %}{% for field,label in [('dato','Dato'),('tittel','Tittel'),('stad','Stad'),('merknad','Omtale')] %}<label>{{ label }} <input name="{{ prefix }}{{ field }}" {% if field=='dato' %}type="date"{% endif %} value="{{ submitted.get(prefix ~ field,item.source[field]) }}"></label>{% endfor %}{% else %}<p>{{ item.source.stad }} · {{ item.source.merknad }}</p>{% endif %}
+{% if item.source_cancelled %}<p>Kalenderen markerer tilskipinga som avlyst. Kontroller statusen nedanfor.</p>{% endif %}
+{% if item.source_missing or item.source_changed %}<p role="status">Kalenderoppføringa er {{ 'ikkje lenger i rapportåret i kjelda' if item.source_missing else 'endra sidan førre import' }}. Kommentaren og valet ditt er bevarte.</p><label><input type="checkbox" name="{{ prefix }}acknowledge" value="yes"> Eg har kontrollert kjeldeendringa og vil bruke opplysningane som står her.</label>{% endif %}
+<label>Status <select name="{{ prefix }}status">{% for value,label in activity_statuses.items() %}<option value="{{ value }}" {% if submitted.get(prefix ~ 'status',item.status)==value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+<label>Kommentar <textarea name="{{ prefix }}comment" rows="3" maxlength="3000">{{ submitted.get(prefix ~ 'comment',item.comment) }}</textarea></label>
+<label>Omlag kor mange gjestar? (valfritt) <input type="number" name="{{ prefix }}participants" min="0" max="1000000" value="{{ submitted.get(prefix ~ 'participants',item.participants if item.participants is not none else '') }}"><small class="feltforklaring">Rundt rekna overslag frå teljing i rommet i løpet av kvelden, ikkje påmelding eller billettsal. Lat feltet stå tomt dersom de ikkje har noko overslag.</small></label>
+</fieldset></details>{% else %}<p>Ingen tilskipingar importerte enno.</p>{% endfor %}
+<label>Styret og organisasjonen <textarea name="organization" rows="6" maxlength="10000">{{ submitted.get('organization',report.organization) }}</textarea></label>
+<label>Avslutning <textarea name="conclusion" rows="5" maxlength="10000">{{ submitted.get('conclusion',report.conclusion) }}</textarea></label>
+<p>Bruk offentleg eigna tekst. Arbeidsutkastet er internt fram til publisering.</p><button {% if error %}disabled{% endif %}>Lagre årsmeldinga</button></form>
+<h2>Legg til tilskiping som manglar i kalenderen</h2><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ doc.revision }}"><input type="hidden" name="action" value="add_manual">
+{% for field,label in [('dato','Dato'),('tittel','Tittel'),('stad','Stad'),('merknad','Omtale')] %}<label>{{ label }} <input name="manual_{{ field }}" {% if field=='dato' %}type="date"{% endif %} value="{{ submitted.get('manual_' ~ field,'') }}" {% if field in ['dato','tittel'] %}required{% endif %}></label>{% endfor %}<button {% if error %}disabled{% endif %}>Legg til tilskiping</button></form>
+<h2 id="forehandsvis-arsmelding" tabindex="-1">Førehandsvising av lagra årsmelding</h2>{% with report_year=doc.report_year %}{% include '_arsmelding_vising.html' %}{% endwith %}
+<h2>Lagre fast versjon av sist lagra utkast</h2><p>Lagre teksten ovanfor først. Ein fast versjon blir ikkje endra når de redigerer arbeidsutkastet seinare.</p>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="freeze"><input type="hidden" name="revision" value="{{ doc.revision }}"><label>Status <select name="status"><option value="meeting">Til årsmøtet</option><option value="approved">Godkjend av årsmøtet</option></select></label><label>Vedtaksdato (påkravd ved godkjenning) <input type="date" name="decision_date"></label><button {% if error %}disabled{% endif %}>Lagre fast versjon</button></form>
+<h2>Faste versjonar</h2><ul>{% for item in versions %}<li><a href="{{ prefix_url('annual_version',version_id=item.id) }}">Versjon {{ item.id }} – {{ 'Godkjend' if item.status=='approved' else 'Til årsmøtet' }}</a>, frå revisjon {{ item.source_revision }}{% if item.decision_date %}, vedteken {{ item.decision_date }}{% endif %}</li>{% else %}<li>Ingen faste versjonar enno.</li>{% endfor %}</ul>
+{% endif %}</main><script>
+// Hindre at andre skjema kastar ulagrede redaksjonelle endringar.
+const editor = document.getElementById('report-form');
+if (editor) {
+  editor.querySelectorAll('.tilskiping-redigering').forEach(details=>{
+    const select=details.querySelector('select[name$="status"]');
+    const badge=details.querySelector('.tilskiping-status');
+    select.addEventListener('change',()=>{badge.textContent=select.selectedOptions[0].textContent;badge.className='tilskiping-status status-'+select.value;});
+  });
+  editor.addEventListener('invalid',event=>{const details=event.target.closest('details');if(details)details.open=true;},true);
+  let dirty = false;
+  editor.addEventListener('input', () => { dirty = true; });
+  document.addEventListener('submit', event => {
+    if (event.target !== editor && dirty && !window.confirm('Du har endringar som ikkje er lagra. Vil du halde fram utan å lagre dei?')) event.preventDefault();
+    else dirty = false;
+  });
+  window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
+}
+</script></body></html>
