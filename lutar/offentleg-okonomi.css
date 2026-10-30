@@ -11,3 +11,8 @@
 .offentleg-okonomi .kategori-note { display:block; margin-top:.35rem; font-size:.8rem; font-weight:400; color:#5e5c55; line-height:1.5; }
 .offentleg-okonomi details { padding:1.2rem; border:1px solid #dedcd4; border-radius:12px; background:#fffefa; margin:1.25rem 0; }
 .offentleg-okonomi summary { cursor:pointer; font-weight:650; }
+
+.arsmelding-tilbake { display:inline-flex; align-items:center; justify-content:center; gap:.6rem; padding:.65rem 1rem; border:1px solid #bfcfb7; border-radius:8px; background:#e7efdf; color:#203e30; font:600 .9rem/1.5 system-ui,sans-serif; text-decoration:none; margin-bottom:.5rem; }
+.arsmelding-tilbake:hover { background:#dbe7d0; text-decoration:none; }
+.arsmelding-tilbake:focus-visible { outline:3px solid #206582; outline-offset:3px; }
+

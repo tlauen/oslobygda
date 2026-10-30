@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
 <div class="offentleg-okonomi">
+<p><a class="arsmelding-tilbake" href="{{ '/om/rekneskap/' | relative_url }}"><span aria-hidden="true">←</span> Alle rekneskap</a></p>
 <h1>{{ page.title | escape }}</h1>
 {% assign year_data = site.data.arsdokument[page.report_year] %}
 {% if year_data %}
@@ -10,6 +11,6 @@
 {% for version in fixed_reports %}<details id="{{ version.version_id | escape }}"><summary>{{ version.version_id | escape }} – {% if version.status == 'approved' %}Godkjend {{ version.decision_date | escape }}{% else %}Til årsmøtet, møteår {{ version.meeting_year | escape }}{% endif %}</summary>{% include rekneskap-detaljar.html rekneskap=version %}</details>{% endfor %}
 {% if fixed_reports.size == 0 and year_data.ledger_latest == nil %}<p>Ingen rekneskap er publisert enno.</p>{% endif %}
 {% else %}<p>Ingen rekneskap er publisert enno.</p>{% endif %}
-<p><a href="{{ '/om/rekneskap/' | relative_url }}">Alle rekneskapsår</a></p>
+
 
 </div>
