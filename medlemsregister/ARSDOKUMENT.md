@@ -112,3 +112,14 @@ Statusen blir bevart, ikkje endra til gjennomført. Berre «Godkjend av årsmøt
 krev at statusane er avklarte. Endra eller fjerna kalenderkjelder må framleis
 kontrollerast før ein fast kopi blir lagra. Vanlege valideringsfeil lèt deg rette
 og lagre vidare; berre ein konflikt med eit nyare utkast sperrar innsending.
+
+## Aldersfordeling i årsmelding
+
+«Hent medlemstal» lagrar òg aldersgruppene 0–14, 15–25, 26+ og ukjend alder.
+Dette er alle registrerte, ikkje personvernsletta medlemer ved uttrekket, uavhengig
+av betaling. Alder blir rekna per 31. desember i rapportåret. Uttrekket er ikkje
+ein historisk medlemsbestand; eldre år kan innehalde seinare innmeldingar.
+Manglande, ugyldige og framtidige fødselsdatoar får ukjend alder.
+Tala følgjer førehandsvising, faste versjonar og offentleg publisering. Gamle
+versjonar blir ikkje endra; hent medlemstal på nytt i utkastet og lag ein ny versjon.
+Medlemslista viser dei same gruppene med alder per dagens dato.

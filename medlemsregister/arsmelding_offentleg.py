@@ -11,6 +11,8 @@ def presentation(report):
         value['activities'].append(dict(date=source['dato'],title=item.get('display_title') or source['tittel'],place=source['stad'],description=source['merknad'],status=item['status'],comment=item['comment'],guests=item['participants']))
     member=report.get('membership')
     value['membership_count']=member['count'] if member else None
+    if member and member.get('ages'):
+        value['ages'] = dict(member['ages'])
     board=report.get('board')
     value['board']=[{k:person.get(k,'') for k in ('namn','rolle','bilete','bilete_posisjon')} for person in board['people']] if board else []
     validate_presentation(value)
@@ -18,8 +20,15 @@ def presentation(report):
 
 def validate_presentation(value):
     textfields=('intro','organization','conclusion','hero_title','activities_title','organization_title','conclusion_title')
-    if not isinstance(value,dict) or set(value)!=set(textfields)|{'activities','membership_count','board'}:raise ValueError('Ugyldig offentleg årsmeldingspresentasjon.')
+    if not isinstance(value,dict) or set(value)-{'ages'}!=set(textfields)|{'activities','membership_count','board'}:raise ValueError('Ugyldig offentleg årsmeldingspresentasjon.')
     if any(not isinstance(value[k],str) or len(value[k])>30000 for k in textfields):raise ValueError('Ugyldig offentleg tekst.')
+    if 'ages' in value:
+        ages = value['ages']
+        if not isinstance(ages, dict) or set(ages) != {'age_0_14','age_15_25','age_26_plus','unknown','as_of'}:
+            raise ValueError('Ugyldig aldersfordeling.')
+        if any(type(ages[k]) is not int or ages[k] < 0 for k in ('age_0_14','age_15_25','age_26_plus','unknown')):
+            raise ValueError('Ugyldige alderstal.')
+        date.fromisoformat(ages['as_of'])
     count=value['membership_count']
     if count is not None and (type(count) is not int or count<0):raise ValueError('Ugyldig medlemstal.')
     if not isinstance(value['activities'],list) or not isinstance(value['board'],list):raise ValueError('Ugyldig offentleg liste.')

@@ -369,14 +369,15 @@
           el.innerHTML = "<p class=\"feil\">" + escapeHtml(d.error || "Kunne ikkje hente oversikt") + "</p>";
           return;
         }
-        const a0 = d.alder_0_25 != null ? d.alder_0_25 : 0;
+        const a0 = d.alder_0_14 ?? 0;
+        const a15 = d.alder_15_25 ?? 0;
         const a26 = d.alder_26_eller_eldre != null ? d.alder_26_eller_eldre : 0;
         const aU = d.alder_utan_fodselsdato != null ? d.alder_utan_fodselsdato : 0;
         const tot = (Number(d.totalt_innbetalt_ore) / 100).toLocaleString("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const n = d.antall_medlemer_med_betaling;
         const ar = d.medlemsbetalingsar;
         const mTot = d.antall_medlemer_totalt != null ? d.antall_medlemer_totalt : a0 + a26 + aU;
-        let alderLinje = "<span class=\"medlemsoversikt-dempa\">Medlemmar totalt:</span> " + mTot + " &nbsp;·&nbsp; <strong>0–25 år:</strong> " + a0 + " &nbsp;·&nbsp; <strong>26+ år:</strong> " + a26;
+        let alderLinje = "<span class=\"medlemsoversikt-dempa\">Medlemmar totalt:</span> " + mTot + " &nbsp;·&nbsp; <strong>0–14 år:</strong> " + a0 + " &nbsp;·&nbsp; <strong>15–25 år:</strong> " + a15 + " &nbsp;·&nbsp; <strong>26+ år:</strong> " + a26;
         if (aU > 0) {
           alderLinje += " &nbsp;·&nbsp; <span class=\"medlemsoversikt-dempa\">Ikkje oppgitt fødselsdato: " + aU + "</span>";
         }

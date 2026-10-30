@@ -20,6 +20,8 @@ def structured(payload):
     result={k:v for k,v in p.items() if k not in ('activities','board','membership_count')}
     result['activities']=[dict(included=True,source=dict(dato=a['date'],tittel=a['title'],stad=a['place'],merknad=a['description']),status=a['status'],comment=a['comment'],participants=a['guests']) for a in p['activities']]
     result['membership']=dict(count=p['membership_count'],year=payload['report_year']) if p['membership_count'] is not None else None
+    if result['membership'] is not None and p.get('ages'):
+        result['membership']['ages'] = p['ages']
     # Eldre offentlege eksportar mangla utsnitt. Bruk same offentlege årskjelde
     # som Om laget, berre når både person og bilete stemmer.
     import yaml

@@ -835,19 +835,11 @@ def api_medlemsoversikt():
         fødsel_rader = conn.execute(
             "SELECT birth_date FROM members WHERE privacy_deleted=0"
         ).fetchall()
-    al_0_25 = 0
-    al_26_eldre = 0
-    al_ukjent = 0
-    for r in fødsel_rader:
-        bd = _parse_dato_ymd(r["birth_date"])
-        if bd is None:
-            al_ukjent += 1
-            continue
-        a = _alder_år(bd, idag)
-        if a <= 25:
-            al_0_25 += 1
-        else:
-            al_26_eldre += 1
+    from aldersfordeling import age_distribution
+    ages = age_distribution(fødsel_rader, idag)
+    al_0_25 = ages['age_0_14'] + ages['age_15_25']
+    al_26_eldre = ages['age_26_plus']
+    al_ukjent = ages['unknown']
     return jsonify(
         {
             "medlemsbetalingsar": ar,
@@ -856,6 +848,8 @@ def api_medlemsoversikt():
             "arkiv": [dict(r) for r in ark],
             "antall_medlemer_totalt": al_0_25 + al_26_eldre + al_ukjent,
             "alder_0_25": al_0_25,
+            "alder_0_14": ages["age_0_14"],
+            "alder_15_25": ages["age_15_25"],
             "alder_26_eller_eldre": al_26_eldre,
             "alder_utan_fodselsdato": al_ukjent,
         }

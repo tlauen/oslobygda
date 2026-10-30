@@ -103,6 +103,11 @@ def compose(report):
         item = report['membership']
         sections.append(f"Medlemmar med registrert betaling for medlemsåret {item['year']}: {item['count']}.\n"
                         'Dette er eit betalingstal, ikkje medlemstal ved årsskiftet.')
+    ages = (report.get('membership') or {}).get('ages')
+    if ages:
+        sections.append(f"Aldersfordeling av registrerte medlemer ved uttrekk: 0–14 år: {ages['age_0_14']}, "
+                        f"15–25 år: {ages['age_15_25']}, 26+ år: {ages['age_26_plus']}, ukjend alder: {ages['unknown']}. "
+                        f"Alder rekna per {ages['as_of']}. Dette er ikkje historisk medlemstal ved årsskiftet.")
     activities = [item for item in report['activities'] if item['included']]
     if activities:
         sections.append(report.get('activities_title') or 'Aktivitetar gjennom året')

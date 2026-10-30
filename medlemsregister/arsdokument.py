@@ -214,6 +214,10 @@ class Documents:
                 count = archived[0] if archived else db.execute("""SELECT COUNT(*) FROM
                     (SELECT member_id FROM payments WHERE for_year=? GROUP BY member_id HAVING SUM(amount_ore)>0)""", (doc['report_year'],)).fetchone()[0]
                 report['membership'] = dict(year=doc['report_year'], count=count, source='archive' if archived else 'payments', checked_at=stamp())
+                from aldersfordeling import age_distribution
+                report['membership']['ages'] = age_distribution(
+                    db.execute('SELECT birth_date FROM members WHERE privacy_deleted=0').fetchall(),
+                    date(doc['report_year'], 12, 31))
             elif action == 'refresh_board':
                 from styremodul import load_board
                 report['board'] = load_board(doc['report_year'])

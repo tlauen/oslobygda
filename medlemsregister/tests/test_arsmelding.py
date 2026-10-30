@@ -106,6 +106,8 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(self.report()['intro'],'Gamal tekst')
         self.update('refresh_membership')
         self.assertEqual(self.report()['membership']['count'],0)
+        self.assertEqual(self.report()['membership']['ages']['as_of'], '2026-12-31')
+        self.assertEqual(self.report()['membership']['ages']['age_0_14'], 0)
         self.assertIn('ikkje medlemstal ved årsskiftet',self.doc()['body'])
         with managed_db(module.get_db) as db:
             db.execute('INSERT INTO medlemsar_arkiv(ar,totalt_ore,antall_medlemer_med_betaling,oppretta) VALUES (2026,10000,7,?)',('2026-01-01',))

@@ -15,3 +15,9 @@ class PublicReportTests(unittest.TestCase):
   self.assertEqual(result['board'][0]['bilete_posisjon'],'center 20%')
   result['board'][0]['bilete_posisjon']='center; color:red'
   with self.assertRaises(ValueError):validate_presentation(result)
+ def test_age_counts_are_public_and_validated(self):
+  ages=dict(age_0_14=2,age_15_25=3,age_26_plus=4,unknown=1,as_of='2026-12-31')
+  result=presentation(dict(activities=[],membership=dict(count=7,ages=ages)))
+  self.assertEqual(result['ages'],ages)
+  result['ages']['age_0_14']=-1
+  with self.assertRaises(ValueError):validate_presentation(result)
