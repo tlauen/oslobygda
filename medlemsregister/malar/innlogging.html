@@ -8,8 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
-  <link rel="stylesheet" href="{{ prefix_url('static', filename='autentiseringskode.css') }}">
-  <script src="{{ prefix_url('static', filename='autentiseringskode.js') }}" defer></script>
 {% include '_favicon.html' %}</head>
 <body class="innlogging-kropp">
   <main class="innlogging-boks">
@@ -25,11 +23,13 @@
       <label for="password">Passord</label>
       <input type="password" id="password" name="password" required autocomplete="current-password" />
       <label for="code">Kode frå autentiseringsappen</label>
-      {% include 'autentiseringskode.html' %}
+      <input type="text" id="code" name="code" class="innlogging-kode" required inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" />
       <button type="submit" name="login">Logg inn</button>
     </form>
-    <p><a href="{{ prefix_url('forgot_password') }}">Gløymt passord?</a></p>
-    <p><a href="{{ prefix_url('board_register') }}">Opprett styrekonto</a></p>
+    <nav class="innlogging-val" aria-label="Hjelp med styrekonto">
+      <a class="btn sekundaer" href="{{ prefix_url('forgot_password') }}">Gløymt passord?</a>
+      <a class="btn sekundaer" href="{{ prefix_url('board_register') }}">Opprett styrekonto</a>
+    </nav>
   </main>
 </body>
 </html>
