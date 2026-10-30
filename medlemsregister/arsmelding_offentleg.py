@@ -12,7 +12,7 @@ def presentation(report):
     member=report.get('membership')
     value['membership_count']=member['count'] if member else None
     board=report.get('board')
-    value['board']=[{k:person.get(k,'') for k in ('namn','rolle','bilete')} for person in board['people']] if board else []
+    value['board']=[{k:person.get(k,'') for k in ('namn','rolle','bilete','bilete_posisjon')} for person in board['people']] if board else []
     validate_presentation(value)
     return value
 
@@ -30,5 +30,6 @@ def validate_presentation(value):
         if item['status'] not in ('completed','cancelled','unconfirmed'):raise ValueError('Ugyldig tilskipingsstatus.')
         if item['guests'] is not None and (type(item['guests']) is not int or not 0<=item['guests']<=1000000):raise ValueError('Ugyldig gjesteoverslag.')
     for person in value['board']:
-        if not isinstance(person,dict) or set(person)!={'namn','rolle','bilete'} or any(not isinstance(x,str) for x in person.values()):raise ValueError('Ugyldig offentleg styremedlem.')
+        if not isinstance(person,dict) or set(person) not in ({'namn','rolle','bilete'},{'namn','rolle','bilete','bilete_posisjon'}) or any(not isinstance(x,str) for x in person.values()):raise ValueError('Ugyldig offentleg styremedlem.')
         if person['bilete'] and not re.fullmatch(r'/lutar/bilete/styret/[^/]+\.(jpg|jpeg|png|webp)',person['bilete'],re.I):raise ValueError('Ugyldig offentleg portrettsti.')
+        if person.get('bilete_posisjon') and not re.fullmatch(r'(center|top|bottom|left|right|\d+%)( (center|top|bottom|left|right|\d+%))?',person['bilete_posisjon']):raise ValueError('Ugyldig biletplassering.')

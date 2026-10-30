@@ -6,6 +6,8 @@ on:
       - '_data/arsdokument/**'
       - '_data/rekneskapskategoriar.json'
       - '_data/balanseforklaringar.json'
+      - '_data/styre.yml'
+      - 'medlemsregister/arsmelding_offentleg.py'
       - 'medlemsregister/dokumentvising.py'
       - 'medlemsregister/malar/arsmote_utskrift.html'
       - 'medlemsregister/malar/_arsmelding_vising.html'

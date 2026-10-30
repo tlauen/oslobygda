@@ -72,7 +72,7 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .arsmelding-stad,.arsmelding-deltakarar { font:9pt/1.5 system-ui,sans-serif; color:#315c38; }
 .arsmelding-styre { display:flex; gap:5mm; break-inside:avoid; }
 .arsmelding-styre article { flex:1; min-width:0; }
-.arsmelding-styre img { display:block; width:100%; height:auto; aspect-ratio:1 / 1; object-fit:cover; object-position:center 25%; border-radius:3mm; }
+.arsmelding-styre img { display:block; width:100%; height:auto; aspect-ratio:1 / 1; object-fit:cover; object-position:center; border-radius:3mm; }
 .arsmelding-styre p { font:9pt system-ui,sans-serif; margin:2mm 0; }
 .arsmelding-styre h4 { font-size:11pt; margin:0; }
 @media print { .arsmelding-vising { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
@@ -109,3 +109,11 @@ body.embedded { margin:0; background:#fcfaf4; }
 
 caption { font: bold 15pt/1.3 Georgia,serif; margin:6mm 0 3mm; }
 @media screen { caption { font-size:1.85rem; } }
+
+/* Same styrekort som på Om laget, også med personleg biletutsnitt. */
+.arsmelding-styre article { overflow:hidden; border:1px solid #dedcd4; border-radius:14px; background:#fffefa; }
+.arsmelding-styre img { border-radius:0; max-height:none; }
+.arsmelding-styretekst { padding:20px; }
+.arsmelding-styretekst p { font:400 .8rem/1.5 system-ui,sans-serif; color:#5e5c55; margin:0 0 5px; }
+.arsmelding-styretekst h4 { font:450 1.4rem/1.3 Georgia,serif; margin:0; }
+@media print { .arsmelding-styretekst { padding:3mm; }.arsmelding-styretekst h4 { font-size:11pt; } }

@@ -10,3 +10,8 @@ class PublicReportTests(unittest.TestCase):
   self.assertNotIn('source_revision',str(result));self.assertNotIn('checked_at',str(result))
   result['internal_note']='privat'
   with self.assertRaises(ValueError):validate_presentation(result)
+ def test_board_crop_is_public_and_validated(self):
+  result=presentation(dict(activities=[],board=dict(people=[dict(namn='Test',rolle='Medlem',bilete='/lutar/bilete/styret/test.jpg',bilete_posisjon='center 20%')])) )
+  self.assertEqual(result['board'][0]['bilete_posisjon'],'center 20%')
+  result['board'][0]['bilete_posisjon']='center; color:red'
+  with self.assertRaises(ValueError):validate_presentation(result)

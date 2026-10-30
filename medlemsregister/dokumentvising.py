@@ -20,7 +20,16 @@ def structured(payload):
     result={k:v for k,v in p.items() if k not in ('activities','board','membership_count')}
     result['activities']=[dict(included=True,source=dict(dato=a['date'],tittel=a['title'],stad=a['place'],merknad=a['description']),status=a['status'],comment=a['comment'],participants=a['guests']) for a in p['activities']]
     result['membership']=dict(count=p['membership_count'],year=payload['report_year']) if p['membership_count'] is not None else None
-    result['board']=dict(year=payload['report_year'],people=p['board']) if p['board'] else None
+    # Eldre offentlege eksportar mangla utsnitt. Bruk same offentlege årskjelde
+    # som Om laget, berre når både person og bilete stemmer.
+    import yaml
+    board_file=ROOT.parent/'_data/styre.yml'
+    reference=yaml.safe_load(board_file.read_text()).get('ar',{}).get(str(payload['report_year']),[]) if board_file.exists() else []
+    people=[]
+    for person in p['board']:
+        old=next((r for r in reference if r.get('namn')==person['namn'] and r.get('bilete')==person['bilete']),{})
+        people.append(dict(person,bilete_posisjon=person.get('bilete_posisjon') or old.get('bilete_posisjon','center')))
+    result['board']=dict(year=payload['report_year'],people=people) if people else None
     return result
 
 def render_document(payload):
