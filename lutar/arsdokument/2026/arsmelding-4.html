@@ -55,8 +55,8 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .arsmelding-helt { border-bottom:2pt solid #315c38; padding:2mm 0 6mm; margin-bottom:6mm; }
 .arsmelding-overline { font:8pt system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:#315c38; }
 .arsmelding-helt h2 { font-size:28pt; line-height:1.1; max-width:18ch; margin:2mm 0 4mm; }
-.arsmelding-tal { display:flex; gap:4mm; margin:6mm 0; break-inside:avoid; }
-.arsmelding-tal section { flex:1; min-width:0; padding:4mm; background:#e7efdf; border:1pt solid #bfcfb7; border-radius:3mm; }
+.arsmelding-tal { display:flex; flex-wrap:wrap; gap:4mm; margin:6mm 0; break-inside:avoid; }
+.arsmelding-tal section { flex:1 1 45%; min-width:0; padding:4mm; background:#e7efdf; border:1pt solid #bfcfb7; border-radius:3mm; }
 .arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
 .arsmelding-tal section:nth-child(3) { background:#f5edda; }
 .arsmelding-tal strong { font-size:28pt; line-height:1.1; }
@@ -129,6 +129,11 @@ caption { font: bold 15pt/1.3 Georgia,serif; margin:6mm 0 3mm; }
  .arsmelding-styretekst { padding:1.25rem; }
 }
 
+.arsmelding-alder dl { margin: .75rem 0; }
+.arsmelding-alder dl div { display:flex; justify-content:space-between; gap:1rem; padding:.2rem 0; }
+.arsmelding-alder dd { margin:0; font-weight:700; }
+.arsmelding-tal section:nth-child(4) { background:#f2e7df; }
+
 /* Felles tilskipingskort for førehandsvising og A4. */
 .arsmelding-vising .arsmelding-aktivitet {
  display:grid; grid-template-columns:7.5em minmax(0,1fr); gap:1.5em;
@@ -172,6 +177,9 @@ caption { font: bold 15pt/1.3 Georgia,serif; margin:6mm 0 3mm; }
 <header class="arsmelding-helt"><p class="arsmelding-overline">Året i laget · 2026</p><h2>Fem år med Folkemusikkpøbb!</h2><p>Aktivitetane, menneska og augneblikka me tek med oss vidare.</p></header>
 <div class="arsmelding-tal" aria-label="Nøkkeltal for året">
 <section><strong>30</strong><h3>Betalande medlemmar</h3><p>Registrert betaling for medlemsåret 2026. Gratis medlemskap er ikkje med; dette er ikkje medlemstal ved årsskiftet.</p></section>
+<section class="arsmelding-alder"><h3>Aldersfordeling</h3>
+<p>Aldersfordeling er ikkje henta enno.</p></section>
+
 <section><strong>9</strong><h3>Gjennomførte tilskipingar</h3><p>Tekne med i årsmeldinga og stadfesta som gjennomførte. 1 andre kalenderoppføringar er viste nedanfor.</p></section>
 <section><strong>397</strong><h3>Gjestar og deltakarar</h3><p>Sum frå 9 av 9 gjennomførte tilskipingar. Tala er basert på rundt rekna overslag, og same person kan vere talt fleire gonger.</p></section>
 </div>
