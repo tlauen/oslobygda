@@ -4,7 +4,7 @@ import json
 from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 
-from flask import abort, redirect, render_template, request, session
+from flask import abort, redirect, render_template, request, session, flash
 from database import managed_db
 from arsmelding import report_from, merge_calendar, edit_report, add_manual, compose, check_ready, STATUSES
 from tilskipingar import GithubCalendar, CalendarError
@@ -343,7 +343,15 @@ def install_documents(app, get_db, require_admin):
             if request.form.get('confirmed') != 'yes':
                 abort(400, 'Stadfest at teksten er gjennomgått for offentleg publisering.')
             service.enqueue(version_id, session['board_username'])
+            from publisering import PublicationError
+            try:
+                result=app.extensions['document_publisher'].run(target=('annual',version_id),limit=1)
+                if result['busy']: flash('Ein publiseringsjobb køyrer allereie. Prøv igjen om litt.','publisering')
+                elif result['failed']: flash('Publiseringa feila. Sjå feilmeldinga nedanfor og prøv igjen.','publisering')
+                elif result['visible']: flash('Årsmeldinga er publisert og stadfesta synleg på nettsida.','publisering')
+                elif result['stored']: flash('Årsmeldinga er sendt til GitHub. Nettsida blir oppdatert når bygginga er ferdig.','publisering')
+            except PublicationError as exc: flash(str(exc),'publisering')
             return redirect(app.jinja_env.globals['prefix_url']('annual_version', version_id=version_id))
         with managed_db(get_db) as db:
-            queued = db.execute('SELECT status FROM annual_publication_queue WHERE version_id=?', (version_id,)).fetchone()
+            queued = db.execute('SELECT status,last_error FROM annual_publication_queue WHERE version_id=?', (version_id,)).fetchone()
         return render_template('arsversjon.html', version=row, public=public_payload(row), queued=queued, report=json.loads(json.loads(row['snapshot']).get('report_json','{}')))

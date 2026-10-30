@@ -85,3 +85,22 @@ class DocumentTests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT body FROM annual_documents WHERE id=?',(doc,)).fetchone()[0],text.strip())
         response=self.client.post(f'/arsmote/{doc}',data=b'x'*(1024*1024+1),content_type='application/x-www-form-urlencoded')
         self.assertEqual(response.status_code,413)
+
+    def test_publish_button_sends_only_selected_version(self):
+        from unittest.mock import Mock
+        from database import managed_db
+        doc=self.draft();vid=self.service.freeze(doc,2,'meeting','','styret')
+        self.service.save(doc,2,'Ny versjon','Ny offentleg tekst',2027,'styret')
+        other=self.service.freeze(doc,3,'meeting','','styret');self.service.enqueue(other,'styret')
+        fixtures.BoardAuthTests.login(self)
+        publisher=module.app.extensions['document_publisher']
+        client=Mock();client.store.return_value='commit';client.visible.return_value=False
+        from unittest.mock import patch
+        with patch('publisering.GithubDocuments',return_value=client):
+            response=self.client.post(f'/arsmote/versjon/{vid}',data=dict(csrf_token=self.token(),confirmed='yes'))
+        self.assertEqual(response.status_code,302)
+        client.store.assert_called_once()
+        self.assertEqual(client.store.call_args.args[0]['version_id'],vid)
+        with managed_db(module.get_db) as db:
+            self.assertEqual(db.execute('SELECT status FROM annual_publication_queue WHERE version_id=?',(vid,)).fetchone()[0],'stored')
+            self.assertEqual(db.execute('SELECT status FROM annual_publication_queue WHERE version_id=?',(other,)).fetchone()[0],'pending')

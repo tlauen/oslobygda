@@ -150,7 +150,7 @@ class GithubDocuments:
 class Publisher:
     def __init__(self,get_db,public_ledger): self.get_db=get_db;self.public_ledger=public_ledger
 
-    def run(self,client=None,limit=20):
+    def run(self,client=None,limit=20,target=None):
         # Missing credentials are detected before snapshots or queue states change.
         client=client or GithubDocuments()
         owner=uuid.uuid4().hex
@@ -166,12 +166,14 @@ class Publisher:
                     raise PublicationError('Publiseringslåsen er utgått. Avbryt og prøv same jobb igjen.')
         counts=dict(busy=False,stored=0,visible=0,failed=0)
         try:
-            self.public_ledger.refresh_enabled()
+            if target is None: self.public_ledger.refresh_enabled()
             with managed_db(self.get_db) as db:
                 jobs=[('ledger',r['id'],r['payload'],r['content_hash'],r['status']) for r in db.execute('''SELECT v.id,v.payload,v.content_hash,q.status FROM public_ledger_versions v
                     JOIN public_ledger_queue q ON q.version_id=v.id WHERE q.status IN ('pending','failed','sending','stored') ORDER BY v.id''')]
                 jobs += [('annual',r['id'],r['payload'],r['content_hash'],r['status']) for r in db.execute("SELECT * FROM annual_publication_queue WHERE status IN ('pending','failed','sending','stored') ORDER BY id")]
                 jobs += [('budget',r['id'],r['payload'],r['content_hash'],r['status']) for r in db.execute("SELECT * FROM budget_publication_queue WHERE status IN ('pending','failed','sending','stored') ORDER BY id")]
+            if target is not None:
+                jobs=[job for job in jobs if job[0]==target[0] and json.loads(job[2])['version_id']==target[1]]
             jobs.sort(key=lambda job: (job[4]=='stored',job[1],job[0]))
             for kind,job_id,raw,hash_value,state in jobs[:limit]:
                 guard()

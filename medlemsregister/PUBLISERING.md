@@ -128,3 +128,14 @@ framleis lesast, men manglar datagrunnlaget for kort og nøkkeltal.
 Etter oppdatering: lagre utkastet, lag ein ny førebels fast versjon, kontroller
 innhaldet og legg denne i kø. Køyr publiseringsjobben. Gamle faste kopiar og
 allereie kølagde eksportar blir ikkje omskrivne automatisk.
+
+## Publiser årsmelding med knappen
+
+På den faste årsmeldingsversjonen: kontroller innhaldet, kryss av for offentleg
+publisering og vel «Publiser årsmeldinga». Knappen køyrer overføringa for berre
+den valde versjonen med serverens GITHUB_DOCUMENTS_TOKEN. Andre køjobbar blir
+ikkje sende. Eksisterande publiseringslås og idempotens blir brukte.
+GitHub Pages må framleis byggje nettsida etter sending. Sida viser skilnad på
+sendt og stadfesta synleg. Bruk «Kontroller publisering / prøv igjen» ved behov.
+Ingen nettlesar-GET publiserer innhald. Manuell CLI og ein eventuell timeleg jobb
+kan framleis brukast for heile køa og for statusoppfølging.
