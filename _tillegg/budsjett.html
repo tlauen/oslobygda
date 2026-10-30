@@ -5,21 +5,17 @@
 {% assign document_number = selected.snapshot_number | default: selected.version_id %}
 {% capture document_path %}/lutar/arsdokument/{{ page.report_year }}/budsjett-{{ document_number }}.html{% endcapture %}
 {% assign document_file = site.static_files | where: 'path', document_path | first %}
-{% if document_file %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
-<p><a class="arsmelding-tilbake" href="{{ '/om/budsjett/' | relative_url }}">← Alle budsjett</a></p>
+<p><a class="arsmelding-tilbake" href="{{ '/om/budsjett/' | relative_url }}"><span aria-hidden="true">←</span> Alle budsjett</a></p>
+{% if document_file %}
 {% include dokument-filer.html path=document_path title=page.title %}
 {% else %}
-<link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
 <div class="offentleg-okonomi">
 <h1>{{ page.title | escape }}</h1>
-
-{% assign year_data = site.data.arsdokument[page.report_year] %}
-{% if year_data %}{% assign versions = year_data.versions | where: 'kind', 'budsjett' | sort: 'snapshot_number' | reverse %}{% assign approved = versions | where: 'status', 'approved' | first %}
-{% if approved %}<h2>Vedteke budsjett</h2><p>Vedteke {{ approved.decision_date | date: '%d.%m.%Y' }}</p>{% include budsjett-detaljar.html budsjett=approved %}{% elsif versions.size > 0 %}{% assign proposal = versions | first %}<h2>Styreforslag til årsmøtet</h2>{% include budsjett-detaljar.html budsjett=proposal %}{% endif %}
-{% for version in versions %}<details id="{{ version.version_id | escape }}"><summary>Budsjett – {% if version.status == 'approved' %}vedteke {{ version.decision_date | date: '%d.%m.%Y' }}{% else %}styreforslag til årsmøtet{% endif %}</summary>{% include budsjett-detaljar.html budsjett=version %}</details>{% else %}<p>Ingen budsjett er publiserte enno.</p>{% endfor %}
-{% else %}<p>Ingen budsjett er publiserte enno.</p>{% endif %}<p><a href="{{ '/om/budsjett/' | relative_url }}">Alle budsjett</a></p>
-
+{% if selected %}
+<h2>{% if selected.status == 'approved' %}Vedteke budsjett{% else %}Styreforslag til årsmøtet{% endif %}</h2>
+{% if selected.decision_date %}<p>Vedteke {{ selected.decision_date | date: '%d.%m.%Y' }}</p>{% endif %}
+{% include budsjett-detaljar.html budsjett=selected %}
+{% else %}<p>Ingen budsjett er publiserte enno.</p>{% endif %}
 </div>
-
 {% endif %}

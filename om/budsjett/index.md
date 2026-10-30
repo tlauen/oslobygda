@@ -4,9 +4,12 @@ title: Budsjett
 permalink: /om/budsjett/
 ---
 
+<link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
+<p><a class="arsmelding-tilbake" href="{{ '/om/' | relative_url }}#arsmote"><span aria-hidden="true">←</span> Om laget</a></p>
+
 # Budsjett
 
-Styreforslag og vedtekne budsjett blir viste som eigne faste versjonar.
+For kvart år viser me siste vedtekne budsjett, eller siste styreforslag dersom budsjettet ikkje er vedteke enno.
 
 {% assign count = 0 %}
 <ul>
