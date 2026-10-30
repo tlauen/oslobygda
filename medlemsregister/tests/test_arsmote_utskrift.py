@@ -57,6 +57,20 @@ class PrintTests(unittest.TestCase):
         self.client.post('/logout',data={'csrf_token':self.token()})
         self.assertEqual(self.client.get('/arsmote/dokument/rekneskap/2026').status_code,302)
 
+    def test_preview_frame_headers_allow_only_same_origin_documents(self):
+        did,text,annual,budget,financial=self.versions()
+        fixtures.BoardAuthTests.login(self)
+        for path in (f'/arsmote/utskrift/arsmelding/{annual}?embed=1',
+                     f'/arsmote/utskrift/rekneskap/{financial}?embed=1',
+                     f'/arsmote/utskrift/budsjett/{budget}?embed=1',
+                     '/arsmote/dokument/rekneskap/2026?embed=1'):
+            response=self.client.get(path)
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.headers['X-Frame-Options'],'SAMEORIGIN')
+            self.assertEqual(response.headers['Content-Security-Policy'],"frame-ancestors 'self'")
+        for path in ('/','/login','/arsmote/utskrift/rekneskap/99999'):
+            self.assertEqual(self.client.get(path).headers['X-Frame-Options'],'DENY')
+
     def test_print_unchanged_after_edit_and_no_database_side_effects(self):
         did,text,annual,budget,financial=self.versions();fixtures.BoardAuthTests.login(self)
         before=self.client.get(f'/arsmote/utskrift/arsmelding/{annual}').data

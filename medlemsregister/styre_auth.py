@@ -101,7 +101,14 @@ def install_auth(app, get_db, prefix_url):
         if request.endpoint != "static":
             response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "DENY"
+        document_frame = (
+            request.endpoint in ("annual_print", "ledger_document_preview")
+            and response.status_code == 200
+        )
+        response.headers["X-Frame-Options"] = "SAMEORIGIN" if document_frame else "DENY"
+        if document_frame:
+            response.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
+
         return response
 
     @app.route("/login", methods=["GET", "POST"])
