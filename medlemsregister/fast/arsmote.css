@@ -247,3 +247,14 @@
  margin:2.5rem 0 1.2rem;
  color:#173e30;
 }
+
+.arsmote-kropp form.arsmelding-kjelder { display:block; }
+.arsmelding-kjelder .kjelde-rad { display:grid; grid-template-columns:minmax(12rem,1fr) minmax(0,1.5fr); gap:1rem 2rem; padding:1rem 0; border-bottom:1px solid var(--line); }
+.arsmelding-kjelder .kjelde-rad:first-of-type { padding-top:0; }
+.arsmelding-kjelder .kjelde-rad:last-child { border-bottom:0; padding-bottom:0; }
+.arsmote-kropp .arsmelding-kjelder h3 { margin:0 0 .4rem; font-size:1rem; }
+.arsmelding-kjelder p { margin:0; font-size:.85rem; line-height:1.6; }
+.arsmelding-kjelder .kjelde-knappar { display:flex; flex-wrap:wrap; align-items:center; gap:.65rem; }
+.arsmote-kropp .arsmelding-kjelder button { margin:0; width:auto; }
+.arsmote-kropp .arsmelding-kjelder button.sekundaer { background:#fffefa; color:#5e5c55; border-color:#cbc9c0; }
+@media(max-width:700px){.arsmelding-kjelder .kjelde-rad{grid-template-columns:1fr}}
