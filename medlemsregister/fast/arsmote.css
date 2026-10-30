@@ -316,3 +316,7 @@
 @media(min-width:760px) {
  .arsmote-kropp #post-form>label:not([hidden]):not(:has(textarea)) .post-feltnamn { min-height:3em; display:flex; align-items:flex-end; }
 }
+
+/* Deloverskriftene skal vere tydelegare enn gruppene inne i tabellane. */
+.arsmote-kropp .kategori-gruppe th,.arsmote-kropp .kompakt-tabell .kategori-gruppe th { font-size:1.1rem; }
+.arsmote-kropp:has(table) h2 { font-size:1.85rem; }

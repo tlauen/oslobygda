@@ -1,6 +1,7 @@
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
 <div class="offentleg-okonomi">
 <h1>{{ page.title | escape }}</h1>
+{% include dokument-pdf.html %}
 {% assign year_data = site.data.arsdokument[page.report_year] %}
 {% if year_data %}{% assign versions = year_data.versions | where: 'kind', 'budsjett' | sort: 'snapshot_number' | reverse %}{% assign approved = versions | where: 'status', 'approved' | first %}
 {% if approved %}<h2>Vedteke budsjett</h2><p>Vedteke {{ approved.decision_date | escape }} · {{ approved.version_id | escape }}</p>{% include budsjett-detaljar.html budsjett=approved %}{% elsif versions.size > 0 %}{% assign proposal = versions | first %}<h2>Styreforslag til årsmøtet</h2><p>{{ proposal.version_id | escape }} · møteår {{ proposal.meeting_year | escape }}</p>{% include budsjett-detaljar.html budsjett=proposal %}{% endif %}

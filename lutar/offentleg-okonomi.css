@@ -16,3 +16,7 @@
 .arsmelding-tilbake:hover { background:#dbe7d0; text-decoration:none; }
 .arsmelding-tilbake:focus-visible { outline:3px solid #206582; outline-offset:3px; }
 
+
+.offentleg-okonomi h3 { font-size:1.85rem; font-weight:600; }
+.offentleg-okonomi .okonomi-tabell .account-group th { font-size:1.15rem; }
+.offentleg-okonomi .okonomi-tabell .kategori-gruppe th { font-size:1.15rem; }

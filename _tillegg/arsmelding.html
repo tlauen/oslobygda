@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="{{ '/lutar/arsmelding-tilskipingar.css' | relative_url }}">
 <p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}"><span aria-hidden="true">←</span> Alle årsmeldingar</a></p>
 <h1>{{ page.title | escape }}</h1>
+{% include dokument-pdf.html %}
 {% assign report = site.data.arsdokument[page.report_year] %}
 {% if report.versions %}
 {% assign report_versions = report.versions | where: 'kind', 'arsmelding' | sort: 'version_id' | reverse %}

@@ -2,6 +2,7 @@
 <div class="offentleg-okonomi">
 <p><a class="arsmelding-tilbake" href="{{ '/om/rekneskap/' | relative_url }}"><span aria-hidden="true">←</span> Alle rekneskap</a></p>
 <h1>{{ page.title | escape }}</h1>
+{% include dokument-pdf.html %}
 {% assign year_data = site.data.arsdokument[page.report_year] %}
 {% if year_data %}
 {% assign fixed_reports = year_data.versions | where: 'kind', 'rekneskap' | sort: 'snapshot_number' | reverse %}
