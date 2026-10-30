@@ -37,7 +37,7 @@ class PrintTests(unittest.TestCase):
             for private in ('PRIVATE-USER','PRIVATE-PAYER','INTERNAL-SECRET','Private grunnlag'): self.assertNotIn(private,raw)
         raw=self.client.get(f'/arsmote/utskrift/arsmelding/{annual}').data.decode()
         self.assertIn('&lt;script&gt;fiktiv&lt;/script&gt;',raw);self.assertNotIn('<script>fiktiv</script>',raw)
-        self.assertIn('Rapportår 2026',raw);self.assertIn('Møteår 2027',raw)
+        self.assertIn('Årsmelding 2026',raw);self.assertNotIn('Rapportår 2026',raw);self.assertNotIn('Møteår 2027',raw);self.assertNotIn('Versjon ',raw)
         self.assertEqual(raw.count('Lang omtale.'),400)
 
     def test_print_unchanged_after_edit_and_no_database_side_effects(self):
