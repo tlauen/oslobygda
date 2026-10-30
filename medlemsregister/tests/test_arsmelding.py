@@ -156,4 +156,4 @@ class ReportTests(unittest.TestCase):
         self.update('refresh_membership')
         self.assertEqual(self.report()['membership']['count'], 1)
         self.assertTrue(self.report()['membership']['includes_free'])
-        self.assertIn('Teljande medlemmar', self.doc()['body'])
+        self.assertIn('Medlemmar', self.doc()['body'])
