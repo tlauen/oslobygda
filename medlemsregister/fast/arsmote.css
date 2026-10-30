@@ -164,7 +164,7 @@
 .arsmelding-helt { padding:1rem 0 2rem; border-bottom:2px solid #315c38; }
 .arsmelding-overline { text-transform:uppercase; letter-spacing:.15em; font-size:.75rem; font-weight:700; color:#315c38; }
 .arsmelding-helt h2 { max-width:17ch; font:clamp(2rem,5vw,3.8rem)/1.08 Georgia,serif; letter-spacing:-.035em; margin:.75rem 0; }
-.arsmelding-tal { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin:2rem 0; }
+.arsmelding-tal { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin:2rem 0; }
 .arsmelding-tal section { padding:1.4rem; border-radius:12px; background:#e7efdf; }
 .arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
 .arsmelding-tal section:nth-child(3) { background:#f5edda; }
@@ -320,3 +320,8 @@
 /* Deloverskriftene skal vere tydelegare enn gruppene inne i tabellane. */
 .arsmote-kropp .kategori-gruppe th,.arsmote-kropp .kompakt-tabell .kategori-gruppe th { font-size:1.1rem; }
 .arsmote-kropp:has(table) h2 { font-size:1.85rem; }
+
+.arsmelding-alder dl { margin: .75rem 0; }
+.arsmelding-alder dl div { display:flex; justify-content:space-between; gap:1rem; padding:.2rem 0; }
+.arsmelding-alder dd { margin:0; font-weight:700; }
+.arsmelding-tal section:nth-child(4) { background:#f2e7df; }

@@ -54,8 +54,8 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .arsmelding-helt { border-bottom:2pt solid #315c38; padding:2mm 0 6mm; margin-bottom:6mm; }
 .arsmelding-overline { font:8pt system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:#315c38; }
 .arsmelding-helt h2 { font-size:28pt; line-height:1.1; max-width:18ch; margin:2mm 0 4mm; }
-.arsmelding-tal { display:flex; gap:4mm; margin:6mm 0; break-inside:avoid; }
-.arsmelding-tal section { flex:1; min-width:0; padding:4mm; background:#e7efdf; border:1pt solid #bfcfb7; border-radius:3mm; }
+.arsmelding-tal { display:flex; flex-wrap:wrap; gap:4mm; margin:6mm 0; break-inside:avoid; }
+.arsmelding-tal section { flex:1 1 45%; min-width:0; padding:4mm; background:#e7efdf; border:1pt solid #bfcfb7; border-radius:3mm; }
 .arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
 .arsmelding-tal section:nth-child(3) { background:#f5edda; }
 .arsmelding-tal strong { font-size:28pt; line-height:1.1; }
@@ -127,3 +127,8 @@ caption { font: bold 15pt/1.3 Georgia,serif; margin:6mm 0 3mm; }
  .arsmelding-tal p { font-size:.9rem; }
  .arsmelding-styretekst { padding:1.25rem; }
 }
+
+.arsmelding-alder dl { margin: .75rem 0; }
+.arsmelding-alder dl div { display:flex; justify-content:space-between; gap:1rem; padding:.2rem 0; }
+.arsmelding-alder dd { margin:0; font-weight:700; }
+.arsmelding-tal section:nth-child(4) { background:#f2e7df; }
