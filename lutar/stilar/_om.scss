@@ -29,3 +29,5 @@
 .lovdokument-tilbake{max-width:780px;margin:1.4rem auto 2.5rem;font-size:.9rem}
 @media(max-width:560px){.lovdokument{margin-top:1.5rem;border-radius:14px}.lovparagraf{padding:24px 0}}
 @media print{.lovdokument{border:0;margin:0;max-width:none}.lovdokument-topp{background:none;padding:0 0 24px}.lovdokument-paragrafar{padding:0}.lovparagraf{break-inside:avoid}.lovdokument-tilbake{display:none}}
+
+#arsmotesaker-tittel { scroll-margin-top: 2rem; }

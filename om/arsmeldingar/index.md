@@ -4,6 +4,9 @@ title: Årsmeldingar
 permalink: /om/arsmeldingar/
 ---
 
+<link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
+<p><a class="arsmelding-tilbake" href="{{ '/om/' | relative_url }}#arsmotesaker-tittel"><span aria-hidden="true">←</span> Om laget</a></p>
+
 # Årsmeldingar
 
 Her finn du publiserte årsmeldingar og sakspapir frå Oslobygda kulturlag.
