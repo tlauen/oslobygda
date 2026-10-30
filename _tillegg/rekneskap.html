@@ -1,8 +1,21 @@
+{% assign year_data = site.data.arsdokument[page.report_year] %}
+{% if year_data.versions %}{% assign candidates = year_data.versions | where: 'kind', 'rekneskap' | sort: 'snapshot_number' | reverse %}{% else %}{% assign candidates = '' | split: ',' %}{% endif %}
+{% assign selected = candidates | where: 'status', 'approved' | first %}
+{% unless selected %}{% assign selected = candidates | first %}{% endunless %}
+{% unless selected.status == 'approved' %}{% if year_data.ledger_latest %}{% assign selected = year_data.ledger_latest %}{% endif %}{% endunless %}
+{% assign document_number = selected.snapshot_number | default: selected.version_id %}
+{% capture document_path %}/lutar/arsdokument/{{ page.report_year }}/rekneskap-{{ document_number }}.html{% endcapture %}
+{% assign document_file = site.static_files | where: 'path', document_path | first %}
+{% if document_file %}
+<link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
+<p><a class="arsmelding-tilbake" href="{{ '/om/rekneskap/' | relative_url }}">← Alle rekneskap</a></p>
+{% include dokument-filer.html path=document_path title=page.title %}
+{% else %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
 <div class="offentleg-okonomi">
 <p><a class="arsmelding-tilbake" href="{{ '/om/rekneskap/' | relative_url }}"><span aria-hidden="true">←</span> Alle rekneskap</a></p>
 <h1>{{ page.title | escape }}</h1>
-{% include dokument-pdf.html %}
+
 {% assign year_data = site.data.arsdokument[page.report_year] %}
 {% if year_data %}
 {% assign fixed_reports = year_data.versions | where: 'kind', 'rekneskap' | sort: 'snapshot_number' | reverse %}
@@ -15,3 +28,5 @@
 
 
 </div>
+
+{% endif %}

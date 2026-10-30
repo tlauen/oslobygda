@@ -1,6 +1,6 @@
 """Utskrift av faste dokumentkopiar. Ingen publisering eller databaseendring."""
 import json
-from flask import abort,render_template
+from flask import abort,render_template,request
 from database import managed_db
 from arsdokument import public_payload
 from offentleg_rekneskap import validate_ledger
@@ -8,6 +8,12 @@ from budsjett import validate_budget
 
 
 def install_print(app,get_db,require_admin):
+    @app.route('/arsmote/dokument/rekneskap/<int:year>')
+    @require_admin
+    def ledger_document_preview(year):
+        from dokumentvising import render_document
+        return render_document(app.extensions['public_ledger'].preview(year))
+
     @app.route('/arsmote/utskrift/<kind>/<int:version_id>')
     @require_admin
     def annual_print(kind,version_id):
@@ -27,5 +33,5 @@ def install_print(app,get_db,require_admin):
                 if not row: abort(404)
                 report=json.loads(row['payload']);validate_budget(report)
             else: abort(404)
-        return render_template('arsmote_utskrift.html',kind=kind,report=report,
-                               title=report.get('title',f'Rekneskap {report["report_year"]}'),structured_report=structured_report)
+        from dokumentvising import render_document
+        return render_document(report)

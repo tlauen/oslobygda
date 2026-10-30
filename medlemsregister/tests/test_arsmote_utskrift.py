@@ -40,6 +40,23 @@ class PrintTests(unittest.TestCase):
         self.assertIn('Årsmelding 2026',raw);self.assertNotIn('Rapportår 2026',raw);self.assertNotIn('Møteår 2027',raw);self.assertNotIn('Versjon ',raw)
         self.assertEqual(raw.count('Lang omtale.'),400)
 
+    def test_shared_renderer_matches_internal_print_and_rejects_private_fields(self):
+        import json
+        from dokumentvising import render_document
+        from publisering import PublicationError
+        did,text,annual,budget,financial=self.versions()
+        fixtures.BoardAuthTests.login(self)
+        with managed_db(module.get_db) as db:
+            payload=json.loads(db.execute('SELECT payload FROM public_ledger_versions WHERE id=?',(financial,)).fetchone()[0])
+        self.assertEqual(self.client.get(f'/arsmote/utskrift/rekneskap/{financial}').data.decode(),render_document(payload))
+        with self.assertRaises(PublicationError):render_document(dict(payload,internal_note='PRIVATE'))
+        self.assertNotIn('Rapportår',render_document(payload))
+        self.assertNotIn('Versjon ',render_document(payload))
+        self.assertIn('data-dokument-ramme',self.client.get('/okonomi/offentleg/2026').data.decode())
+        self.assertIn('Rekneskap 2026',self.client.get('/arsmote/dokument/rekneskap/2026').data.decode())
+        self.client.post('/logout',data={'csrf_token':self.token()})
+        self.assertEqual(self.client.get('/arsmote/dokument/rekneskap/2026').status_code,302)
+
     def test_print_unchanged_after_edit_and_no_database_side_effects(self):
         did,text,annual,budget,financial=self.versions();fixtures.BoardAuthTests.login(self)
         before=self.client.get(f'/arsmote/utskrift/arsmelding/{annual}').data

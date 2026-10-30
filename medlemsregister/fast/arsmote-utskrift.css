@@ -92,3 +92,20 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .arsmelding-dato time { display:block; min-width:25mm; }
 .arsmelding-dato .arsmelding-dag { display:block; font:20pt/1.1 Georgia,serif; color:#173e30; }
 .arsmelding-dato .arsmelding-manad { display:block; margin-top:1mm; font:9pt/1.4 system-ui,sans-serif; color:#3a514c; }
+
+/* Same dokumentflate i nettsida og i Bygdelista. */
+body { background:#fcfaf4; color:#171611; }
+.paper { background:#fcfaf4; }
+body.embedded { margin:0; background:#fcfaf4; }
+.embedded .toolbar { display:none; }
+.embedded .paper { margin:0 auto; padding:1rem 0; max-width:100%; }
+@media screen { .paper h2 { font-size:1.85rem; }.account-group th { font-size:1.1rem; } }
+@media print { body,.paper { background:white; }.embedded .paper { padding:0; } }
+
+.kategori-note { display:block; font:400 .8rem/1.5 system-ui,sans-serif; color:#5e5c55; margin-top:.3rem; }
+.tabell-vising { font:600 .8rem/1.5 system-ui,sans-serif; border:1px solid #b5beb3; border-radius:7px; background:transparent; padding:.5rem .75rem; cursor:pointer; }
+.kompakt-tabell .kategori-note { display:none; }
+@media print { .tabell-vising { display:none; } }
+
+caption { font: bold 15pt/1.3 Georgia,serif; margin:6mm 0 3mm; }
+@media screen { caption { font-size:1.85rem; } }

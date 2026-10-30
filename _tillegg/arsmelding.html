@@ -1,8 +1,20 @@
+{% assign year_data = site.data.arsdokument[page.report_year] %}
+{% if year_data.versions %}{% assign candidates = year_data.versions | where: 'kind', 'arsmelding' | sort: 'version_id' | reverse %}{% else %}{% assign candidates = '' | split: ',' %}{% endif %}
+{% assign selected = candidates | where: 'status', 'approved' | first %}
+{% unless selected %}{% assign selected = candidates | first %}{% endunless %}
+{% assign document_number = selected.snapshot_number | default: selected.version_id %}
+{% capture document_path %}/lutar/arsdokument/{{ page.report_year }}/arsmelding-{{ document_number }}.html{% endcapture %}
+{% assign document_file = site.static_files | where: 'path', document_path | first %}
+{% if document_file %}
+<link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
+<p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}">← Alle arsmeldingar</a></p>
+{% include dokument-filer.html path=document_path title=page.title %}
+{% else %}
 <link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/lutar/arsmelding-tilskipingar.css' | relative_url }}">
 <p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}"><span aria-hidden="true">←</span> Alle årsmeldingar</a></p>
 <h1>{{ page.title | escape }}</h1>
-{% include dokument-pdf.html %}
+
 {% assign report = site.data.arsdokument[page.report_year] %}
 {% if report.versions %}
 {% assign report_versions = report.versions | where: 'kind', 'arsmelding' | sort: 'version_id' | reverse %}
@@ -16,3 +28,5 @@
 </article>
 {% else %}<p>Årsmeldinga er ikkje publisert enno.</p>{% endfor %}
 {% else %}<p>Årsmeldinga er ikkje publisert enno.</p>{% endif %}
+
+{% endif %}

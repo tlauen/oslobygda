@@ -1,0 +1,167 @@
+<!doctype html><html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rekneskap 2026</title><!-- arsmote-utskrift.css + arsmelding-tilskipingar.css --><style>@page { size: A4 portrait; margin: 18mm 16mm 20mm; }
+* { box-sizing: border-box; }
+body { margin: 0; color: #172524; background: #ecefec; font: 11pt/1.5 Georgia, "Times New Roman", serif; }
+.toolbar { max-width: 210mm; margin: 1rem auto; padding: .8rem 1rem; font-family: system-ui, sans-serif; background: white; }
+.toolbar button { font: inherit; padding: .5em 1em; cursor: pointer; }
+.paper { max-width: 210mm; margin: 1rem auto; padding: 18mm 16mm 20mm; background: white; }
+.organization { font: 10pt/1.4 system-ui, sans-serif; letter-spacing: .04em; margin: 0 0 8mm; }
+h1 { font-size: 23pt; line-height: 1.15; margin: 0 0 5mm; }
+h2 { font-size: 15pt; line-height: 1.3; margin: 8mm 0 3mm; }
+h3 { font-size: 12pt; margin: 5mm 0 2mm; }
+h1,h2,h3,caption { break-after: avoid; }
+p { margin: 0 0 3mm; orphans: 3; widows: 3; }
+.metadata { border-top: 1px solid #637874; border-bottom: 1px solid #637874; padding: 3mm 0; margin-bottom: 6mm; font: 9pt/1.5 system-ui, sans-serif; }
+.document-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+table { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font: 9pt/1.35 system-ui, sans-serif; table-layout: fixed; }
+caption { text-align: left; font-weight: bold; margin-bottom: 2mm; }
+th,td { padding: 2mm 1.5mm; border-bottom: 1px solid #b6c3be; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+thead th { border-bottom: 1.5px solid #3a514c; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; page-break-inside: avoid; }
+.amount { text-align: right; font-variant-numeric: tabular-nums; }
+.total th,.total td { font-weight: bold; border-top: 1px solid #3a514c; }
+.transactions { font-size: 8pt; }
+.transactions .date { width: 19%; }
+.transactions .reference { width: 23%; }
+.transactions .amount { width: 18%; }
+.footnote { font: 9pt/1.4 system-ui, sans-serif; }
+@media print {
+  body { background: white; color: black; font-size: 10.5pt; }
+  .toolbar { display: none !important; }
+  .paper { max-width: none; margin: 0; padding: 0; }
+  a { color: inherit; text-decoration: none; }
+}
+@media screen and (max-width: 700px) {
+  .paper { margin: 0; padding: 1rem; }
+  h1 { font-size: 20pt; }
+  th,td { padding: 1.5mm .8mm; }
+}
+
+/* Safari held blokker samla meir påliteleg enn tabellrader ved utskrift. */
+.transaction { break-inside: avoid; page-break-inside: avoid; border-bottom: 1px solid #b6c3be; padding: 2.5mm 0; }
+.transaction p { margin: 0 0 1mm; }
+.transaction-heading { font-variant-numeric: tabular-nums; }
+.transaction-category { color: #3a514c; }
+
+.balance-section { break-inside: avoid; page-break-inside: avoid; }
+
+.transaction-top { display:flex; justify-content:space-between; align-items:baseline; gap:5mm; font-variant-numeric:tabular-nums; }
+.transaction-top time { color:#3a514c; font-size:8pt; }
+.transaction-amount { white-space:nowrap; font-size:10pt; }
+.transaction-title { font-size:10pt; font-weight:650; line-height:1.4; }
+.transaction-category,.transaction-kind { font-size:8pt; line-height:1.4; }
+/* Same strukturerte årsmelding som førehandsvisinga, tilpassa papir. */
+.arsmelding-helt { border-bottom:2pt solid #315c38; padding:2mm 0 6mm; margin-bottom:6mm; }
+.arsmelding-overline { font:8pt system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:#315c38; }
+.arsmelding-helt h2 { font-size:28pt; line-height:1.1; max-width:18ch; margin:2mm 0 4mm; }
+.arsmelding-tal { display:flex; gap:4mm; margin:6mm 0; break-inside:avoid; }
+.arsmelding-tal section { flex:1; min-width:0; padding:4mm; background:#e7efdf; border:1pt solid #bfcfb7; border-radius:3mm; }
+.arsmelding-tal section:nth-child(2) { background:#e4f0f4; }
+.arsmelding-tal section:nth-child(3) { background:#f5edda; }
+.arsmelding-tal strong { font-size:28pt; line-height:1.1; }
+.arsmelding-tal h3 { font: bold 9pt/1.3 system-ui,sans-serif; margin:3mm 0 2mm; }
+.arsmelding-tal p { font:8pt/1.5 system-ui,sans-serif; }
+.arsmelding-tekst { white-space:pre-wrap; overflow-wrap:anywhere; }
+.arsmelding-seksjon { font-size:17pt; margin:8mm 0 4mm; break-after:avoid; }
+.arsmelding-aktivitet { border-top:1pt solid #dedcd4; border-left:3pt solid #b99b44; padding:4mm; margin:0 0 3mm; break-inside:avoid; }
+.arsmelding-aktivitet.status-completed { border-left-color:#42744a; }
+.arsmelding-aktivitet.status-cancelled { border-left-color:#a34b45; background:#fff1ed; }
+.arsmelding-dato { display:flex; justify-content:space-between; gap:4mm; font:9pt system-ui,sans-serif; margin-bottom:2mm; }
+.arsmelding-dato span { font-weight:bold; }
+.arsmelding-aktivitet h4 { font-size:12pt; line-height:1.4; margin:2mm 0; break-after:avoid; }
+.arsmelding-stad,.arsmelding-deltakarar { font:9pt/1.5 system-ui,sans-serif; color:#315c38; }
+.arsmelding-styre { display:flex; gap:5mm; break-inside:avoid; }
+.arsmelding-styre article { flex:1; min-width:0; }
+.arsmelding-styre img { width:100%; height:42mm; object-fit:cover; border-radius:3mm; }
+.arsmelding-styre p { font:9pt system-ui,sans-serif; margin:2mm 0; }
+.arsmelding-styre h4 { font-size:11pt; margin:0; }
+@media print { .arsmelding-vising { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+
+.account-group { break-after:avoid; page-break-after:avoid; }
+.account-group th { padding:4mm 2mm 2mm; font: bold 13pt/1.3 Georgia,serif; text-align:left; background:#e4f0f4; color:#173e50; border-top:1.5pt solid #637874; }
+.total th,.total td { border-top:1pt solid #637874; background:#f1f5ed; font-weight:bold; }
+.final-total th,.final-total td { border-top:2pt double #315c38; font-size:11pt; padding-top:3mm; }
+
+/* Tre tydelege felt, som i transaksjonslista på skjerm. */
+.transaction { display:flex; align-items:flex-start; gap:4mm; padding:4mm 0; }
+.transaction-date { flex:0 0 23mm; font:8pt/1.5 system-ui,sans-serif; color:#3a514c; }
+.transaction-content { flex:1; min-width:0; overflow-wrap:anywhere; }
+.transaction>.transaction-amount { flex:0 0 29mm; text-align:right; font: bold 9pt/1.5 system-ui,sans-serif; font-variant-numeric:tabular-nums; }
+.transaction-title { margin-top:0; }
+
+.arsmelding-dato time { display:block; min-width:25mm; }
+.arsmelding-dato .arsmelding-dag { display:block; font:20pt/1.1 Georgia,serif; color:#173e30; }
+.arsmelding-dato .arsmelding-manad { display:block; margin-top:1mm; font:9pt/1.4 system-ui,sans-serif; color:#3a514c; }
+
+/* Same dokumentflate i nettsida og i Bygdelista. */
+body { background:#fcfaf4; color:#171611; }
+.paper { background:#fcfaf4; }
+body.embedded { margin:0; background:#fcfaf4; }
+.embedded .toolbar { display:none; }
+.embedded .paper { margin:0 auto; padding:1rem 0; max-width:100%; }
+@media screen { .paper h2 { font-size:1.85rem; }.account-group th { font-size:1.1rem; } }
+@media print { body,.paper { background:white; }.embedded .paper { padding:0; } }
+
+.kategori-note { display:block; font:400 .8rem/1.5 system-ui,sans-serif; color:#5e5c55; margin-top:.3rem; }
+.tabell-vising { font:600 .8rem/1.5 system-ui,sans-serif; border:1px solid #b5beb3; border-radius:7px; background:transparent; padding:.5rem .75rem; cursor:pointer; }
+.kompakt-tabell .kategori-note { display:none; }
+@media print { .tabell-vising { display:none; } }
+
+caption { font: bold 15pt/1.3 Georgia,serif; margin:6mm 0 3mm; }
+@media screen { caption { font-size:1.85rem; } }
+
+/* Felles tilskipingskort for førehandsvising og A4. */
+.arsmelding-vising .arsmelding-aktivitet {
+ display:grid; grid-template-columns:7.5em minmax(0,1fr); gap:1.5em;
+ border-top:1px solid #dedcd4; border-left:3px solid #b99b44;
+ padding:1.25em 1em; margin:0 0 .75em;
+ break-inside:avoid; page-break-inside:avoid;
+}
+.arsmelding-vising .arsmelding-dato { display:block; margin:0; font:inherit; }
+.arsmelding-vising .arsmelding-dato time { display:block; min-width:0; font:inherit; }
+.arsmelding-vising .arsmelding-dag { display:block; font:2.3em/1.1 Georgia,serif; color:#173e30; }
+.arsmelding-vising .arsmelding-manad { display:block; margin-top:.25em; font:.9em/1.4 system-ui,sans-serif; color:#5e5c55; }
+.arsmelding-vising .arsmelding-aktivitet .arsmelding-dato span { display:block; width:fit-content; margin-top:.65em; padding:.3em .55em; border-radius:6px; background:#f5edda; color:#655015; font:650 .75em/1.5 system-ui,sans-serif; }
+.arsmelding-vising .arsmelding-aktivitet.status-completed { border-left-color:#42744a; }
+.arsmelding-vising .arsmelding-aktivitet.status-cancelled { border-left-color:#a34b45; background:#fff1ed; }
+.arsmelding-vising .status-completed .arsmelding-dato span { background:#e7efdf; color:#254a2a; }
+.arsmelding-vising .status-cancelled .arsmelding-dato span { background:#f6dcd5; color:#7b2925; }
+.arsmelding-vising .arsmelding-aktivitet h4 { font:1.3em/1.4 Georgia,serif; margin:0 0 .5em; }
+.arsmelding-vising .arsmelding-aktivitet .arsmelding-stad { font:.85em/1.5 system-ui,sans-serif; color:#5e5c55; margin:0 0 .75em; }
+.arsmelding-vising .arsmelding-aktivitet .arsmelding-tekst { font-size:1em; line-height:1.8; margin:0 0 .75em; }
+.arsmelding-vising .arsmelding-deltakarar { display:inline-block; padding:.35em .65em; margin:.25em 0 0; background:#e7efdf; color:#254a2a; border-radius:30px; font:.8em/1.5 system-ui,sans-serif; }
+@media screen and (max-width:650px) {
+ .arsmelding-vising .arsmelding-aktivitet { grid-template-columns:1fr; gap:.75em; }
+ .arsmelding-vising .arsmelding-dato { display:flex; align-items:center; gap:1em; }
+}
+@media print { .arsmelding-vising .arsmelding-aktivitet { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+
+@media screen {
+ .arsmelding-vising .arsmelding-dato .arsmelding-dag { font-size:1.8rem; }
+ .arsmelding-vising .arsmelding-dato .arsmelding-manad { font-size:.9rem; }
+}
+</style></head><body>
+<nav class="toolbar" aria-label="Utskrift"><button type="button" onclick="window.print()">Skriv ut / lagre som PDF</button><p>Vel A4 og 100 % skala. Slå av nettlesaren sine topp- og botntekstar dersom dei viser nettadresse eller dato. Vel «Lagre som PDF» som skrivar for ei PDF-fil.</p></nav>
+<main class="paper" id="offentleg-dokument"><p class="organization">Oslobygda kulturlag</p><h1>Rekneskap 2026</h1>
+<div class="metadata"><strong>Førebels – ikkje godkjend årsrekneskap</strong>
+</div>
+<p class="footnote">Tal til og med 30. oktober 2026. Generert 30. oktober 2026 kl. 15:08. Ikkje ferdig avstemt årsrekneskap.</p>
+<table><caption>Innkome og utgifter (NOK)</caption><thead><tr><th scope="col">Post</th><th scope="col" class="amount">Beløp</th></tr></thead><tbody>
+<tr class="account-group"><th colspan="2">Innkome</th></tr><tr><th scope="row">Medlemspengar<small class="kategori-note">Medlemspengar for medlemsåret. Enkeltbetalingar blir berre viste som éin samla årssum offentleg.</small></th><td class="amount">1 417,00 kr</td></tr><tr><th scope="row">Tilskot<small class="kategori-note">Støtte frå til dømes kommune, fond eller andre organisasjonar.</small></th><td class="amount">0,00 kr</td></tr><tr><th scope="row">Gåver<small class="kategori-note">Frivillige gåver utan krav om ei konkret motyting.</small></th><td class="amount">1 552,75 kr</td></tr><tr><th scope="row">Tilskipingar<small class="kategori-note">Billettar, deltakarbetaling og anna innkome frå tilskipingar.</small></th><td class="amount">0,00 kr</td></tr><tr><th scope="row">Renteinnkome<small class="kategori-note">Renter banken har godskrive laget. Før beløpet på datoen det står bokført på kontoutskrifta.</small></th><td class="amount">0,00 kr</td></tr><tr><th scope="row">Anna innkome<small class="kategori-note">Anna innkome som ikkje passar i kategoriane ovanfor.</small></th><td class="amount">0,00 kr</td></tr><tr class="total"><th scope="row">Sum innkome</th><td class="amount">2 969,75 kr</td></tr><tr class="account-group"><th colspan="2">Utgifter</th></tr><tr><th scope="row">Digitale tenester<small class="kategori-note">Domene, nettside, PythonAnywhere, e-post og andre digitale abonnement.</small></th><td class="amount">1 552,75 kr</td></tr><tr><th scope="row">Tilskipingar<small class="kategori-note">Utgifter til tilskipingar, til dømes honorar, lokale, servering og utstyr til tilskipinga.</small></th><td class="amount">0,00 kr</td></tr><tr><th scope="row">Betalings- og bankgebyr<small class="kategori-note">Gebyr frå banken eller betalingstenester som Vipps.</small></th><td class="amount">19,94 kr</td></tr><tr><th scope="row">Andre utgifter<small class="kategori-note">Andre utgifter som ikkje passar i kategoriane ovanfor.</small></th><td class="amount">0,00 kr</td></tr><tr class="total"><th scope="row">Sum utgifter</th><td class="amount">1 572,69 kr</td></tr><tr class="total final-total"><th scope="row">Resultat</th><td class="amount">1 397,06 kr</td></tr></tbody></table>
+<section class="balance-section"><h2>Balanse</h2><table><caption>Eigedelar, gjeld og eigenkapital (NOK)</caption><thead><tr><th scope="col">Post</th><th scope="col" class="amount">Inngåande</th><th scope="col" class="amount">Ved rapportdato</th></tr></thead><tbody>
+<tr class="account-group"><th colspan="3">Eigedelar</th></tr><tr><th scope="row">Bank<small class="kategori-note">Pengar på bankkontoen til laget.</small></th><td class="amount">0,00 kr</td><td class="amount">1 497,06 kr</td></tr><tr><th scope="row">Vipps til gode<small class="kategori-note">Betalingar laget har fått via Vipps, men som enno ikkje er overførte til banken.</small></th><td class="amount">0,00 kr</td><td class="amount">-100,00 kr</td></tr><tr><th scope="row">Kontantar<small class="kategori-note">Kontantar laget har. Pengar som alt er betalte vidare via Vipps, skal ikkje teljast her òg.</small></th><td class="amount">0,00 kr</td><td class="amount">0,00 kr</td></tr><tr><th scope="row">Forskotsbetalte kostnader<small class="kategori-note">Den delen av betalte kostnader som gjeld seinare år, til dømes eit abonnement.</small></th><td class="amount">0,00 kr</td><td class="amount">0,00 kr</td></tr><tr><th scope="row">Andre krav<small class="kategori-note">Pengar andre skuldar laget, som laget enno ikkje har fått.</small></th><td class="amount">0,00 kr</td><td class="amount">0,00 kr</td></tr><tr class="total"><th scope="row">Sum eigedelar</th><td class="amount">0,00 kr</td><td class="amount">1 397,06 kr</td></tr><tr class="account-group"><th colspan="3">Gjeld</th></tr><tr><th scope="row">Skuldige private utlegg<small class="kategori-note">Pengar laget skuldar personar som har betalt utgifter for laget med eigne pengar.</small></th><td class="amount">0,00 kr</td><td class="amount">0,00 kr</td></tr><tr><th scope="row">Leverandørgjeld<small class="kategori-note">Rekningar som er registrerte som utgifter, men som laget enno ikkje har betalt.</small></th><td class="amount">0,00 kr</td><td class="amount">0,00 kr</td></tr><tr class="total"><th scope="row">Sum gjeld</th><td class="amount">0,00 kr</td><td class="amount">0,00 kr</td></tr><tr class="total final-total"><th scope="row">Eigenkapital</th><td class="amount">0,00 kr</td><td class="amount">1 397,06 kr</td></tr></tbody></table>
+</section><h2>Transaksjonsdetaljar</h2><p class="footnote">Medlemspengar som samla årssum: 1 417,00 kr. Enkeltbetalingar og originalbilag er interne. Overføringar og oppgjer er viste utan ny resultateffekt; beløpet viser endring på bankkontoen.</p>
+<div class="transactions" aria-label="Offentlege detaljar (NOK)"><article class="transaction"><div class="transaction-date"><time datetime="2026-02-13">13.02.2026</time></div><div class="transaction-content"><p class="transaction-title">Domene oslobygda.no</p><p class="transaction-category">Digitale tenester · B-045b71d16a114734</p></div><strong class="transaction-amount">189,00 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-03-30">30.03.2026</time></div><div class="transaction-content"><p class="transaction-title">Epost domeneshop</p><p class="transaction-category">Digitale tenester · B-7b98a345636f4546</p></div><strong class="transaction-amount">276,00 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-09-24">24.09.2026</time></div><div class="transaction-content"><p class="transaction-title">Overføring frå Vipps</p><p class="transaction-category">Betalings- og bankgebyr · B-d3f809f5706f4535</p></div><strong class="transaction-amount">0,19 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-09-25">25.09.2026</time></div><div class="transaction-content"><p class="transaction-title">Overføring frå Vipps</p><p class="transaction-category">Betalings- og bankgebyr · B-2ba63704cceb4eb5</p></div><strong class="transaction-amount">2,02 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-09-30">30.09.2026</time></div><div class="transaction-content"><p class="transaction-title">Overføring frå Vipps</p><p class="transaction-category">Betalings- og bankgebyr · B-62cbb5c4d96e4049</p></div><strong class="transaction-amount">0,11 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-10-21">21.10.2026</time></div><div class="transaction-content"><p class="transaction-title">Overføring frå Vipps</p><p class="transaction-category">Betalings- og bankgebyr · B-bfd5817d8ae047d0</p></div><strong class="transaction-amount">12,18 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-10-22">22.10.2026</time></div><div class="transaction-content"><p class="transaction-title">Overføring frå Vipps</p><p class="transaction-category">Betalings- og bankgebyr · B-2c0ed0b659c74f0f</p></div><strong class="transaction-amount">1,84 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-10-23">23.10.2026</time></div><div class="transaction-content"><p class="transaction-title">Nettstadlagring hos PythonAnywhere</p><p class="transaction-category">Digitale tenester · B-c181588114984129</p></div><strong class="transaction-amount">1 087,75 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-10-28">28.10.2026</time></div><div class="transaction-content"><p class="transaction-title">Overføring frå Vipps</p><p class="transaction-category">Betalings- og bankgebyr · B-e29ec485803a42d7</p></div><strong class="transaction-amount">3,60 kr</strong></article><article class="transaction"><div class="transaction-date"><time datetime="2026-10-30">30.10.2026</time></div><div class="transaction-content"><p class="transaction-title">Gåve</p><p class="transaction-category">Gåver · B-645fda05e7ad4948</p></div><strong class="transaction-amount">1 552,75 kr</strong></article></div><p class="footnote">Medlemskontingent er inntekt på betalingsdato. Private utlegg gir gjeld fram til refusjon. Abonnement blir fordelte på tenesteåra.</p>
+
+
+</main><script>
+if(new URLSearchParams(location.search).has('embed')){document.body.classList.add('embedded');}
+const sendHeight=()=>{if(parent!==window&&location.origin!=='null')parent.postMessage({type:'bygdelista-document-height',height:document.documentElement.scrollHeight},location.origin);};
+document.querySelectorAll('table').forEach(table=>{
+ table.classList.add('kompakt-tabell');
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='tabell-vising';toggle.textContent='Detaljert vising';toggle.setAttribute('aria-pressed','false');
+ toggle.addEventListener('click',()=>{const compact=table.classList.toggle('kompakt-tabell');toggle.textContent=compact?'Detaljert vising':'Kompakt vising';toggle.setAttribute('aria-pressed',String(!compact));});
+ table.before(toggle);
+});
+new ResizeObserver(sendHeight).observe(document.body);window.addEventListener('load',sendHeight);
+</script></body></html>

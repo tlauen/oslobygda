@@ -22,7 +22,7 @@ class CategoryTests(unittest.TestCase):
         with patch('offentleg_rekneskap.today',return_value=date(2026,12,31)):
             report=module.app.extensions['public_ledger'].preview(2026)
         self.assertEqual(next(x['amount_ore'] for x in report['categories'] if x['category']=='interest'),1250)
-        for path in ('/okonomi?year=2026&del=registrer','/okonomi/offentleg/2026','/budsjett/2027'):
+        for path in ('/okonomi?year=2026&del=registrer','/arsmote/dokument/rekneskap/2026','/budsjett/2027'):
             response=self.client.get(path);self.assertEqual(response.status_code,200)
             self.assertIn('Renteinnkome',response.data.decode());self.assertIn('kontoutskrifta',response.data.decode())
 

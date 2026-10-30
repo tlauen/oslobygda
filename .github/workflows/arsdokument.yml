@@ -1,0 +1,50 @@
+name: Bygg offentlege dokument og PDF
+on:
+  push:
+    branches: [main]
+    paths:
+      - '_data/arsdokument/**'
+      - '_data/rekneskapskategoriar.json'
+      - '_data/balanseforklaringar.json'
+      - 'medlemsregister/dokumentvising.py'
+      - 'medlemsregister/malar/arsmote_utskrift.html'
+      - 'medlemsregister/malar/_arsmelding_vising.html'
+      - 'medlemsregister/fast/arsmote-utskrift.css'
+      - 'medlemsregister/fast/arsmelding-tilskipingar.css'
+      - 'skript/bygg_arsdokument.py'
+      - '.github/workflows/arsdokument.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: offentlege-arsdokument
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r medlemsregister/requirements-common.txt playwright
+      - run: python -m playwright install --with-deps chromium
+      - run: python skript/bygg_arsdokument.py
+      - name: Lagre ferdige dokument
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add lutar/arsdokument
+          if ! git diff --cached --quiet; then
+            git commit -m 'Bygg offentlege dokument og PDF'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Bygg nettsida med dei ferdige dokumentfilene
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"

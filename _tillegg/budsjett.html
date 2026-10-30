@@ -1,7 +1,19 @@
+{% assign year_data = site.data.arsdokument[page.report_year] %}
+{% if year_data.versions %}{% assign candidates = year_data.versions | where: 'kind', 'budsjett' | sort: 'snapshot_number' | reverse %}{% else %}{% assign candidates = '' | split: ',' %}{% endif %}
+{% assign selected = candidates | where: 'status', 'approved' | first %}
+{% unless selected %}{% assign selected = candidates | first %}{% endunless %}
+{% assign document_number = selected.snapshot_number | default: selected.version_id %}
+{% capture document_path %}/lutar/arsdokument/{{ page.report_year }}/budsjett-{{ document_number }}.html{% endcapture %}
+{% assign document_file = site.static_files | where: 'path', document_path | first %}
+{% if document_file %}
+<link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
+<p><a class="arsmelding-tilbake" href="{{ '/om/budsjett/' | relative_url }}">← Alle budsjett</a></p>
+{% include dokument-filer.html path=document_path title=page.title %}
+{% else %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
 <div class="offentleg-okonomi">
 <h1>{{ page.title | escape }}</h1>
-{% include dokument-pdf.html %}
+
 {% assign year_data = site.data.arsdokument[page.report_year] %}
 {% if year_data %}{% assign versions = year_data.versions | where: 'kind', 'budsjett' | sort: 'snapshot_number' | reverse %}{% assign approved = versions | where: 'status', 'approved' | first %}
 {% if approved %}<h2>Vedteke budsjett</h2><p>Vedteke {{ approved.decision_date | escape }} · {{ approved.version_id | escape }}</p>{% include budsjett-detaljar.html budsjett=approved %}{% elsif versions.size > 0 %}{% assign proposal = versions | first %}<h2>Styreforslag til årsmøtet</h2><p>{{ proposal.version_id | escape }} · møteår {{ proposal.meeting_year | escape }}</p>{% include budsjett-detaljar.html budsjett=proposal %}{% endif %}
@@ -9,3 +21,5 @@
 {% else %}<p>Ingen budsjett er publiserte enno.</p>{% endif %}<p><a href="{{ '/om/budsjett/' | relative_url }}">Alle budsjett</a></p>
 
 </div>
+
+{% endif %}

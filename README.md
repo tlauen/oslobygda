@@ -182,3 +182,20 @@ Det har plattformavhengige skjema og må kontrollerast før eventuell bruk.
 ## Lisens
 
 Sjå [LICENSE](LICENSE).
+
+### Felles dokumentvising og PDF
+
+Årsmelding, rekneskap og budsjett bruker same dokumentmal i Bygdelista og på
+nettsida. `medlemsregister/dokumentvising.py` tek berre imot den validerte
+offentlege eksporten og lagar sjølvstendig HTML med dokumentstilane innebygde.
+Førehandvisinga er isolert frå menyane sine stilark.
+
+Etter publisering byggjer GitHub Actions (`arsdokument.yml`) HTML og ekte
+A4-PDF-ar frå `_data/arsdokument/`. Filene ligg i `lutar/arsdokument/ÅR/`.
+Nettsida viser HTML-fila og lenkjer til PDF-en frå same bygg. Bygginga kan ta
+nokre minutt. Inntil filene er klare, viser sida den eksisterande eksporten.
+Originalbilag, medlemsnamn og interne notat blir ikkje sende til PDF-jobben.
+
+Lokal kontroll: installer `requirements-common.txt` og `playwright`, køyr
+`python -m playwright install chromium` og `python skript/bygg_arsdokument.py`.
+Bygdelista sine faste dokument blir ikkje endra i databasen av dette.
