@@ -48,15 +48,15 @@ def install_ledger(app,get_db,require_admin,db_path):
                'budget_editor':256*1024}.get(request.endpoint,65536)
         if request.content_length and request.content_length>limit: abort(413)
 
-    def lesbart_tidspunkt(value):
+    def lesbart_tidspunkt(value,med_klokkeslett=True):
         from datetime import datetime
         from zoneinfo import ZoneInfo
         months=('januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember')
         try:
             moment=datetime.fromisoformat(str(value).replace('Z','+00:00'))
-            if moment.tzinfo is None: return str(value)
-            moment=moment.astimezone(ZoneInfo('Europe/Oslo'))
-            return f'{moment.day}. {months[moment.month-1]} {moment.year} kl. {moment:%H:%M}'
+            if moment.tzinfo is not None: moment=moment.astimezone(ZoneInfo('Europe/Oslo'))
+            day=f'{moment.day}. {months[moment.month-1]} {moment.year}'
+            return day+(f' kl. {moment:%H:%M}' if med_klokkeslett else '')
         except ValueError: return str(value or '')
     app.jinja_env.filters['lesbart_tidspunkt']=lesbart_tidspunkt
     app.jinja_env.filters['kroner']=lambda value: f'{value/100:,.2f}'.replace(',',' ').replace('.',',')+' kr'
