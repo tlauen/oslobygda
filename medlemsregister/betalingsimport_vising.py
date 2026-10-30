@@ -34,7 +34,7 @@ def install_payment_import(app,get_db,require_admin):
                     else: raise ValueError('Ugyldig handling.')
                 try: app.extensions['public_ledger'].refresh_enabled(actor)
                 except ValueError: app.logger.warning('Offentleg kø krev kontroll etter betalingsimport.')
-                return redirect(app.jinja_env.globals['prefix_url']('payment_import_index'))
+                return redirect(app.jinja_env.globals['prefix_url']('payment_import_index')+('?betaling='+str(int(request.form['payment_id']))+'#betaling-'+str(int(request.form['payment_id'])) if request.form.get('payment_id','').isdigit() else ''))
             except (ValueError,VippsError,TypeError) as exc: error=str(exc);status=400
         with managed_db(get_db) as db:
             rows=[]

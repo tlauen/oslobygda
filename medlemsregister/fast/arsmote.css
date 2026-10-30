@@ -258,3 +258,17 @@
 .arsmote-kropp .arsmelding-kjelder button { margin:0; width:auto; }
 .arsmote-kropp .arsmelding-kjelder button.sekundaer { background:#fffefa; color:#5e5c55; border-color:#cbc9c0; }
 @media(max-width:700px){.arsmelding-kjelder .kjelde-rad{grid-template-columns:1fr}}
+
+.arsmote-kropp .medlemsbetalingar { display:grid; gap:.45rem; }
+.arsmote-kropp details.medlemsbetaling { margin:0; padding:.8rem 1rem; border-radius:9px; scroll-margin-top:1rem; }
+.medlemsbetaling summary { display:grid; grid-template-columns:7rem 1fr auto minmax(10rem,auto); align-items:center; gap:.5rem 1rem; font-size:.85rem; }
+.medlemsbetaling summary::before { content:none; }
+.betaling-identitet::before { content:'▸ '; }
+.medlemsbetaling[open] .betaling-identitet::before { content:'▾ '; }
+.betaling-dato { font-weight:400; color:#5e5c55; }
+.betaling-belop { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.betaling-status { justify-self:end; border-radius:6px; padding:.25rem .5rem; background:#f5edda; color:#655015; font-size:.75rem; font-weight:500; }
+.betaling-status.betaling-kopla { background:#e7efdf; color:#254a2a; }
+.betaling-status.betaling-avvik { background:#f6dcd5; color:#7b2925; }
+.betaling-innhald { border-top:1px solid var(--line); margin-top:.9rem; padding-top:.9rem; }
+@media(max-width:700px){.medlemsbetaling summary{grid-template-columns:1fr auto}.betaling-dato{grid-row:2}.betaling-status{grid-column:2;grid-row:2}}
