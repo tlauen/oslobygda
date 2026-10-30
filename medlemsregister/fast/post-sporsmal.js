@@ -39,6 +39,9 @@
   if(allowed.includes(selected))field('category').value=selected;
   display('category',purpose==='other_income'||purpose==='expense'||advanced);
   display('party',['private_expense','invoice','private_refund','private_forgiveness','pay_invoice'].includes(kind));
+  const partyLabel=label('party');
+  partyLabel.querySelector('.post-feltnamn').textContent=kind==='private_forgiveness'?'Kven ettergir gjelda?':'Intern utleggshavar/leverandør (bruk same namn ved refusjon)';
+  partyLabel.querySelector('.feltforklaring').textContent=kind==='private_forgiveness'?'Skriv nøyaktig same namn som på det private utlegget.':'Til dømes Torbjørn. Bruk nøyaktig same namn når laget seinare betalar utlegget tilbake.';
   display('fee',kind==='vipps_income_settled'||kind==='vipps_settlement');
   display('original_id',advanced&&kind==='refund_income');display('event_uid',advanced);display('payment_id',advanced);
   // The combined panel supplies only the extra date and confirmation; hide its technical introduction.
