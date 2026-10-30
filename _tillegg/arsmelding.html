@@ -7,7 +7,7 @@
 {% assign document_file = site.static_files | where: 'path', document_path | first %}
 {% if document_file %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
-<p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}">← Alle arsmeldingar</a></p>
+<p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}">← Alle årsmeldingar</a></p>
 {% include dokument-filer.html path=document_path title=page.title %}
 {% else %}
 <link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
