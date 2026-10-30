@@ -68,3 +68,7 @@
 .skjema-retur-melding button { background:transparent; border:1px solid #8bb8cb; border-radius:6px; padding:.4rem .65rem; cursor:pointer; }
 
 #rekneskap-meny,#bilag-meny { scroll-margin-top:1rem; }
+
+.rekneskap-meny .rekneskap-meny-inaktiv { display:block; padding:.55rem .8rem; border-radius:8px; font-size:.85rem; color:#69665f; background:#e8e5dd; cursor:not-allowed; }
+.rekneskap-meny-inaktiv small { font:inherit; }
+.rekneskap-meny-inaktiv:focus-visible { outline:3px solid #206582; outline-offset:3px; }

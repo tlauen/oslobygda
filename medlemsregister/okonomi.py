@@ -131,10 +131,11 @@ def install_ledger(app,get_db,require_admin,db_path):
             opening_exists=db.execute('SELECT 1 FROM ledger_years WHERE opening_confirmed=1 LIMIT 1').fetchone()
             from arsavslutning import closing_checklist
             closing=closing_checklist(db,selected)
+            has_public_version=bool(db.execute('SELECT 1 FROM public_ledger_versions WHERE year=? LIMIT 1',(selected,)).fetchone())
         return render_template('okonomi.html',year=selected,journals=journals,lines=lines,receipts=receipts,totals=totals,
                                ending=ending,result=result,parties=parties,attachments=attachments,reconciliations=reconciliations,year_row=year_row,
                                opening_exists=opening_exists,accounts=ACCOUNTS,key=(request.form.get('request_key','').split('-')[0] or uuid.uuid4().hex),
-                               error=error,values=request.form,ledger_part=active_part,closing=closing),status
+                               error=error,values=request.form,ledger_part=active_part,closing=closing,has_public_version=has_public_version,public_year_allowed=selected<=today().year),status
 
     @app.route('/okonomi/offentleg/<int:year>',methods=['GET','POST'])
     @require_admin
@@ -165,7 +166,7 @@ def install_ledger(app,get_db,require_admin,db_path):
             jobs=db.execute('''SELECT v.id,v.status document_status,v.payload,q.status,q.attempts,q.last_error
                 FROM public_ledger_versions v JOIN public_ledger_queue q ON q.version_id=v.id
                 WHERE v.year=? ORDER BY v.id DESC LIMIT 30''',(year,)).fetchall()
-        return render_template('offentleg_rekneskap.html',report=preview,error=error,enabled=bool(enabled and enabled[0]),jobs=jobs),status
+        return render_template('offentleg_rekneskap.html',report=preview,error=error,enabled=bool(enabled and enabled[0]),jobs=jobs,has_public_version=bool(jobs),public_year_allowed=True),status
 
     @app.route('/okonomi/offentleg/versjon/<int:version_id>')
     @require_admin
