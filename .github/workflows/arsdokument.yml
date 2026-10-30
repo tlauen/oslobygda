@@ -10,6 +10,7 @@ on:
       - 'medlemsregister/arsmelding_offentleg.py'
       - 'medlemsregister/dokumentvising.py'
       - 'medlemsregister/malar/arsmote_utskrift.html'
+      - 'medlemsregister/malar/_favicon.html'
       - 'medlemsregister/malar/_arsmelding_vising.html'
       - 'medlemsregister/fast/arsmote-utskrift.css'
       - 'medlemsregister/fast/arsmelding-tilskipingar.css'

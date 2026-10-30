@@ -1,3 +1,5 @@
 {%- assign destination = page.redirect_to -%}
 {%- unless destination contains '://' -%}{%- assign destination = destination | relative_url -%}{%- endunless -%}
-<!doctype html><html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ page.title | escape }}</title><meta http-equiv="refresh" content="0;url={{ destination | escape }}"><link rel="canonical" href="{{ destination | absolute_url | escape }}"></head><body><p><a href="{{ destination | escape }}">{{ page.title | escape }}</a></p></body></html>
+<!doctype html><html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ page.title | escape }}</title><meta http-equiv="refresh" content="0;url={{ destination | escape }}"><link rel="canonical" href="{{ destination | absolute_url | escape }}"><link rel="icon" type="image/png" href="https://oslobygda.no/lutar/bilete/logo_oslobygda.png">
+<link rel="icon" type="image/svg+xml" href="https://oslobygda.no/lutar/bilete/logo_oslobygda.svg">
+</head><body><p><a href="{{ destination | escape }}">{{ page.title | escape }}</a></p></body></html>
