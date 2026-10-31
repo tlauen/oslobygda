@@ -8,7 +8,7 @@ permalink: /om/saklister/
 <h1>Sakliste og møtereglar</h1>
 <h2>Saklister til årsmøte</h2>
 {% assign count = 0 %}
-<ul>{% assign years = site.data.arsdokument | sort %}{% for entry in years reversed %}{% assign agendas = entry[1].versions | where: 'kind', 'sakliste' %}{% assign protocols = entry[1].versions | where: 'kind', 'protokoll' | where: 'status', 'approved' %}{% if agendas.size > 0 or protocols.size > 0 %}{% assign count = count | plus: 1 %}<li><a href="{{ '/om/saklister/' | append: entry[0] | append: '/' | relative_url }}">{% if agendas.size > 0 %}Sakliste til årsmøtet{% else %}Årsmøtet{% endif %} {{ entry[0] | escape }}</a>{% if protocols.size > 0 %} · <a href="{{ '/om/saklister/' | append: entry[0] | append: '/#protokoll' | relative_url }}">Godkjend protokoll</a>{% endif %}</li>{% endif %}{% endfor %}</ul>
+<ul>{% assign years = site.data.arsdokument | sort %}{% for entry in years reversed %}{% assign agendas = entry[1].versions | where: 'kind', 'sakliste' %}{% assign protocols = entry[1].versions | where: 'kind', 'protokoll' | where: 'status', 'approved' %}{% if agendas.size > 0 or protocols.size > 0 %}{% assign count = count | plus: 1 %}<li><a href="{{ '/om/saklister/' | append: entry[0] | append: '/' | relative_url }}">{% if agendas.size > 0 %}Sakliste for årsmøtet{% else %}Årsmøtet{% endif %} {{ entry[0] | escape }}</a>{% if protocols.size > 0 %} · <a href="{{ '/om/saklister/' | append: entry[0] | append: '/#protokoll' | relative_url }}">Godkjend protokoll</a>{% endif %}</li>{% endif %}{% endfor %}</ul>
 {% if count == 0 %}<p>Ingen saklister er publiserte enno.</p>{% endif %}
 {% assign rules = site.data.motereglar.body %}
 {% assign rule_versions = '' | split: ',' %}

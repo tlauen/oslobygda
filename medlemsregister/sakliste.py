@@ -47,7 +47,7 @@ def default_agenda(meeting_year):
     def link(kind, report_year):
         value=f'{kind}:{report_year}'
         return value if value in choices else ''
-    return dict(title=f'Sakliste til årsmøtet {meeting_year}',details='',items=[
+    return dict(title=f'Sakliste for årsmøtet {meeting_year}',details='',items=[
         item('Organisering av møtet',subitems=['Val av ordstyrar','Val av protokollskrivar',
              'Godkjenning av innkalling','Godkjenning av møtereglar','Godkjenning av sakliste',
              'Val av protokollunderskrivarar']),
@@ -172,6 +172,8 @@ def install_meetings(app,get_db,require_admin):
         with managed_db(get_db) as db:
             row=db.execute('SELECT * FROM meeting_drafts WHERE kind=? AND report_year=?',(kind,report_year)).fetchone()
         content=json.loads(row['content']) if row else default_agenda(report_year)
+        if kind=='sakliste' and content['title']==f'Sakliste til årsmøtet {report_year}':
+            content['title']=f'Sakliste for årsmøtet {report_year}'
         revision=row['revision'] if row else 0
         if request.method=='POST':
             try:
