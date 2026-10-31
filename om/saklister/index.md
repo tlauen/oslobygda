@@ -19,7 +19,7 @@ permalink: /om/saklister/
     {% capture agenda_title %}{% if agendas.size > 0 %}Sakliste for årsmøtet{% else %}Årsmøtet{% endif %} {{ entry[0] }}{% endcapture %}
     {% assign document_year = entry[0] %}{% include arsdokument-lenkje.html path=agenda_path title=agenda_title year=document_year hint='Saker og årsmøtepapir' %}
     {% if protocols.size > 0 %}
-      {% capture protocol_path %}/om/saklister/{{ entry[0] }}/#protokoll{% endcapture %}
+      {% capture protocol_path %}/om/protokollar/{{ entry[0] }}/{% endcapture %}
       {% capture protocol_title %}Godkjend protokoll {{ entry[0] }}{% endcapture %}
       {% assign document_year = entry[0] %}{% include arsdokument-lenkje.html path=protocol_path title=protocol_title hint='Godkjend av begge underskrivarane' %}
     {% endif %}

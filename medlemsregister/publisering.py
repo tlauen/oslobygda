@@ -119,7 +119,7 @@ class GithubDocuments:
     def store(self,payload,guard=lambda:None):
         validate_document(payload);year=payload['report_year']
         # Publishing is restricted to years with deployed page stubs.
-        stub={'rekneskap':'rekneskap','arsmelding':'arsmeldingar','budsjett':'budsjett','sakliste':'saklister','motereglar':'saklister','protokoll':'saklister'}[payload['kind']]
+        stub={'rekneskap':'rekneskap','arsmelding':'arsmeldingar','budsjett':'budsjett','sakliste':'saklister','motereglar':'saklister','protokoll':'protokollar'}[payload['kind']]
         if self.api('GET',f'om/{stub}/index.md' if payload['kind']=='motereglar' else f'om/{stub}/{year}/index.md') is None or self.api('GET',f'api/arsdokument/{year}.json') is None:
             raise PublicationError('Årssida er ikkje klargjord i GitHub. Publiser sidestubben før data.')
         for attempt in range(3):

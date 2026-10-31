@@ -33,7 +33,8 @@ blir bevarte i årsdata. Saklister blir viste som nettsider, utan PDF-generering
 Sidestubbar for sakliste 2026 og 2027 er klargjorde. Ved nytt møteår: legg til
 `om/saklister/<år>/index.md` med `meeting_year` som streng og include
 `sakliste.html`, og `api/arsdokument/<år>.json` som for dei andre årsdokumenta.
-Publiser desse før saklista blir send frå Bygdelista. Møtereglane bruker
+Legg òg til `om/protokollar/<år>/index.md` med `meeting_year` og include
+`protokoll-arside.html`. Publiser sidestubbane før dokumenta blir sende frå Bygdelista. Møtereglane bruker
 inneverande år si API-fil, men krev ikkje ei årsfesta saklisteside.
 
 `_data/arsmotesider.json` inneheld dokumentår som kan veljast i Bygdelista.
@@ -75,7 +76,9 @@ ikkje publisert før begge har godkjent den nye kopien.
 Når den andre underskrivaren godkjenner, blir den faste kopien lagd atomisk i
 publiseringskøa, og Bygdelista prøver å publisere han med ein gong. Ingen
 publiseringsknapp eller konsollkommando er nødvendig. Publisert protokoll
-blir vist på årssida under saklista, med lenkje frå oversikta. Berre namn og
+blir vist på `/om/protokollar/<år>/`, med lenkje frå protokolloversikta
+og saklista. Nyaste godkjende kopi blir vist først, og eldre kopiar er bevarte
+på same årsside. Berre namn og
 godkjenningstidspunkt blir publiserte; e-postadresser, tilgangslenkjer og
 merknader frå godkjenningsrunda blir verande internt.
 

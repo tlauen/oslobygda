@@ -1,0 +1,24 @@
+<link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
+{% assign year_data = site.data.arsdokument[page.meeting_year] %}
+{% assign protocols = year_data.versions | where: 'kind', 'protokoll' | where: 'status', 'approved' | sort: 'source_revision' | reverse %}
+{% assign latest_protocol = nil %}
+{% for candidate in protocols %}{% if candidate.approved_by.size == 2 %}{% assign latest_protocol = candidate %}{% break %}{% endif %}{% endfor %}
+{% capture protocol_navigation %}<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/protokollar/' | relative_url }}">← Alle protokollar</a><a class="arsmelding-tilbake" href="{{ '/om/saklister/' | append: page.meeting_year | append: '/' | relative_url }}">Til saklista for {{ page.meeting_year | escape }}</a></p>{% endcapture %}
+{{ protocol_navigation }}
+{% if latest_protocol %}
+  {% assign protocol = latest_protocol %}
+  {% include protokoll.html main=true %}
+  {% assign history_heading = false %}
+  {% for candidate in protocols %}
+    {% if candidate.approved_by.size == 2 and candidate.version_id != latest_protocol.version_id %}
+      {% unless history_heading %}<h2>Tidlegare godkjende kopiar</h2>{% assign history_heading = true %}{% endunless %}
+      {% capture document_id %}protokoll-{{ candidate.version_id }}{% endcapture %}
+      <details id="{{ document_id | escape }}"><summary>{{ candidate.content.title | escape }} – godkjend {{ candidate.generated_at | date: '%d.%m.%Y' }}</summary>
+      {% assign protocol = candidate %}{% capture article_id %}{{ document_id }}-dokument{% endcapture %}
+      {% include protokoll.html id=article_id %}
+      </details>
+    {% endif %}
+  {% endfor %}
+{% else %}<h1>Protokoll frå årsmøtet {{ page.meeting_year | escape }}</h1><p>Ingen godkjend og underskriven protokoll er publisert enno.</p>{% endif %}
+{{ protocol_navigation }}

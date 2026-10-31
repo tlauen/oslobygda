@@ -13,21 +13,15 @@ permalink: /om/protokollar/
 <ul class="arsdokument-oversikt protokoll-oversikt">
 {% assign years = site.data.arsdokument | sort %}
 {% for entry in years reversed %}
-  {% assign protocols = entry[1].versions | where: 'kind', 'protokoll' | where: 'status', 'approved' | sort: 'source_revision' %}
-  {% for protocol in protocols reversed %}
+  {% assign protocols = entry[1].versions | where: 'kind', 'protokoll' | where: 'status', 'approved' | sort: 'source_revision' | reverse %}
+  {% for protocol in protocols %}
     {% if protocol.approved_by.size == 2 %}
       {% assign published_count = published_count | plus: 1 %}
-      {% capture protocol_id %}protokoll-{{ entry[0] }}-{{ protocol.version_id }}{% endcapture %}
-      <li><details id="{{ protocol_id | escape }}">
       {% assign document_year = entry[0] %}
+      {% capture protocol_path %}/om/protokollar/{{ document_year }}/{% endcapture %}
       {% capture approval_hint %}Godkjend {{ protocol.generated_at | date: '%d.%m.%Y' }} · Opne protokollen{% endcapture %}
-      {% include arsdokument-lenkje.html disclosure=true title=protocol.content.title year=document_year hint=approval_hint %}
-      {% capture protocol_navigation %}<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/protokollar/' | relative_url }}">← Alle protokollar</a><a class="arsmelding-tilbake" href="{{ '/om/saklister/' | append: entry[0] | append: '/' | relative_url }}">Til saklista for {{ entry[0] | escape }}</a></p>{% endcapture %}
-      {{ protocol_navigation }}
-      {% capture document_id %}{{ protocol_id }}-dokument{% endcapture %}
-      {% include protokoll.html id=document_id %}
-      {{ protocol_navigation }}
-      </details></li>
+      <li>{% include arsdokument-lenkje.html path=protocol_path title=protocol.content.title year=document_year hint=approval_hint %}</li>
+      {% break %}
     {% endif %}
   {% endfor %}
 {% endfor %}

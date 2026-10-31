@@ -7,7 +7,7 @@
 .protokoll-saker{padding:0 clamp(24px,5vw,52px)}
 .protokoll-sak{padding:28px 0;scroll-margin-top:2rem}
 .protokoll-sak+.protokoll-sak{border-top:1px solid #dedcd4}
-.protokolldokument .protokoll-sak>h3,.protokolldokument .protokoll-signaturar>h3{font:450 clamp(1.35rem,3vw,1.65rem)/1.3 var(--serif,Georgia,serif);color:#3e5839;margin:0 0 12px}
+.protokolldokument .protokoll-sak>:is(h2,h3),.protokolldokument .protokoll-signaturar>:is(h2,h3){font:450 clamp(1.35rem,3vw,1.65rem)/1.3 var(--serif,Georgia,serif);color:#3e5839;margin:0 0 12px}
 .protokolldokument p{max-width:65ch;line-height:1.8}
 .protokoll-tekst{white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0 0}
 .protokoll-innleiing{margin-top:1.25rem}

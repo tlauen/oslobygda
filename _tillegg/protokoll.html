@@ -2,15 +2,15 @@
 {% assign protocol_dom_id = include.id | default: 'protokoll' %}
 <article class="protokolldokument" id="{{ protocol_dom_id | escape }}" aria-labelledby="{{ protocol_dom_id | escape }}-tittel">
 <header class="protokoll-topp"><p class="protokoll-etikett">Oslobygda kulturlag · Godkjend protokoll</p>
-<h2 class="protokoll-tittel" id="{{ protocol_dom_id | escape }}-tittel">{{ protocol.content.title | escape }}</h2>
+{% if include.main %}<h1 class="protokoll-tittel" id="{{ protocol_dom_id | escape }}-tittel">{{ protocol.content.title | escape }}</h1>{% else %}<h2 class="protokoll-tittel" id="{{ protocol_dom_id | escape }}-tittel">{{ protocol.content.title | escape }}</h2>{% endif %}
 <p class="protokoll-meta">Møtedato: {{ protocol.content.meeting_date | date: '%d.%m.%Y' }}</p>
 <p class="protokoll-meta">Protokollskrivar: {{ protocol.content.secretary | escape }}</p>
 {% if protocol.content.details != '' %}<p class="protokoll-tekst protokoll-innleiing">{{ protocol.content.details | escape }}</p>{% endif %}</header>
 <div class="protokoll-saker">
-{% for item in protocol.content.items %}{% assign case_number = forloop.index %}<section class="protokoll-sak"><h3>Sak {{ case_number }}: {{ item.title | escape }}</h3>{% if item.subitems.size > 0 %}<ol class="protokoll-undersaker">{% for sub in item.subitems %}<li><strong>{{ case_number }}.{{ forloop.index }} {{ sub | escape }}</strong>{% assign sub_decision = item.subdecisions[forloop.index0] %}{% if sub_decision and sub_decision != '' %}<p class="protokoll-tekst protokoll-vedtak">{{ sub_decision | escape }}</p>{% endif %}</li>{% endfor %}</ol>{% endif %}
+{% for item in protocol.content.items %}{% assign case_number = forloop.index %}<section class="protokoll-sak">{% if include.main %}<h2>Sak {{ case_number }}: {{ item.title | escape }}</h2>{% else %}<h3>Sak {{ case_number }}: {{ item.title | escape }}</h3>{% endif %}{% if item.subitems.size > 0 %}<ol class="protokoll-undersaker">{% for sub in item.subitems %}<li><strong>{{ case_number }}.{{ forloop.index }} {{ sub | escape }}</strong>{% assign sub_decision = item.subdecisions[forloop.index0] %}{% if sub_decision and sub_decision != '' %}<p class="protokoll-tekst protokoll-vedtak">{{ sub_decision | escape }}</p>{% endif %}</li>{% endfor %}</ol>{% endif %}
 {% if item.proposals != '' %}<div class="protokoll-felt"><h4>Framlegg og framleggsstillarar</h4><p class="protokoll-tekst">{{ item.proposals | escape }}</p></div>{% endif %}
 {% if item.speakers != '' %}<div class="protokoll-felt"><h4>Dei som tok ordet</h4><p class="protokoll-tekst">{{ item.speakers | escape }}</p></div>{% endif %}
 {% if item.votes != '' %}<div class="protokoll-felt"><h4>Røysteresultat</h4><p class="protokoll-tekst">{{ item.votes | escape }}</p></div>{% endif %}
 {% if item.decision != '' %}<div class="protokoll-felt protokoll-vedtak"><h4>Vedtak</h4><p class="protokoll-tekst">{{ item.decision | escape }}</p></div>{% endif %}</section>{% endfor %}
 </div>
-<footer class="protokoll-signaturar"><h3>Godkjend av protokollunderskrivarane</h3><ul>{% for signer in protocol.approved_by %}<li><strong>{{ signer.name | escape }}</strong><time datetime="{{ signer.approved_at | escape }}">Godkjend {{ signer.approved_at | date: '%d.%m.%Y' }}</time></li>{% endfor %}</ul></footer></article>
+<footer class="protokoll-signaturar">{% if include.main %}<h2>Godkjend av protokollunderskrivarane</h2>{% else %}<h3>Godkjend av protokollunderskrivarane</h3>{% endif %}<ul>{% for signer in protocol.approved_by %}<li><strong>{{ signer.name | escape }}</strong><time datetime="{{ signer.approved_at | escape }}">Godkjend {{ signer.approved_at | date: '%d.%m.%Y' }}</time></li>{% endfor %}</ul></footer></article>

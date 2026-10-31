@@ -16,4 +16,4 @@
 {% else %}<h1>Sakliste for årsmøtet {{ page.meeting_year }}</h1><p>Saklista er ikkje publisert enno.</p>{% endif %}
 
 {% assign protocol = data.versions | where: 'kind', 'protokoll' | where: 'status', 'approved' | sort: 'source_revision' | last %}
-{% if protocol %}{% include protokoll.html %}{% endif %}
+{% if protocol %}{% capture protocol_path %}/om/protokollar/{{ page.meeting_year }}/{% endcapture %}{% capture protocol_title %}Godkjend protokoll {{ page.meeting_year }}{% endcapture %}<div id="protokoll" class="lovdokument-tilbake">{% include arsdokument-lenkje.html path=protocol_path title=protocol_title hint='Les den godkjende og underskrivne protokollen' %}</div>{% endif %}
