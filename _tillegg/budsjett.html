@@ -5,8 +5,9 @@
 {% assign document_number = selected.snapshot_number | default: selected.version_id %}
 {% capture document_path %}/lutar/arsdokument/{{ page.report_year }}/budsjett-{{ document_number }}.html{% endcapture %}
 {% assign document_file = site.static_files | where: 'path', document_path | first %}
+{% capture document_navigation %}<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/budsjett/' | relative_url }}"><span aria-hidden="true">←</span> Alle budsjett</a> {% include til-saklista.html kind='budsjett' %}</p>{% endcapture %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
-<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/budsjett/' | relative_url }}"><span aria-hidden="true">←</span> Alle budsjett</a> {% include til-saklista.html kind='budsjett' %}</p>
+{{ document_navigation }}
 {% if document_file %}
 {% include dokument-filer.html path=document_path title=page.title %}
 {% else %}
@@ -19,3 +20,4 @@
 {% else %}<p>Ingen budsjett er publiserte enno.</p>{% endif %}
 </div>
 {% endif %}
+{{ document_navigation }}

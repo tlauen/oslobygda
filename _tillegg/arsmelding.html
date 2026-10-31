@@ -5,14 +5,15 @@
 {% assign document_number = selected.snapshot_number | default: selected.version_id %}
 {% capture document_path %}/lutar/arsdokument/{{ page.report_year }}/arsmelding-{{ document_number }}.html{% endcapture %}
 {% assign document_file = site.static_files | where: 'path', document_path | first %}
+{% capture document_navigation %}<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}">← Alle årsmeldingar</a> {% include til-saklista.html kind='arsmelding' %}</p>{% endcapture %}
 {% if document_file %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
-<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}">← Alle årsmeldingar</a> {% include til-saklista.html kind='arsmelding' %}</p>
+{{ document_navigation }}
 {% include dokument-filer.html path=document_path title=page.title %}
 {% else %}
 <link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/lutar/arsmelding-tilskipingar.css' | relative_url }}">
-<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}"><span aria-hidden="true">←</span> Alle årsmeldingar</a> {% include til-saklista.html kind='arsmelding' %}</p>
+{{ document_navigation }}
 <h1>{{ page.title | escape }}</h1>
 
 {% assign report = site.data.arsdokument[page.report_year] %}
@@ -30,3 +31,4 @@
 {% else %}<p>Årsmeldinga er ikkje publisert enno.</p>{% endif %}
 
 {% endif %}
+{{ document_navigation }}
