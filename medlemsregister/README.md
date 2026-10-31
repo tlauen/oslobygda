@@ -16,6 +16,7 @@ har éi felles kjelde i repoet.
 - Strukturert årsmelding med kalenderimport og faste versjonar på `/arsmote`.
 - Rekneskap, bilag, balanse og stegvis årsslutt på `/okonomi`.
 - Budsjett og oppfølging på `/budsjett`.
+- [Sakliste, møtereglar og protokoll med to godkjenningar](SAKLISTE.md) på `/sakliste`.
 - Offentleg eksport, utskriftsvising og kryptert backup med gjenopprettingskontroll.
 
 ## Årsmøte, økonomi og drift

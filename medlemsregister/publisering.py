@@ -15,6 +15,8 @@ from arsdokument import canonical,digest,validate_public
 from database import managed_db
 from offentleg_rekneskap import validate_ledger
 from budsjett import validate_budget
+from sakliste import validate_meeting
+from protokoll import validate_minutes
 from tilskipingar import NoRedirect
 
 
@@ -27,6 +29,8 @@ def validate_document(value):
     try:
         if value.get('kind')=='rekneskap': validate_ledger(value)
         elif value.get('kind')=='budsjett': validate_budget(value)
+        elif value.get('kind')=='protokoll': validate_minutes(value)
+        elif value.get('kind') in ('sakliste','motereglar'): validate_meeting(value)
         else: validate_public(value)
     except (ValueError,TypeError,KeyError,OverflowError): raise PublicationError('Offentleg dokument har ugyldige felt eller summer.') from None
 
@@ -115,8 +119,8 @@ class GithubDocuments:
     def store(self,payload,guard=lambda:None):
         validate_document(payload);year=payload['report_year']
         # Publishing is restricted to years with deployed page stubs.
-        stub={'rekneskap':'rekneskap','arsmelding':'arsmeldingar','budsjett':'budsjett'}[payload['kind']]
-        if self.api('GET',f'om/{stub}/{year}/index.md') is None or self.api('GET',f'api/arsdokument/{year}.json') is None:
+        stub={'rekneskap':'rekneskap','arsmelding':'arsmeldingar','budsjett':'budsjett','sakliste':'saklister','motereglar':'saklister','protokoll':'saklister'}[payload['kind']]
+        if self.api('GET',f'om/{stub}/index.md' if payload['kind']=='motereglar' else f'om/{stub}/{year}/index.md') is None or self.api('GET',f'api/arsdokument/{year}.json') is None:
             raise PublicationError('Årssida er ikkje klargjord i GitHub. Publiser sidestubben før data.')
         for attempt in range(3):
             guard()
@@ -185,12 +189,13 @@ class Publisher:
                     JOIN public_ledger_queue q ON q.version_id=v.id WHERE q.status IN ('pending','failed','sending','stored') ORDER BY v.id''')]
                 jobs += [('annual',r['id'],r['payload'],r['content_hash'],r['status']) for r in db.execute("SELECT * FROM annual_publication_queue WHERE status IN ('pending','failed','sending','stored') ORDER BY id")]
                 jobs += [('budget',r['id'],r['payload'],r['content_hash'],r['status']) for r in db.execute("SELECT * FROM budget_publication_queue WHERE status IN ('pending','failed','sending','stored') ORDER BY id")]
+                jobs += [('meeting',r['id'],r['payload'],r['content_hash'],r['status']) for r in db.execute("SELECT * FROM meeting_publication_queue WHERE status IN ('pending','failed','sending','stored') ORDER BY id")]
             if target is not None:
                 jobs=[job for job in jobs if job[0]==target[0] and json.loads(job[2])['version_id']==target[1]]
             jobs.sort(key=lambda job: (job[4]=='stored',job[1],job[0]))
             for kind,job_id,raw,hash_value,state in jobs[:limit]:
                 guard()
-                table={'ledger':'public_ledger_queue','annual':'annual_publication_queue','budget':'budget_publication_queue'}[kind]
+                table={'ledger':'public_ledger_queue','annual':'annual_publication_queue','budget':'budget_publication_queue','meeting':'meeting_publication_queue'}[kind]
                 key='version_id' if kind=='ledger' else 'id'
                 try:
                     if digest(raw)!=hash_value: raise PublicationError('Køinnhaldet har feil kontrollsum.')

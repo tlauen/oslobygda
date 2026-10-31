@@ -408,6 +408,10 @@ def init_db():
     init_privacy(get_db)
     from arsdokument import init_documents
     init_documents(get_db)
+    from sakliste import init_agendas
+    init_agendas(get_db)
+    from protokoll import init_minutes
+    init_minutes(get_db)
     from rekneskap import init_ledger
     init_ledger(get_db)
     from offentleg_rekneskap import init_public_ledger
@@ -460,6 +464,10 @@ install_calendar(app, require_admin)
 
 from arsdokument import install_documents
 install_documents(app, get_db, require_admin)
+from sakliste import install_meetings
+install_meetings(app, get_db, require_admin)
+from protokoll import install_minutes
+install_minutes(app, get_db, require_admin)
 
 
 @app.route("/")

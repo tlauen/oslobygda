@@ -86,7 +86,7 @@ def install_auth(app, get_db, prefix_url):
             "GET",
             "HEAD",
             "OPTIONS",
-        ) and request.endpoint not in ("api_innmelding", "signup_webhook"):
+        ) and request.endpoint not in ("api_innmelding", "signup_webhook", "minutes_auto_publish"):
             expected = session.get("csrf_token", "")
             supplied = request.headers.get("X-CSRF-Token") or request.form.get(
                 "csrf_token", ""

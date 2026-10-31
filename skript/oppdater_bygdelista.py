@@ -11,7 +11,7 @@ import os
 from datetime import datetime, timezone
 
 REPOSITORY = 'https://github.com/tlauen/oslobygda.git'
-SHARED = {'_data/styre.yml','_data/rekneskapskategoriar.json', '_data/balanseforklaringar.json', '_tillegg/kolofon.html', '_data/nav.yml', 'lutar/kolofon.css', 'lutar/topp.css'}
+SHARED = {'_data/arsmotesider.json','_data/motereglar.json','_data/styre.yml','_data/rekneskapskategoriar.json', '_data/balanseforklaringar.json', '_tillegg/kolofon.html', '_data/nav.yml', 'lutar/kolofon.css', 'lutar/topp.css'}
 CODE_SUFFIXES = {'.py', '.html', '.css', '.js', '.txt', '.md', '.sh', '.json', '.yml', '.yaml'}
 
 

@@ -20,6 +20,7 @@ def build():
                 data=json.loads(source.read_text());validate_envelope(data,int(source.stem))
                 docs=list(data['versions'])+([data['ledger_latest']] if data['ledger_latest'] else [])
                 for doc in docs:
+                    if doc['kind'] in ('sakliste','motereglar','protokoll'): continue
                     version=doc['snapshot_number'] if doc['kind']!='arsmelding' else doc['version_id']
                     path=output/str(doc['report_year'])/f'{doc["kind"]}-{version}.html'
                     path.parent.mkdir(parents=True,exist_ok=True)

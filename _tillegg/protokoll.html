@@ -1,0 +1,9 @@
+<article id="protokoll"><h2>{{ protocol.content.title | escape }}</h2>
+<p>Møtedato: {{ protocol.content.meeting_date | escape }} · Protokollskrivar: {{ protocol.content.secretary | escape }}</p>
+<p style="white-space:pre-wrap">{{ protocol.content.details | escape }}</p>
+{% for item in protocol.content.items %}{% assign case_number = forloop.index %}<section><h3>Sak {{ case_number }}: {{ item.title | escape }}</h3>{% if item.subitems.size > 0 %}<ol style="list-style:none;padding-left:0">{% for sub in item.subitems %}<li>{{ case_number }}.{{ forloop.index }} {{ sub | escape }}</li>{% endfor %}</ol>{% endif %}
+{% if item.proposals != '' %}<h4>Framlegg og framleggsstillarar</h4><p style="white-space:pre-wrap">{{ item.proposals | escape }}</p>{% endif %}
+{% if item.speakers != '' %}<h4>Dei som tok ordet</h4><p style="white-space:pre-wrap">{{ item.speakers | escape }}</p>{% endif %}
+{% if item.votes != '' %}<h4>Røysteresultat</h4><p style="white-space:pre-wrap">{{ item.votes | escape }}</p>{% endif %}
+<h4>Vedtak</h4><p style="white-space:pre-wrap">{{ item.decision | escape }}</p></section>{% endfor %}
+<h3>Godkjend av protokollunderskrivarane</h3><ul>{% for signer in protocol.approved_by %}<li>{{ signer.name | escape }} – {{ signer.approved_at | date: '%d.%m.%Y' }}</li>{% endfor %}</ul></article>

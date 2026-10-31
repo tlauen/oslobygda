@@ -1,0 +1,14 @@
+<link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
+<p><a class="arsmelding-tilbake" href="{{ '/om/saklister/' | relative_url }}">← Sakliste og møtereglar</a></p>
+{% assign data = site.data.arsdokument[page.meeting_year] %}
+{% assign agenda = data.versions | where: 'kind', 'sakliste' | sort: 'source_revision' | last %}
+{% if agenda %}
+<article><h1>{{ agenda.content.title | escape }}</h1>
+<div style="white-space:pre-wrap">{{ agenda.content.details | escape }}</div>
+<ol style="list-style:none;padding-left:0">{% for item in agenda.content.items %}{% assign case_number = forloop.index %}<li><h2>Sak {{ case_number }}: {{ item.title | escape }}</h2>{% if item.subitems.size > 0 %}<ol style="list-style:none;padding-left:0">{% for sub in item.subitems %}<li>{{ case_number }}.{{ forloop.index }} {{ sub | escape }}</li>{% endfor %}</ol>{% endif %}<p style="white-space:pre-wrap">{{ item.body | escape }}</p>
+{% if item.document != '' %}{% assign doc = item.document | split: ':' %}{% case doc[0] %}{% when 'arsmelding' %}{% assign folder = 'arsmeldingar' %}{% assign label = 'Årsmelding' %}{% when 'rekneskap' %}{% assign folder = 'rekneskap' %}{% assign label = 'Rekneskap' %}{% when 'budsjett' %}{% assign folder = 'budsjett' %}{% assign label = 'Budsjett' %}{% endcase %}<p><a href="{{ '/om/' | append: folder | append: '/' | append: doc[1] | append: '/' | relative_url }}">{{ label }} {{ doc[1] | escape }}</a></p>{% endif %}</li>{% endfor %}</ol>
+<p><a href="{{ '/om/saklister/' | relative_url }}#motereglar">Møtereglar</a></p></article>
+{% else %}<h1>Sakliste til årsmøtet {{ page.meeting_year }}</h1><p>Saklista er ikkje publisert enno.</p>{% endif %}
+
+{% assign protocol = data.versions | where: 'kind', 'protokoll' | where: 'status', 'approved' | sort: 'source_revision' | last %}
+{% if protocol %}{% include protokoll.html %}{% endif %}

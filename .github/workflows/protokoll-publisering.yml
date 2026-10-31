@@ -1,0 +1,27 @@
+name: Automatisk publisering av godkjende protokollar
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: protokoll-publisering
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Prøv ventande protokollar og kontroller publisering
+        env:
+          PUBLICATION_TOKEN: ${{ secrets.BYGDELISTA_PUBLICATION_TOKEN }}
+          PUBLICATION_URL: ${{ vars.BYGDELISTA_PUBLICATION_URL || 'https://bygdelista.oslobygda.no/api/protokoll/publiser' }}
+        run: |
+          if [ -z "$PUBLICATION_TOKEN" ]; then
+            echo 'Set BYGDELISTA_PUBLICATION_TOKEN i GitHub Actions Secrets og same verdi i Bygdelista.' >&2
+            exit 1
+          fi
+          curl --fail --silent --show-error --max-time 360 \
+            --request POST \
+            --header "Authorization: Bearer $PUBLICATION_TOKEN" \
+            "$PUBLICATION_URL"
