@@ -45,12 +45,15 @@ Ta deretter ein prøve med:
     python proton_backup.py --settings /home/oslobygda/bygdelista-data/proton-backup/settings.json
 
 Aktiver først automatisk køyring etter faktisk vellukka opplasting, nedlasting
-og gjenopprettingsprøve. Føreslått oppgåve på PythonAnywhere: **Hourly**, minutt
+og gjenopprettingsprøve. Oppgåve på PythonAnywhere: **Hourly**, minutt
 45, med full stig til appens Python og dette skriptet. Det fangar opp den
 nattlege backupen kl. 03:15 UTC og prøver på nytt ved mellombelse feil.
 Kontroller oppgåveloggen og `exports/status.json`; ein konfigurert jobb åleine
 er ikkje bevis på vellukka offsite-backup. Dersom Proton krev ny innlogging,
 køyr innloggingsoppsettet på nytt. Det endrar ikkje eksisterande backupnøkkel.
 
-Status ved innføring: kode og testar er klargjorde. Kontotilgang, første reelle
-opplasting og planlagd jobb må kontrollerast særskilt før løysinga blir merkt aktiv.
+Status 31. oktober 2026: Aktivert på PythonAnywhere som Hourly, minutt 45,
+oppgåvelogg `/var/log/schedule-log-28824.log`. Reell opplasting, nedlasting,
+dekryptering og isolert gjenoppretting av ein fersk backup blei kontrollert
+kl. 11:43 UTC. Den daglege lokale backupen går framleis kl. 03:15 UTC.
+Separat oppbevaring av backupnøkkelen må gjerast av laget.

@@ -46,7 +46,8 @@ Lokale serverkopiar vernar ikkje mot tap av heile kontoen. Last ned ein kopi
 jamleg og lagre henne sikkert utanfor PythonAnywhere. Proton Drive kan nyttast,
 helst med ein konto laget eig. Slett lokale nedlastingar når dei ikkje lenger trengst,
 og avtal ei avgrensa lagringstid også for eksterne kopiar.
-Dette er førebels ein manuell rutine; skriptet lastar ikkje opp til Proton.
+På produksjonsserveren går Proton-overføringa automatisk med eit eige skript;
+sjå [PROTON-BACKUP.md](PROTON-BACKUP.md). `backup.py` lagar berre lokale kopiar.
 
 ## Dersom den aktive databasen må gjenopprettast
 
@@ -68,7 +69,7 @@ PythonAnywhere-oppgåva kan framleis køyre `backup.py` direkte når bilagsmappa
 er standard eller gitt med `--bilag-dir`. Ved oppsett i `.env`, bruk
 `backup_kommando.py` slik at den rette bilagsstien blir lesen.
 
-## Kryptert kopi til Proton Drive
+## Manuell kryptert kopi til Proton Drive
 
 Installer oppdaterte `requirements-common.txt` i appens virtuelle miljø. Frå
 `medlemsregister`, med det same miljøet aktivert:
@@ -89,8 +90,8 @@ Last så fila ned att og køyr, i eit miljø med dei same modulane installerte:
     python -m flask --app app okonomi-prove-kryptert-backup /sti/til/nedlasta.bygdebackup
 
 Prøva endrar ikkje aktiv database. Noter dato og resultat. Først etter denne prøva
-kan den eksterne kopien reknast som kontrollert. Sjølve Proton-opplastinga og
-nedlastingsprøva er enno ikkje utførte. Automatisk Proton-synkronisering er ikkje sett opp.
+kan den eksterne kopien reknast som kontrollert. Den automatiske produksjonsjobben
+utfører opplasting og nedlastingsprøve sjølv; manuell eksport er eit alternativ.
 Sjå også [SLUTTKONTROLL.md](SLUTTKONTROLL.md).
 
 ## Automatisk Proton-overføring

@@ -117,7 +117,8 @@ Han set sikre økt-informasjonskapslar og slår av debug.
 ## Backup før ordinær bruk
 
 Følg [BACKUP.md](BACKUP.md) for `backup.py`, dagleg oppgåve og prøve av
-gjenoppretting. Kopiar utanfor PythonAnywhere er førebels ein manuell rutine.
+gjenoppretting. Automatisk kryptert kopi til Proton Drive er aktivert;
+sjå [PROTON-BACKUP.md](PROTON-BACKUP.md) for drift og gjenopprettingskontroll.
 
 ## Dokumentasjon
 
@@ -136,7 +137,7 @@ standard `/home/oslobygda/bygdelista-data/bilag`, eventuelt styrt med
 Bruk appens virtuelle miljø til backup. `backup.py` inkluderer bilag automatisk når
 økonomitabellane finst. Ved bilagsoppsett i `.env`, bruk `backup_kommando.py` som
 les dette oppsettet. Test eit komplett økonomibackupsett og kontroller diskbruk før
-drift. Setta er lokale og ukrypterte; Proton-overføring er ikkje konfigurert.
+drift. Dei lokale setta er ukrypterte; Proton-jobben krypterer eksporten før overføring.
 
 
 ## Offentlege årsdokument (steg 6)
@@ -163,7 +164,8 @@ opningssaldoar og tidlegare føringar er gjennomgått.
 Sjå [SLUTTKONTROLL.md](SLUTTKONTROLL.md) før utrulling og
 [BACKUP.md](BACKUP.md) for dei nye krypterings- og prøvekommandoane.
 Lokale backupsett er framleis ukrypterte; berre særskild eksport blir kryptert.
-Proton-opplasting og nedlasting må prøvast manuelt før ekstern backup er kontrollert.
+Proton-jobben kontrollerer opplasting, nedlasting og gjenoppretting automatisk,
+sjå [PROTON-BACKUP.md](PROTON-BACKUP.md).
 
 ## Oppdatering med årsmøte og økonomi
 
