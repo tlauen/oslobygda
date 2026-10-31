@@ -92,3 +92,8 @@ Prøva endrar ikkje aktiv database. Noter dato og resultat. Først etter denne p
 kan den eksterne kopien reknast som kontrollert. Sjølve Proton-opplastinga og
 nedlastingsprøva er enno ikkje utførte. Automatisk Proton-synkronisering er ikkje sett opp.
 Sjå også [SLUTTKONTROLL.md](SLUTTKONTROLL.md).
+
+## Automatisk Proton-overføring
+
+Sjå [PROTON-BACKUP.md](PROTON-BACKUP.md) for oppsett og kontrollert aktivering.
+Den daglege lokale backupen held fram uendra; Proton-jobben er eit tillegg.
