@@ -19,13 +19,15 @@
 /* Lova: eit samla dokument med god leserytme. */
 .lovdokument{max-width:780px;margin:2.5rem auto 0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fffefa}
 .lovdokument-topp{padding:clamp(26px,5vw,52px);background:#e1eddc;border-bottom:1px solid var(--line)}
-.lovdokument-topp h1{max-width:16ch;font:450 clamp(2.1rem,5vw,3.5rem)/1.12 var(--serif);letter-spacing:-.025em;margin:1rem 0 1.25rem}
+.lovdokument-topp :is(h1,h2){max-width:16ch;font:450 clamp(2.1rem,5vw,3.5rem)/1.12 var(--serif);letter-spacing:-.025em;margin:1rem 0 1.25rem}
 .lovdokument-dato{margin:0;color:#3e5839;font-size:.9rem}
 .lovdokument-paragrafar{padding:0 clamp(24px,5vw,52px)}
 .lovparagraf{padding:28px 0;scroll-margin-top:2rem}
 .lovparagraf+.lovparagraf{border-top:1px solid var(--line)}
-.lovparagraf h2{font:450 clamp(1.35rem,3vw,1.65rem)/1.3 var(--serif);color:#3e5839;margin:0 0 12px}
+.lovparagraf :is(h2,h3){font:450 clamp(1.35rem,3vw,1.65rem)/1.3 var(--serif);color:#3e5839;margin:0 0 12px}
 .lovparagraf p{max-width:65ch;margin:0;line-height:1.8}
+.lovparagraf p+p{margin-top:1rem}
+#motereglar{scroll-margin-top:2rem}
 .lovdokument-tilbake{max-width:780px;margin:1.4rem auto 2.5rem;font-size:.9rem}
 @media(max-width:560px){.lovdokument{margin-top:1.5rem;border-radius:14px}.lovparagraf{padding:24px 0}}
 @media print{.lovdokument{border:0;margin:0;max-width:none}.lovdokument-topp{background:none;padding:0 0 24px}.lovdokument-paragrafar{padding:0}.lovparagraf{break-inside:avoid}.lovdokument-tilbake{display:none}}

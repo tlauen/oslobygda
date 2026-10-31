@@ -10,7 +10,6 @@ permalink: /om/saklister/
 {% assign count = 0 %}
 <ul>{% assign years = site.data.arsdokument | sort %}{% for entry in years reversed %}{% assign agendas = entry[1].versions | where: 'kind', 'sakliste' %}{% assign protocols = entry[1].versions | where: 'kind', 'protokoll' | where: 'status', 'approved' %}{% if agendas.size > 0 or protocols.size > 0 %}{% assign count = count | plus: 1 %}<li><a href="{{ '/om/saklister/' | append: entry[0] | append: '/' | relative_url }}">{% if agendas.size > 0 %}Sakliste til årsmøtet{% else %}Årsmøtet{% endif %} {{ entry[0] | escape }}</a>{% if protocols.size > 0 %} · <a href="{{ '/om/saklister/' | append: entry[0] | append: '/#protokoll' | relative_url }}">Godkjend protokoll</a>{% endif %}</li>{% endif %}{% endfor %}</ul>
 {% if count == 0 %}<p>Ingen saklister er publiserte enno.</p>{% endif %}
-<h2 id="motereglar">Møtereglar</h2>
 {% assign rules = site.data.motereglar.body %}
 {% assign rule_versions = '' | split: ',' %}
 {% for entry in site.data.arsdokument %}{% assign candidates = entry[1].versions | where: 'kind', 'motereglar' %}{% assign rule_versions = rule_versions | concat: candidates %}{% endfor %}
@@ -18,4 +17,27 @@ permalink: /om/saklister/
 {% if latest %}{% assign rules = latest.content.body %}{% endif %}
 {% capture newline %}
 {% endcapture %}
-<div class="motereglar">{% assign lines = rules | split: newline %}{% for line in lines %}{% assign prefix = line | slice: 0, 3 %}{% assign clean = line | strip %}{% if prefix == '## ' %}<h3>{{ line | remove_first: '## ' | escape }}</h3>{% elsif clean != '' %}<p>{{ line | escape }}</p>{% endif %}{% endfor %}</div>
+<article class="lovdokument motereglar" aria-labelledby="motereglar">
+<header class="lovdokument-topp">
+<p class="modul-etikett">Oslobygda kulturlag · Årsmøte</p>
+<h2 id="motereglar" tabindex="-1">Møtereglar</h2>
+</header>
+<div class="lovdokument-paragrafar">
+{% assign section_open = false %}
+{% assign lines = rules | split: newline %}
+{% for line in lines %}
+  {% assign prefix = line | slice: 0, 3 %}
+  {% assign clean = line | strip %}
+  {% if prefix == '## ' %}
+    {% if section_open %}</section>{% endif %}
+    <section class="lovparagraf" aria-labelledby="moteregel-{{ forloop.index }}">
+    <h3 id="moteregel-{{ forloop.index }}">{{ line | remove_first: '## ' | escape }}</h3>
+    {% assign section_open = true %}
+  {% elsif clean != '' %}
+    {% unless section_open %}<section class="lovparagraf">{% assign section_open = true %}{% endunless %}
+    <p>{{ line | escape }}</p>
+  {% endif %}
+{% endfor %}
+{% if section_open %}</section>{% endif %}
+</div>
+</article>
