@@ -45,3 +45,21 @@
 .sakliste-fot{padding:1.25rem clamp(24px,5vw,52px);border-top:1px solid var(--line)}
 .sakliste-framlegg{margin-top:1.25rem;padding:1rem 1.1rem;background:#edf3e9;border-left:3px solid #88a47c;border-radius:0 8px 8px 0}
 .sakliste-framlegg h3{font:650 .9rem/1.4 system-ui,sans-serif;margin:0 0 .5rem;color:#3e5839}
+
+/* Felles, lett synlege dokumentlenkjer i årsoversikter og saklister. */
+.arsdokument-oversikt{list-style:none;max-width:900px;padding:0;margin:1.75rem 0 2.5rem;display:grid;gap:1rem}
+.arsdokument-lenkje{box-sizing:border-box;display:flex;align-items:center;gap:1.1rem;min-height:94px;padding:1.2rem 1.4rem;border:1px solid #d5ddcf;border-radius:12px;background:#fffefa;color:#203e30;text-decoration:none;transition:background .15s,border-color .15s}
+.arsdokument-lenkje:hover{background:#edf3e9;border-color:#88a47c;text-decoration:none}
+.arsdokument-lenkje:focus-visible{outline:3px solid #206582;outline-offset:4px}
+.arsdokument-ar{display:grid;place-items:center;flex-shrink:0;min-width:4.2rem;min-height:3.5rem;border-radius:8px;background:#e1eddc;font:450 1.4rem/1.2 var(--serif);font-variant-numeric:tabular-nums;color:#3e5839}
+.arsdokument-lenkjetekst{display:grid;gap:.35rem;min-width:0}
+.arsdokument-lenkjetittel{font:450 clamp(1.1rem,2.4vw,1.35rem)/1.3 var(--serif);overflow-wrap:anywhere}
+.arsdokument-lenkjehint{font:.8rem/1.5 system-ui,sans-serif;color:#5e5c55}
+.arsdokument-pil{margin-left:auto;flex-shrink:0;font-size:1.35rem;color:#3e5839}
+.arsdokument-mote{display:flex;flex-wrap:wrap;gap:.75rem}
+.arsdokument-mote>.arsdokument-lenkje{flex:1 1 300px}
+.sakliste-dokumentlenkje{margin-top:1.25rem}
+.sakliste-dokumentlenkje .arsdokument-lenkje{min-height:82px;padding:1rem 1.1rem;background:#f5f7f1}
+.sakliste-dokumentlenkje .arsdokument-lenkje:hover{background:#e7efdf}
+@media(max-width:560px){.arsdokument-lenkje{gap:.8rem;padding:1rem}.arsdokument-ar{min-width:3.5rem;min-height:3.25rem}.arsdokument-mote{display:grid}.arsdokument-pil{font-size:1.15rem}}
+@media(prefers-reduced-motion:reduce){.arsdokument-lenkje{transition:none}}

@@ -7,7 +7,26 @@ permalink: /om/saklister/
 <p><a class="arsmelding-tilbake" href="{{ '/om/' | relative_url }}#arsmote">← Om laget</a></p>
 <h1>Sakliste og møtereglar</h1>
 {% assign count = 0 %}
-<ul>{% assign years = site.data.arsdokument | sort %}{% for entry in years reversed %}{% assign agendas = entry[1].versions | where: 'kind', 'sakliste' %}{% assign protocols = entry[1].versions | where: 'kind', 'protokoll' | where: 'status', 'approved' %}{% if agendas.size > 0 or protocols.size > 0 %}{% assign count = count | plus: 1 %}<li><a href="{{ '/om/saklister/' | append: entry[0] | append: '/' | relative_url }}">{% if agendas.size > 0 %}Sakliste for årsmøtet{% else %}Årsmøtet{% endif %} {{ entry[0] | escape }}</a>{% if protocols.size > 0 %} · <a href="{{ '/om/saklister/' | append: entry[0] | append: '/#protokoll' | relative_url }}">Godkjend protokoll</a>{% endif %}</li>{% endif %}{% endfor %}</ul>
+<ul class="arsdokument-oversikt">
+{% assign years = site.data.arsdokument | sort %}
+{% for entry in years reversed %}
+  {% assign agendas = entry[1].versions | where: 'kind', 'sakliste' %}
+  {% assign protocols = entry[1].versions | where: 'kind', 'protokoll' | where: 'status', 'approved' %}
+  {% if agendas.size > 0 or protocols.size > 0 %}
+    {% assign count = count | plus: 1 %}
+    <li class="arsdokument-mote">
+    {% capture agenda_path %}/om/saklister/{{ entry[0] }}/{% endcapture %}
+    {% capture agenda_title %}{% if agendas.size > 0 %}Sakliste for årsmøtet{% else %}Årsmøtet{% endif %} {{ entry[0] }}{% endcapture %}
+    {% assign document_year = entry[0] %}{% include arsdokument-lenkje.html path=agenda_path title=agenda_title year=document_year hint='Saker og årsmøtepapir' %}
+    {% if protocols.size > 0 %}
+      {% capture protocol_path %}/om/saklister/{{ entry[0] }}/#protokoll{% endcapture %}
+      {% capture protocol_title %}Godkjend protokoll {{ entry[0] }}{% endcapture %}
+      {% assign document_year = entry[0] %}{% include arsdokument-lenkje.html path=protocol_path title=protocol_title hint='Godkjend av begge underskrivarane' %}
+    {% endif %}
+    </li>
+  {% endif %}
+{% endfor %}
+</ul>
 {% if count == 0 %}<p>Ingen saklister er publiserte enno.</p>{% endif %}
 {% assign rules = site.data.motereglar.body %}
 {% assign rule_versions = '' | split: ',' %}

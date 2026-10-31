@@ -12,7 +12,7 @@ permalink: /om/arsmeldingar/
 Her finn du publiserte årsmeldingar og sakspapir frå Oslobygda kulturlag.
 
 {% assign published_count = 0 %}
-<ul>
+<ul class="arsdokument-oversikt">
 {% if site.data.arsdokument %}
 {% assign report_years = site.data.arsdokument | sort %}
 {% for entry in report_years reversed %}
@@ -22,7 +22,7 @@ Her finn du publiserte årsmeldingar og sakspapir frå Oslobygda kulturlag.
   {% endfor %}
   {% if has_report %}
     {% assign published_count = published_count | plus: 1 %}
-    <li><a href="{{ '/om/arsmeldingar/' | append: entry[0] | append: '/' | relative_url }}">Årsmelding {{ entry[0] | escape }}</a></li>
+    <li>{% capture document_path %}/om/arsmeldingar/{{ entry[0] }}/{% endcapture %}{% capture document_title %}Årsmelding {{ entry[0] }}{% endcapture %}{% assign document_year = entry[0] %}{% include arsdokument-lenkje.html path=document_path title=document_title year=document_year %}</li>
   {% endif %}
 {% endfor %}
 {% endif %}
