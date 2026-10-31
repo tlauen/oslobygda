@@ -63,3 +63,10 @@
 .sakliste-dokumentlenkje .arsdokument-lenkje:hover{background:#e7efdf}
 @media(max-width:560px){.arsdokument-lenkje{gap:.8rem;padding:1rem}.arsdokument-ar{min-width:3.5rem;min-height:3.25rem}.arsdokument-mote{display:grid}.arsdokument-pil{font-size:1.15rem}}
 @media(prefers-reduced-motion:reduce){.arsdokument-lenkje{transition:none}}
+
+.offentleg-okonomi .protokoll-oversikt details{margin:0;padding:0;border:0;background:none;border-radius:12px}
+.protokoll-oversikt summary.arsdokument-lenkje{list-style:none;cursor:pointer}
+.protokoll-oversikt summary.arsdokument-lenkje::-webkit-details-marker{display:none}
+.protokoll-oversikt details[open]>summary{background:#edf3e9;border-color:#88a47c}
+.protokoll-oversikt details[open]>summary .arsdokument-pil{transform:rotate(180deg)}
+.protokoll-oversikt .dokument-tilbake-lenkjer{margin:1.25rem 0}
