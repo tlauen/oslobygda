@@ -8,7 +8,7 @@ from unittest.mock import patch
 import app as module
 import test_styre_auth as fixtures
 from arsdokument import DocumentConflict, digest
-from protokoll import validate_minutes, init_minutes, LINK_DAYS
+from protokoll import validate_minutes, init_minutes, LINK_DAYS, parse_minutes_form, APPROVED_WITHOUT_REMARKS
 from publisering import validate_document, PublicationError
 from werkzeug.datastructures import MultiDict
 from sakliste import default_agenda
@@ -30,7 +30,9 @@ class MinutesTests(unittest.TestCase):
         module.app.extensions['meetings'].save('sakliste',2027,0,default_agenda(2027))
         rev,content=self.service.load(2027)
         content.update(meeting_date='2026-01-01',secretary='Protokollskrivar')
-        for item in content['items']: item['decision']='Samrøystes vedteke.'
+        for item in content['items']:
+            item['decision']='Samrøystes vedteke.'
+            item['subdecisions']=['Samrøystes vedteke.']*len(item['subitems'])
         self.service.save(2027,rev,content,'styret')
         return content
 
@@ -43,6 +45,38 @@ class MinutesTests(unittest.TestCase):
                 self.assertEqual(self.service.send_link(rid,slot),'sent')
                 tokens.append(mail_token(send))
         return rid,tokens
+
+    def test_subcase_decisions_and_checkbox_roundtrip(self):
+        content=self.draft()
+        form=MultiDict([('title',content['title']),('meeting_date',content['meeting_date']),('secretary',content['secretary']),('details','')])
+        for i,item in enumerate(content['items']):
+            form.add('case_title',item['title']);form.add('case_subitems','\n'.join(item['subitems']))
+            for key in ('proposals','speakers','votes'): form.add(key,item[key])
+            form.add('decision','' if item['subitems'] else 'Eige vedtak')
+            form.add(f'subitems_present_{i}','yes')
+            for j,title in enumerate(item['subitems']):
+                form.add(f'sub_title_{i}',title);form.add(f'sub_decision_{i}',f'Vedtak {i+1}.{j+1}')
+            if item['subitems']: form.add(f'sub_approved_{i}','0')
+        form.add('case_approved','1')
+        parsed=parse_minutes_form(form,content)
+        self.assertEqual(parsed['items'][0]['decision'],'')
+        self.assertEqual(parsed['items'][0]['subdecisions'][0],APPROVED_WITHOUT_REMARKS)
+        self.assertEqual(parsed['items'][0]['subdecisions'][1],'Vedtak 1.2')
+        self.assertEqual(parsed['items'][1]['decision'],APPROVED_WITHOUT_REMARKS)
+        self.service.save(2027,1,parsed,'styret')
+        review_id=self.service.start_review(2027,2,[('Ein','ein@example.test'),('To','to@example.test')],'styret')
+        fixtures.BoardAuthTests.login(self)
+        page=self.client.get('/sakliste/2027/protokoll')
+        self.assertEqual(page.status_code,200)
+        self.assertIn(b'name="sub_decision_0"',page.data)
+        self.assertIn(b'Vedtak 1.2',page.data)
+        self.assertIn(b'name="case_approved" value="1" data-approval checked',page.data)
+        loaded=self.service.load(2027)[1]
+        self.assertEqual(loaded['items'][0]['subdecisions'],parsed['items'][0]['subdecisions'])
+        # Each subcase is required at review time, even if the parent has an overall decision.
+        loaded['items'][0]['subdecisions'][1]=''
+        self.service.save(2027,2,loaded,'styret')
+        with self.assertRaises(ValueError): self.service.start_review(2027,3,[('Ein','ein@example.test'),('To','to@example.test')],'styret')
 
     def test_both_must_approve_same_snapshot_and_publish_once(self):
         rid,tokens=self.review()
@@ -91,7 +125,7 @@ class MinutesTests(unittest.TestCase):
         self.assertEqual(self.client.get('/sakliste/2027/protokoll').status_code,302)
         self.draft()
         with self.assertRaises(ValueError): self.service.start_review(2027,1,[('Ein','same@example.test'),('To','SAME@example.test')],'styret')
-        rev,content=self.service.load(2027);content['items'][0]['decision']=''
+        rev,content=self.service.load(2027);content['items'][0]['decision']='';content['items'][0]['subdecisions'][0]=''
         self.service.save(2027,rev,content,'styret')
         with self.assertRaises(ValueError): self.service.start_review(2027,2,[('Ein','ein@example.test'),('To','to@example.test')],'styret')
         fixtures.BoardAuthTests.login(self)

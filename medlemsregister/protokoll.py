@@ -16,6 +16,7 @@ from database import managed_db
 from epost import send_message, DeliveryUncertain
 
 LINK_DAYS = 14
+APPROVED_WITHOUT_REMARKS = 'Godkjent utan merknader.'
 
 
 def init_minutes(get_db):
@@ -67,13 +68,17 @@ def validate_minutes_content(content):
     if not isinstance(content['items'],list) or not 1<=len(content['items'])<=100:
         raise ValueError('Protokollen må ha mellom 1 og 100 saker.')
     for item in content['items']:
-        if not isinstance(item,dict) or set(item)!={'title','subitems','proposals','speakers','votes','decision'}:
+        if not isinstance(item,dict) or set(item) not in ({'title','subitems','proposals','speakers','votes','decision'},{'title','subitems','subdecisions','proposals','speakers','votes','decision'}):
             raise ValueError('Ugyldig protokollsak.')
         for key,limit in (('title',200),('proposals',12000),('speakers',6000),('votes',6000),('decision',12000)):
             if not isinstance(item[key],str) or len(item[key])>limit or (key=='title' and not item[key].strip()):
                 raise ValueError('Ugyldig eller for lang tekst i protokollsaka.')
         if not isinstance(item['subitems'],list) or len(item['subitems'])>30 or any(not isinstance(s,str) or not s.strip() or len(s)>200 for s in item['subitems']):
             raise ValueError('Ugyldige undersaker.')
+        if 'subdecisions' in item:
+            decisions=item['subdecisions']
+            if not isinstance(decisions,list) or len(decisions)!=len(item['subitems']) or any(not isinstance(d,str) or len(d)>12000 for d in decisions):
+                raise ValueError('Kvar undersak må ha sitt eige vedtaksfelt.')
 
 
 def validate_minutes(payload):
@@ -94,6 +99,33 @@ def validate_minutes(payload):
         except (ValueError,TypeError): raise ValueError('Ugyldig godkjenningstidspunkt.') from None
     try: datetime.fromisoformat(payload['generated_at'])
     except (ValueError,TypeError): raise ValueError('Ugyldig publiseringstidspunkt.') from None
+
+
+def parse_minutes_form(form, previous):
+    fields={key:form.getlist(key) for key in ('case_title','case_subitems','proposals','speakers','votes','decision')}
+    if len({len(v) for v in fields.values()})!=1: raise ValueError('Ufullstendig protokollskjema.')
+    count=len(fields['case_title'])
+    approved=set(form.getlist('case_approved'))
+    if not approved.issubset({str(i) for i in range(count)}): raise ValueError('Ugyldig saksnummer.')
+    content=dict(title=form.get('title','').strip(),meeting_date=form.get('meeting_date',''),secretary=form.get('secretary','').strip(),details=form.get('details','').strip(),items=[])
+    for i in range(count):
+        if form.get(f'subitems_present_{i}')=='yes':
+            subs=[s.strip() for s in form.getlist(f'sub_title_{i}')]
+            decisions=[s.strip() for s in form.getlist(f'sub_decision_{i}')]
+            subapproved=set(form.getlist(f'sub_approved_{i}'))
+            if len(subs)!=len(decisions) or not subapproved.issubset({str(j) for j in range(len(subs))}):
+                raise ValueError('Ufullstendige vedtaksfelt for undersakene.')
+            decisions=[APPROVED_WITHOUT_REMARKS if str(j) in subapproved else d for j,d in enumerate(decisions)]
+        else:
+            # Older open forms must preserve saved subcase decisions when titles still match.
+            subs=[s.strip() for s in fields['case_subitems'][i].splitlines() if s.strip()]
+            old=previous['items'][i] if i<len(previous['items']) else {}
+            old_subs=old.get('subitems',[]);old_decisions=old.get('subdecisions',[])
+            decisions=[old_decisions[j] if j<len(old_decisions) and j<len(old_subs) and old_subs[j]==title else '' for j,title in enumerate(subs)]
+        item=dict(title=fields['case_title'][i].strip(),subitems=subs,subdecisions=decisions,**{key:fields[key][i].strip() for key in ('proposals','speakers','votes','decision')})
+        if str(i) in approved: item['decision']=APPROVED_WITHOUT_REMARKS
+        content['items'].append(item)
+    return content
 
 
 def approval_origin():
@@ -121,7 +153,7 @@ class Minutes:
         agenda=json.loads(agenda['content'])
         content=dict(title=f'Protokoll frå årsmøtet {meeting_year}',meeting_date='',details=agenda['details'],secretary='',items=[])
         for item in agenda['items']:
-            content['items'].append(dict(title=item['title'],subitems=item.get('subitems',[]),proposals=item.get('proposal',''),speakers='',votes='',decision=''))
+            content['items'].append(dict(title=item['title'],subitems=item.get('subitems',[]),subdecisions=['']*len(item.get('subitems',[])),proposals=item.get('proposal',''),speakers='',votes='',decision=''))
         return 0,content
 
     def save(self,meeting_year,revision,content,actor):
@@ -151,7 +183,13 @@ class Minutes:
             if not draft or draft['revision']!=integer(revision): raise DocumentConflict('Lagre og kontroller siste versjon før du sender til godkjenning.')
             content=json.loads(draft['content']);validate_minutes_content(content)
             if date.fromisoformat(content['meeting_date'])>today(): raise ValueError('Møtet må vere halde før protokollen blir send til godkjenning.')
-            if any(not item['decision'].strip() for item in content['items']): raise ValueError('Fyll inn vedtak eller skriv «Ingen vedtak» i kvar sak før godkjenning.')
+            for item in content['items']:
+                if item['subitems']:
+                    decisions=item.get('subdecisions',[])
+                    if len(decisions)!=len(item['subitems']) or any(not d.strip() for d in decisions):
+                        raise ValueError('Fyll inn vedtak eller kryss av for godkjenning i kvar undersak før du sender protokollen.')
+                elif not item['decision'].strip():
+                    raise ValueError('Fyll inn vedtak, kryss av for godkjenning eller skriv «Ingen vedtak» i kvar sak før godkjenning.')
             old=db.execute('SELECT * FROM minutes_reviews WHERE report_year=? AND source_revision=?',(meeting_year,draft['revision'])).fetchone()
             if old: raise ValueError('Denne revisjonen er allereie send til godkjenning. Bruk ny lenkje ved sendefeil, eller lagre ei ny revisjon ved endringar.')
             rid=db.execute('INSERT INTO minutes_reviews(report_year,source_revision,snapshot,content_hash,created_by,created_at) VALUES (?,?,?,?,?,?)',(meeting_year,draft['revision'],draft['content'],digest(draft['content']),actor,stamp())).lastrowid
@@ -315,12 +353,7 @@ def install_minutes(app,get_db,require_admin):
                     state=service.send_link(rid,slot,app.jinja_env.globals['url_prefix'])
                     flash({'sent':'Ny personleg lenkje er send. Den førre lenkja er ugyldig.','uncertain':'Uvisst om e-posten kom fram. Kontroller med mottakaren før du sender igjen.','failed':'E-postsendinga feila. Prøv igjen når e-postoppsettet er kontrollert.'}[state],'protokoll')
                 else:
-                    fields={key:request.form.getlist(key) for key in ('case_title','case_subitems','proposals','speakers','votes','decision')}
-                    lengths={len(v) for v in fields.values()}
-                    if len(lengths)!=1: raise ValueError('Ufullstendig protokollskjema.')
-                    submitted=dict(title=request.form.get('title','').strip(),meeting_date=request.form.get('meeting_date',''),secretary=request.form.get('secretary','').strip(),details=request.form.get('details','').strip(),items=[])
-                    for i in range(len(fields['case_title'])):
-                        submitted['items'].append(dict(title=fields['case_title'][i].strip(),subitems=[s.strip() for s in fields['case_subitems'][i].splitlines() if s.strip()],**{key:fields[key][i].strip() for key in ('proposals','speakers','votes','decision')}))
+                    submitted=parse_minutes_form(request.form,content)
                     service.save(meeting_year,request.form.get('revision'),submitted,actor)
                     flash('Protokollen er lagra. Ei eventuell pågåande godkjenningsrunde er avslutta.','protokoll')
                 return redirect(location('minutes_editor',meeting_year=meeting_year))

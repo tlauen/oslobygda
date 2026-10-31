@@ -72,3 +72,7 @@
 .rekneskap-meny .rekneskap-meny-inaktiv { display:block; padding:.55rem .8rem; border-radius:8px; font-size:.85rem; color:#69665f; background:#e8e5dd; cursor:not-allowed; }
 .rekneskap-meny-inaktiv small { font:inherit; }
 .rekneskap-meny-inaktiv:focus-visible { outline:3px solid #206582; outline-offset:3px; }
+
+[data-minutes-form] [data-decision]{display:grid;gap:.65rem}
+.protokoll-undersak{margin:1rem 0}
+[data-minutes-form] textarea[readonly]{background:#edf3e9;color:#3e5839}

@@ -50,8 +50,10 @@ Opne ei lagra sakliste og vel **Før protokoll / sjå godkjenningar**. Første
 protokollutkast er ein kopi av sakene og undersakene. Forslag til vedtak blir
 tekne med som framlegg; vedtaksfeltet blir ståande tomt til møtet har avgjort saka. Fyll inn møtedato,
 protokollskrivar og innleiing. Kvar sak har eigne felt for framlegg og
-framleggsstillarar, dei som tok ordet, røysteresultat og vedtak. Skriv
-«Ingen vedtak» når saka ikkje førte til vedtak. Lagre undervegs og kontroller
+framleggsstillarar, dei som tok ordet, røysteresultat og vedtak. Kvar undersak har sitt eige vedtaksfelt. Kryss av **Godkjent utan merknader**
+for å fylle inn standardvedtak, både på saker og undersaker. Skriv
+«Ingen vedtak» når saka ikkje førte til vedtak. Samla vedtak på hovudsaka
+er valfritt når alle undersakene har eigne vedtak. Lagre undervegs og kontroller
 førehandsvisinga.
 
 Styret kan sende protokollskrivaren ei personleg e-postlenkje med skrivetilgang
