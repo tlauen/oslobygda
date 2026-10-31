@@ -8,9 +8,10 @@ import secrets
 import time
 from datetime import date, datetime
 from email.message import EmailMessage
+from pathlib import Path
 from urllib.parse import urlsplit
 
-from flask import abort, flash, redirect, render_template, request, session
+from flask import abort, flash, redirect, render_template, request, session, send_from_directory
 from arsdokument import canonical, digest, stamp, today, year, integer, DocumentConflict
 from database import managed_db
 from epost import send_message, DeliveryUncertain
@@ -306,6 +307,10 @@ class Minutes:
 
 def install_minutes(app,get_db,require_admin):
     service=Minutes(get_db);app.extensions['minutes']=service
+
+    @app.get('/felles/protokoll.css')
+    def minutes_styles():
+        return send_from_directory(Path(__file__).resolve().parents[1]/'lutar','protokoll.css')
 
     def location(endpoint,**values): return app.jinja_env.globals['prefix_url'](endpoint,**values)
 

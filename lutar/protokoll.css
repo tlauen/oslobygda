@@ -1,0 +1,23 @@
+/* Same dokumentuttrykk på nettsida, i førehandsvisinga og ved godkjenning. */
+.protokolldokument{box-sizing:border-box;max-width:780px;margin:2.5rem auto;border:1px solid #dedcd4;border-radius:18px;overflow:hidden;background:#fffefa;color:#12110e;text-align:left}
+.protokoll-topp{padding:clamp(26px,5vw,52px);background:#e1eddc;border-bottom:1px solid #dedcd4}
+.protokolldokument .protokoll-etikett{margin:0;font:700 .7rem/1.6 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#3e5839}
+.protokolldokument .protokoll-tittel{max-width:18ch;font:450 clamp(2.1rem,5vw,3.5rem)/1.12 var(--serif,Georgia,serif);letter-spacing:-.025em;margin:1rem 0 1.25rem}
+.protokolldokument .protokoll-meta{margin:.3rem 0 0;font-size:.9rem;color:#3e5839}
+.protokoll-saker{padding:0 clamp(24px,5vw,52px)}
+.protokoll-sak{padding:28px 0;scroll-margin-top:2rem}
+.protokoll-sak+.protokoll-sak{border-top:1px solid #dedcd4}
+.protokolldokument .protokoll-sak>h3,.protokolldokument .protokoll-signaturar>h3{font:450 clamp(1.35rem,3vw,1.65rem)/1.3 var(--serif,Georgia,serif);color:#3e5839;margin:0 0 12px}
+.protokolldokument p{max-width:65ch;line-height:1.8}
+.protokoll-tekst{white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0 0}
+.protokoll-innleiing{margin-top:1.25rem}
+.protokoll-undersaker{list-style:none;padding:0;margin:1.25rem 0}
+.protokoll-undersaker>li+li{margin-top:1.25rem}
+.protokolldokument .protokoll-felt{margin-top:1.5rem}
+.protokolldokument .protokoll-felt>h4{font:650 .9rem/1.4 system-ui,sans-serif;margin:0 0 .5rem;color:#3e5839}
+.protokoll-vedtak{padding:1rem 1.1rem;background:#edf3e9;border-left:3px solid #88a47c;border-radius:0 8px 8px 0}
+.protokoll-signaturar{padding:clamp(24px,5vw,52px);border-top:1px solid #dedcd4;background:#f5f7f1}
+.protokoll-signaturar ul{list-style:none;padding:0;margin:0;display:grid;gap:1.25rem}
+.protokoll-signaturar time{display:block;margin-top:.25rem;font-size:.85rem;color:#5e5c55}
+@media(max-width:560px){.protokolldokument{margin:1.5rem auto;border-radius:14px}.protokoll-sak{padding:24px 0}}
+@media print{.protokolldokument{border:0;margin:0;max-width:none}.protokoll-topp{background:none;padding:0 0 24px}.protokoll-saker{padding:0}.protokoll-sak,.protokoll-signaturar{break-inside:avoid}.protokoll-signaturar{background:none;padding:24px 0}}
