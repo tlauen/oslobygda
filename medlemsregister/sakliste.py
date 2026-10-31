@@ -42,7 +42,7 @@ def document_choices():
 def default_agenda(meeting_year):
     meeting_year=year(meeting_year)
     def item(title, document='', subitems=None):
-        return dict(title=title,body='',document=document,subitems=subitems or [])
+        return dict(title=title,body='',proposal='',document=document,subitems=subitems or [])
     choices=document_choices()
     def link(kind, report_year):
         value=f'{kind}:{report_year}'
@@ -87,8 +87,9 @@ def validate_content(kind, content):
     if not isinstance(content['items'],list) or not 1 <= len(content['items']) <= 100:
         raise ValueError('Saklista må ha mellom 1 og 100 saker.')
     for item in content['items']:
-        if not isinstance(item,dict) or set(item) not in ({'title','body','document'},{'title','body','document','subitems'}): raise ValueError('Ugyldig sak.')
+        if not isinstance(item,dict) or not {'title','body','document'}.issubset(item) or set(item)-{'title','body','document','subitems','proposal'}: raise ValueError('Ugyldig sak.')
         text(item['title'],200,True); text(item['body'],6000)
+        text(item.get('proposal',''),6000)
         subs=item.get('subitems',[])
         if not isinstance(subs,list) or len(subs)>30: raise ValueError('Maks 30 undersaker per sak.')
         for sub in subs: text(sub,200,True)
@@ -185,8 +186,10 @@ def install_meetings(app,get_db,require_admin):
                         titles=request.form.getlist('item_title'); bodies=request.form.getlist('item_body'); links=request.form.getlist('item_document')
                         subs=request.form.getlist('item_subitems')
                         if not subs: subs=['']*len(titles)
-                        if not len(titles)==len(bodies)==len(links)==len(subs): raise ValueError('Ufullstendig sakliste.')
-                        submitted=dict(title=request.form.get('title','').strip(),details=request.form.get('details','').strip(),items=[dict(title=t.strip(),body=b.strip(),document=d,subitems=[line.strip() for line in sub.splitlines() if line.strip()]) for t,b,d,sub in zip(titles,bodies,links,subs)])
+                        proposals=request.form.getlist('item_proposal')
+                        if not proposals: proposals=[item.get('proposal','') for item in content['items']] if len(content['items'])==len(titles) else ['']*len(titles)
+                        if not len(titles)==len(bodies)==len(links)==len(subs)==len(proposals): raise ValueError('Ufullstendig sakliste.')
+                        submitted=dict(title=request.form.get('title','').strip(),details=request.form.get('details','').strip(),items=[dict(title=t.strip(),body=b.strip(),document=d,proposal=proposal.strip(),subitems=[line.strip() for line in sub.splitlines() if line.strip()]) for t,b,d,sub,proposal in zip(titles,bodies,links,subs,proposals)])
                     service.save(kind,report_year,request.form.get('revision'),submitted)
                 return redirect(app.jinja_env.globals['prefix_url']('agenda_index' if kind=='motereglar' else 'agenda_editor',**({} if kind=='motereglar' else {'meeting_year':report_year})))
             except ValueError as exc:

@@ -44,6 +44,25 @@ class MeetingTests(unittest.TestCase):
         self.assertIn('Sak 7: Ymse'.encode(),page.data)
         self.assertEqual(self.service.enqueue('sakliste',2027,1)['content'],agenda)
 
+    def test_proposal_is_separate_saved_and_copied_as_proposal(self):
+        fixtures.BoardAuthTests.login(self)
+        data=dict(csrf_token=self.token(),action='save',revision=0,title='Sakliste',details='',item_title=['Årsmelding'],item_body=['Omtale av året'],item_document=['arsmelding:2026'],item_proposal=['Årsmeldinga blir godkjend.'])
+        self.assertEqual(self.client.post('/sakliste/2027',data=data).status_code,302)
+        payload=self.service.enqueue('sakliste',2027,1)
+        item=payload['content']['items'][0]
+        self.assertEqual(item['body'],'Omtale av året')
+        self.assertEqual(item['proposal'],'Årsmeldinga blir godkjend.')
+        preview=self.client.get('/sakliste/2027')
+        self.assertIn('Forslag til vedtak'.encode(),preview.data)
+        self.assertIn('Årsmeldinga blir godkjend.'.encode(),preview.data)
+        revision,minutes=module.app.extensions['minutes'].load(2027)
+        self.assertEqual(minutes['items'][0]['proposals'],item['proposal'])
+        self.assertEqual(minutes['items'][0]['decision'],'')
+        # Older open forms must not erase a proposal by omitting the new field.
+        data.pop('item_proposal');data['revision']=1
+        self.assertEqual(self.client.post('/sakliste/2027',data=data).status_code,302)
+        self.assertEqual(self.service.enqueue('sakliste',2027,2)['content']['items'][0]['proposal'],item['proposal'])
+
     def test_revisions_publication_and_validation(self):
         self.service.save('sakliste',2027,0,self.agenda())
         with self.assertRaises(DocumentConflict): self.service.save('sakliste',2027,0,self.agenda())

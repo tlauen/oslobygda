@@ -1,7 +1,7 @@
 # Sakliste og møtereglar
 
 I Årsmøte og økonomi: vel **Sakliste og møtereglar**. Opne eit årsmøteår,
-legg til saker og flytt dei med Opp/Ned. Kvar sak har tittel, omtale/framlegg
+legg til saker og flytt dei med Opp/Ned. Kvar sak har tittel, omtale av saka, eige felt for forslag til vedtak
 og valfri lenkje til årsmelding, rekneskap eller budsjett for eit valt år.
 Nye saklister får standardmalen med organisering, årsmelding, rekneskap,
 medlemspengar, planar, budsjett, ymse og val. Rapportane gjeld året før møtet,
@@ -47,7 +47,8 @@ og oppdater Bygdelista før den nye dokumenttypen blir brukt i publisering.
 ## Protokoll rett i Bygdelista
 
 Opne ei lagra sakliste og vel **Før protokoll / sjå godkjenningar**. Første
-protokollutkast er ein kopi av sakene og undersakene. Fyll inn møtedato,
+protokollutkast er ein kopi av sakene og undersakene. Forslag til vedtak blir
+tekne med som framlegg; vedtaksfeltet blir ståande tomt til møtet har avgjort saka. Fyll inn møtedato,
 protokollskrivar og innleiing. Kvar sak har eigne felt for framlegg og
 framleggsstillarar, dei som tok ordet, røysteresultat og vedtak. Skriv
 «Ingen vedtak» når saka ikkje førte til vedtak. Lagre undervegs og kontroller

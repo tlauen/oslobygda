@@ -121,7 +121,7 @@ class Minutes:
         agenda=json.loads(agenda['content'])
         content=dict(title=f'Protokoll frå årsmøtet {meeting_year}',meeting_date='',details=agenda['details'],secretary='',items=[])
         for item in agenda['items']:
-            content['items'].append(dict(title=item['title'],subitems=item.get('subitems',[]),proposals='',speakers='',votes='',decision=''))
+            content['items'].append(dict(title=item['title'],subitems=item.get('subitems',[]),proposals=item.get('proposal',''),speakers='',votes='',decision=''))
         return 0,content
 
     def save(self,meeting_year,revision,content,actor):
