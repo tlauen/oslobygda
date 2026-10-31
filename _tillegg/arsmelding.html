@@ -7,12 +7,12 @@
 {% assign document_file = site.static_files | where: 'path', document_path | first %}
 {% if document_file %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
-<p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}">← Alle årsmeldingar</a></p>
+<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}">← Alle årsmeldingar</a> {% include til-saklista.html kind='arsmelding' %}</p>
 {% include dokument-filer.html path=document_path title=page.title %}
 {% else %}
 <link rel="stylesheet" href="{{ '/lutar/arsmelding.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/lutar/arsmelding-tilskipingar.css' | relative_url }}">
-<p><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}"><span aria-hidden="true">←</span> Alle årsmeldingar</a></p>
+<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/arsmeldingar/' | relative_url }}"><span aria-hidden="true">←</span> Alle årsmeldingar</a> {% include til-saklista.html kind='arsmelding' %}</p>
 <h1>{{ page.title | escape }}</h1>
 
 {% assign report = site.data.arsdokument[page.report_year] %}

@@ -1,0 +1,23 @@
+{% comment %}Use the actual agenda reference when available; otherwise use the document's meeting year.{% endcomment %}
+{% assign agenda_year = selected.meeting_year %}
+{% unless agenda_year %}
+  {% if include.kind == 'budsjett' %}{% assign agenda_year = page.report_year %}{% else %}{% assign agenda_year = page.report_year | plus: 1 %}{% endif %}
+{% endunless %}
+{% assign preferred_year = agenda_year | append: '' %}
+{% capture document_reference %}{{ include.kind }}:{{ page.report_year }}{% endcapture %}
+{% assign found_agenda = false %}
+{% assign agenda_years = site.data.arsdokument | sort %}
+{% for agenda_entry in agenda_years reversed %}
+  {% assign latest_agenda = agenda_entry[1].versions | where: 'kind', 'sakliste' | sort: 'source_revision' | last %}
+  {% for agenda_item in latest_agenda.content.items %}
+    {% if agenda_item.document == document_reference %}
+      {% if found_agenda == false or agenda_entry[0] == preferred_year %}
+        {% assign agenda_year = agenda_entry[0] %}
+        {% assign found_agenda = true %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+{% capture agenda_path %}/om/saklister/{{ agenda_year }}/{% endcapture %}
+{% assign agenda_page = site.pages | where: 'url', agenda_path | first %}
+{% if agenda_page %}<a class="arsmelding-tilbake" href="{{ agenda_path | relative_url }}">Til saklista for {{ agenda_year | escape }}</a>{% else %}<a class="arsmelding-tilbake" href="{{ '/om/saklister/' | relative_url }}">Til saklistene</a>{% endif %}

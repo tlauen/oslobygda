@@ -6,7 +6,7 @@
 {% capture document_path %}/lutar/arsdokument/{{ page.report_year }}/budsjett-{{ document_number }}.html{% endcapture %}
 {% assign document_file = site.static_files | where: 'path', document_path | first %}
 <link rel="stylesheet" href="{{ '/lutar/offentleg-okonomi.css' | relative_url }}">
-<p><a class="arsmelding-tilbake" href="{{ '/om/budsjett/' | relative_url }}"><span aria-hidden="true">←</span> Alle budsjett</a></p>
+<p class="dokument-tilbake-lenkjer"><a class="arsmelding-tilbake" href="{{ '/om/budsjett/' | relative_url }}"><span aria-hidden="true">←</span> Alle budsjett</a> {% include til-saklista.html kind='budsjett' %}</p>
 {% if document_file %}
 {% include dokument-filer.html path=document_path title=page.title %}
 {% else %}
