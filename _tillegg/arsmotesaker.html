@@ -1,8 +1,8 @@
 <section class="om-modul" aria-labelledby="arsmote">
 <p class="modul-etikett">Innsyn i laget</p><h2 id="arsmote" tabindex="-1">Årsmøtesaker</h2>
 <div class="dokument-grid">
-{% assign titles = 'Årsmeldingar|Rekneskap|Budsjett|Sakliste og møtereglar' | split: '|' %}
-{% assign paths = '/om/arsmeldingar/|/om/rekneskap/|/om/budsjett/|/om/saklister/' | split: '|' %}
-{% assign descriptions = 'Tilskipingane, folka og arbeidet gjennom året.|Innkome, utgifter og kva laget eig og skuldar.|Planane for innkome og pengebruk framover.|Sakene til årsmøtet og reglane for møtet.' | split: '|' %}
+{% assign titles = 'Sakliste og møtereglar|Årsmelding|Rekneskap|Budsjett|Protokollar' | split: '|' %}
+{% assign paths = '/om/saklister/|/om/arsmeldingar/|/om/rekneskap/|/om/budsjett/|/om/protokollar/' | split: '|' %}
+{% assign descriptions = 'Sakene til årsmøtet og reglane for møtet.|Tilskipingane, folka og arbeidet gjennom året.|Innkome, utgifter og kva laget eig og skuldar.|Planane for innkome og pengebruk framover.|Godkjende og underskrivne protokollar frå årsmøta.' | split: '|' %}
 {% for title in titles %}<a class="dokument-kort" href="{{ paths[forloop.index0] | relative_url | escape }}"><span class="dokument-type">Innsyn og årsmøtepapir</span><h3>{{ title }}</h3><p>{{ descriptions[forloop.index0] }}</p><span class="dokument-opne">Opne oversikta <span aria-hidden="true">↗</span></span></a>{% endfor %}
 </div></section>

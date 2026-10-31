@@ -1,4 +1,4 @@
-<article id="protokoll"><h2>{{ protocol.content.title | escape }}</h2>
+<article id="{{ include.id | default: 'protokoll' | escape }}"><h2>{{ protocol.content.title | escape }}</h2>
 <p>Møtedato: {{ protocol.content.meeting_date | escape }} · Protokollskrivar: {{ protocol.content.secretary | escape }}</p>
 <p style="white-space:pre-wrap">{{ protocol.content.details | escape }}</p>
 {% for item in protocol.content.items %}{% assign case_number = forloop.index %}<section><h3>Sak {{ case_number }}: {{ item.title | escape }}</h3>{% if item.subitems.size > 0 %}<ol style="list-style:none;padding-left:0">{% for sub in item.subitems %}<li>{{ case_number }}.{{ forloop.index }} {{ sub | escape }}</li>{% endfor %}</ol>{% endif %}
