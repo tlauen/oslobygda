@@ -10,7 +10,13 @@
   <p class="modul-etikett">Glimt frå pøbben</p>
   <h2 id="pobb-galleri-tittel">Musikk, dans og godt lag</h2>
   <p>Ein jam rundt bordet, ein svingom på golvet og musikk gjennom kvelden. Her er nokre glimt frå Folkemusikkpøbben.</p>
-  <div class="pobb-galleri__rutenett">
+  {% assign foto = 0 %}{% assign filmar = 0 %}
+  {% for medium in site.data.pobb_bilete %}
+    {% assign type = medium.fil | split: '.' | last %}
+    {% if type == 'mp4' %}{% assign filmar = filmar | plus: 1 %}{% else %}{% assign foto = foto | plus: 1 %}{% endif %}
+  {% endfor %}
+  {% assign rader = foto | at_least: filmar | plus: 1 %}
+  <div class="pobb-galleri__rutenett" style="--pobb-rader: {{ rader }}">
     {% assign grupper = 'Foto,Film' | split: ',' %}
     {% for gruppe in grupper %}
     <div class="pobb-galleri__kolonne">
