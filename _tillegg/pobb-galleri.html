@@ -16,7 +16,7 @@
     {% if type == 'mp4' %}{% assign filmar = filmar | plus: 1 %}{% else %}{% assign foto = foto | plus: 1 %}{% endif %}
   {% endfor %}
   {% assign rader = foto | at_least: filmar | plus: 1 %}
-  <div class="pobb-galleri__rutenett" style="--pobb-rader: {{ rader }}">
+  <div class="pobb-galleri__rutenett" style="--pobb-rader: {{ rader }}; --pobb-rader-brei: {{ rader | divided_by: 2 | plus: 1 }}">
     {% assign grupper = 'Foto,Film' | split: ',' %}
     {% for gruppe in grupper %}
     <div class="pobb-galleri__kolonne">
