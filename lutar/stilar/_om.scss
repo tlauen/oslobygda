@@ -109,7 +109,7 @@
 .pobb-visar button:focus-visible{outline:3px solid #a8d4e8;outline-offset:3px}
 
 /* På breie skjermar deler kvar mediegruppe seg i to kolonnar. */
-@media(min-width:1000px){
+@media(min-width:760px){
   .pobb-galleri__rutenett{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(var(--pobb-rader-brei),auto)}
   .pobb-galleri__kolonne{grid-column:span 2;grid-row:span var(--pobb-rader-brei);grid-template-columns:repeat(2,minmax(0,1fr))}
   .pobb-galleri__kolonne>h3{grid-column:1/-1}
