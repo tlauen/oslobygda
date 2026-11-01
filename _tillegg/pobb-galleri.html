@@ -1,0 +1,32 @@
+<section class="om-modul pobb-galleri" aria-labelledby="pobb-galleri-tittel">
+  <p class="modul-etikett">Glimt frå pøbben</p>
+  <h2 id="pobb-galleri-tittel">Musikk, dans og godt lag</h2>
+  <p>Ein jam rundt bordet, ein svingom på golvet og musikk gjennom kvelden. Her er nokre glimt frå Folkemusikkpøbben.</p>
+  <div class="pobb-galleri__rutenett">
+    {% for medium in site.data.pobb_bilete %}
+    {% assign medielenkje = '/lutar/bilete/pobb/' | append: medium.fil %}
+    {% assign filtype = medium.fil | split: '.' | last %}
+    <figure class="pobb-galleri__kort{% if forloop.first %} pobb-galleri__kort--stor{% endif %}">
+      {% if filtype == 'mp4' %}
+      {% assign plakatlenkje = '/lutar/bilete/pobb/' | append: medium.plakat %}
+      <video controls playsinline preload="none" poster="{{ plakatlenkje | relative_url | escape }}" aria-label="{{ medium.tekst | escape }}">
+        <source src="{{ medielenkje | relative_url | escape }}" type="video/mp4">
+        <a href="{{ medielenkje | relative_url | escape }}">Opne filmen: {{ medium.tekst | escape }}</a>
+      </video>
+      {% else %}
+      <a href="{{ medielenkje | relative_url | escape }}" aria-label="Sjå heile biletet: {{ medium.tekst | escape }}">
+        <img src="{{ medielenkje | relative_url | escape }}" alt="{{ medium.tekst | escape }}" loading="lazy" decoding="async">
+      </a>
+      {% endif %}
+      <figcaption>{% if filtype == 'mp4' %}Film · {% endif %}{{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">Foto: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  <div class="pobb-galleri__folg">
+    <p>Følg oss for fleire glimt og nytt frå pøbben.</p>
+    <div class="pobb-galleri__lenkjer">
+      <a href="https://www.instagram.com/folkemusikkpub/">Følg oss på Instagram ↗</a>
+      <a href="https://www.facebook.com/folkemusikkpub">Følg oss på Facebook ↗</a>
+    </div>
+  </div>
+</section>

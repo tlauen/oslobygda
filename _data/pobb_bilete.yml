@@ -1,4 +1,39 @@
-# Valfrie bildetekstar. Nye biletfiler blir viste sjølv utan oppføring her.
-jam-pa-kaffistova.jpg:
-  alt: "Felespelarar og publikum på Folkemusikkpøbben på Kaffistova"
-  tekst: "Jam på Kaffistova"
+[
+  {
+    "fil": "jam-pa-kaffistova.jpg",
+    "tekst": "Jam på Kaffistova"
+  },
+  {
+    "fil": "dans på folkemusikkpøbben foto runhild heggem.jpg",
+    "tekst": "Dans på folkemusikkpøbben",
+    "fotograf": "Runhild Heggem"
+  },
+  {
+    "fil": "dans på folkemusikkpøbben.jpg",
+    "tekst": "Dans på folkemusikkpøbben"
+  },
+  {
+    "fil": "dans på folkemusikkpøbben.mp4",
+    "tekst": "Dans på folkemusikkpøbben",
+    "plakat": "plakatar/dans på folkemusikkpøbben.jpg"
+  },
+  {
+    "fil": "leikarringens spelemannslag speler på folkemusikkpøbben.mp4",
+    "tekst": "Leikarringens spelemannslag speler på folkemusikkpøbben",
+    "plakat": "plakatar/leikarringens spelemannslag speler på folkemusikkpøbben.jpg"
+  },
+  {
+    "fil": "norsk-færøysk dansekveld på røør.jpg",
+    "tekst": "Norsk-færøysk dansekveld på røør"
+  },
+  {
+    "fil": "norsk-færøysk dansekveld på røør.mp4",
+    "tekst": "Norsk-færøysk dansekveld på røør",
+    "plakat": "plakatar/norsk-færøysk dansekveld på røør.jpg"
+  },
+  {
+    "fil": "pøse speler på folkemusikkpøbben.mp4",
+    "tekst": "Pøse speler på folkemusikkpøbben",
+    "plakat": "plakatar/pøse speler på folkemusikkpøbben.jpg"
+  }
+]
