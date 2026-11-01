@@ -11,10 +11,17 @@
   <h2 id="pobb-galleri-tittel">Musikk, dans og godt lag</h2>
   <p>Ein jam rundt bordet, ein svingom på golvet og musikk gjennom kvelden. Her er nokre glimt frå Folkemusikkpøbben.</p>
   <div class="pobb-galleri__rutenett">
+    {% assign grupper = 'Foto,Film' | split: ',' %}
+    {% for gruppe in grupper %}
+    <div class="pobb-galleri__kolonne">
+      <h3>{{ gruppe }}</h3>
     {% for medium in site.data.pobb_bilete %}
     {% assign medielenkje = '/lutar/bilete/pobb/' | append: medium.fil %}
     {% assign filtype = medium.fil | split: '.' | last %}
-    <figure class="pobb-galleri__kort{% if forloop.first %} pobb-galleri__kort--stor{% endif %}">
+    {% assign mediegruppe = 'Foto' %}
+    {% if filtype == 'mp4' %}{% assign mediegruppe = 'Film' %}{% endif %}
+    {% if gruppe == mediegruppe %}
+    <figure class="pobb-galleri__kort">
       {% if filtype == 'mp4' %}
       {% assign plakatlenkje = '/lutar/bilete/pobb/' | append: medium.plakat %}
       <video controls playsinline preload="none" poster="{{ plakatlenkje | relative_url | escape }}" aria-label="{{ medium.tekst | escape }}">
@@ -28,6 +35,9 @@
       {% endif %}
       <figcaption>{% if filtype == 'mp4' %}Film · {% endif %}{{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">Foto: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
     </figure>
+    {% endif %}
+    {% endfor %}
+    </div>
     {% endfor %}
   </div>
 </section>
