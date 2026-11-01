@@ -1,3 +1,11 @@
+  <div class="om-modul pobb-galleri__folg">
+    <p>Følg oss for fleire glimt og nytt frå pøbben.</p>
+    <div class="pobb-galleri__lenkjer">
+      <a href="https://www.instagram.com/folkemusikkpub/">Følg oss på Instagram ↗</a>
+      <a href="https://www.facebook.com/folkemusikkpub">Følg oss på Facebook ↗</a>
+    </div>
+  </div>
+
 <section class="om-modul pobb-galleri" aria-labelledby="pobb-galleri-tittel">
   <p class="modul-etikett">Glimt frå pøbben</p>
   <h2 id="pobb-galleri-tittel">Musikk, dans og godt lag</h2>
@@ -21,12 +29,5 @@
       <figcaption>{% if filtype == 'mp4' %}Film · {% endif %}{{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">Foto: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
     </figure>
     {% endfor %}
-  </div>
-  <div class="pobb-galleri__folg">
-    <p>Følg oss for fleire glimt og nytt frå pøbben.</p>
-    <div class="pobb-galleri__lenkjer">
-      <a href="https://www.instagram.com/folkemusikkpub/">Følg oss på Instagram ↗</a>
-      <a href="https://www.facebook.com/folkemusikkpub">Følg oss på Facebook ↗</a>
-    </div>
   </div>
 </section>
