@@ -94,3 +94,15 @@
 .pobb-kalenderknapp__ikon{flex-shrink:0}
 
 .pobb-galleri__sosialikon{flex-shrink:0}
+
+/* Bileta kan opnast utan å forlate sida. */
+.pobb-galleri__kort [data-pobb-bilete]{cursor:zoom-in}
+.pobb-visar{box-sizing:border-box;width:min(1100px,calc(100% - 24px));max-width:none;max-height:calc(100dvh - 24px);padding:16px;border:1px solid #56645b;border-radius:14px;background:#17291f;color:#fff;overflow:auto}
+.pobb-visar::backdrop{background:rgba(8,15,11,.88)}
+.pobb-visar__topp,.pobb-visar__piler{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pobb-visar figure{margin:12px 0}
+.pobb-visar__bilete{display:block;width:100%;height:auto;max-height:calc(100dvh - 210px);object-fit:contain}
+.pobb-visar__tekst{padding:12px 0;line-height:1.5}
+.pobb-visar button{font:inherit;font-weight:650;cursor:pointer;padding:.6rem .9rem;border:1px solid #74877a;border-radius:8px;background:#203e30;color:#fff}
+.pobb-visar button:hover{background:#345841}
+.pobb-visar button:focus-visible{outline:3px solid #a8d4e8;outline-offset:3px}

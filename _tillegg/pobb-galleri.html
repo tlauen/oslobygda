@@ -22,7 +22,7 @@
         <a href="{{ medielenkje | relative_url | escape }}">Opne filmen: {{ medium.tekst | escape }}</a>
       </video>
       {% else %}
-      <a href="{{ medielenkje | relative_url | escape }}" aria-label="Sjå heile biletet: {{ medium.tekst | escape }}">
+      <a data-pobb-bilete href="{{ medielenkje | relative_url | escape }}" aria-label="Sjå heile biletet: {{ medium.tekst | escape }}">
         <img src="{{ medielenkje | relative_url | escape }}" alt="{{ medium.tekst | escape }}" loading="lazy" decoding="async">
       </a>
       {% endif %}
@@ -31,3 +31,19 @@
     {% endfor %}
   </div>
 </section>
+
+<dialog class="pobb-visar" aria-label="Bilete frå Folkemusikkpøbben">
+  <div class="pobb-visar__topp">
+    <span class="pobb-visar__teljar" aria-live="polite"></span>
+    <button type="button" data-lukk autofocus>Lukk <span aria-hidden="true">×</span></button>
+  </div>
+  <figure>
+    <img class="pobb-visar__bilete" alt="">
+    <figcaption class="pobb-visar__tekst"></figcaption>
+  </figure>
+  <div class="pobb-visar__piler">
+    <button type="button" data-forrige aria-label="Førre bilete">← Førre</button>
+    <button type="button" data-neste aria-label="Neste bilete">Neste →</button>
+  </div>
+</dialog>
+<script defer src="{{ '/lutar/pobb-galleri.js' | relative_url }}"></script>
