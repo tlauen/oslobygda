@@ -11,6 +11,7 @@ import re
 import subprocess
 import tempfile
 import time
+from zoneinfo import ZoneInfo
 
 from kryptert_backup import encrypt_bundle, verified_archive
 from okonomi_backup import verify_bundle, verify_bundle_restore
@@ -102,8 +103,19 @@ def _perform(settings,remote,password,exports,client):
     verify_bundle(bundle)
     state_path=exports/'status.json'
     state=json.loads(private_file(state_path).read_text()) if state_path.exists() else {}
-    destination=remote.rstrip('/')+'/'+bundle.name+'.bygdebackup'
     manifest_hash=checksum(bundle/'manifest.json')
+    created_at=datetime.fromisoformat(json.loads((bundle/'manifest.json').read_text())['created_at'])
+    if created_at.tzinfo is None:
+        raise ProtonBackupError('Backupen manglar tidssone for opprettingstidspunktet.')
+    local_time=created_at.astimezone(ZoneInfo('Europe/Oslo'))
+    filename=f'Oslobygda - tryggleikskopi - {local_time:%Y-%m-%d kl %H.%M.%S} - {manifest_hash[:8]}.bygdebackup'
+    destination=remote.rstrip('/')+'/'+filename
+    # Keep the destination of an existing transfer, including unfinished roundtrips.
+    legacy=remote.rstrip('/')+'/'+bundle.name+'.bygdebackup'
+    previous=state.get('identity',{})
+    if (previous.get('bundle')==bundle.name and previous.get('manifest_sha256')==manifest_hash
+            and previous.get('account')==settings['account'] and previous.get('remote_file')==legacy):
+        destination=legacy
     identity=dict(bundle=bundle.name,manifest_sha256=manifest_hash,remote_file=destination,account=settings['account'])
     # Verify local integrity before skipping a transfer that was previously restored successfully.
     if state.get('identity')==identity and state.get('verified_at'):

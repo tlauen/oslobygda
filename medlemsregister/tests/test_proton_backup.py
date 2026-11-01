@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 import sqlite3
 import tempfile
@@ -34,6 +35,7 @@ class ProtonBackupTests(unittest.TestCase):
     def test_encrypted_roundtrip_and_idempotence(self):
         result=perform(self.settings,self.client)
         self.assertEqual(result['status'],'verified')
+        self.assertRegex(next(iter(self.client.files)), r'/Oslobygda - tryggleikskopi - \d{4}-\d{2}-\d{2} kl \d{2}\.\d{2}\.\d{2} - [0-9a-f]{8}\.bygdebackup$')
         data=next(iter(self.client.files.values()))
         self.assertNotIn(b'FIKTIV-MEDLEMSDATA',data)
         self.assertTrue(data.startswith(b'BYGDELISTA-BACKUP-1\n'))
@@ -46,6 +48,20 @@ class ProtonBackupTests(unittest.TestCase):
         with self.assertRaises(ProtonBackupError):perform(self.settings,self.client)
         self.assertNotIn('verified_at',(self.root/'exports/status.json').read_text())
         self.client.corrupt=False
+        self.assertEqual(perform(self.settings,self.client)['status'],'verified')
+        self.assertEqual((self.client.uploads,self.client.downloads),(1,2))
+
+    def test_legacy_transfer_keeps_destination_when_resuming(self):
+        perform(self.settings,self.client)
+        state_path=self.root/'exports/status.json'
+        state=json.loads(state_path.read_text())
+        destination='proton:Tryggleikskopiar/'+self.bundle.name+'.bygdebackup'
+        self.client.files[destination]=self.client.files.pop(state['identity']['remote_file'])
+        state['identity']['remote_file']=destination
+        state_path.write_text(json.dumps(state))
+        self.assertEqual(perform(self.settings,self.client)['status'],'already_verified')
+        del state['verified_at']
+        state_path.write_text(json.dumps(state))
         self.assertEqual(perform(self.settings,self.client)['status'],'verified')
         self.assertEqual((self.client.uploads,self.client.downloads),(1,2))
 

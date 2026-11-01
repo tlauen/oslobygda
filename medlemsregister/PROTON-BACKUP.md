@@ -6,6 +6,12 @@ lastar opp siste ferdige, integritetskontrollerte økonomibackupsett. Det omfatt
 database (inkludert medlemsdata, styrekontoar, rekneskap, saklister og protokollar),
 bilag og dei styre-/kalenderfilene som finst i manifestet.
 
+Nye filer i Proton Drive får lesbare namn, til dømes
+`Oslobygda - tryggleikskopi - 2026-11-01 kl 04.15.00 - a1b2c3d4.bygdebackup`.
+Dato og klokkeslett viser når backupsettet blei laga, i norsk lokaltid
+(med automatisk sommar-/vintertid). Den korte ID-en skil kopiane frå kvarandre.
+Eksisterande overføringar beheld namnet sitt. Lokale backupnamn er uendra.
+
 Før opplasting blir settet kryptert med eksisterande AES-256-GCM/scrypt-format
 (`.bygdebackup`) og testa ved dekryptering. Etter opplasting blir fila lasta ned
 att, SHA-256 samanlikna, dekryptert og gjenopprettingsprøvd i isolert mappe.
