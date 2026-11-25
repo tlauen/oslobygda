@@ -14,7 +14,7 @@
 {% for name,label,type,required,maximum,autocomplete in [('fornamn','Fornamn','text',true,100,'given-name'),('mellomnamn','Mellomnamn (valfritt)','text',false,100,'additional-name'),('etternamn','Etternamn','text',true,100,'family-name'),('phone','Telefon','tel',true,30,'tel'),('adresse','Adresse','text',true,200,'street-address'),('postnummer','Postnummer','text',true,4,'postal-code'),('poststad','Poststad','text',true,100,'address-level2'),('birth_date','Fødselsdato (valfri)','date',false,10,'bday')] %}
 <div class="field{% if name in ('phone','adresse') %} field-wide{% endif %}"><label for="{{ name }}">{{ label }}{% if required %} *{% endif %}</label><input id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ member[name] or '' }}" maxlength="{{ maximum }}" autocomplete="{{ autocomplete }}" {% if required %}required{% endif %}{% if name=='postnummer' %} inputmode="numeric" pattern="[0-9]{4}"{% endif %}></div>
 {% endfor %}</div>
-<p class="small-note">Fødselsdato er valfri. Ved å fylle ut feltet samtykkjer du til bruk til aldersstatistikk. Du kan fjerne datoen igjen her. Eventuell framtidig aldersdokumentasjon for tilskot blir avklart før slik bruk.</p>
+<p class="small-note">Fødselsdato er valfri. Ved å fylle ut feltet samtykkjer du til bruk til aldersstatistikk. Du kan fjerne datoen igjen her.</p>
 <button class="button button-primary">Lagre opplysningane</button></form>
 <div class="member-email"><h3>E-postadresse</h3><p class="member-address">{{ member.email }}</p><a href="{{ prefix_url('member_email') }}">Byt e-postadresse</a><p class="small-note">Bytet krev kode frå både den gamle og den nye adressa.</p></div>
 </section>
