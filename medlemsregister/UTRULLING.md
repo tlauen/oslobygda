@@ -3,7 +3,8 @@
 Historisk sjekkliste frå oktober. Produksjonskontrollen 25. november 2026
 stadfesta open Vipps-innmelding, fullførte produksjonsordrar og aktiverte
 vedlikehalds-/backupjobbar. Han stadfesta ikkje alle ferdigkriteria nedanfor.
-Nye lokale personvernendringar har eiga utrullingsrettleiing i
+Personvernendringane og Mi side vart installerte og omlasta 25. november.
+Dei har eiga utrullingsrettleiing i
 [PERSONVERN-DRIFT.md](PERSONVERN-DRIFT.md).
 
 Status 29. oktober 2026: førebuing, ikkje utført produksjonsutrulling.
@@ -101,3 +102,27 @@ Utrullinga er ikkje ferdig før røykprøva, serverbackupen og gjenopprettingspr
 passerer. Reell offentleg dokumentpublisering og ePayment-import får eigne prøver
 og aktiveringssteg etterpå. Styret-sida publiserer førebels via nedlastbar
 nettsidepakke, ikkje direkte til GitHub.
+
+## Lesekontroll etter utrulling
+
+Med appmiljøet kan `driftskontroll.py` køyrast mot den aktive appmappa:
+
+```bash
+/home/oslobygda/.virtualenvs/bygdelista/bin/python /home/oslobygda/oslobygda-kjelde/medlemsregister/driftskontroll.py --app-dir /home/oslobygda/oslobygda/medlemsregister
+```
+
+Programmet opnar databasen i lesemodus og importerer ikkje Flask-appen.
+Det viser krypterings-/dekrypteringsteljingar, databaseintegritet, ordreteljingar,
+siste fullførte jobbkøyringar og samsvar med låste pakkeversjonar. Namn,
+kontaktopplysningar og løyndomar blir ikkje viste. `readable` og `encrypted`
+skal begge vere lik `total`; null pågåande registreringar er normalt. Sjekk
+òg at returkode og tidspunkt for kvar jobb er som venta. Eit vellukka program
+eller ein returkode 0 frå vedlikehaldet er ikkje bevis for at alle betalingar
+er endeleg avklarte. Kontrollen testar ikkje Vipps-feilflytar, faktisk klient-IP
+frå to nett eller token-rettane i GitHub.
+
+`requirements-lock.txt` byggjer på dei faktisk installerte produksjonsversjonane
+25. november. Installer via `requirements-pythonanywhere.txt`; felleskrava les
+låsen automatisk. Endringar i låsen skal prøvast i eit reint miljø med `pip check`
+og Python-testsamlinga før installasjon på serveren. CI bruker Python 3.13 som
+produksjonen. Låsen gjer ingen automatisk oppgradering av eksisterande miljø.

@@ -50,6 +50,14 @@ pip install -r requirements-common.txt
 python app.py
 ```
 
+`requirements-common.txt` bruker `requirements-lock.txt` til å låse både direkte
+og transitive fellesavhengnader til kontrollerte produksjonsversjonar. Dette gjeld
+òg PythonAnywhere og dokumentbygginga. Ved pakkeoppdatering: oppdater låsefila,
+installer i eit nytt virtuelt miljø, køyr `python -m pip check` og heile
+testsamlinga før utrulling. Ikkje bruk `pip freeze` frå eit generelt utviklingsmiljø;
+uvante ekstra pakkar skal ikkje inn i produksjonslåsen. SQLCipher-tillegget i
+`requirements.txt` er ei separat lokal avhengnad og inngår ikkje i denne låsen.
+
 Dette startar lokalt på `127.0.0.1:5001`. For ein eksisterande SQLCipher-database,
 installer `requirements.txt` og libsqlcipher. Appen nektar å opne databasen dersom
 krypteringsnøkkel er sett utan driver, og migrerer ikkje automatisk frå ukryptert

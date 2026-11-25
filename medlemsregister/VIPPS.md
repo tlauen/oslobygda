@@ -1,19 +1,38 @@
-# Nye medlemmar med Vipps
+# Vipps-innmelding
 
-Ny lokal medlemsportal og lenkjefrie påminningar er dokumenterte i
-[MI-SIDE.md](MI-SIDE.md). Dette er ikkje publisert i produksjon enno.
+Mi side og personvernendringane vart installerte på PythonAnywhere
+25. november 2026. Sjå [MI-SIDE.md](MI-SIDE.md) og
+[PERSONVERN-DRIFT.md](PERSONVERN-DRIFT.md).
 
-`ny_innmelding.py` har eige skjema på `/bli-medlem`, status på
-`/bli-medlem/status` og styreoversikt på `/innmeldingar`. Flyten er stengd som
-standard (`VIPPS_SIGNUP_MODE=disabled`). Den gamle offentlege innmeldingssida er
-ikkje lagd om; ikkje lenk til den nye før full test og produksjonsaktivering.
+`/bli-medlem` er offentleg innmelding, `/innmeldingar` er styreoversikta,
+og `/mi-side` er medlemsportalen. Standard utan konfigurasjon er framleis
+`VIPPS_SIGNUP_MODE=disabled`; produksjonen bruker `production`.
 
-Produksjonskontroll 25. november 2026: innmelding er open i produksjonsmodus,
-to produksjonsordrar er registrerte som complete, webhook-løyndomen er sett og
-timeleg innmeldingsvedlikehald er aktivert ved minutt 30. Webhookregistreringa
-hos Vipps, siste vellukka køyring og prøver av avbrot/refusjon er ikkje
-verifiserte i denne kontrollen. Sjå PERSONVERN-DRIFT.md for nye lokale endringar
-som krev eiga utrulling.
+## Stadfesta drift 25. november 2026
+
+- To fullførte produksjonsordrar vart funne i databasekontrollen før utrulling.
+- Webhook-løyndomen er konfigurert. Vipps-registeret viste éi registrering for
+  `https://bygdelista.oslobygda.no/vipps/webhook/production`, med hendingane
+  authorized, captured, aborted, expired, terminated, cancelled og refunded.
+- Timeleg innmeldingsvedlikehald køyrer ved minutt 30. Siste lesne logg før
+  utrulling enda med returkode 0; éi betaling var framleis til nytt forsøk.
+  Returkode 0 betyr derfor ikkje at alle betalingar er endeleg avklarte.
+- Dagens databasebackup hadde vellukka gjenopprettingsprøve. Proton-kopien
+  var verifisert kl. 03:45 UTC. Fersk backup før utrulling var OK kl. 16:14 UTC.
+- Etter Reload svara innloggingssida, sjølvhosta fontar og tilgangsverna sider
+  som venta. Medlemsportalen vart seinare observert innlogga i nettlesaren.
+  Eigaren stadfesta òg at vanleg styreinnlogging fungerer etter Reload.
+
+## Kontrollar som står att
+
+- Separat bevaring av TOTP-nøkkelen. Styreinnlogging etter Reload er stadfesta
+  av eigaren; nøkkellagring utanfor serveren er ikkje særskilt verifisert.
+- Lesekontroll av krypterte TOTP-felt og nyaste jobbloggar etter utrulling.
+- Endeleg verifisering av klient-IP frå to ulike klientar bak produksjonsproxyen.
+- Kontrollert avbrot og refusjon i Vipps, inkludert styret si manuelle avstemming.
+  Eksisterande terminalordrar beviser ikkje at alle feilflytane er prøvde.
+- GitHub-dokumenttoken: avgrensa repo og nødvendige Contents-rettar. At eit token
+  finst i miljøet dokumenterer ikkje kva tilgangar det har.
 
 ## Test på PythonAnywhere
 
