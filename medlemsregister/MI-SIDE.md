@@ -1,7 +1,9 @@
-# Mi side – lokal leveranse
+# Mi side
 
-Funksjonen er implementert og testa lokalt, ikkje publisert i produksjon.
-Han kjem i tillegg til dei lokale personvernendringane i PERSONVERN-DRIFT.md.
+Publisert på PythonAnywhere 25. november 2026. Offentleg innloggingsside,
+tilgangsvern og sjølvhosta fontar er kontrollerte etter Reload. Full innlogging
+med motteken e-postkode og eksisterande styreinnlogging må òg prøvast av laget.
+Sjå PERSONVERN-DRIFT.md for personvernendringane.
 
 ## Medlemsflyt
 

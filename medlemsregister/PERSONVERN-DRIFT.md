@@ -1,6 +1,10 @@
-# Personvernoppfølging – førebuing til utrulling
+# Personvernoppfølging
 
-Endringane er lokale og er ikkje aktiverte på PythonAnywhere.
+Kodeversjon f1615c0 er installert og appen er omlasta på PythonAnywhere
+25. november 2026. Backup med gjenopprettingsprøve var OK før oppdatering.
+Separat TOTP-nøkkel er oppretta, og WSGI-oppstart og offentlege sider svarar.
+Kontrollane nedanfor som krev faktisk styreinnlogging, e-post eller Vipps,
+må framleis gjennomførast av laget.
 
 ## Betaling og bokføring
 

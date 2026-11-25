@@ -30,4 +30,4 @@ laget:
 
 mi_side_url: "https://bygdelista.oslobygda.no/mi-side"
 # Slå på etter at Mi side er røykprøvd på PythonAnywhere.
-mi_side_publisert: false
+mi_side_publisert: true
