@@ -66,11 +66,11 @@ class SignupReceiptTests(unittest.TestCase):
             sender.assert_not_called()
         self.assertEqual(self.service.order(ref)['payer_name'], '')
 
-    def test_payer_separate_from_member_and_erased(self):
+    def test_unsolicited_payer_profile_is_not_stored_and_member_can_be_erased(self):
         ref = self.paid(details={'firstName':'Different','lastName':'Payer','mobileNumber':'4799999999','email':'ignored@example.org'})
         order = self.service.order(ref)
-        self.assertEqual(order['payer_name'], 'Different Payer')
-        self.assertEqual(order['payer_phone'], '4799999999')
+        self.assertEqual(order['payer_name'], '')
+        self.assertEqual(order['payer_phone'], '')
         with closing(module.get_db()) as db:
             member = db.execute('SELECT full_name FROM members').fetchone()
             self.assertEqual(member[0], 'Test Medlem')

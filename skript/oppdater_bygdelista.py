@@ -19,6 +19,8 @@ def allowed(name):
     path = PurePosixPath(name)
     if path.is_absolute() or '..' in path.parts:
         return False
+    if name.startswith('lutar/fonts/') and path.suffix.lower() in {'.woff2', '.css', '.txt'}:
+        return True
     if name.startswith('lutar/bilete/styret/') and path.suffix.lower() in {'.jpg','.jpeg','.png','.webp'}:
         return True
     if name in SHARED:

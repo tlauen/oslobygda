@@ -1,0 +1,38 @@
+{% extends 'medlem_base.html' %}
+{% block title %}Mi side{% endblock %}
+{% block content %}
+<div class="member-shell">
+<header class="member-head"><div><p class="eyebrow">Oslobygda kulturlag</p><h1>Mi side</h1><p>Hei, {{ member.fornamn or member.full_name }}.</p></div>
+<form method="post" action="{{ prefix_url('member_logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-secondary">Logg ut</button></form></header>
+{% if error %}<div class="error-notice" role="alert">{{ error }}</div>{% endif %}
+{% if saved in ('profile','newsletter','email') %}<p class="member-notice" role="status">{{ {'profile':'Medlemsopplysningane er oppdaterte.','newsletter':'Nyhendebrevvalet er lagra og ligg i kø for overføring til Brevo.','email':'E-postadressa er endra. Andre innlogga økter er logga ut. Tidlegare nyhendebrevpåmelding blir fjerna frå den gamle adressa; du kan melde deg på med den nye nedanfor.'}[saved] }}</p>{% endif %}
+<div class="member-layout">
+<section class="form-card member-section" aria-labelledby="profile-title"><h2 id="profile-title">Opplysningane dine</h2>
+<p class="small-note">Du kan rette opplysningane her. Medlemsår og betalingsstatus blir oppdaterte når betaling eller gratis medlemskap er registrert.</p>
+<form method="post" class="signup-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="profile">
+<div class="field-grid">
+{% for name,label,type,required,maximum,autocomplete in [('fornamn','Fornamn','text',true,100,'given-name'),('mellomnamn','Mellomnamn (valfritt)','text',false,100,'additional-name'),('etternamn','Etternamn','text',true,100,'family-name'),('phone','Telefon','tel',true,30,'tel'),('adresse','Adresse','text',true,200,'street-address'),('postnummer','Postnummer','text',true,4,'postal-code'),('poststad','Poststad','text',true,100,'address-level2'),('birth_date','Fødselsdato (valfri)','date',false,10,'bday')] %}
+<div class="field{% if name in ('phone','adresse') %} field-wide{% endif %}"><label for="{{ name }}">{{ label }}{% if required %} *{% endif %}</label><input id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ member[name] or '' }}" maxlength="{{ maximum }}" autocomplete="{{ autocomplete }}" {% if required %}required{% endif %}{% if name=='postnummer' %} inputmode="numeric" pattern="[0-9]{4}"{% endif %}></div>
+{% endfor %}</div>
+<p class="small-note">Fødselsdato er valfri. Ved å fylle ut feltet samtykkjer du til bruk til aldersstatistikk. Du kan fjerne datoen igjen her. Eventuell framtidig aldersdokumentasjon for tilskot blir avklart før slik bruk.</p>
+<button class="button button-primary">Lagre opplysningane</button></form>
+<div class="member-email"><h3>E-postadresse</h3><p class="member-address">{{ member.email }}</p><a href="{{ prefix_url('member_email') }}">Byt e-postadresse</a><p class="small-note">Bytet krev kode frå både den gamle og den nye adressa.</p></div>
+</section>
+<aside class="member-summary">
+<section class="member-section" aria-labelledby="membership-title"><p class="eyebrow">Medlemsår {{ year }}</p><h2 id="membership-title">Medlemskapen din</h2><p class="small-note">Medlemstype: {{ "Styret" if member.membership_type=="styret" else "Superkul" if member.membership_type=="kul" else "Kul" }}.</p>
+{% if covered %}<p class="member-notice">{{ 'Gratis medlemskap er godkjent for dette året.' if free else 'Medlemspengane er registrerte for dette året. Takk for at du er med!' }}</p>
+{% elif can_pay %}<p>Medlemspengane er opna. Vel beløpet ditt for {{ year }}. Minimum er {{ '%.2f'|format(policy.minimum_ore/100)|replace('.',',') }} kr.</p>
+<form method="post" action="{{ prefix_url('member_pay') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="field"><label for="amount">Medlemspengar i kroner</label><input id="amount" name="amount" type="number" min="{{ policy.minimum_ore/100 }}" max="1000000" step="1" value="{{ (policy.minimum_ore+99)//100 }}" required></div>
+<label class="check-row"><input type="checkbox" name="terms" value="1" required><span>Eg godtek <a href="https://oslobygda.no/salsvilkar/">salsvilkåra</a>, inkludert 14 dagars angrerett.</span></label><button class="button button-primary">Betal medlemspengar</button></form><p class="small-note">Du kontrollerer beløpet før du godkjenner betalinga i Vipps. Medlemskapen blir ikkje fornya automatisk.</p>
+{% else %}<p>{{ payment_error }}</p>{% endif %}
+{% if years %}<h3>Tidlegare medlemsår</h3><dl class="member-years">{% for item in years %}<div><dt>{{ item.year }}</dt><dd>{{ item.status }}{% if item.amount_ore is not none %} · {{ '%.2f'|format(item.amount_ore/100)|replace('.',',') }} kr{% endif %}</dd></div>{% endfor %}</dl>{% endif %}
+</section>
+<section class="member-section member-divider" aria-labelledby="newsletter-title"><h2 id="newsletter-title">Nyhendebrev</h2>
+<p>{% if member.newsletter is none %}Du har enno ikkje gjort eit nyhendebrevval på Mi side. Ei eventuell tidlegare påmelding er uendra.{% elif member.newsletter %}Du har valt å få nyhendebrev frå Oslobygda. Har du seinare meldt deg av i eit brev, gjeld den avmeldinga.{% else %}Du har valt å melde deg av nyhendebrevet.{% endif %}</p>
+{% if newsletter_pending %}<p class="small-note" role="status">Endringa ventar på synkronisering med Brevo. Ho blir prøvd igjen automatisk dersom tenesta er utilgjengeleg.</p>{% endif %}
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="newsletter"><div class="member-actions"><button class="button button-secondary" name="newsletter" value="yes">Meld meg på</button><button class="button button-secondary" name="newsletter" value="no">Meld meg av</button></div></form>
+<p class="small-note">Ved påmelding blir namn og e-post overførte til Brevo. Du kan òg melde deg av i kvart nyhendebrev.</p>
+</section>
+<section class="member-section member-divider"><h2>Innsyn og hjelp</h2><p><a href="{{ prefix_url('member_export') }}">Last ned medlemsopplysningane dine</a></p><p class="small-note">Kontakt folk@oslobygda.no om opplysningane eller medlemskapen, eller om du ønskjer sletting.</p></section>
+</aside></div></div>
+{% endblock %}

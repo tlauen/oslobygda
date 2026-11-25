@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Personvern og sletting – Bygdelista</title><link rel="stylesheet" href="{{ prefix_url('static',filename='stil.css') }}"><link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}</head>
+<body class="bygdelista-kropp"><main class="omslag">
+{% include '_bygdelista_topp.html' %}{% include '_bygdelista_undermeny.html' %}
+<header class="toppfelt"><h1>Personvern og sletting</h1></header>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}{% if message %}<p role="status">{{ message }}</p>{% endif %}
+<p>Etter to heile kalenderår utan betalt eller godkjent gratis medlemskap føreslår den timelege jobben sletting. Namna blir først sende til folk@oslobygda.no. Ingen medlemmar blir sletta automatisk. Ny betaling, eit nytt gratisvedtak eller ei pågåande betaling stoppar slettinga.</p>
+<p>Gratis medlemskap blir godkjent for det aktive medlemsåret ved å lagre «Gratis» i medlemslista. Aktive styrekontoar blir haldne utanfor denne oppryddinga.</p>
+{% if candidates %}
+<h2>Kontroller før du godkjenner</h2>
+{% for m in candidates %}<section>
+<h3>{{ m.full_name }} · medlemsnummer {{ m.id }}</h3>
+<p>Sist dekt medlemsår: {{ m.last_covered or 'Ingen registrert' }}. Tidlegast sletting: {{ m.eligible_on }}.</p>
+{% if m.notified %}<form method="post">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="member_id" value="{{ m.id }}"><input type="hidden" name="fingerprint" value="{{ m.fingerprint }}">
+<label><input type="checkbox" name="confirm" value="1" required> Eg har kontrollert medlemskapen og godkjenner sletting av {{ m.full_name }}.</label>
+<p>Kontaktopplysningar og eventuell styretilgang blir fjerna. Bokførte beløp og referansar blir bevarte utan kontaktopplysningar. Sletting hos Brevo blir køa.</p>
+<button type="submit">Godkjenn og slett denne medlemmen</button>
+</form>{% else %}<p>Vent på at e-postvarselet blir sendt før sletting kan godkjennast.</p>{% endif %}
+</section>{% endfor %}
+{% else %}<p>Ingen medlemmar ventar på godkjenning av sletting.</p>{% endif %}
+{% if notifications %}<h2>Varsel som ventar</h2><p>Avviste sendingar blir prøvde igjen kvar time. Uvisst leveringsutfall krev kontroll før nytt forsøk.</p>
+{% for n in notifications %}<p>{{ 'Medlemssletting' if n.kind=='deletions' else 'Manuell kontroll' }}: {{ {'pending':'Ventar på sending','sending':'Sending pågår','uncertain':'Uvisst om e-posten kom fram'}.get(n.state,n.state) }}</p>
+{% if n.state=='uncertain' %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="retry"><input type="hidden" name="event_key" value="{{ n.event_key }}"><button>Eg har kontrollert e-posten – prøv sendinga igjen</button></form>{% endif %}
+{% endfor %}{% endif %}
+</main></body></html>

@@ -10,7 +10,7 @@
   </aside>
   <section class="form-card" aria-labelledby="form-title">
     <ol class="progress" aria-label="Innmeldingssteg"><li aria-current="step"><span>1</span> Om deg</li><li><span>2</span> Betaling</li><li><span>3</span> Velkomen</li></ol>
-    <div class="card-heading"><h2 id="form-title">Bli medlem</h2><p>Fyll inn opplysningane dine, så går du vidare til Vipps. Felt merkte * må fyllast ut.</p></div>
+    <div class="card-heading"><h2 id="form-title">{{ "Rediger innmeldinga" if editing else "Bli medlem" }}</h2><p>Fyll inn opplysningane dine, så kan du kontrollere dei før betaling. Felt merkte * må fyllast ut.</p></div>
     {% if error %}<div class="error-notice" id="skjemafeil" tabindex="-1" role="alert"><strong>Innmeldinga vart ikkje send</strong><br>{{ error }}</div>{% endif %}
     <form method="post" class="signup-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -18,8 +18,8 @@
       {% for name,label,type,required,maximum,autocomplete in [('fornamn','Fornamn','text',true,100,'given-name'),('mellomnamn','Mellomnamn (valfritt)','text',false,100,'additional-name'),('etternamn','Etternamn','text',true,100,'family-name'),('phone','Telefon','tel',true,30,'tel'),('email','E-post','email',true,254,'email'),('adresse','Adresse','text',true,200,'street-address'),('postnummer','Postnummer','text',true,4,'postal-code'),('poststad','Poststad','text',true,100,'address-level2'),('birth_date','Fødselsdato (valfritt)','date',false,10,'bday')] %}
         <div class="field{% if name in ('fornamn','mellomnamn','etternamn') %} field-name{% endif %}{% if name in ('email','adresse','phone','etternamn') %} field-wide{% endif %}{% if name=='postnummer' %} field-postcode{% endif %}"><label for="{{ name }}">{{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}</label><input id="{{ name }}" name="{{ name }}" type="{{ type }}" maxlength="{{ maximum }}" autocomplete="{{ autocomplete }}" value="{{ values.get(name,'') }}" {% if name=='postnummer' %}inputmode="numeric" pattern="[0-9]{4}"{% endif %} {% if required %}required{% endif %}></div>
       {% endfor %}
-      </div></fieldset>
-      <p class="small-note">I Vipps blir du beden om å dele namn og telefonnummer til betalaren, slik at me kan følgje opp betaling og eventuell refusjon. Desse opplysningane blir lagra separat frå medlemsopplysningane. Du får stadfesting på e-post etter betaling.</p>
+      </div><p class="small-note">Fødselsdato er valfri. Ved å fylle ut feltet samtykkjer du til bruk til aldersstatistikk. Du kan be oss fjerne datoen seinare. Eventuelle krav til aldersdokumentasjon ved framtidige tilskot blir avklarte før opplysningane blir brukte til det.</p></fieldset>
+      <p class="small-note">Me brukar kontaktopplysningane i skjemaet til medlemskapen. Betalinga blir kopla til medlemmen med ein betalingsreferanse; me hentar ikkje namn eller telefon frå Vipps. Du får stadfesting på e-post etter betaling.</p>
       <fieldset class="payment-section"><legend>Medlemspengar</legend><p>Vel beløpet du vil bidra med. Minst {{ ('%d' if minimum % 100 == 0 else '%.2f')|format(minimum/100)|replace('.',',') }} kroner.</p><div class="amount-field"><label for="amount">Beløp *</label><div class="amount-input"><input id="amount" name="amount" type="number" min="{{ (minimum + 99) // 100 }}" max="1000000" step="1" inputmode="numeric" value="{{ values.get('amount',(minimum + 99) // 100) }}" required><span aria-hidden="true">kr</span></div></div></fieldset>
       <fieldset class="consents"><legend>Før du går vidare</legend>
         <label class="check-row"><input type="checkbox" name="terms" value="1" required {% if values.get('terms') %}checked{% endif %}><span>Eg godtek <a href="https://oslobygda.no/salsvilkar/" target="_blank" rel="noopener">salsvilkåra</a>, inkludert 14 dagars angrerett. *</span></label>
@@ -28,7 +28,7 @@
       <details class="privacy-note"><summary>Slik brukar me opplysningane dine</summary><p>Oslobygda kulturlag lagrar opplysningane for å administrere medlemskap og betaling. Vipps handsamar betalinga. Vel du nyhendebrev, sender me namn og e-postadresse til Brevo. For innsyn, retting eller sletting, kontakt <a href="mailto:folk@oslobygda.no">folk@oslobygda.no</a>. Les meir om <a href="https://oslobygda.no/personvern/">personvern</a>.</p></details>
       <div hidden aria-hidden="true"><label>La dette feltet stå tomt<input name="website" tabindex="-1" autocomplete="off"></label></div>
       {% if error %}<p class="error-inline">{{ error }}</p>{% endif %}
-      <button class="button button-primary" type="submit">Gå vidare til betaling <span aria-hidden="true">→</span></button><p class="submit-note">Du stadfestar betalinga i Vipps i neste steg.</p>
+      <button class="button button-primary" type="submit">{{ "Lagre og kontroller" if editing else "Gå vidare til betaling" }} <span aria-hidden="true">→</span></button><p class="submit-note">Du stadfestar betalinga i Vipps i neste steg.</p>
     </form>
   </section>
 </div>

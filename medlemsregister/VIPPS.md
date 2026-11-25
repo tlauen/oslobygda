@@ -1,12 +1,19 @@
-# Nye medlemmar med Vipps – testversjon
+# Nye medlemmar med Vipps
+
+Ny lokal medlemsportal og lenkjefrie påminningar er dokumenterte i
+[MI-SIDE.md](MI-SIDE.md). Dette er ikkje publisert i produksjon enno.
 
 `ny_innmelding.py` har eige skjema på `/bli-medlem`, status på
 `/bli-medlem/status` og styreoversikt på `/innmeldingar`. Flyten er stengd som
 standard (`VIPPS_SIGNUP_MODE=disabled`). Den gamle offentlege innmeldingssida er
 ikkje lagd om; ikkje lenk til den nye før full test og produksjonsaktivering.
 
-Produksjonsnøklar er stadfesta av brukaren. Den komplette betalingsflyten er
-lokalt testa med simulerte Vipps-svar; verkeleg testapp/testbetaling står att.
+Produksjonskontroll 25. november 2026: innmelding er open i produksjonsmodus,
+to produksjonsordrar er registrerte som complete, webhook-løyndomen er sett og
+timeleg innmeldingsvedlikehald er aktivert ved minutt 30. Webhookregistreringa
+hos Vipps, siste vellukka køyring og prøver av avbrot/refusjon er ikkje
+verifiserte i denne kontrollen. Sjå PERSONVERN-DRIFT.md for nye lokale endringar
+som krev eiga utrulling.
 
 ## Test på PythonAnywhere
 
@@ -120,11 +127,13 @@ Reservejobben gjer ein lesekontroll av Brevo-lista kvar 30. dag, slik at API-nø
 
 ## Betalaropplysningar og stadfesting
 
-Nye betalingsførespurnader ber om `profile.scope: name phoneNumber`.
-Betalaren samtykkjer i Vipps. Berre namn og telefon frå det kontrollerte
-betalingssvaret blir lagra i ordren; medlemsopplysningane frå skjemaet blir
-ikkje overskrivne. Eldre betalingar får ikkje profilopplysningar i etterkant.
-Styret ser betalar og telefon under «Nye innmeldingar».
+Nye betalingsførespurnader ber ikkje om profildeling. Namn og telefon i
+styreoversikta kjem frå medlemsskjemaet. Medlemsopplysningar, referanse, beløp,
+medlemsår og tidspunkt blir bevarte for kontroll og bokføring. For ePayment
+kan den same referansen søkjast opp som Order ID i Vipps-portalen; sjå
+[Vipps si rettleiing](https://developer.vippsmobilepay.com/docs/knowledge-base/errors/).
+Betalaren kan vere ein annan enn medlemmen. Eksisterande betalarfelt blir ikkje
+fylte med nye profilopplysningar. Sjå PERSONVERN-DRIFT.md for utrulling.
 
 Etter stadfesta betaling blir ein transaksjonsmail send til e-postadressa i
 innmeldingsskjemaet via eksisterande SMTP-oppsett. Mailen inneheld år, beløp,

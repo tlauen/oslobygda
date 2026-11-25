@@ -47,6 +47,8 @@ class DeploymentTests(unittest.TestCase):
         for name in ('/medlemsregister/app.py', 'medlemsregister/../app.py', 'medlemsregister/.env', 'medlemsregister/.env.vipps-test', 'medlemsregister/member.db-wal', 'medlemsregister/_site/app.py', 'medlemsregister/backups/export.json'):
             self.assertFalse(allowed(name), name)
         self.assertTrue(allowed('medlemsregister/malar/ny_innmelding.html'))
+        self.assertTrue(allowed('lutar/fonts/fraunces-latin.woff2'))
+        self.assertFalse(allowed('lutar/fonts/../../.env'))
 
 
 if __name__ == '__main__':

@@ -24,6 +24,7 @@ def erase_member(db, mid):
     if not row:
         return {"error": "Medlem finst ikkje"}, 404
     email = row["email"].strip().casefold()
+    previous_addresses = {r[0] for r in db.execute('SELECT email FROM member_newsletter_jobs WHERE member_id=?', (mid,))}
     orders = db.execute(
         "SELECT reference,email,status,environment,confirmation_status FROM signup_orders WHERE member_id=? OR renewal_member_id=? OR (email<>? AND lower(trim(email))=?)",
         (mid,mid, "", email),
@@ -40,7 +41,7 @@ def erase_member(db, mid):
             "error": "Medlemmen har ei pågåande betaling eller ei betaling til kontroll. Avklar denne før sletting."
         }, 409
     db.execute("UPDATE renewal_links SET revoked=1 WHERE member_id=?",(mid,))
-    addresses = {email} | {o["email"].strip().casefold() for o in orders if o["email"]}
+    addresses = {email} | previous_addresses | {o["email"].strip().casefold() for o in orders if o["email"]}
     for address in addresses:
         if address:
             db.execute(
@@ -49,6 +50,10 @@ def erase_member(db, mid):
             )
     db.execute("DELETE FROM board_password_reset WHERE username=? OR username IN (SELECT username FROM board_users WHERE member_id=?)", (email, mid))
     db.execute("DELETE FROM board_users WHERE member_id=? OR username=?", (mid, email))
+    db.execute('DELETE FROM member_challenges WHERE member_id=?', (mid,))
+    db.execute('DELETE FROM member_newsletter_jobs WHERE member_id=?', (mid,))
+    db.execute('DELETE FROM member_access WHERE member_id=?', (mid,))
+    db.execute('DELETE FROM renewal_reminders WHERE member_id=?', (mid,))
     db.execute(
         "DELETE FROM board_enrollment WHERE member_id=? OR lower(trim(email))=?",
         (mid, email),

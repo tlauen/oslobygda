@@ -10,6 +10,7 @@ import pyotp
 from flask import abort, redirect, render_template, request, session
 from styre_registrering import install_registration, eligible_account
 from database import managed_db
+from totp_kryptering import protect, reveal, migrate
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -46,6 +47,8 @@ def init_auth_db(get_db):
             code_hash TEXT NOT NULL, totp_secret TEXT NOT NULL, expires INTEGER NOT NULL,
             attempts INTEGER NOT NULL DEFAULT 0, verified INTEGER NOT NULL DEFAULT 0
         )""")
+
+        migrate(db)
 
 
 def install_auth(app, get_db, prefix_url):
@@ -162,7 +165,7 @@ def install_auth(app, get_db, prefix_url):
                 and code.isascii()
                 and code.isdigit()
             ):
-                totp = pyotp.TOTP(user["totp_secret"])
+                totp = pyotp.TOTP(reveal(user["totp_secret"]))
                 for step in range(now // 30 - 1, now // 30 + 2):
                     if step > user["last_step"] and hmac.compare_digest(
                         totp.at(step * 30), code
@@ -256,7 +259,7 @@ def install_auth(app, get_db, prefix_url):
         with managed_db(get_db) as db:
             values = (
                 generate_password_hash(password),
-                secret,
+                protect(secret),
                 step,
                 secrets.token_urlsafe(32),
                 username,

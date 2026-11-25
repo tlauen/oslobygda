@@ -27,3 +27,7 @@ laget:
   organisasjonsnummer: "937 453 612"
   postadresse: "Freserveien 29, 0195 Oslo"
   telefon: "95 96 94 75"
+
+mi_side_url: "https://bygdelista.oslobygda.no/mi-side"
+# Slå på etter at Mi side er røykprøvd på PythonAnywhere.
+mi_side_publisert: false

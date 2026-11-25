@@ -1,0 +1,23 @@
+{% extends 'medlem_base.html' %}
+{% block title %}Logg inn på Mi side{% endblock %}
+{% block content %}
+<section class="form-card status-card member-login">
+<p class="eyebrow">For medlemmane</p><h1>Mi side</h1>
+{% if error %}<p class="error-notice" role="alert">{{ error }}</p>{% endif %}
+{% if stage=='email' %}
+<p>Sjå medlemskapen din, oppdater opplysningane dine og betal medlemspengar når året er ope.</p>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="field"><label for="email">E-postadressa du er registrert med</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
+<button class="button button-primary">Send innloggingskode</button></form>
+<p class="small-note">Du får ein eingongskode som du skriv inn her. Du treng ikkje passord eller å trykkje på lenkjer i e-post.</p>
+<p class="small-note">Har du mist tilgangen til den registrerte e-postadressa, deler adresse med ein annan medlem eller treng hjelp? Kontakt folk@oslobygda.no. Styreinnlogginga er eiga.</p>
+{% else %}
+<p>Dersom adressa er registrert på éin medlem og meldinga kjem fram, får du ein kode på e-post. Skriv koden her i den same nettlesaren.</p>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="field"><label for="code">Åttesifra innloggingskode</label><input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" autocomplete="one-time-code" required></div>
+<button class="button button-primary">Logg inn</button></form>
+<p class="small-note">Koden varer i ti minutt og kan berre brukast éin gong. Ikkje del han med nokon.</p>
+<p><a href="{{ prefix_url('member_login') }}">Prøv ei anna adresse eller be om ny kode</a></p>
+{% endif %}
+</section>
+{% endblock %}

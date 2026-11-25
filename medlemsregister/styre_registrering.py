@@ -10,6 +10,7 @@ from email.message import EmailMessage
 from epost import send_message
 
 from database import managed_db
+from totp_kryptering import protect, reveal
 
 import pyotp
 import segno
@@ -60,7 +61,7 @@ Dersom du ikkje bad om ein konto, kan du sjå bort frå denne e-posten.
 
 
 def render_account(row, error=None):
-    uri = pyotp.TOTP(row["totp_secret"]).provisioning_uri(
+    uri = pyotp.TOTP(reveal(row["totp_secret"])).provisioning_uri(
         name=row["email"], issuer_name="Bygdelista"
     )
     # Innebygd PNG: inga ekstern teneste, ingen nøkkel i URL/loggar eller fil på disk.
@@ -68,7 +69,7 @@ def render_account(row, error=None):
     return render_template(
         "styre_registrering.html",
         stage="account",
-        secret=row["totp_secret"],
+        secret=reveal(row["totp_secret"]),
         email=row["email"],
         qr_image=qr_image,
         error=error,
@@ -157,7 +158,7 @@ def install_registration(app, get_db, prefix_url):
                         member["id"],
                         email,
                         hashlib.sha256((identifier + code).encode()).hexdigest(),
-                        pyotp.random_base32(),
+                        protect(pyotp.random_base32()),
                         now + 900,
                     ),
                 )
@@ -238,7 +239,7 @@ def install_registration(app, get_db, prefix_url):
                 and code.isascii()
                 and code.isdigit()
             ):
-                totp = pyotp.TOTP(row["totp_secret"])
+                totp = pyotp.TOTP(reveal(row["totp_secret"]))
                 step = next(
                     (
                         s

@@ -60,6 +60,7 @@ def init_signup(get_db):
             ('payer_name', "TEXT NOT NULL DEFAULT ''"),
             ('payer_phone', "TEXT NOT NULL DEFAULT ''"),
             ('confirmation_status', "TEXT NOT NULL DEFAULT 'skipped'"),
+            ('confirmation_started_at', 'REAL NOT NULL DEFAULT 0'),
         ):
             if name not in columns:
                 db.execute(f"ALTER TABLE signup_orders ADD COLUMN {name} {definition}")
@@ -228,6 +229,25 @@ class SignupService:
             db.commit()
         return ref
 
+    def edit(self, reference, values):
+        from kontingent import payable
+        with closing(self.db()) as db:
+            db.execute('BEGIN IMMEDIATE')
+            order = db.execute('SELECT * FROM signup_orders WHERE reference=?', (reference,)).fetchone()
+            if not order or order['status'] != 'new' or order['create_attempted'] or order['renewal_member_id']:
+                raise ValueError('Betaling er allereie forsøkt oppretta. Kontakt styret for retting; ikkje betal på nytt.')
+            policy = payable(db, order['for_year'])
+            data, ore = validate(values, policy['minimum_ore'])
+            if db.execute('SELECT 1 FROM members WHERE lower(trim(email))=? AND privacy_deleted=0', (data['email'],)).fetchone() or db.execute(
+                "SELECT 1 FROM signup_orders WHERE email=? AND environment=? AND reference<>? AND status NOT IN ('ABORTED','EXPIRED','TERMINATED','redacted')",
+                (data['email'], order['environment'], reference)).fetchone():
+                raise ValueError('Me kan ikkje bruke denne e-postadressa. Kontakt folk@oslobygda.no om du har meldt deg inn før.')
+            db.execute('''UPDATE signup_orders SET email=?,details=?,amount_ore=?,newsletter=?,consent_at=?,
+                period_revision=?,threshold_ore=? WHERE reference=?''',
+                (data['email'], json.dumps(data), ore, int(values.get('newsletter') == '1'),
+                 datetime.now(timezone.utc).isoformat(), policy['revision'], policy['superkul_ore'], reference))
+            db.commit()
+
     def renew(self,link,values):
         from kontingent import payable, member_paid
         if values.get('terms')!='1': raise ValueError('Du må godta salsvilkåra.')
@@ -242,13 +262,17 @@ class SignupService:
             policy=payable(db,link['for_year'])
             if ore<policy['minimum_ore']: raise ValueError('Beløpet må vere minst minimumssatsen.')
             if env=='production' and member_paid(db,member['id'],link['for_year']): raise ValueError('Medlemskapen er allereie betalt for dette året.')
+            if env=='production' and db.execute('SELECT 1 FROM free_membership_years WHERE member_id=? AND for_year=?',(member['id'],link['for_year'])).fetchone():
+                raise ValueError('Gratis medlemskap er godkjent for dette året.')
             old=db.execute("SELECT * FROM signup_orders WHERE renewal_member_id=? AND for_year=? AND environment=? AND status NOT IN ('ABORTED','EXPIRED','TERMINATED','redacted') ORDER BY created_at DESC LIMIT 1",(member['id'],link['for_year'],env)).fetchone()
             if old:
                 if old['renewal_link_id']!=link['id']:
                     # Ny e-postlenkje tek over tilgangen til same ordre, aldri ei ny betaling.
                     db.execute('UPDATE signup_orders SET renewal_link_id=? WHERE reference=?',(link['id'],old['reference']))
                 if old['status']=='new' and not old['create_attempted']:
-                    db.execute('UPDATE signup_orders SET amount_ore=?,period_revision=?,threshold_ore=? WHERE reference=?',(ore,policy['revision'],policy['superkul_ore'],old['reference']))
+                    details={k:member[k] or '' for k in FIELDS}
+                    db.execute('UPDATE signup_orders SET amount_ore=?,period_revision=?,threshold_ore=?,email=?,details=? WHERE reference=?',
+                        (ore,policy['revision'],policy['superkul_ore'],member['email'],json.dumps(details),old['reference']))
                 db.commit();return old['reference']
             ref='forny-'+secrets.token_hex(16)
             details={k:member[k] or '' for k in FIELDS}
@@ -274,6 +298,8 @@ class SignupService:
                     if not link or not member: raise ValueError('Fornyingslenkja er ikkje gyldig lenger.')
                     if order['environment']=='production' and member_paid(db,member['id'],order['for_year']):
                         raise ValueError('Medlemskapen er allereie betalt.')
+                    if order['environment']=='production' and db.execute('SELECT 1 FROM free_membership_years WHERE member_id=? AND for_year=?',(member['id'],order['for_year'])).fetchone():
+                        raise ValueError('Gratis medlemskap er godkjent for dette året.')
                 if order['status'] not in ('new','CREATED'):
                     raise ValueError('Denne betalinga kan ikkje startast på nytt.')
                 if order['redirect_url']: return order['redirect_url']
@@ -463,13 +489,6 @@ class SignupService:
                 )
                 db.commit()
                 return
-            profile = user_details if isinstance(user_details, dict) else {}
-            def clean_profile(key, maximum):
-                value = profile.get(key, '')
-                return value.strip() if isinstance(value, str) and len(value) <= maximum and not any(ord(c) < 32 for c in value) else ''
-            payer_name = ' '.join(filter(None, (clean_profile('firstName', 200), clean_profile('lastName', 200))))
-            payer_phone = clean_profile('mobileNumber', 30)
-            db.execute("UPDATE signup_orders SET payer_name=?,payer_phone=? WHERE reference=?", (payer_name, payer_phone, reference))
             stamp = datetime.now(timezone.utc).isoformat()
             kind = "kul" if order["amount_ore"] > (order["threshold_ore"] if order["threshold_ore"] is not None else self.get_threshold(db)) else "vanleg"
             mid = db.execute(
@@ -511,7 +530,7 @@ class SignupService:
     def send_confirmation(self, reference):
         # Atomisk krav hindrar parallelle webhook/status-jobbar i å sende dobbelt.
         with closing(self.db()) as db:
-            claimed = db.execute("UPDATE signup_orders SET confirmation_status='sending' WHERE reference=? AND environment='production' AND status='complete' AND confirmation_status='pending'", (reference,))
+            claimed = db.execute("UPDATE signup_orders SET confirmation_status='sending',confirmation_started_at=? WHERE reference=? AND environment='production' AND status='complete' AND confirmation_status='pending'", (time.time(), reference))
             db.commit()
             if claimed.rowcount != 1:
                 return False
@@ -548,7 +567,26 @@ class SignupService:
             if not member:
                 return False
             member = dict(member)
-        if self.newsletter(member):
+            preference=db.execute('SELECT newsletter FROM member_access WHERE member_id=?',(member['id'],)).fetchone()
+            if preference and preference[0] is not None:
+                db.execute('UPDATE signup_orders SET newsletter_done=1 WHERE reference=?',(reference,));db.commit()
+                return False
+        try:
+            delivered = self.newsletter(member)
+        finally:
+            # Eit uttrykkeleg avmeldingsval under eit eldre API-kall må vinne,
+            # også når leverandøren kan ha teke imot eit kall som enda i timeout.
+            with closing(self.db()) as db:
+                live=db.execute('SELECT 1 FROM members WHERE id=? AND privacy_deleted=0',(member['id'],)).fetchone()
+                if not live:
+                    db.execute('INSERT OR IGNORE INTO privacy_jobs(email,created_at) VALUES (?,?)',(member['email'],time.time()))
+                    db.commit()
+                preference=db.execute('SELECT newsletter FROM member_access WHERE member_id=?',(member['id'],)).fetchone()
+                if preference and preference[0] == 0:
+                    from medlem_nyhendebrev import queue
+                    queue(db,member['id'],member['email'],False)
+                    db.commit()
+        if delivered:
             with closing(self.db()) as db:
                 db.execute(
                     "UPDATE signup_orders SET newsletter_done=1 WHERE reference=?",
@@ -665,7 +703,35 @@ def install_signup(
                 link=db.execute('SELECT * FROM renewal_links WHERE id=? AND revoked=0',(order['renewal_link_id'],)).fetchone()
                 if not link or session.get('renewal_link')!=link['id'] or session.get('renewal_digest')!=link['token_hash']:
                     abort(404)
+                if link['access_kind']=='member':
+                    member=app.extensions['member_auth'].member(session)
+                    if not member or member['id']!=link['member_id']:abort(404)
         return order
+
+    @app.route('/bli-medlem/rediger', methods=['GET', 'POST'])
+    def signup_edit():
+        order = owned()
+        if order['status'] != 'new' or order['create_attempted'] or order['renewal_member_id']:
+            abort(409, 'Betaling er allereie forsøkt oppretta eller dette er ei fornying. Kontakt styret for retting.')
+        values = {**json.loads(order['details']), 'amount': order['amount_ore'] // 100,
+                  'newsletter': '1' if order['newsletter'] else '', 'terms': '1'}
+        error = None
+        if request.method == 'POST':
+            values = request.form.to_dict()
+            try:
+                service.edit(order['reference'], values)
+                return redirect('/bli-medlem/status', code=303)
+            except ValueError as exc:
+                error = str(exc)
+        with closing(get_db()) as db:
+            from kontingent import payable
+            try:
+                policy = payable(db, order['for_year'])
+            except ValueError as exc:
+                abort(409, str(exc))
+        return render_template('ny_innmelding.html', values=values, error=error,
+            environment=order['environment'], year=order['for_year'], threshold=policy['superkul_ore'],
+            minimum=policy['minimum_ore'], editing=True), 400 if error else 200
 
     @app.route("/bli-medlem/status", methods=["GET", "POST"])
     def signup_status():
@@ -693,6 +759,8 @@ def install_signup(
             order=order,
             error=error,
             environment=order["environment"],
+            details=json.loads(order['details']),
+            can_edit=order['status'] == 'new' and not order['create_attempted'] and not order['renewal_member_id'],
         )
 
     @app.route("/bli-medlem/prov-igjen", methods=["POST"])
@@ -733,9 +801,12 @@ def install_signup(
             orders = [
                 dict(row)
                 for row in db.execute(
-                    "SELECT reference,email,amount_ore,for_year,status,problem,newsletter,newsletter_done,environment,payer_name,payer_phone,confirmation_status FROM signup_orders WHERE overview_archived=0 ORDER BY created_at DESC LIMIT 100"
+                    "SELECT o.*,p.paid_at FROM signup_orders o LEFT JOIN payments p ON p.id=o.payment_id WHERE o.overview_archived=0 ORDER BY o.created_at DESC LIMIT 100"
                 )
             ]
+        for order in orders:
+            order['member_details'] = json.loads(order['details'])
+            order['created_display'] = datetime.fromtimestamp(order['created_at'], timezone.utc).isoformat()
         return render_template("innmeldingar.html", orders=orders)
 
     @app.cli.command("innmelding-testmodus")
@@ -856,6 +927,15 @@ def install_signup(
                 problems += 1
         for ref in news:
             sync_followups_safely(ref)
+        from kontingent import today
+        from personvern_vedlikehald import prepare, send_pending
+        newsletter_done = app.extensions.get('member_newsletter_maintenance', lambda: 0)()
+        with closing(get_db()) as db:
+            db.execute('DELETE FROM member_challenges WHERE expires<=?', (time.time(),))
+            db.execute('DELETE FROM login_limits WHERE expires<=?', (time.time(),))
+            db.commit()
+        cleaned = prepare(get_db, today())
+        notified = send_pending(get_db, today())
         print(
-            f"Kontrollert {len(refs)} betalingar; {problems} må prøvast igjen. Handsama {len(news)} Brevo-oppføringar og {privacy_done} slettingar."
+            f"Kontrollert {len(refs)} betalingar; {problems} må prøvast igjen. Handsama {len(news)} Brevo-oppføringar, {newsletter_done} medlemsval og {privacy_done} slettingar. Anonymisert {cleaned} gamle ordrar og sendt {notified} styrevarsel."
         )

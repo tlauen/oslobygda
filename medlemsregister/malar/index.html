@@ -4,9 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bygdelista – Medlemsregisteret for Oslobygda kulturlag</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
 <script>
     const csrfToken = {{ csrf_token() | tojson }};
@@ -22,7 +19,8 @@
       return originalFetch(input, options);
     };
   </script>
-<link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}</head>
+<link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}<link rel="stylesheet" href="{{ prefix_url('shared_fonts', filename='fraunces.css') }}">
+</head>
 <body class="bygdelista-kropp">
   <div class="omslag">
     {% include '_bygdelista_topp.html' %}{% include '_bygdelista_undermeny.html' %}
@@ -141,7 +139,7 @@
             <option value="betalt">Betalt</option>
             <option value="ikkje betalt">Ikkje betalt</option>
             <option value="frist utløpt">Frist utløpt</option>
-            <option value="gratis">Gratis</option>
+            <option value="gratis">Gratis (godkjent for gjeldande medlemsår)</option>
           </select>
         </div>
         <p class="feil er-skjult" id="skjema-feil"></p>
@@ -325,7 +323,7 @@
     }
 
     function lukkMedlemsar(ar) {
-      if (!confirm("Dette lagrar sammendrag for medlemsår " + ar + " i arkiv, set neste år til " + (ar + 1) + ", og set alle betalingsstatusar til «ikkje betalt» (unntak: medlemmar med «gratis»). Hugs å ta database-backup. Vil du fortsette?")) return;
+      if (!confirm("Dette lagrar sammendrag for medlemsår " + ar + " i arkiv, set neste år til " + (ar + 1) + ", og oppdaterer betalingsstatus etter betalingar og gratisvedtak for det nye året. Hugs å ta database-backup. Vil du fortsette?")) return;
       const s = window.prompt("Skriv årstalet " + ar + " for å stadfeste (same tal som står ovanfor).");
       if (String(s) !== String(ar)) {
         setStatus("Avbroten – ingen endringar.");

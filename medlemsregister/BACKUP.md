@@ -98,3 +98,9 @@ Sjå også [SLUTTKONTROLL.md](SLUTTKONTROLL.md).
 
 Sjå [PROTON-BACKUP.md](PROTON-BACKUP.md) for oppsett og kontrollert aktivering.
 Den daglege lokale backupen held fram uendra; Proton-jobben er eit tillegg.
+
+## Separat TOTP-nøkkel
+
+Etter TOTP-migrering krev gjenoppretting også `MEDLEMSREGISTER_TOTP_KEY` frå
+privat .env/passordhandterar, i tillegg til eventuell Proton-eksportnøkkel.
+Databasebackupen inneheld ikkje TOTP-krypteringsnøkkelen. Sjå PERSONVERN-DRIFT.md.

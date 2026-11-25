@@ -30,7 +30,14 @@ def init_periods(get_db):
           revoked INTEGER NOT NULL DEFAULT 0, mail_status TEXT NOT NULL DEFAULT 'not_sent'
         );
         CREATE INDEX IF NOT EXISTS renewal_member_year ON renewal_links(member_id,for_year,environment);
+        CREATE TABLE IF NOT EXISTS renewal_reminders (
+          id INTEGER PRIMARY KEY, member_id INTEGER NOT NULL, for_year INTEGER NOT NULL,
+          created_at TEXT NOT NULL, mail_status TEXT NOT NULL DEFAULT 'sending'
+        );
         ''')
+        columns={row[1] for row in db.execute('PRAGMA table_info(renewal_links)')}
+        if 'access_kind' not in columns:
+            db.execute("ALTER TABLE renewal_links ADD COLUMN access_kind TEXT NOT NULL DEFAULT 'email'")
         # Historisk sats for stiftingsåret. 2027 krev eit uttrykkeleg vedtak etter årsmøtet.
         threshold=500
         if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='app_settings'").fetchone():
@@ -85,26 +92,30 @@ def save_period(db,values):
 
 
 def member_paid(db,mid,year):
-    return db.execute('SELECT COALESCE(SUM(amount_ore),0)>0 FROM payments WHERE member_id=? AND for_year=?',(mid,year)).fetchone()[0]
+    return bool(db.execute('SELECT COALESCE(SUM(amount_ore),0)>0 FROM payments WHERE member_id=? AND for_year=?',(mid,year)).fetchone()[0]
+                or db.execute('SELECT 1 FROM paid_membership_years WHERE member_id=? AND for_year=?',(mid,year)).fetchone())
 
 
 class Renewals:
     def __init__(self,get_db): self.db=get_db
 
-    def issue(self,mid,year,environment):
+    def issue(self,mid,year,environment,access_kind='email'):
         if environment not in ('test','production'): raise ValueError('Vel test eller production.')
+        if access_kind not in ('email','member'):raise ValueError('Ugyldig tilgangstype.')
         token=secrets.token_urlsafe(32)
         with closing(self.db()) as db:
             db.execute('BEGIN IMMEDIATE')
             payable(db,year)
             member=db.execute('SELECT * FROM members WHERE id=? AND privacy_deleted=0',(mid,)).fetchone()
-            if not member or not member['email'] or member['payment_status']=='gratis':
+            free = db.execute('SELECT 1 FROM free_membership_years WHERE member_id=? AND for_year=?', (mid,year)).fetchone()
+            if not member or not member['email'] or free:
                 raise ValueError('Medlemmen manglar e-post, er sletta eller har gratis medlemskap.')
             if member_paid(db,mid,year): raise ValueError('Kontingenten er allereie registrert som betalt for dette året.')
             # Tidlegare lenkjer blir ugyldige; pågåande ordre blir ikkje sletta.
             db.execute('UPDATE renewal_links SET revoked=1 WHERE member_id=? AND for_year=? AND environment=?',(mid,year,environment))
             lid=db.execute('INSERT INTO renewal_links(token_hash,member_id,for_year,environment,created_at) VALUES (?,?,?,?,?)',
                 (hashlib.sha256(token.encode()).hexdigest(),mid,year,environment,today().isoformat())).lastrowid
+            db.execute('UPDATE renewal_links SET access_kind=? WHERE id=?',(access_kind,lid))
             db.commit()
         return lid,token,dict(member)
 
@@ -117,15 +128,21 @@ class Renewals:
 
     def send(self,mid,year,environment):
         if environment!='production': raise ValueError('Testlenkjer blir ikkje sende på e-post.')
-        lid,token,member=self.issue(mid,year,environment)
-        origin=os.environ.get('VIPPS_PUBLIC_ORIGIN','https://bygdelista.oslobygda.no').rstrip('/')
-        url=origin+'/forny/'+token
+        with closing(self.db()) as db:
+            db.execute('BEGIN IMMEDIATE')
+            payable(db,year)
+            member=db.execute('SELECT * FROM members WHERE id=? AND privacy_deleted=0',(mid,)).fetchone()
+            if not member or not member['email']:raise ValueError('Medlemmen manglar e-post eller er sletta.')
+            if member_paid(db,mid,year) or db.execute('SELECT 1 FROM free_membership_years WHERE member_id=? AND for_year=?',(mid,year)).fetchone():
+                raise ValueError('Medlemskapen er allereie dekt for dette året.')
+            lid=db.execute('INSERT INTO renewal_reminders(member_id,for_year,created_at) VALUES (?,?,?)',(mid,year,today().isoformat())).lastrowid
+            db.commit()
         message=EmailMessage()
         message['From']='Oslobygda kulturlag <folk@oslobygda.no>'
         message['To']=member['email'];message['Reply-To']='folk@oslobygda.no'
         message['Subject']=f'Medlemspengar i Oslobygda for {year}'
-        message['Message-ID']=f'<fornying-{lid}@oslobygda.no>'
-        message.set_content(f'Hei!\n\nVil du vere med i Oslobygda i {year}? Vel sjølv beløpet på den personlege betalingssida di og betal med Vipps:\n\n{url}\n\nLenkja er personleg; ikkje del henne vidare. Førre års beløp bind deg ikkje.\n\nSpørsmål? Svar på denne e-posten.\n\nHelsing Oslobygda kulturlag')
+        message['Message-ID']=f'<medlemspengar-paminnelse-{lid}@oslobygda.no>'
+        message.set_content(f'Hei!\n\nMedlemspengane for {year} er opna.\n\nOpne nettlesaren og skriv inn oslobygda punktum no. Vel «Mi side» og logg inn med e-postkode for å fornye medlemskapen.\n\nMe sender ikkje personlege betalings- eller innloggingslenkjer. Vel sjølv beløpet for det nye året; førre års beløp bind deg ikkje. Betalinga godkjenner du i Vipps.\n\nSpørsmål? Svar på denne e-posten.\n\nHelsing Oslobygda kulturlag')
         state='failed'
         try:
             send_message(message);state='sent'
@@ -135,7 +152,7 @@ class Renewals:
             state='failed'
         finally:
             with closing(self.db()) as db:
-                db.execute('UPDATE renewal_links SET mail_status=? WHERE id=?',(state,lid));db.commit()
+                db.execute('UPDATE renewal_reminders SET mail_status=? WHERE id=?',(state,lid));db.commit()
         return state
 
 
@@ -150,6 +167,11 @@ def install_renewals(app,get_db,require_admin):
             return 'production'
         if mode not in ('test','production'): abort(503)
         return mode
+
+    def check_member_link(link):
+        if link['access_kind']=='member':
+            member=app.extensions['member_auth'].member(session)
+            if not member or member['id']!=link['member_id']:abort(404)
 
     @app.route('/kontingent',methods=['GET','POST'])
     @require_admin
@@ -182,6 +204,7 @@ def install_renewals(app,get_db,require_admin):
     def renewal_entry(token):
         link=links.resolve(token)
         if not link or link['environment']!=environment(): abort(404)
+        check_member_link(link)
         # Tokenen blir berre bytt mot ein sesjon. Ingen betaling eller utsending på GET.
         session['renewal_link']=link['id'];session['renewal_digest']=link['token_hash']
         return redirect('/forny',code=303)
@@ -195,6 +218,7 @@ def install_renewals(app,get_db,require_admin):
                 (session.get('renewal_link'),session.get('renewal_digest'))).fetchone()
             if not row or row['environment']!=env: abort(404)
             link=dict(row)
+            check_member_link(link)
             paid=bool(member_paid(db,link['member_id'],link['for_year'])) if env=='production' else False
             try: policy=payable(db,link['for_year'])
             except ValueError as exc: error=str(exc)

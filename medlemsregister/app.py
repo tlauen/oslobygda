@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Bygdelista – GDPR-sikkert medlemsliste for Oslobygda.
+Bygdelista – medlemsregister for Oslobygda.
 Felter: namn, epost, telefon, adresse, postnummer, poststad, fødselsdato, medlemstype, betalingsstatus, samtykke.
 Database kan krypterast med SQLCipher ved å setje MEDLEMSREGISTER_DB_KEY (da vert fila ikkje lesbar i BBEdit o.l.).
 """
@@ -93,6 +93,11 @@ def shared_header_css():
     return send_from_directory(APP_DIR.parent / "lutar", "topp.css")
 
 
+@app.get('/felles/fonts/<path:filename>')
+def shared_fonts(filename):
+    return send_from_directory(APP_DIR.parent / 'lutar' / 'fonts', filename)
+
+
 @app.get("/felles/kolofon.css")
 def shared_footer_css():
     return send_from_directory(APP_DIR.parent / "lutar", "kolofon.css")
@@ -108,10 +113,10 @@ def site_navigation():
             dict(
                 label=item["label"],
                 membership=item["path"] == "/bli-medlem/",
-                url=prefix_url("new_signup")
-                if item["path"] == "/bli-medlem/"
-                else "https://oslobygda.no" + item["path"],
-                current=item["path"] == "/bli-medlem/",
+                url=prefix_url('member_home') if item['path']=='/mi-side/' else
+                    prefix_url('new_signup') if item['path']=='/bli-medlem/' else 'https://oslobygda.no'+item['path'],
+                current=(item['path']=='/mi-side/' and request.endpoint and request.endpoint.startswith('member_'))
+                    or (item['path']=='/bli-medlem/' and request.endpoint in ('new_signup','signup_edit','signup_status')),
             )
             for item in items
         ]
@@ -406,6 +411,10 @@ def init_db():
         _oppdater_alle_fra_innbetalingar(conn)
         conn.commit()
     init_privacy(get_db)
+    from personvern_vedlikehald import init_retention
+    init_retention(get_db, _get_medlemsbetalingsar)
+    from medlem_auth import init_member_access
+    init_member_access(get_db)
     from arsdokument import init_documents
     init_documents(get_db)
     from sakliste import init_agendas
@@ -615,8 +624,10 @@ def create_member():
                 now,
             ),
         )
-        conn.commit()
         mid = cur.lastrowid
+        if payment_status in ('gratis', 'betalt'):
+            from personvern_vedlikehald import approve_year
+            approve_year(conn, mid, _get_medlemsbetalingsar(conn), payment_status)
     return jsonify({"id": mid, "message": "Medlem lagt til"}), 201
 
 
@@ -680,6 +691,19 @@ def member(mid):
                     mid,
                 ),
             )
+            if 'payment_status' in data:
+                from personvern_vedlikehald import approve_year
+                if payment_status in ('gratis', 'betalt'):
+                    approve_year(conn, mid, _get_medlemsbetalingsar(conn), payment_status)
+                elif payment_status == 'ikkje betalt':
+                    conn.execute('DELETE FROM free_membership_years WHERE member_id=? AND for_year=?', (mid, _get_medlemsbetalingsar(conn)))
+                    conn.execute('DELETE FROM paid_membership_years WHERE member_id=? AND for_year=?', (mid, _get_medlemsbetalingsar(conn)))
+            if email != row['email']:
+                from medlem_auth import revoke_access
+                from medlem_nyhendebrev import choose
+                revoke_access(conn, mid)
+                choose(conn, row, False)
+                conn.execute('UPDATE renewal_links SET revoked=1 WHERE member_id=?', (mid,))
             conn.commit()
         return jsonify({"message": "Oppdatert"})
 
@@ -870,7 +894,7 @@ def api_medlemsar_lukk():
     """
     Arkivert avslutta medlemsår (sum + tal), oppdaterer til neste kalenderår,
     og nullstiller betalingsstatus så nye kontingentar kan føreleggjast
-    (medlemmar med status «gratis» vert ikkje endra).
+    (gratis medlemskap krev eit vedtak for det nye året).
     """
     data = request.get_json() or {}
     try:
@@ -920,15 +944,17 @@ def api_medlemsar_lukk():
                 "INSERT INTO app_settings (key, value) VALUES ('medlemsbetalingsar', ?)",
                 (str(nytt),),
             )
-        conn.execute(
-            "UPDATE members SET payment_status = 'ikkje betalt' "
-            "WHERE LOWER(TRIM(payment_status)) != 'gratis'",
-        )
+        conn.execute("""UPDATE members SET payment_status=CASE WHEN EXISTS
+            (SELECT 1 FROM paid_membership_years p WHERE p.member_id=members.id AND p.for_year=?)
+            THEN 'betalt' WHEN EXISTS
+            (SELECT 1 FROM free_membership_years f WHERE f.member_id=members.id AND f.for_year=?)
+            THEN 'gratis' ELSE 'ikkje betalt' END WHERE privacy_deleted=0""", (nytt,nytt))
+        _oppdater_alle_fra_innbetalingar(conn)
         conn.commit()
     return jsonify(
         {
             "message": f"Medlemsår {ar} er arkivert. Gjeldande medlemsår er no {nytt}. "
-            f"Betalingsstatus (utanom «gratis») er satt til «ikkje betalt».",
+            f"Betalingsstatus er oppdatert etter betalingar og gratisvedtak for det nye året.",
             "forrige_ar": ar,
             "nytt_ar": nytt,
         }
@@ -1111,6 +1137,12 @@ app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 from kontingent import install_renewals
 install_renewals(app,get_db,require_admin)
+from personvern_vedlikehald import install_retention
+install_retention(app, get_db, require_admin)
+from mi_side import install_member_portal
+install_member_portal(app, get_db, prefix_url)
+from medlem_nyhendebrev import process as process_member_newsletters
+app.extensions['member_newsletter_maintenance'] = lambda: process_member_newsletters(get_db, _brevo_request)
 
 def main():
     # Tydelig melding om database-kryptering ved oppstart

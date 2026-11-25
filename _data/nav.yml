@@ -7,3 +7,5 @@
   label: Kalender
 - path: /bli-medlem/
   label: Bli medlem
+- path: /mi-side/
+  label: Mi side

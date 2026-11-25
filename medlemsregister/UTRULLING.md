@@ -1,5 +1,11 @@
 # Kontrollert utrulling av årsmøte og økonomi
 
+Historisk sjekkliste frå oktober. Produksjonskontrollen 25. november 2026
+stadfesta open Vipps-innmelding, fullførte produksjonsordrar og aktiverte
+vedlikehalds-/backupjobbar. Han stadfesta ikkje alle ferdigkriteria nedanfor.
+Nye lokale personvernendringar har eiga utrullingsrettleiing i
+[PERSONVERN-DRIFT.md](PERSONVERN-DRIFT.md).
+
 Status 29. oktober 2026: førebuing, ikkje utført produksjonsutrulling.
 Arbeidet ligg på `test/nidarosbygda`; serveroppdateraren hentar berre `main`.
 Ingen testdatabase, testkonto, lokal kalender, prøveversjon eller backuppassfrase

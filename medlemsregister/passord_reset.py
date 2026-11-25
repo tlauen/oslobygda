@@ -10,6 +10,7 @@ from flask import redirect, render_template, request, session
 from werkzeug.security import generate_password_hash
 
 from database import managed_db
+from totp_kryptering import reveal
 from styre_registrering import eligible_account, mail_ready, send_code, take_rate_limit
 
 
@@ -71,7 +72,7 @@ def install_password_reset(app, get_db, prefix_url):
                      and len(email_code) == 8 and email_code.isascii() and email_code.isdigit()
                      and hmac.compare_digest(row['code_hash'], hashlib.sha256((row['id'] + email_code).encode()).hexdigest()))
             if valid and len(code) == 6 and code.isascii() and code.isdigit():
-                totp = pyotp.TOTP(user['totp_secret'])
+                totp = pyotp.TOTP(reveal(user['totp_secret']))
                 matched = next((step for step in range(now // 30 - 1, now // 30 + 2)
                                 if step > user['last_step'] and hmac.compare_digest(totp.at(step * 30), code)), None)
             if matched is None:
