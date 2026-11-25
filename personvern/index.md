@@ -9,7 +9,7 @@ Sist oppdatert: 25. november 2026.
 
 **Oslobygda kulturlag har ansvar for personopplysningane dine.** Kontakt oss på
 [folk@oslobygda.no](mailto:folk@oslobygda.no) om du har spørsmål eller vil bruke
-rettane dine. Organisasjonsnummer: 937 453 612. Postadresse: Freserveien 29, 0195 Oslo.
+rettane dine. Organisasjonsnummer: 937 453 612.
 
 ## Medlemskap og Mi side
 
