@@ -23,16 +23,25 @@ og `/mi-side` er medlemsportalen. Standard utan konfigurasjon er framleis
   som venta. Medlemsportalen vart seinare observert innlogga i nettlesaren.
   Eigaren stadfesta òg at vanleg styreinnlogging fungerer etter Reload.
 
+- Lesekontrollen etter utrulling viste intakt database, to krypterte og lesbare
+  TOTP-felt og samsvar med alle låste pakkeversjonar. Vedlikehald, databasebackup
+  og Proton-jobben hadde siste fullførte køyring med returkode 0.
+- Klient-IP vart prøvd frå to ulike nett. Rate-limit-tabellen viste to offentlege
+  IP-grupper; den innsendte falske proxy-adressa vart ikkje registrert.
+- Avbroten produksjonsbetaling gav venta melding. Lesekontrollen viste ABORTED,
+  utan medlem eller betalingspost knytt til ordren.
+- Begge viste fine-grained GitHub-token er avgrensa til `tlauen/oslobygda`, med
+  lesing/skriving av kode og lesing av metadata, utan brukartilgangar. Kva av dei
+  serveren bruker er ikkje kartlagt; begge har dei kontrollerte avgrensingane.
+
 ## Kontrollar som står att
 
 - Separat bevaring av TOTP-nøkkelen. Styreinnlogging etter Reload er stadfesta
   av eigaren; nøkkellagring utanfor serveren er ikkje særskilt verifisert.
-- Lesekontroll av krypterte TOTP-felt og nyaste jobbloggar etter utrulling.
-- Endeleg verifisering av klient-IP frå to ulike klientar bak produksjonsproxyen.
-- Kontrollert avbrot og refusjon i Vipps, inkludert styret si manuelle avstemming.
-  Eksisterande terminalordrar beviser ikkje at alle feilflytane er prøvde.
-- GitHub-dokumenttoken: avgrensa repo og nødvendige Contents-rettar. At eit token
-  finst i miljøet dokumenterer ikkje kva tilgangar det har.
+- Kontrollert refusjon i Vipps og styret si manuelle avstemming. Ingen reell
+  refusjon er aktuell no; prøva blir utsett til ein legitim refusjon oppstår.
+- Tokena har inga utløpsdato. Kartlegg bruken før eventuell planlagd fornying;
+  ingen token er sletta eller endra i denne gjennomgangen.
 
 ## Test på PythonAnywhere
 
