@@ -1,4 +1,5 @@
 from database import managed_db
+from medlemsruter import _medlemstype_visning
 import time
 import base64
 import re
@@ -204,4 +205,4 @@ class RegistrationTests(unittest.TestCase):
             "/api/innmelding", json={"membership_type": "styret"}
         )
         self.assertEqual(response.status_code, 410)
-        self.assertEqual(module._medlemstype_visning("styret"), "Styret")
+        self.assertEqual(_medlemstype_visning("styret"), "Styret")

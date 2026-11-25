@@ -176,3 +176,22 @@ si maskinpublisering (eige Bearer-token), og det avvikla innmeldings-API-et
 Nye unntak krev ei konkret grunngiving og testar som viser at alternativt vern
 framleis avviser uautoriserte kall. Nye CSRF-modular og testar blir òg formaterte
 med Ruff.
+
+## Modulansvar
+
+`app.py` set saman Flask-appen, databaseopnaren, migreringane og dei ulike
+modulane. Styret sine medlemsruter ligg i `medlemsruter.py`, inkludert manuelle
+betalingar, medlemsårsoversikt, CSV-eksport og innsyn/sletting. Registreringa
+får databaseopnar, tilgangsvern og års-/betalingsfunksjonar som argument.
+Rutene har dei same URL-ane og endepunktnamna som før.
+
+`brevo.py` eig HTTP-transporten og `BrevoContacts` for nyhendebrev, sletting og
+den månadlege API-kontrollen. Transport, databaseopnar og logger blir sende inn
+slik at testar kan bruke fiktive svar utan nettverk. Mi side si varige
+nyhendebrevkø bruker framleis `medlem_nyhendebrev.py` og same transport.
+Ingen av dei to nye modulane importerer `app.py` eller opprettar database,
+sender e-post eller kontaktar eksterne tenester ved import.
+
+Denne oppdelinga endrar ikkje skjemaversjonen eller dei historiske
+migreringane. `wsgi.py`, lokale testar og CLI brukar framleis same appinngang.
+Dei nye modulane og testane er med i Ruff-formatkontrollen.
