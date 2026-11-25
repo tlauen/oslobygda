@@ -101,6 +101,11 @@ def install_auth(app, get_db, prefix_url):
         if request.endpoint != "static":
             response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        # Personlege lenkjer (/forny/<token>) skal ikkje følgje med i Referer.
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        if app.config.get("SESSION_COOKIE_SECURE"):
+            # Berre i produksjon (wsgi.py set SESSION_COOKIE_SECURE). Utan includeSubDomains.
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
         document_frame = (
             request.endpoint in ("annual_print", "ledger_document_preview")
             and response.status_code == 200

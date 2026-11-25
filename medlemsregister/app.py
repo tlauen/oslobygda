@@ -11,6 +11,7 @@ import json
 from decimal import Decimal, InvalidOperation
 from datetime import timedelta
 import os
+import secrets
 import sys
 import time
 import ssl
@@ -123,7 +124,10 @@ def service_unavailable(error):
     return render_template("innmelding_vent.html", environment=None), 503
 
 
-app.secret_key = os.environ.get("MEDLEMSREGISTER_SECRET_KEY", "endre-meg-i-produksjon")
+# Aldri ein kjend reservenøkkel: utan MEDLEMSREGISTER_SECRET_KEY får prosessen ein
+# tilfeldig nøkkel (økter overlever ikkje omstart, men kan heller ikkje forfalskast).
+# wsgi.py nektar framleis oppstart i produksjon utan ein fast nøkkel.
+app.secret_key = os.environ.get("MEDLEMSREGISTER_SECRET_KEY") or secrets.token_urlsafe(48)
 
 # Ved drift bak omvendt mellomtenar på oslobygda.no/medlemsregister/ – sett til "/medlemsregister"
 URL_PREFIX = os.environ.get("MEDLEMSREGISTER_URL_PREFIX", "").rstrip("/")
