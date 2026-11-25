@@ -1,4 +1,6 @@
 """Kontrollerte kjelder for medlemsinntekter. Ingen betaling/trekk/refusjon blir starta."""
+
+from betalingsstatus import Ordrestatus, Vippsstatus
 from datetime import datetime,date,timezone,timedelta
 from zoneinfo import ZoneInfo
 import json
@@ -55,10 +57,10 @@ def event_time(value):
 
 def inspect_vipps(order,payment,result,events):
     from ny_innmelding import SignupService
-    if order['environment']!='production' or order['status'] not in ('complete','review','redacted') or order['payment_id']!=payment['id']:
+    if order['environment']!='production' or order['status'] not in (Ordrestatus.COMPLETE,Ordrestatus.REVIEW,Ordrestatus.REDACTED) or order['payment_id']!=payment['id']:
         raise ValueError('Berre bokført produksjonsbetaling kan kontrollerast.')
     SignupService.check_result(order,result)
-    if result.get('state')!='AUTHORIZED' or result['aggregate']['cancelledAmount']['value']:
+    if result.get('state')!=Vippsstatus.AUTHORIZED or result['aggregate']['cancelledAmount']['value']:
         raise ValueError('Betalingsstatus eller kansellering krev manuell kontroll.')
     captured=result['aggregate']['capturedAmount']['value'];refunded=result['aggregate']['refundedAmount']['value']
     if captured!=payment['amount_ore'] or captured!=order['amount_ore'] or refunded>captured:
@@ -127,7 +129,7 @@ class PaymentImport:
     def fetch(self,pid,actor,client_factory=None):
         with managed_db(self.get_db) as db: payment,order=self._source(db,pid)
         if not order: raise ValueError('Historisk/manuell betaling har ingen ePayment-ordre.')
-        if order['status'] not in ('complete','review','redacted'): raise ValueError('Betalinga er ikkje klar til rekneskapskontroll.')
+        if order['status'] not in (Ordrestatus.COMPLETE,Ordrestatus.REVIEW,Ordrestatus.REDACTED): raise ValueError('Betalinga er ikkje klar til rekneskapskontroll.')
         if client_factory is None:
             from ny_innmelding import client_for
             client_factory=client_for
@@ -150,10 +152,10 @@ class PaymentImport:
         if evidence['amount_ore']!=payment['amount_ore']: raise ValueError('Beløpet er endra etter kjeldekontroll.')
         if order and (evidence['source']!='vipps-events' or evidence['source_reference']!=order['reference']):
             raise ValueError('Vipps-kjelda stemmer ikkje med dokumentasjonen.')
-        if order and order['status'] not in ('complete','review','redacted'): raise ValueError('Ordren må kontrollerast på nytt.')
+        if order and order['status'] not in (Ordrestatus.COMPLETE,Ordrestatus.REVIEW,Ordrestatus.REDACTED): raise ValueError('Ordren må kontrollerast på nytt.')
         if order and datetime.now(timezone.utc)-datetime.fromisoformat(evidence['checked_at'])>timedelta(hours=1):
             raise ValueError('Hent ny Vipps-kontroll før bokføring. Kjeldekontrollen er eldre enn ein time.')
-        if order and order['status']=='review': raise ValueError('Vipps-ordren er sett til kontroll. Avklar ordren før ny bokføring.')
+        if order and order['status']==Ordrestatus.REVIEW: raise ValueError('Vipps-ordren er sett til kontroll. Avklar ordren før ny bokføring.')
         if evidence['refunded_ore']: raise ValueError('Refusjon er observert. Avstem og før refusjonen manuelt; inga automatisk nettoføring.')
         return payment,order,evidence
 
@@ -234,7 +236,7 @@ class PaymentImport:
                 return existing
             if automatic:
                 settings=db.execute('SELECT * FROM payment_import_settings WHERE id=1 AND enabled=1').fetchone()
-                if not settings or not order or evidence['source']!='vipps-events' or order['status'] not in ('complete','redacted') or evidence['day']<settings['from_day']:
+                if not settings or not order or evidence['source']!='vipps-events' or order['status'] not in (Ordrestatus.COMPLETE,Ordrestatus.REDACTED) or evidence['day']<settings['from_day']:
                     raise ValueError('Betalinga er ikkje omfatta av aktivert automatikk.')
                 if datetime.now(timezone.utc)-datetime.fromisoformat(evidence['checked_at'])>timedelta(hours=1):
                     raise ValueError('Vipps-kontrollen er for gammal for automatisk bokføring.')
@@ -297,8 +299,8 @@ class PaymentImport:
         with managed_db(self.get_db) as db:
             settings=db.execute('SELECT * FROM payment_import_settings WHERE id=1 AND enabled=1').fetchone()
             if not settings: return counts
-            pids=[r[0] for r in db.execute('''SELECT p.id FROM payments p JOIN signup_orders o ON o.payment_id=p.id
-                WHERE o.environment='production' AND o.status IN ('complete','review','redacted')
+            pids=[r[0] for r in db.execute(f'''SELECT p.id FROM payments p JOIN signup_orders o ON o.payment_id=p.id
+                WHERE o.environment='production' AND o.status IN ('{Ordrestatus.COMPLETE}','{Ordrestatus.REVIEW}','{Ordrestatus.REDACTED}')
                 ORDER BY COALESCE((SELECT MAX(checked_at) FROM payment_evidence e WHERE e.payment_id=p.id),'') ASC,p.id LIMIT ?''',(limit,))]
         for pid in pids:
             try:
@@ -314,7 +316,7 @@ class PaymentImport:
                 if not linked:
                     self.book(pid,evidence['id'],'vedlikehald',automatic=True);counts['booked']+=1
             except (ValueError,VippsError,KeyError,TypeError):
-                counts['review']+=1
+                counts[Ordrestatus.REVIEW]+=1
                 with managed_db(self.get_db) as db:
                     db.execute('INSERT INTO payment_import_errors(payment_id,message,checked_at) VALUES (?,?,?) ON CONFLICT(payment_id) DO UPDATE SET message=excluded.message,checked_at=excluded.checked_at',(pid,'Kjelde eller bokføring krev manuell kontroll. Opne betalingsimporten.',stamp()))
         return counts

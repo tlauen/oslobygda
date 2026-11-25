@@ -1,5 +1,7 @@
 """Friststyrt ordreopprydding og styregodkjend medlemssletting."""
 
+from betalingsstatus import Ordrestatus, Vippsstatus
+
 from datetime import date, datetime, timezone
 from email.message import EmailMessage
 from email.utils import formatdate
@@ -92,9 +94,9 @@ def candidates(db, today):
         if db.execute("""SELECT 1 FROM board_users WHERE member_id=? AND active=1
             OR (lower(trim(username))=lower(trim(?)) AND active=1)""", (row['id'], row['email'])).fetchone():
             continue  # Ikkje fjern aktiv styretilgang gjennom ein oppryddingsjobb.
-        blocked = db.execute("""SELECT 1 FROM signup_orders WHERE environment='production'
+        blocked = db.execute(f"""SELECT 1 FROM signup_orders WHERE environment='production'
             AND (member_id=? OR renewal_member_id=? OR (email<>'' AND lower(trim(email))=lower(trim(?))))
-            AND (status NOT IN ('complete','ABORTED','EXPIRED','TERMINATED','redacted')
+            AND (status NOT IN ('{Ordrestatus.COMPLETE}','{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}')
                  OR confirmation_status IN ('sending','review'))""", (row['id'], row['id'], row['email'])).fetchone()
         if blocked:
             continue
@@ -117,19 +119,19 @@ def prepare(get_db, today, now=None):
     with managed_db(get_db) as db:
         db.execute('BEGIN IMMEDIATE')
         # Ukjent betalingsutfall blir aldri anonymisert. Terminalstatus er verifisert av Vipps-flyten.
-        cleaned = db.execute("""UPDATE signup_orders SET details='{}',email='',browser_key='',
+        cleaned = db.execute(f"""UPDATE signup_orders SET details='{{}}',email='',browser_key='',
             payer_name='',payer_phone='',redirect_url=NULL,consent_at='',newsletter=0,
-            newsletter_done=1,confirmation_status='skipped',status='redacted',problem='',
+            newsletter_done=1,confirmation_status='skipped',status='{Ordrestatus.REDACTED}',problem='',
             member_id=NULL,renewal_member_id=NULL,renewal_link_id=NULL,lease_token=NULL,lease_until=0
-            WHERE created_at<? AND (status IN ('ABORTED','EXPIRED','TERMINATED')
-                OR (status='new' AND create_attempted=0)) AND lease_until<?
+            WHERE created_at<? AND (status IN ('{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}')
+                OR (status='{Ordrestatus.NEW}' AND create_attempted=0)) AND lease_until<?
                 AND member_id IS NULL AND payment_id IS NULL AND confirmation_status NOT IN ('sending','review')""",
             (now - 30 * DAY, now)).rowcount
-        for row in db.execute("""SELECT reference,status,problem,confirmation_status FROM signup_orders
-            WHERE environment='production' AND (status='review' OR confirmation_status='review'
+        for row in db.execute(f"""SELECT reference,status,problem,confirmation_status FROM signup_orders
+            WHERE environment='production' AND (status='{Ordrestatus.REVIEW}' OR confirmation_status='review'
                 OR (confirmation_status='sending' AND confirmation_started_at<?)
                 OR (created_at<? AND create_attempted=1 AND status NOT IN
-                    ('complete','ABORTED','EXPIRED','TERMINATED','redacted')))""", (now-3600, now-30*DAY)):
+                    ('{Ordrestatus.COMPLETE}','{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}')))""", (now-3600, now-30*DAY)):
             digest = hashlib.sha256(json.dumps(list(row)).encode()).hexdigest()
             enqueue(db, 'review:' + digest, 'review', {'reference': row['reference']}, now)
         current = candidates(db, today)
@@ -165,9 +167,9 @@ def message_for(db, item, today):
     notified = []
     if item['kind'] == 'review':
         row = db.execute('SELECT * FROM signup_orders WHERE reference=?', (payload['reference'],)).fetchone()
-        if not row or not (row['status'] == 'review' or row['confirmation_status'] == 'review'
+        if not row or not (row['status'] == Ordrestatus.REVIEW or row['confirmation_status'] == 'review'
                 or (row['confirmation_status'] == 'sending' and row['confirmation_started_at'] < time.time()-3600)
-                or (row['created_at'] < time.time()-30*DAY and row['create_attempted'] and row['status'] not in ('complete','ABORTED','EXPIRED','TERMINATED','redacted'))):
+                or (row['created_at'] < time.time()-30*DAY and row['create_attempted'] and row['status'] not in (Ordrestatus.COMPLETE,Vippsstatus.ABORTED,Vippsstatus.EXPIRED,Vippsstatus.TERMINATED,Ordrestatus.REDACTED))):
             return None, []
         message['Subject'] = 'Innmelding krev manuell kontroll – Bygdelista'
         message.set_content(f"Ei innmelding krev manuell kontroll.\n\nReferanse: {row['reference']}\n"

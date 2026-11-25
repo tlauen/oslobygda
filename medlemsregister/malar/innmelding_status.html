@@ -2,21 +2,21 @@
 {% block title %}Innmelding{% endblock %}
 {% block content %}
 <section class="form-card status-card">
-  <ol class="progress" aria-label="Innmeldingssteg"><li><span>1</span> Om deg</li><li {% if order.status!='complete' %}aria-current="step"{% endif %}><span>2</span> Betaling</li><li {% if order.status=='complete' %}aria-current="step"{% endif %}><span>3</span> Velkomen</li></ol>
+  <ol class="progress" aria-label="Innmeldingssteg"><li><span>1</span> Om deg</li><li {% if order.status!=Ordrestatus.COMPLETE %}aria-current="step"{% endif %}><span>2</span> Betaling</li><li {% if order.status==Ordrestatus.COMPLETE %}aria-current="step"{% endif %}><span>3</span> Velkomen</li></ol>
   {% if error %}<div class="error-notice" role="alert">{{ error }}</div>{% endif %}
-  {% if order.status=='complete' %}
+  {% if order.status==Ordrestatus.COMPLETE %}
     <div class="status-mark" aria-hidden="true">✓</div><p class="eyebrow">Alt er i orden</p><h1>{{ 'Testen er fullført' if environment=='test' else 'Velkomen i Oslobygda!' }}</h1><p>Betalinga er stadfesta. {{ 'Ingen testopplysningar er sende til medlemsregisteret eller Brevo.' if environment=='test' else 'Medlemskapen og betalinga er registrerte. Me gler oss til å sjå deg!' }}</p><a class="button button-primary" href="https://oslobygda.no/kalender/">Sjå kva du kan glede deg til <span aria-hidden="true">→</span></a>
     {% if environment=='production' %}<p class="small-note">{% if order.confirmation_status=='sent' %}Stadfesting er send til e-postadressa du oppgav.{% else %}Du får òg ei stadfesting på e-post. Medlemskapen er registrert sjølv om e-posten tek litt tid.{% endif %}</p>{% endif %}
-  {% elif order.status=='review' %}
+  {% elif order.status==Ordrestatus.REVIEW %}
     <h1>Me må sjå på innmeldinga</h1><p>Styret må kontrollere denne innmeldinga. Kontakt <a href="mailto:folk@oslobygda.no">folk@oslobygda.no</a> og oppgi referansen nedanfor. Ikkje betal på nytt.</p>
-  {% elif order.status in ('ABORTED','EXPIRED','TERMINATED') %}
+  {% elif order.status in (Vippsstatus.ABORTED,Vippsstatus.EXPIRED,Vippsstatus.TERMINATED) %}
     <h1>Betalinga vart ikkje fullført</h1><p>Du kan prøve igjen, eller <a href="mailto:folk@oslobygda.no">kontakte oss</a> om du treng hjelp.</p><form method="post" action="{{ prefix_url('signup_restart') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-primary">{{ 'Prøv betalinga på nytt' if order.renewal_member_id else 'Prøv ei ny innmelding' }} <span aria-hidden="true">→</span></button></form>
   {% else %}
     <p class="eyebrow">Snart i mål</p><h1>Fullfør med Vipps</h1><p>Medlemskap i Oslobygda kulturlag for {{ order.for_year }}.</p><div class="payment-total"><span>Å betale</span><strong>{{ '%.2f'|format(order.amount_ore/100)|replace('.',',') }} <small>kr</small></strong></div>
     {% if details %}<h2>Kontroller medlemsopplysningane</h2>
     <dl><dt>Namn</dt><dd>{{ details.get('fornamn','') }} {{ details.get('mellomnamn','') }} {{ details.get('etternamn','') }}</dd><dt>E-post</dt><dd>{{ details.get('email','') }}</dd><dt>Telefon</dt><dd>{{ details.get('phone','') }}</dd><dt>Adresse</dt><dd>{{ details.get('adresse','') }}, {{ details.get('postnummer','') }} {{ details.get('poststad','') }}</dd>{% if details.get('birth_date') %}<dt>Fødselsdato</dt><dd>{{ details.birth_date }}</dd>{% endif %}</dl>{% endif %}
-    {% if can_edit %}<p><a class="button button-secondary" href="{{ prefix_url('signup_edit') }}">Rediger medlemsopplysningar og beløp</a></p>{% elif order.status in ('new','CREATED') %}<p class="small-note">Betaling er forsøkt oppretta. Treng du å rette opplysningar, kontakt folk@oslobygda.no før du betalar.</p>{% endif %}
-    <form method="post" class="status-actions"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% if order.status in ('new','CREATED') %}<button class="button button-primary" name="action" value="pay">Betal med Vipps <span aria-hidden="true">→</span></button>{% endif %}<button class="button button-secondary" name="action" value="check">Kontroller betalinga</button></form><p class="small-note">Har du betalt? Kontroller betalinga her etterpå. Stadfestinga kan ta litt tid; du treng ikkje starte ei ny innmelding.</p>
+    {% if can_edit %}<p><a class="button button-secondary" href="{{ prefix_url('signup_edit') }}">Rediger medlemsopplysningar og beløp</a></p>{% elif order.status in (Ordrestatus.NEW,Vippsstatus.CREATED) %}<p class="small-note">Betaling er forsøkt oppretta. Treng du å rette opplysningar, kontakt folk@oslobygda.no før du betalar.</p>{% endif %}
+    <form method="post" class="status-actions"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% if order.status in (Ordrestatus.NEW,Vippsstatus.CREATED) %}<button class="button button-primary" name="action" value="pay">Betal med Vipps <span aria-hidden="true">→</span></button>{% endif %}<button class="button button-secondary" name="action" value="check">Kontroller betalinga</button></form><p class="small-note">Har du betalt? Kontroller betalinga her etterpå. Stadfestinga kan ta litt tid; du treng ikkje starte ei ny innmelding.</p>
   {% endif %}
   <div class="reference-note"><span>Referanse</span><code>{{ order.reference }}</code><a href="mailto:folk@oslobygda.no">Treng du hjelp? Kontakt oss</a></div>
 </section>

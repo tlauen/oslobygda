@@ -1,5 +1,7 @@
 """Slett persondata, men bevar anonyme beløp for rekneskapsavstemming."""
 
+from betalingsstatus import Ordrestatus, Vippsstatus
+
 from datetime import datetime, timezone
 import time
 from database import managed_db
@@ -34,7 +36,7 @@ def erase_member(db, mid):
     if any(
         o["environment"] == "production"
         and o["status"]
-        not in ("complete", "ABORTED", "EXPIRED", "TERMINATED", "redacted")
+        not in (Ordrestatus.COMPLETE, Vippsstatus.ABORTED, Vippsstatus.EXPIRED, Vippsstatus.TERMINATED, Ordrestatus.REDACTED)
         for o in orders
     ):
         return {
@@ -60,7 +62,7 @@ def erase_member(db, mid):
     )
     for order in orders:
         db.execute(
-            "UPDATE signup_orders SET payer_name='',payer_phone='',confirmation_status='skipped',details='{}',email='',browser_key='',consent_at='',status='redacted',newsletter=0,newsletter_done=1,member_id=NULL,renewal_member_id=NULL,renewal_link_id=NULL,lease_token=NULL,lease_until=0,problem='' WHERE reference=?",
+            f"UPDATE signup_orders SET payer_name='',payer_phone='',confirmation_status='skipped',details='{{}}',email='',browser_key='',consent_at='',status='{Ordrestatus.REDACTED}',newsletter=0,newsletter_done=1,member_id=NULL,renewal_member_id=NULL,renewal_link_id=NULL,lease_token=NULL,lease_until=0,problem='' WHERE reference=?",
             (order["reference"],),
         )
     if db.execute("SELECT 1 FROM payments WHERE member_id=?", (mid,)).fetchone():

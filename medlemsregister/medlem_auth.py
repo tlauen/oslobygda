@@ -1,5 +1,7 @@
 """Medlemstilgang med nettlesarbundne eingongskodar. Gir aldri styretilgang."""
 
+from betalingsstatus import Ordrestatus, Vippsstatus
+
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from email.utils import formatdate
@@ -180,14 +182,14 @@ class MemberAuth:
 
     @staticmethod
     def payment_in_progress(db, mid):
-        return db.execute("""SELECT 1 FROM signup_orders WHERE (member_id=? OR renewal_member_id=? OR lower(trim(email))=(SELECT lower(trim(email)) FROM members WHERE id=?))
-            AND environment='production' AND (confirmation_status IN ('sending','review') OR status='review'
-            OR (create_attempted=1 AND status NOT IN ('complete','ABORTED','EXPIRED','TERMINATED','redacted')))""",(mid,mid,mid)).fetchone()
+        return db.execute(f"""SELECT 1 FROM signup_orders WHERE (member_id=? OR renewal_member_id=? OR lower(trim(email))=(SELECT lower(trim(email)) FROM members WHERE id=?))
+            AND environment='production' AND (confirmation_status IN ('sending','review') OR status='{Ordrestatus.REVIEW}'
+            OR (create_attempted=1 AND status NOT IN ('{Ordrestatus.COMPLETE}','{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}')))""",(mid,mid,mid)).fetchone()
 
     @staticmethod
     def email_taken(db, email, mid):
-        return db.execute('SELECT 1 FROM members WHERE lower(trim(email))=? AND id<>? AND privacy_deleted=0',(email,mid)).fetchone() or db.execute("""SELECT 1 FROM signup_orders WHERE email=? AND status NOT IN
-            ('ABORTED','EXPIRED','TERMINATED','redacted','complete') AND COALESCE(renewal_member_id,-1)<>?""",(email,mid)).fetchone()
+        return db.execute('SELECT 1 FROM members WHERE lower(trim(email))=? AND id<>? AND privacy_deleted=0',(email,mid)).fetchone() or db.execute(f"""SELECT 1 FROM signup_orders WHERE email=? AND status NOT IN
+            ('{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}','{Ordrestatus.COMPLETE}') AND COALESCE(renewal_member_id,-1)<>?""",(email,mid)).fetchone()
 
     def change_email(self, db, member, identifier, old_code, new_code):
         row=db.execute("SELECT * FROM member_challenges WHERE id=? AND purpose='email' AND member_id=?",(identifier,member['id'])).fetchone()
