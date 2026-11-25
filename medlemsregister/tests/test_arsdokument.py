@@ -1,3 +1,4 @@
+from database import managed_db
 import json
 import sqlite3
 import unittest
@@ -25,7 +26,7 @@ class DocumentTests(unittest.TestCase):
         self.assertEqual(self.service.freeze(doc,2,'meeting','','styret'),vid)
         self.service.save(doc,2,'Endra','Ny tekst',2027,'styret')
         self.service.enqueue(vid,'styret'); self.service.enqueue(vid,'styret')
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             row=db.execute('SELECT * FROM annual_publication_queue').fetchone()
             payload=json.loads(row['payload'])
             self.assertEqual(payload['body'],'Offentleg tekst')
@@ -84,14 +85,13 @@ class DocumentTests(unittest.TestCase):
         text='æøå '*7000
         response=self.client.post(f'/arsmote/{doc}',data=dict(csrf_token=self.token(),action='save',revision='2',title='Året',body=text,meeting_year='2027'))
         self.assertEqual(response.status_code,302)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(db.execute('SELECT body FROM annual_documents WHERE id=?',(doc,)).fetchone()[0],text.strip())
         response=self.client.post(f'/arsmote/{doc}',data=b'x'*(1024*1024+1),content_type='application/x-www-form-urlencoded')
         self.assertEqual(response.status_code,413)
 
     def test_publish_button_sends_only_selected_version(self):
         from unittest.mock import Mock
-        from database import managed_db
         doc=self.draft();vid=self.service.freeze(doc,2,'meeting','','styret')
         self.service.save(doc,2,'Ny versjon','Ny offentleg tekst',2027,'styret')
         other=self.service.freeze(doc,3,'meeting','','styret');self.service.enqueue(other,'styret')

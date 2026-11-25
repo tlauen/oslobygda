@@ -1,3 +1,4 @@
+from database import managed_db
 import sqlite3
 import tempfile
 import unittest
@@ -24,11 +25,11 @@ class BackupTests(unittest.TestCase):
     def test_wal_snapshot_permissions_rotation_and_restore(self):
         first = create_backup(self.source, self.directory, keep=2)
         self.assertEqual(first.stat().st_mode & 0o777, 0o600)
-        with sqlite3.connect(first) as backup:
+        with managed_db(lambda: sqlite3.connect(first)) as backup:
             self.assertEqual(backup.execute('SELECT id FROM members').fetchall(), [(7,)])
         self.db.execute('INSERT INTO members VALUES (8)')  # ikkje committa
         second = create_backup(self.source, self.directory, keep=2)
-        with sqlite3.connect(second) as backup:
+        with managed_db(lambda: sqlite3.connect(second)) as backup:
             self.assertEqual(backup.execute('SELECT COUNT(*) FROM members').fetchone()[0], 1)
         self.db.commit()
         third = create_backup(self.source, self.directory, keep=2)

@@ -1,3 +1,4 @@
+from database import managed_db
 import time
 import base64
 import re
@@ -15,7 +16,7 @@ class RegistrationTests(unittest.TestCase):
 
     def setUp(self):
         fixtures.BoardAuthTests.setUp(self)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute("""INSERT INTO members(full_name,email,membership_type,payment_status,consent_at,created_at,updated_at)
                           VALUES ('Test','board@example.org','styret','ikkje betalt','2026','2026','2026')""")
         self.ready = patch("styre_registrering.mail_ready", return_value=True)
@@ -43,7 +44,7 @@ class RegistrationTests(unittest.TestCase):
         )
 
     def finish(self, code=None):
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             row = db.execute("SELECT totp_secret FROM board_enrollment").fetchone()
         return self.client.post(
             "/registrer/konto",
@@ -63,7 +64,7 @@ class RegistrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Cache-Control"], "no-store")
         self.assertEqual(self.finish().status_code, 200)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             user = db.execute(
                 "SELECT * FROM board_users WHERE username='board@example.org'"
             ).fetchone()
@@ -86,7 +87,7 @@ class RegistrationTests(unittest.TestCase):
             )
             self.assertEqual(response.status_code, 302)
             self.assertEqual(self.client.get("/api/members").status_code, 200)
-            with module.get_db() as db:
+            with managed_db(module.get_db) as db:
                 db.execute("UPDATE members SET membership_type='vanleg'")
             self.assertEqual(
                 self.client.get(
@@ -100,7 +101,7 @@ class RegistrationTests(unittest.TestCase):
         self.assertNotIn(b"data:image/png", self.client.get("/registrer/stadfest").data)
         self.assertEqual(self.client.get("/registrer/konto").status_code, 400)
         self.verify()
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             secret = db.execute("SELECT totp_secret FROM board_enrollment").fetchone()[
                 0
             ]
@@ -123,7 +124,7 @@ class RegistrationTests(unittest.TestCase):
     def test_no_membership_disclosure_or_nonboard_enrollment(self):
         expected = self.start("unknown@example.org")
         self.send.assert_not_called()
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute("UPDATE members SET membership_type='vanleg'")
         response = self.start()
         self.assertEqual(response.status_code, expected.status_code)
@@ -131,13 +132,13 @@ class RegistrationTests(unittest.TestCase):
         self.send.assert_not_called()
 
     def test_duplicate_email_and_existing_account_denied(self):
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute(
                 "INSERT INTO members (id,full_name,fornamn,mellomnamn,etternamn,email,phone,adresse,postnummer,poststad,birth_date,membership_type,payment_status,consent_at,created_at,updated_at) SELECT id+100,full_name,fornamn,mellomnamn,etternamn,email,phone,adresse,postnummer,poststad,birth_date,membership_type,payment_status,consent_at,created_at,updated_at FROM members"
             )
         self.start()
         self.send.assert_not_called()
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute("DELETE FROM members WHERE id>100")
             db.execute("UPDATE board_users SET username='board@example.org',active=0")
         self.start()
@@ -158,10 +159,10 @@ class RegistrationTests(unittest.TestCase):
     def test_role_checked_again_at_completion(self):
         self.start()
         self.verify()
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute("UPDATE members SET membership_type='vanleg'")
         self.assertEqual(self.finish().status_code, 400)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(
                 db.execute("SELECT COUNT(*) FROM board_users").fetchone()[0], 1
             )
@@ -176,7 +177,7 @@ class RegistrationTests(unittest.TestCase):
         self.start()
         self.verify()
         self.assertEqual(self.finish("wrong").status_code, 400)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(
                 db.execute("SELECT COUNT(*) FROM board_users").fetchone()[0], 1
             )
@@ -193,7 +194,7 @@ class RegistrationTests(unittest.TestCase):
         with self.assertLogs(module.app.logger, level="ERROR") as logs:
             self.assertEqual(self.start().status_code, 302)
         self.assertNotIn("do not log this", str(logs.output))
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(
                 db.execute("SELECT COUNT(*) FROM board_enrollment").fetchone()[0], 0
             )

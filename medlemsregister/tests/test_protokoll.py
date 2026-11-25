@@ -1,3 +1,4 @@
+from database import managed_db
 import json
 import sqlite3
 import os
@@ -81,13 +82,13 @@ class MinutesTests(unittest.TestCase):
     def test_both_must_approve_same_snapshot_and_publish_once(self):
         rid,tokens=self.review()
         self.assertIsNone(self.service.decide(digest(tokens[0]),'approve'))
-        with module.get_db() as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM meeting_publication_queue').fetchone()[0],0)
+        with managed_db(module.get_db) as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM meeting_publication_queue').fetchone()[0],0)
         payload=self.service.decide(digest(tokens[1]),'approve');validate_document(payload)
         self.assertEqual(len(payload['approved_by']),2)
         self.assertNotIn('example.test',json.dumps(payload))
         for token in tokens: self.assertNotIn(token,json.dumps(payload))
         self.assertIsNone(self.service.decide(digest(tokens[1]),'approve'))
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(db.execute('SELECT COUNT(*) FROM meeting_publication_queue').fetchone()[0],1)
             self.assertEqual(db.execute('SELECT state FROM minutes_reviews WHERE id=?',(rid,)).fetchone()[0],'approved')
             for sql in ("UPDATE minutes_reviews SET snapshot='{}'","UPDATE minutes_signers SET approved_at='endra' WHERE approved_at IS NOT NULL",'DELETE FROM minutes_signers'):
@@ -106,7 +107,7 @@ class MinutesTests(unittest.TestCase):
             self.service.send_link(rid,1);token=mail_token(send)
         self.service.decide(digest(token),'reject','Røystetalet må rettast.')
         with self.assertRaises(ValueError): self.service.decide(digest(token),'approve')
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(db.execute('SELECT COUNT(*) FROM meeting_publication_queue').fetchone()[0],0)
             self.assertEqual(db.execute('SELECT state FROM minutes_reviews WHERE id=?',(rid,)).fetchone()[0],'rejected')
 
@@ -119,7 +120,7 @@ class MinutesTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.service.resolve(digest(tokens[0]))
         self.assertEqual(self.service.resolve(digest(tokens[1]))['slot'],2)
         init_minutes(module.get_db)
-        with module.get_db() as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM minutes_signers').fetchone()[0],2)
+        with managed_db(module.get_db) as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM minutes_signers').fetchone()[0],2)
 
     def test_validation_private_editor_and_csrf(self):
         self.assertEqual(self.client.get('/sakliste/2027/protokoll').status_code,302)
@@ -144,7 +145,7 @@ class MinutesTests(unittest.TestCase):
             self.assertIn('Samrøystes vedteke.'.encode(),page.data);self.assertNotIn(token.encode(),page.data)
         with clients[0].session_transaction() as s: csrf=s['csrf_token']
         self.assertEqual(clients[0].post('/protokoll/godkjenn',data=dict(csrf_token=csrf,approval_context='feil æ',decision='approve',confirmed='yes')).status_code,400)
-        with module.get_db() as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM minutes_signers WHERE approved_at IS NOT NULL').fetchone()[0],0)
+        with managed_db(module.get_db) as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM minutes_signers WHERE approved_at IS NOT NULL').fetchone()[0],0)
         with patch.object(self.service,'publish_pending') as publish:
             for index,client in enumerate(clients):
                 with client.session_transaction() as s: csrf=s['csrf_token'];context=s['minutes_approval']
@@ -193,7 +194,7 @@ class MinutesTests(unittest.TestCase):
             with patch('publisering.GithubDocuments',return_value=remote):
                 response=self.client.post('/api/protokoll/publiser',headers={'Authorization':'Bearer '+secret})
                 self.assertEqual(response.status_code,200);self.assertEqual(response.json['failed'],1)
-                with module.get_db() as db: self.assertEqual(db.execute('SELECT status FROM meeting_publication_queue').fetchone()[0],'failed')
+                with managed_db(module.get_db) as db: self.assertEqual(db.execute('SELECT status FROM meeting_publication_queue').fetchone()[0],'failed')
                 response=self.client.post('/api/protokoll/publiser',headers={'Authorization':'Bearer '+secret})
                 self.assertEqual(response.status_code,200);self.assertEqual(response.json['visible'],1)
-                with module.get_db() as db: self.assertEqual(db.execute('SELECT status FROM meeting_publication_queue').fetchone()[0],'visible')
+                with managed_db(module.get_db) as db: self.assertEqual(db.execute('SELECT status FROM meeting_publication_queue').fetchone()[0],'visible')

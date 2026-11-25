@@ -1,3 +1,4 @@
+from database import managed_db
 import json
 import sqlite3
 import unittest
@@ -75,7 +76,7 @@ class MeetingTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.service.save('sakliste',2027,2,dict(self.agenda(),items=[]))
         bad=self.agenda();bad['items'][0]['document']='javascript:alert(1)'
         with self.assertRaises(ValueError): self.service.save('sakliste',2027,2,bad)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             with self.assertRaises(sqlite3.IntegrityError): db.execute("UPDATE meeting_publication_queue SET payload='{}'")
         init_agendas(module.get_db)
 
@@ -104,7 +105,7 @@ class MeetingTests(unittest.TestCase):
     def test_rules_seed_survives_restart_and_heading_preview(self):
         self.service.save('motereglar',0,1,dict(body='## Nye reglar\nBevar denne teksten.'))
         init_agendas(module.get_db)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             row=db.execute("SELECT * FROM meeting_drafts WHERE kind='motereglar'").fetchone()
             self.assertEqual(row['revision'],2)
             self.assertEqual(json.loads(row['content'])['body'],'## Nye reglar\nBevar denne teksten.')
@@ -119,7 +120,7 @@ class MeetingTests(unittest.TestCase):
             def visible(self,payload): return True
         result=module.app.extensions['document_publisher'].run(client=Client(),target=('meeting',payload['version_id']))
         self.assertEqual(result['visible'],1)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(db.execute('SELECT status FROM meeting_publication_queue').fetchone()[0],'visible')
         envelope=dict(schema_version=1,year=payload['report_year'],versions=[payload],ledger_latest=None)
         validate_envelope(envelope,payload['report_year'])

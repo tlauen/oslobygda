@@ -1,3 +1,4 @@
+from database import managed_db
 import os
 import json
 from pathlib import Path
@@ -24,7 +25,7 @@ class ProtonBackupTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
         db=self.root/'source.db'
-        with sqlite3.connect(db) as conn:
+        with managed_db(lambda: sqlite3.connect(db)) as conn:
             conn.executescript('CREATE TABLE members(id INTEGER PRIMARY KEY,name TEXT);CREATE TABLE payments(id INTEGER PRIMARY KEY);CREATE TABLE board_users(id INTEGER PRIMARY KEY);INSERT INTO members(name) VALUES (\'FIKTIV-MEDLEMSDATA\');')
         self.bundle=create_bundle(db,self.root/'receipts',self.root/'backups')
         key=self.root/'key';key.write_text('ei fiktiv og lang testpassfrase');key.chmod(0o600)

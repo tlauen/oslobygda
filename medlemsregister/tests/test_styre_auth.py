@@ -1,4 +1,5 @@
 """Køyr: python -m unittest discover -s tests (frå medlemsregister/)."""
+from database import managed_db
 import tempfile
 import unittest
 from pathlib import Path
@@ -21,7 +22,7 @@ class BoardAuthTests(unittest.TestCase):
         module.init_db()
         self.client = module.app.test_client()
         self.secret = pyotp.random_base32()
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute('INSERT INTO board_users(username,password_hash,totp_secret,session_version) VALUES (?,?,?,?)',
                        ('styret', generate_password_hash('a sufficiently long test password'), self.secret, 'version-1'))
 
@@ -78,10 +79,10 @@ class BoardAuthTests(unittest.TestCase):
 
     def test_revoke_and_reset_invalidate_sessions(self):
         self.assertEqual(self.login().status_code, 302)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute("UPDATE board_users SET session_version='new-version'")
         self.assertEqual(self.client.get('/').status_code, 302)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             db.execute("UPDATE board_users SET session_version='version-1', active=0")
         self.assertEqual(self.client.get('/').status_code, 302)
 
@@ -104,7 +105,7 @@ class BoardAuthTests(unittest.TestCase):
         with patch('styre_auth.pyotp.random_base32', return_value=secret), patch('styre_auth.time.time', return_value=now):
             result = runner.invoke(args=['styrekonto','ny'], input=f'{password}\n{password}\nwrong\n')
             self.assertNotEqual(result.exit_code, 0)
-            with module.get_db() as db:
+            with managed_db(module.get_db) as db:
                 self.assertIsNone(db.execute("SELECT 1 FROM board_users WHERE username='ny'").fetchone())
             code = pyotp.TOTP(secret).at(now)
             result = runner.invoke(args=['styrekonto','ny'], input=f'{password}\n{password}\n{code}\n')
@@ -112,7 +113,7 @@ class BoardAuthTests(unittest.TestCase):
             result = runner.invoke(args=['styrekonto','ny','--nullstill'], input=f'{password}\n{password}\n{code}\n')
             self.assertEqual(result.exit_code, 0)
         self.assertEqual(runner.invoke(args=['styrekonto','ny','--sperr']).exit_code, 0)
-        with module.get_db() as db:
+        with managed_db(module.get_db) as db:
             self.assertEqual(db.execute("SELECT active FROM board_users WHERE username='ny'").fetchone()[0], 0)
 
 
