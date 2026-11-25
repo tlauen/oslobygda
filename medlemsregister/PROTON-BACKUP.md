@@ -66,8 +66,14 @@ Separat oppbevaring av backupnøkkelen må gjerast av laget.
 
 ## Rotasjon: 30 dagar dagleg, deretter vekentleg til 90 dagar
 
-Kode for tidsrotasjon er innført; produksjonsinstallasjon og første køyring må
-stadfestast før dette blir rekna som aktiv drift. Standard nattbackup av komplette
+Tidsrotasjon er installert i produksjon som 9dd397b. Eigaren stadfesta
+vellukka lokal backup og Proton-køyring med `Backuprotasjon: rotated`
+25. november 2026, ferdig om lag 22:02 UTC. Den nye Proton-kopien vart
+verifisert 21:56:29 UTC. Eigaren har deretter stadfesta at papirkorga er tømd og dei to eldre
+Proton-oppføringane er sletta. Konsollkvittering for --acknowledge-trash er
+ikkje motteken.
+Førehandskontrollen rapporterte 104 ukjende filer/mapper som ikkje vart rørte;
+desse må inventerast separat. Standard nattbackup av komplette
 økonomisett bevarer nyaste kopi per UTC-dag i 30 dagar og deretter nyaste kopi
 per ISO-veke fram til 90 dagar. Dei to nyaste verifiserte kopiane blir alltid
 bevarte. Eksplisitt `--keep` vel framleis eldre talrotasjon; fjern eit slikt

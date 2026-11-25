@@ -1,10 +1,100 @@
 # Personvernoppfølging
 
-Kodeversjon f1615c0 er installert og appen er omlasta på PythonAnywhere
-25. november 2026. Backup med gjenopprettingsprøve var OK før oppdatering.
-Separat TOTP-nøkkel er oppretta, og WSGI-oppstart og offentlege sider svarar.
-Kontrollane nedanfor som krev faktisk styreinnlogging, e-post eller Vipps,
-må framleis gjennomførast av laget.
+Status 25. november 2026. Kodegjennomgangen sine åtte hovudpunkt og ti
+kodekvalitetspunkt er handterte gjennom implementering eller laget sitt
+uttrykkelege val. Dette er driftsstatus, ikkje ei erklæring om at all
+personvernoppfølging er avslutta.
+
+## Avslutta og stadfesta
+
+- Produksjon er oppdatert til 9dd397b. Førre appoppdatering 3dd5b6c er
+  kontrollert med fungerande innloggingar, databaseintegritet, skjemaversjon 1,
+  35 medlemmar og 31 betalingspostar. Bakgrunnsjobbane rapporterte returkode 0.
+- TOTP-nøkkelen er lagra separat i Proton Pass, stadfesta av eigaren.
+- PythonAnywhere og Umami er valde med EU-region, stadfesta av eigaren.
+- Laget opplyser at det ikkje er bokføringspliktig og ikkje har tilskotsvilkår
+  om oppbevaring av rekneskap. Ingen generell femårsfrist er lagt til grunn.
+- Proton er ein eigen Oslobygda-konto.
+- Brevo: full vilkårstekst versjon 1. oktober 2025 er motteken frå eigaren.
+  [Tekstkopien](avtalar/brevo-tos-2025-10-01.txt) er arkivert uendra.
+  Appendix 3 er DPA, Annex 1 skildrar behandling, Annex 2 underleverandørar
+  og punkt 9 overføringsmekanismar. Dokumentet omtalar SCC-ar med tilleggstiltak
+  og DPF der det gjeld. Dette er ikkje ei uavhengig stadfesting av at nettsida
+  aldri er endra sidan kopien vart teken.
+- Brevo-kontoen: eigaren har stadfesta lagra anonym sporing for både kampanjar
+  og SMTP, éin månads transaksjonsloggar for alle avsendarar og «Never store
+  previews» for nye tenestemeldingar. Dette anonymiserer ikkje automatisk eldre
+  kampanjesporing. Skjuling av preview er ikkje åleine sletting av eldre innhald.
+
+## Backuprotasjon og avgrensingar
+
+Laget har godkjent daglege kopiar i 30 dagar og deretter vekentlege fram til
+90 dagar. Dei to nyaste verifiserte kopiane og uavklarte eksportar blir bevarte;
+avvik krev varsel og oppfølging. Dette gjeld ordinære komplette lokale sett,
+krypterte eksportar og Proton-backup, ikkje aktive årsdokument eller rekneskap.
+Sjå [PROTON-BACKUP.md](PROTON-BACKUP.md) for prosedyrar og kommandoar.
+
+Eigaren køyrde lokal backup og Proton-jobben i produksjon 25. november.
+Resultatet var `Backuprotasjon: rotated`, og opplasting, nedlasting og
+isolert gjenoppretting var OK. Nyaste kopi vart verifisert 21:56:29 UTC.
+Eigaren har deretter stadfesta tømming av papirkorga og sletting av dei to
+eldre oppføringane i Proton-mappa `Tryggleikskopiar`. Kvitteringskommandoen
+`--acknowledge-trash` er gitt, men konsollresultatet er ikkje motteke.
+
+Rclone flyttar filer til papirkorga; permanent sletting krev menneskeleg
+oppfølging. Proton oppgir i tillegg interne krypterte backupkopiar i opptil
+30 dagar. Ikkje lov absolutt permanent sletting frå alle lagringslag innan 90 dagar.
+
+### Inventering av dei 104 ukjende oppføringane
+
+Eigaren leverte filliste. Av oppføringane låg 102 lokalt: 57 kodebackup-tararkiv,
+18 eldre databasekopiar, 22 andre filer og fem manuelle backupmapper. Dei to
+Proton-oppføringane var `nidarosbygda-20261029-230410.bygdelista-backup` og
+mappa `Backup 2026 10 29`; eigaren har no stadfesta at desse er sletta.
+
+Dei 22 andre lokale filene er 17 `.tgz`-arkiv, fire Python/HTML-filer og
+`env-for-protokoll-20261031T095432Z`. Sistnemnde kan innehalde hemmelegheiter;
+ikkje skriv innhaldet i logg eller chat. Dei fem manuelle mappene er
+`etter-sakliste-protokoll`, `for-sakliste-protokoll`, `for-sletting-testdokument`,
+`for-undersaksvedtak` og `for-vedtaksframlegg`. Innhaldet er ikkje kontrollert.
+Oppført mappestorleik 0 i listeskriptet betyr ikkje at dei er tomme.
+
+Eigaren avgrensa vidare rydding til Proton-mappa `Tryggleikskopiar` og bad
+uttrykkeleg om at alt anna skulle liggje urørt. Lokale restfiler er derfor
+ikkje sletta eller lagde inn i automatisk rotasjon. Dette er eit dokumentert
+unntak, ikkje ferdig gjennomført sletting av alle eldre persondata.
+`status.json` og `rotation.json` er nødvendige driftsfiler og skal bevarast.
+
+## Opne oppfølgingar
+
+- **PythonAnywhere:** eigaren har sendt spørsmål om gjeldande EU-avtale,
+  underleverandørar, støttetilgang og behandlingsland. Ventar på svar.
+- **GitHub:** privat Free-konto `tlauen`, ingen organisasjonskonto for laget.
+  DPA-dekninga for publisert personinnhald/Pages er ikkje stadfesta. Spørsmål
+  er førebudd og kontaktadressa dpo@github.com er gitt. Ingen konto er flytta
+  eller abonnement kjøpt; supportsvaret står att.
+- **Umami:** DPA er automatisk innlemma i vilkåra utan separat signatur.
+  Punkt 10 og Schedule 3 regulerer relevante overføringar. Eigaren har sendt
+  spørsmål om EU-regionen sine faktiske behandlingsland/underleverandørar og
+  lagring av IP-adresser i driftsloggar. Ventar på svar. Generell liste over
+  KI-leverandørar beviser ikkje at besøksdata blir sende til KI.
+- Historisk kampanjesporing hos Brevo er ikkje dokumentert sletta.
+- Refusjonsprøve i produksjon er utsett til ein legitim refusjon oppstår.
+  Ingen testtransaksjon eller unødvendig refusjon skal opprettast for dette.
+- Dei lokale eldre kopiane blir ståande etter eigaren sin instruks ovanfor.
+
+## Avtalekjelder
+
+- [Brevo vilkår](https://www.brevo.com/legal/termsofuse/) og den arkiverte kopien.
+- [Umami vilkår](https://umami.is/terms), [DPA](https://umami.is/dpa),
+  [personvern](https://umami.is/privacy), [underleverandørar](https://umami.is/subprocessors).
+- [Proton DPA](https://proton.me/legal/dpa) og
+  [Drive personvern](https://proton.me/drive/privacy-policy). Filinnhald blir
+  kryptert lagra i Sveits/Tyskland/Noreg etter produktinformasjonen; konto-,
+  betalings- og støttedata må vurderast separat frå filinnhaldet.
+- [PythonAnywhere EU-vilkår](https://eu.pythonanywhere.com/terms_v2/).
+- [GitHub avtaleoversikt](https://github.com/customer-terms) og
+  [avtale for organisasjonar](https://docs.github.com/en/organizations/managing-organization-settings/upgrading-to-the-github-customer-agreement).
 
 ## Betaling og bokføring
 
