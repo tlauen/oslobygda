@@ -18,5 +18,5 @@
  .nettstad-meny{flex-direction:column;gap:10px}.nettstad-logo img{width:122px;height:45px}
  .nettstad-lenkjer{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
  .nettstad-lenkjer a,.nettstad-lenkjer .nettstad-medlem{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px;border:1px solid rgba(18,17,14,.12);border-radius:8px;background:rgba(255,255,255,.72);font-size:13px;text-align:center}
- .nettstad-lenkjer .nettstad-medlem{background:#e4f0f4;border-color:#8bb8cb}
+ .nettstad-lenkjer .nettstad-medlem{order:1;grid-column:1 / -1;background:#e4f0f4;border-color:#8bb8cb}
 }
