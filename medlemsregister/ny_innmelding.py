@@ -1,6 +1,7 @@
 """Nyinnmelding: varig ordre før Vipps-kall, stadfesta trekk før bokføring."""
 
 from betalingsstatus import Ordrestatus, Vippsstatus
+from betalingsreglar import member_kind, VIPPS_MAX_NOK
 
 import base64
 from contextlib import closing
@@ -638,14 +639,10 @@ class SignupService:
                     ),
                 ).lastrowid
                 if order["for_year"] == self.get_year(db):
-                    kind = (
-                        member["membership_type"]
-                        if member["membership_type"].strip().lower() == "styret"
-                        else (
-                            "kul"
-                            if order["amount_ore"] > order["threshold_ore"]
-                            else "vanleg"
-                        )
+                    kind = member_kind(
+                        order["amount_ore"],
+                        order["threshold_ore"],
+                        member["membership_type"],
                     )
                     db.execute(
                         "UPDATE members SET payment_status='betalt',membership_type=?,updated_at=? WHERE id=?",
@@ -668,15 +665,11 @@ class SignupService:
                 db.commit()
                 return
             stamp = datetime.now(timezone.utc).isoformat()
-            kind = (
-                "kul"
-                if order["amount_ore"]
-                > (
-                    order["threshold_ore"]
-                    if order["threshold_ore"] is not None
-                    else self.get_threshold(db)
-                )
-                else "vanleg"
+            kind = member_kind(
+                order["amount_ore"],
+                order["threshold_ore"]
+                if order["threshold_ore"] is not None
+                else self.get_threshold(db),
             )
             mid = db.execute(
                 """INSERT INTO members(full_name,fornamn,mellomnamn,etternamn,email,phone,adresse,postnummer,poststad,birth_date,membership_type,payment_status,consent_at,created_at,updated_at)
@@ -844,7 +837,11 @@ def install_signup(
 
     @app.context_processor
     def payment_status_constants():
-        return {"Ordrestatus": Ordrestatus, "Vippsstatus": Vippsstatus}
+        return {
+            "Ordrestatus": Ordrestatus,
+            "Vippsstatus": Vippsstatus,
+            "vipps_max_nok": VIPPS_MAX_NOK,
+        }
 
     def sync_followups_safely(reference):
         service.send_confirmation(reference)

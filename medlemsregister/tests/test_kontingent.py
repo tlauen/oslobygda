@@ -120,3 +120,19 @@ class RenewalTests(unittest.TestCase):
         with closing(module.get_db()) as db:
             db.execute('UPDATE signup_orders SET create_attempted=1 WHERE reference=?',(ref,));db.commit()
             with self.assertRaises(ValueError):save_period(db,dict(year='2026',minimum='10',threshold='20',opens_on='2026-01-01',approved='1',approved_on='2026-01-01'))
+
+    def test_renewal_threshold_matches_signup_rule_at_and_above_boundary(self):
+        for amount, expected in [('5', 'vanleg'), ('6', 'kul')]:
+            with self.subTest(amount=amount):
+                mid = self.member()
+                with closing(module.get_db()) as db:
+                    db.execute('UPDATE members SET email=? WHERE id=?', (f'boundary-{amount}@example.invalid', mid))
+                    db.commit()
+                _, link = self.issue(mid)
+                ref = self.renew(link, amount)
+                client = Mock()
+                client.get.return_value = self.result(ref, int(amount)*100)
+                with patch('ny_innmelding.client_for', return_value=client):
+                    self.service.reconcile(ref)
+                with closing(module.get_db()) as db:
+                    self.assertEqual(db.execute('SELECT membership_type FROM members WHERE id=?', (mid,)).fetchone()[0], expected)

@@ -1,10 +1,11 @@
 """ePayment-klient. Ikkje kopla til offentlege ruter før komplett flyt er testa."""
+
+from betalingsreglar import vipps_amount_ore as amount_ore, valid_vipps_ore
 import json
 import os
 import re
 import ssl
 import time
-from decimal import Decimal, InvalidOperation
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import Request, HTTPRedirectHandler, HTTPSHandler, build_opener
@@ -19,18 +20,6 @@ class VippsError(RuntimeError):
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
-
-
-def amount_ore(text):
-    if not isinstance(text, str) or not re.fullmatch(r'\d{1,7}([.,]\d{1,2})?', text.strip()):
-        raise ValueError('Skriv beløpet med høgst to desimalar.')
-    try:
-        value = Decimal(text.strip().replace(',', '.')) * 100
-    except InvalidOperation:
-        raise ValueError('Ugyldig beløp.') from None
-    if not 100 <= value <= 100000000:
-        raise ValueError('Beløpet må vere mellom 1 og 1 000 000 kroner.')
-    return int(value)
 
 
 class VippsClient:
@@ -127,7 +116,7 @@ class VippsClient:
 
     def create(self, reference, ore, return_url, idempotency_key):
         self._reference(reference)
-        if type(ore) is not int or not 100 <= ore <= 100000000:
+        if not valid_vipps_ore(ore):
             raise ValueError('Ugyldig beløp i øre.')
         parts=urlsplit(return_url)
         if parts.scheme!='https' or not parts.hostname or parts.username or parts.password:
@@ -144,7 +133,7 @@ class VippsClient:
 
     def capture(self, reference, ore, idempotency_key):
         self._reference(reference)
-        if type(ore) is not int or not 100 <= ore <= 100000000 or not idempotency_key:
+        if not valid_vipps_ore(ore) or not idempotency_key:
             raise ValueError('Ugyldig beløp eller manglande idempotensnøkkel.')
         return self._authenticated('POST','/epayment/v1/payments/'+reference+'/capture',
                                    {'modificationAmount':{'currency':'NOK','value':ore}},idempotency_key)

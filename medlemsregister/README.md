@@ -121,7 +121,8 @@ ruff format --check .
 ```
 
 `ruff.toml` avgrensar førebels formateringa til `ny_innmelding.py`,
-`kontingent.py`, `betalingsstatus.py` og den nye migreringsmodulen med testar.
+`kontingent.py`, `betalingsstatus.py`, betalingsreglane og migreringsmodulen
+med tilhøyrande nye testar.
 Fleire modular kan takast inn i eigne,
 mekaniske endringar. CI køyrer same formatkontroll før testsamlinga. Dette er
 formatkontroll; lintreglar og automatiske kodeendringar er ikkje aktiverte.
@@ -143,3 +144,20 @@ Bruk `execute`, `executemany` eller migreringstilkoplinga sin `executescript`.
 SQL-setningar, inkludert triggerar, blir køyrde utan SQLite sitt implisitte
 `executescript`-commit. Registrering av versjonen og alle ventande steg blir
 committa samla. Ukjend, omdøypt eller ufullstendig historikk stoppar oppstarten.
+
+## Felles betalingsreglar
+
+`betalingsreglar.py` eig desimalkonvertering, beløpsgrenser og regelen for
+medlemskategori. Den eksisterande manuelle medlemsføringa tillèt 0,01 til
+1 milliard kroner; vår offentlege Vipps-flyt tillèt 1 til 1 million kroner.
+Dette er ulike eksisterande bruksgrenser, ikkje ei endring av satsane eller ein
+påstand om Vipps sine generelle grenser. Null er berre tillate når styret set
+kategorigrensa. Delar av eit øre blir avviste, òg når ein svært lang
+inputstreng elles kunne blitt avrunda av Decimal-konteksten.
+
+`kul` krev strengt meir enn terskelen; lik terskel gir `vanleg`. Ein manuelt
+sett `styret`-kategori blir bevart. Manuell føring bruker summen for det aktive
+medlemsåret. Vipps-innmelding og fornying bruker satsen som er lagra på ordren;
+refaktoreringa endrar ikkje kva medlemsår eller sats som blir lagt til grunn.
+Maksimumsfeltet i dei offentlege betalingsskjemaa kjem frå same grense som
+servervalideringa. Ingen skjemaendring eller databasemigrering er nødvendig.

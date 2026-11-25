@@ -8,7 +8,7 @@ Database kan krypterast med SQLCipher ved å setje MEDLEMSREGISTER_DB_KEY (da ve
 import csv
 import io
 import json
-from decimal import Decimal, InvalidOperation
+from betalingsreglar import manual_amount_ore as _nok_to_ore, member_kind
 from datetime import timedelta
 import os
 import sys
@@ -219,25 +219,6 @@ def _get_medlemsbetalingsar(conn) -> int:
     return _default_medlemsbetalingsar()
 
 
-def _nok_to_ore(value, *, allow_zero=False):
-    try:
-        number = Decimal(str(value).strip().replace(",", "."))
-        if (
-            not number.is_finite()
-            or number < (0 if allow_zero else Decimal("0.01"))
-            or number > 1000000000
-        ):
-            raise ValueError()
-        ore = number * 100
-        if ore != ore.to_integral_value():
-            raise ValueError()
-        return int(ore)
-    except (InvalidOperation, ValueError, TypeError):
-        raise ValueError(
-            "Beløpet må vere eit gyldig kronebeløp med høgst to desimalar."
-        ) from None
-
-
 def _get_superkul_grense(conn):
     from kontingent import period
     try:
@@ -269,11 +250,7 @@ def _oppdater_fra_innbetalingar(conn, mid, *, reset_empty=False):
         if total > 0
         else ("gratis" if member["payment_status"] == "gratis" else "ikkje betalt")
     )
-    kind = (
-        member["membership_type"]
-        if member["membership_type"].strip().lower() == "styret"
-        else ("kul" if total > _get_superkul_grense(conn) else "vanleg")
-    )
+    kind = member_kind(total, _get_superkul_grense(conn), member["membership_type"])
     if member["payment_status"] != status or member["membership_type"] != kind:
         conn.execute(
             "UPDATE members SET payment_status=?, membership_type=?, updated_at=? WHERE id=?",

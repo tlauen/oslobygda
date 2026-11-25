@@ -167,3 +167,25 @@ class SignupTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
             news.assert_called_once()
         self.assertTrue(self.service.order(ref)['newsletter_done'])
+
+    def test_signup_threshold_uses_the_order_snapshot(self):
+        for amount, expected in [('5', 'vanleg'), ('6', 'kul')]:
+            with self.subTest(amount=amount), patch('ny_innmelding.credentials', return_value={'VIPPS_MSN':'123456'}):
+                with closing(module.get_db()) as db:
+                    db.execute('UPDATE membership_periods SET superkul_ore=500 WHERE year=2026')
+                    db.commit()
+                ref = self.service.new(self.fields(amount=amount, email=f'snapshot-{amount}@example.invalid'), 'browser-' + amount, 'production', '127.0.0.1')
+                # Ei seinare satsendring skal ikkje endre ein oppretta ordre.
+                with closing(module.get_db()) as db:
+                    db.execute("UPDATE membership_periods SET superkul_ore=10000 WHERE year=2026")
+                    db.commit()
+                client = Mock()
+                result = self.details(ref, int(amount)*100)
+                result['amount']['value'] = int(amount)*100
+                result['aggregate']['authorizedAmount']['value'] = int(amount)*100
+                client.get.return_value = result
+                with patch('ny_innmelding.client_for', return_value=client):
+                    self.service.reconcile(ref)
+                with closing(module.get_db()) as db:
+                    kind = db.execute('SELECT membership_type FROM members WHERE id=?', (self.service.order(ref)['member_id'],)).fetchone()[0]
+                self.assertEqual(kind, expected)

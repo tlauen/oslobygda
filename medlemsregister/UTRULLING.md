@@ -129,7 +129,12 @@ produksjonen. Låsen gjer ingen automatisk oppgradering av eksisterande miljø.
 
 ## Første versjonerte skjemamigrering
 
-Denne kodeendringa er testa lokalt og er ikkje automatisk aktivert på serveren.
+Versjon 1 vart aktivert og kontrollert på PythonAnywhere 25. november 2026.
+Databaseintegriteten var OK, 35 medlemmar og 31 betalingar var bevarte, og begge
+TOTP-felta var krypterte og lesbare. Eigaren stadfesta styre-/medlemsinnlogging
+og ny backup med gjenopprettingsprøve etter omlastinga.
+
+Følgjande er utrullingsrutina for migreringsendringar:
 Før oppdatering: ta ein ny databasebackup med gjenopprettingsprøve og bevar
 `.env`/TOTP-nøkkelen privat etter eksisterande rutine. Første oppstart tek ein
 SQLite-skrivelås, køyrer dei historiske, idempotente oppgraderingane og lagrar
