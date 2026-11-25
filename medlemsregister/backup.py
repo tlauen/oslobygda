@@ -70,10 +70,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--db', type=Path, default=Path(__file__).resolve().parent / 'medlemsregister.db')
     parser.add_argument('--directory', type=Path, default=Path.home() / 'Bygdelista-backup')
-    parser.add_argument('--keep', type=int, default=30)
+    parser.add_argument('--keep', type=int, default=None, help='Valfri eldre talrotasjon; standard er 30 dagar dagleg / 90 dagar vekentleg for komplette sett.')
     parser.add_argument('--bilag-dir', type=Path, default=Path(os.environ.get('BYGDELISTA_BILAG_DIR', str(Path.home() / 'bygdelista-data' / 'bilag'))), help='Privat bilagsmappe for samla økonomibackup.')
     parser.add_argument('--verify', type=Path, help='Prøv gjenoppretting av denne backupfila utan å endre aktiv database.')
+    parser.add_argument('--rotation-preview', action='store_true', help='Vis lokale komplette sett som går ut, utan å lage eller slette backup.')
     args = parser.parse_args()
+    if args.rotation_preview:
+        from backup_rotasjon import plan_bundles
+        for path in plan_bundles(args.directory):
+            import json
+            manifest = json.loads((path/'manifest.json').read_text())
+            print(path.name, manifest['created_at'], sum(item['size'] for item in manifest['files'].values()), 'bytes')
+        print('Førehandskontroll ferdig; ingen backup er laga eller sletta.')
+        return
     if args.verify:
         if args.verify.is_dir():
             from okonomi_backup import verify_bundle_restore
@@ -88,7 +97,7 @@ def main():
             from okonomi_backup import create_bundle
             result = create_bundle(args.db, args.bilag_dir, args.directory, args.keep,include_board=True)
         else:
-            result = create_backup(args.db, args.directory, args.keep)
+            result = create_backup(args.db, args.directory, 30 if args.keep is None else args.keep)
         print(f'Backup og prøve av gjenoppretting: OK. Fil: {result}')
 
 

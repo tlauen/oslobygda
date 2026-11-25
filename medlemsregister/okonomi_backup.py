@@ -1,8 +1,10 @@
 """Samla lokal backup av SQLite og bilag. Arkivet er ikkje kryptert."""
 from database import managed_db
 import hashlib
+import fcntl
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import sqlite3
@@ -55,10 +57,22 @@ def verify_bundle_restore(directory):
         verify_bundle(restored)
 
 
-def create_bundle(source,receipts_root,directory,keep=30,include_board=False):
+def create_bundle(source,receipts_root,directory,keep=None,include_board=False):
+    directory=Path(directory)
+    if directory.is_symlink(): raise ValueError('Backupmappa kan ikkje vere ei lenkje.')
+    directory.mkdir(mode=0o700,parents=True,exist_ok=True)
+    lock=directory/'.backup.lock'
+    if lock.is_symlink(): raise ValueError('Ugyldig backuplås.')
+    with lock.open('a') as handle:
+        lock.chmod(0o600)
+        fcntl.flock(handle,fcntl.LOCK_EX)
+        return _create_bundle(source,receipts_root,directory,keep,include_board)
+
+
+def _create_bundle(source,receipts_root,directory,keep=None,include_board=False):
     source=Path(source);directory=Path(directory)
     if not source.is_file(): raise FileNotFoundError('Databasen finst ikkje.')
-    if keep<1: raise ValueError('Minst ein backup må bevarast.')
+    if keep is not None and keep<1: raise ValueError('Minst ein backup må bevarast.')
     directory.mkdir(mode=0o700,parents=True,exist_ok=True);directory.chmod(0o700)
     temp=Path(tempfile.mkdtemp(prefix='.okonomi-',dir=directory))
     try:
@@ -107,11 +121,16 @@ def create_bundle(source,receipts_root,directory,keep=30,include_board=False):
         complete=[]
         for path in sorted(directory.glob('okonomi-*'),reverse=True):
             # Roter berre komplette sett etter at ny backup er kontrollert.
-            if path.is_dir() and not path.is_symlink():
+            if re.fullmatch(r'okonomi-\d{8}T\d{12}Z-[0-9a-f]{32}', path.name) and path.is_dir() and not path.is_symlink():
                 try: verify_bundle(path)
                 except (OSError,ValueError,sqlite3.DatabaseError): continue
                 complete.append(path)
-        for old in complete[keep:]: shutil.rmtree(old)
+        if keep is None:
+            from backup_rotasjon import plan_bundles
+            expired = plan_bundles(directory)
+        else:
+            expired = complete[keep:]
+        for old in expired: shutil.rmtree(old)
         return result
     finally:
         if temp.exists(): shutil.rmtree(temp)

@@ -71,6 +71,13 @@ class Rclone:
     def upload(self,source,destination):
         self.run('copyto',source,destination,'--protondrive-replace-existing-draft=true','--protondrive-enable-caching=false')
 
+    def list_files(self,remote):
+        return json.loads(self.run('lsjson', remote, '--max-depth', '1', '--protondrive-enable-caching=false'))
+
+    def trash_file(self,source):
+        # Proton rclone Remove moves this exact object to trash, not permanent deletion.
+        self.run('deletefile', source, '--protondrive-enable-caching=false')
+
     def download(self,source,destination):
         self.run('copyto',source,destination,'--protondrive-enable-caching=false')
 
@@ -148,12 +155,29 @@ def _perform(settings,remote,password,exports,client):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--settings',required=True,type=Path,help='Privat JSON-oppsett; skal ikkje liggje i Git.')
+    parser.add_argument('--rotation-preview', action='store_true', help='Les og kontroller rotasjonskandidatar utan opplasting eller sletting.')
+    parser.add_argument('--acknowledge-trash', action='store_true', help='Stadfest at varsla backupfiler er kontrollerte og permanent sletta frå Proton-papirkorga.')
     args=parser.parse_args()
     try:
         settings=json.loads(private_file(args.settings).read_text())
+        from dotenv import load_dotenv
+        load_dotenv(Path(__file__).resolve().parent / '.env')
+        from proton_rotasjon import rotate
+        if args.rotation_preview or args.acknowledge_trash:
+            print(json.dumps(rotate(settings, acknowledge=args.acknowledge_trash), ensure_ascii=False, indent=2))
+            return
         result=perform(settings)
-    except (ProtonBackupError,ValueError,OSError) as exc:
-        print('Proton-backup FEILA:',str(exc));raise SystemExit(1)
+        rotation=rotate(settings, apply=True)
+        print('Backuprotasjon:', rotation['status'])
+    except Exception:
+        if not args.rotation_preview and not args.acknowledge_trash:
+            try:
+                from proton_rotasjon import notify_failure
+                notify_failure(settings)
+            except Exception:
+                print('E-postvarsel kunne ikkje stadfestast; kontroller oppgåva manuelt.')
+        print('Proton-backup eller rotasjon FEILA. Kontroller privat oppsett, backupintegritet og kontotilgang.')
+        raise SystemExit(1) from None
     print('Proton-backup og nedlastings-/gjenopprettingsprøve: OK.' if result['status']=='verified' else 'Proton-backup er allereie overført og gjenopprettingsprøvd.')
     print('Backupsett:',result['bundle'])
     print('Sist verifisert:',result['verified_at'])
