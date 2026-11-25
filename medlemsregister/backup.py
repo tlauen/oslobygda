@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Konsistent SQLite-backup og prøve av gjenoppretting. Køyr med --help."""
 import argparse
-from contextlib import closing
+from database import managed_db
 import os
 from pathlib import Path
 import sqlite3
@@ -27,7 +27,10 @@ def verify_restore(path):
     """Gjenopprett i ei mellombels database; rør aldri den aktive databasen."""
     with tempfile.TemporaryDirectory(prefix='bygdelista-restore-') as folder:
         restored = Path(folder) / 'restored.db'
-        with closing(connect_readonly(path)) as source, closing(sqlite3.connect(restored)) as dest:
+        with (
+            managed_db(lambda: connect_readonly(path), commit_on_success=False) as source,
+            managed_db(lambda: sqlite3.connect(restored), commit_on_success=False) as dest,
+        ):
             source.backup(dest)
             check_database(dest)
         restored.chmod(0o600)
@@ -45,7 +48,10 @@ def create_backup(source, directory, keep=30):
     os.close(fd)
     temporary = Path(name)
     try:
-        with closing(connect_readonly(source)) as src, closing(sqlite3.connect(temporary)) as dest:
+        with (
+            managed_db(lambda: connect_readonly(source), commit_on_success=False) as src,
+            managed_db(lambda: sqlite3.connect(temporary), commit_on_success=False) as dest,
+        ):
             src.backup(dest)
             dest.execute("PRAGMA journal_mode=DELETE")
             check_database(dest)
@@ -76,7 +82,7 @@ def main():
             verify_restore(args.verify)
         print('Gjenoppretting i mellombels database og integritetskontroll: OK.')
     else:
-        with closing(connect_readonly(args.db)) as source:
+        with managed_db(lambda: connect_readonly(args.db), commit_on_success=False) as source:
             has_ledger = source.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='ledger_receipts'").fetchone()
         if has_ledger:
             from okonomi_backup import create_bundle

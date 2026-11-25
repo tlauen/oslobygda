@@ -5,7 +5,7 @@ from csrf import csrf_exempt
 from betalingsreglar import member_kind, VIPPS_MAX_NOK
 
 import base64
-from contextlib import closing
+from database import managed_db
 from datetime import date, datetime, timezone
 from email.utils import parsedate_to_datetime
 import hashlib
@@ -51,7 +51,7 @@ FIELDS = {
 
 
 def init_signup(get_db):
-    with closing(get_db()) as db:
+    with managed_db(get_db, commit_on_success=False) as db:
         db.executescript(SCHEMA)
         columns = {row[1] for row in db.execute("PRAGMA table_info(signup_orders)")}
         for name, definition in (
@@ -165,7 +165,7 @@ class SignupService:
         self.confirmation = confirmation
 
     def order(self, reference):
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             row = db.execute(
                 "SELECT * FROM signup_orders WHERE reference=?", (reference,)
             ).fetchone()
@@ -174,7 +174,7 @@ class SignupService:
     def new(self, values, browser_key, environment, ip):
         from kontingent import payable, today
 
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             policy = payable(db, today().year)
         data, ore = validate(values, policy["minimum_ore"])
         config = credentials(environment)
@@ -183,7 +183,7 @@ class SignupService:
             raise ValueError("Betaling er ikkje sett opp enno.")
         now = time.time()
         stamp = datetime.now(timezone.utc).isoformat()
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             policy = payable(db, today().year)
             if ore < policy["minimum_ore"]:
@@ -247,7 +247,7 @@ class SignupService:
     def edit(self, reference, values):
         from kontingent import payable
 
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             order = db.execute(
                 "SELECT * FROM signup_orders WHERE reference=?", (reference,)
@@ -302,7 +302,7 @@ class SignupService:
         msn = credentials(env).get("VIPPS_MSN", "")
         if not msn:
             raise ValueError("Betaling er ikkje sett opp.")
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             current = db.execute(
                 "SELECT * FROM renewal_links WHERE id=? AND token_hash=? AND revoked=0",
@@ -386,7 +386,7 @@ class SignupService:
         order = self.order(reference)
         from kontingent import payable, member_paid
 
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             try:
                 policy = payable(db, order["for_year"])
@@ -452,7 +452,7 @@ class SignupService:
             raise VippsError(
                 "Vipps gav ikkje ei gyldig betalingsadresse. Prøv same betaling igjen."
             )
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute(
                 f"UPDATE signup_orders SET redirect_url=?,status='{Vippsstatus.CREATED}' WHERE reference=? AND status='{Ordrestatus.NEW}'",
                 (url, reference),
@@ -470,7 +470,7 @@ class SignupService:
                 or result["aggregate"]["capturedAmount"]["value"]
                 != original["amount_ore"]
             ):
-                with closing(self.db()) as db:
+                with managed_db(self.db, commit_on_success=False) as db:
                     db.execute(
                         f"UPDATE signup_orders SET status='{Ordrestatus.REVIEW}',problem='Refusjon eller endra trekk etter bokføring. Styret må avstemme betalinga.' WHERE reference=? AND status='{Ordrestatus.COMPLETE}'",
                         (reference,),
@@ -479,7 +479,7 @@ class SignupService:
             return
         now = time.time()
         lease = secrets.token_hex(16)
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             # Delt lås mellom web workers og vedlikehaldsjobben. Ingen nettverk under DB-låsen.
             row = db.execute(
                 f"UPDATE signup_orders SET lease_until=?,lease_token=?,checked_at=? WHERE reference=? AND lease_until<? AND checked_at<? AND status NOT IN ('{Ordrestatus.COMPLETE}','{Ordrestatus.REVIEW}','{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}')",
@@ -541,7 +541,7 @@ class SignupService:
                     )
                     else Ordrestatus.REVIEW
                 )
-                with closing(self.db()) as db:
+                with managed_db(self.db, commit_on_success=False) as db:
                     db.execute(
                         "UPDATE signup_orders SET status=?,problem=? WHERE reference=? AND lease_token=?",
                         (
@@ -555,7 +555,7 @@ class SignupService:
                     )
                     db.commit()
         except (VippsError, ValueError, KeyError, TypeError):
-            with closing(self.db()) as db:
+            with managed_db(self.db, commit_on_success=False) as db:
                 db.execute(
                     "UPDATE signup_orders SET problem='Betalingsstatus må kontrollerast på nytt' WHERE reference=? AND lease_token=?",
                     (reference, lease),
@@ -565,7 +565,7 @@ class SignupService:
                 "Kunne ikkje stadfeste betalinga enno. Prøv statuskontrollen igjen seinare."
             ) from None
         finally:
-            with closing(self.db()) as db:
+            with managed_db(self.db, commit_on_success=False) as db:
                 db.execute(
                     "UPDATE signup_orders SET lease_until=0 WHERE reference=? AND lease_token=?",
                     (reference, lease),
@@ -595,7 +595,7 @@ class SignupService:
                 raise VippsError("Ugyldig betalingsbeløp.")
 
     def finalize(self, reference, lease, user_details=None):
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             order = dict(
                 db.execute(
@@ -710,7 +710,7 @@ class SignupService:
 
     def send_confirmation(self, reference):
         # Atomisk krav hindrar parallelle webhook/status-jobbar i å sende dobbelt.
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             claimed = db.execute(
                 f"UPDATE signup_orders SET confirmation_status='sending',confirmation_started_at=? WHERE reference=? AND environment='production' AND status='{Ordrestatus.COMPLETE}' AND confirmation_status='pending'",
                 (time.time(), reference),
@@ -729,7 +729,7 @@ class SignupService:
             # Avvist SMTP eller feil før sending: reservejobben kan prøve igjen.
             state = "pending"
         finally:
-            with closing(self.db()) as db:
+            with managed_db(self.db, commit_on_success=False) as db:
                 db.execute(
                     "UPDATE signup_orders SET confirmation_status=? WHERE reference=? AND confirmation_status='sending'",
                     (state, reference),
@@ -747,7 +747,7 @@ class SignupService:
             or order["newsletter_done"]
         ):
             return False
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             member = db.execute(
                 "SELECT * FROM members WHERE id=?", (order["member_id"],)
             ).fetchone()
@@ -770,7 +770,7 @@ class SignupService:
         finally:
             # Eit uttrykkeleg avmeldingsval under eit eldre API-kall må vinne,
             # også når leverandøren kan ha teke imot eit kall som enda i timeout.
-            with closing(self.db()) as db:
+            with managed_db(self.db, commit_on_success=False) as db:
                 live = db.execute(
                     "SELECT 1 FROM members WHERE id=? AND privacy_deleted=0",
                     (member["id"],),
@@ -791,7 +791,7 @@ class SignupService:
                     queue(db, member["id"], member["email"], False)
                     db.commit()
         if delivered:
-            with closing(self.db()) as db:
+            with managed_db(self.db, commit_on_success=False) as db:
                 db.execute(
                     "UPDATE signup_orders SET newsletter_done=1 WHERE reference=?",
                     (reference,),
@@ -889,7 +889,7 @@ def install_signup(
                 app.logger.warning(
                     "Nyinnmelding: validering stoppa innsendinga (%s)", error
                 )
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             from kontingent import today, payable
 
             year = today().year
@@ -920,7 +920,7 @@ def install_signup(
         ):
             abort(404)
         if order.get("renewal_link_id"):
-            with closing(get_db()) as db:
+            with managed_db(get_db, commit_on_success=False) as db:
                 link = db.execute(
                     "SELECT * FROM renewal_links WHERE id=? AND revoked=0",
                     (order["renewal_link_id"],),
@@ -963,7 +963,7 @@ def install_signup(
                 return redirect("/bli-medlem/status", code=303)
             except ValueError as exc:
                 error = str(exc)
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             from kontingent import payable
 
             try:
@@ -1054,7 +1054,7 @@ def install_signup(
     @app.route("/innmeldingar")
     @require_admin
     def signup_overview():
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             orders = [
                 dict(row)
                 for row in db.execute(
@@ -1159,7 +1159,7 @@ def install_signup(
     @app.cli.command("innmelding-vedlikehald")
     def maintain():
         """Stadfest uferdige betalingar og prøv Brevo-køen på nytt."""
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             refs = [
                 r[0]
                 for r in db.execute(
@@ -1172,7 +1172,7 @@ def install_signup(
                     f"SELECT reference FROM signup_orders WHERE environment='production' AND status='{Ordrestatus.COMPLETE}' AND newsletter=1 AND newsletter_done=0 LIMIT 100"
                 )
             ]
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             confirmations = [
                 row[0]
                 for row in db.execute(
@@ -1197,7 +1197,7 @@ def install_signup(
         newsletter_done = app.extensions.get(
             "member_newsletter_maintenance", lambda: 0
         )()
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             db.execute("DELETE FROM member_challenges WHERE expires<=?", (time.time(),))
             db.execute("DELETE FROM login_limits WHERE expires<=?", (time.time(),))
             db.commit()

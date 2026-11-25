@@ -4,7 +4,7 @@ Registrerte migreringar er historikk: legg til nye steg, ikkje endre gamle.
 Ingen appimport, nettverk eller automatisk nedgradering.
 """
 
-from contextlib import closing
+from database import managed_db
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import sqlite3
@@ -63,6 +63,11 @@ class MigrationConnection:
         # Berre migreringskøyraren kan committe, etter at versjonen er registrert.
         pass
 
+    def rollback(self):
+        # Ein lånt init-kontekst kan ikkje avslutte heile migreringa. Feilen
+        # blir propagert til eigaren, som rullar tilbake den ytre transaksjonen.
+        pass
+
     def close(self):
         pass
 
@@ -95,7 +100,7 @@ def migrate(get_db, migrations):
         {item.name for item in migrations}
     ) != len(migrations):
         raise MigrationError("Kvar migrering må ha eit unikt namn.")
-    with closing(get_db()) as db:
+    with managed_db(get_db, commit_on_success=False) as db:
         if db.in_transaction:
             raise MigrationError(
                 "Migrering krev ei ny databasetilkopling utan transaksjon."

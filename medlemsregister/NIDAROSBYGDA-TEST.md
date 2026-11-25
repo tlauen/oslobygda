@@ -74,8 +74,9 @@ bruke Python frå det miljøet til same startkommando. Ingen PythonAnywhere-app 
 - Kalenderen blir lesen og lagra i testmappa, utan GitHub. Han startar tom.
 - Lagsnamn i malane og testbanner er sette av den lokale startaren. Produksjonsmalar
   og produksjonsnamn er ikkje erstatta globalt.
-- Produksjons-.env blir ikkje lasta. Arva Vipps/GitHub/Brevo/SMTP-innstillingar blir
-  fjerna. Ekte Vipps-innmelding er avslått.
+- Produksjons-.env blir ikkje lasta: den lokale startaren set
+  `PYTHON_DOTENV_DISABLED=1` før appimport. Arva Vipps/GitHub/Brevo/SMTP-innstillingar
+  blir fjerna. Appen har inga eiga testmodusgrein; ekte Vipps-innmelding er avslått.
 - Prosessen avviser utgåande nettverk (inkludert eksterne namneoppslag), eksterne
   prosessar, databaseopning og filskriving utanfor den private testmappa. Serveren
   bind berre loopback. Dette er vern mot feilkonfigurasjon i lokal testing, ikkje

@@ -1,5 +1,5 @@
 """Samla lokal backup av SQLite og bilag. Arkivet er ikkje kryptert."""
-from contextlib import closing
+from database import managed_db
 import hashlib
 import json
 import os
@@ -23,7 +23,7 @@ def verify_bundle(directory):
         raise ValueError('Ugyldig backupmanifest.')
     expected={'database.db'}
     if 'styre-og-kalender.zip' in manifest['files']: expected.add('styre-og-kalender.zip')
-    with closing(connect_readonly(directory/'database.db')) as db:
+    with managed_db(lambda: connect_readonly(directory/'database.db'), commit_on_success=False) as db:
         check_database(db)
         db.row_factory=sqlite3.Row
         tables={r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
@@ -63,11 +63,14 @@ def create_bundle(source,receipts_root,directory,keep=30,include_board=False):
     temp=Path(tempfile.mkdtemp(prefix='.okonomi-',dir=directory))
     try:
         with receipt_lock(receipts_root,exclusive=True) as root:
-            with closing(connect_readonly(source)) as live, closing(sqlite3.connect(temp/'database.db')) as copy:
+            with (
+                managed_db(lambda: connect_readonly(source), commit_on_success=False) as live,
+                managed_db(lambda: sqlite3.connect(temp/'database.db'), commit_on_success=False) as copy,
+            ):
                 live.backup(copy);copy.execute('PRAGMA journal_mode=DELETE');check_database(copy)
             (temp/'database.db').chmod(0o600)
             (temp/'bilag').mkdir(mode=0o700)
-            with closing(connect_readonly(temp/'database.db')) as copy:
+            with managed_db(lambda: connect_readonly(temp/'database.db'), commit_on_success=False) as copy:
                 copy.row_factory=sqlite3.Row
                 tables={r[0] for r in copy.execute("SELECT name FROM sqlite_master WHERE type='table'")}
                 rows=copy.execute('SELECT * FROM ledger_receipts').fetchall() if 'ledger_receipts' in tables else []

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Importer medlemsdata atomisk i eit tomt register. Ta backup først."""
 import argparse
-from contextlib import closing
+from database import managed_db
 from pathlib import Path
 import sqlite3
 
@@ -11,7 +11,7 @@ TABLES = ('members', 'payments', 'app_settings', 'medlemsar_arkiv')
 def import_data(source, destination):
     if not source.is_file() or not destination.is_file() or source.resolve() == destination.resolve():
         raise ValueError('Kjelde og mål må finnast og vere ulike filer.')
-    with closing(sqlite3.connect(destination.resolve().as_uri() + '?mode=rw', uri=True)) as db:
+    with managed_db(lambda: sqlite3.connect(destination.resolve().as_uri() + '?mode=rw', uri=True), commit_on_success=False) as db:
         db.execute('PRAGMA foreign_keys=ON')
         db.execute('ATTACH DATABASE ? AS incoming', (source.resolve().as_uri() + '?mode=ro',))
         for schema in ('main', 'incoming'):

@@ -4,7 +4,7 @@ Rapporten inneheld berre teljingar, pakkeversjonar og kontrollresultat, aldri
 namn, kontaktdata, token, TOTP-løyndomar eller innhaldet i jobbloggar.
 """
 import argparse
-from contextlib import closing
+from database import managed_db
 from importlib.metadata import version, PackageNotFoundError
 import json
 from pathlib import Path
@@ -24,7 +24,7 @@ def inspect(app_dir, log_dir=Path('/var/log')):
     box = Fernet(key.encode('ascii')) if key else None
     result['totp_key_present'] = bool(box)
     database = (app_dir / 'medlemsregister.db').as_uri() + '?mode=ro'
-    with closing(sqlite3.connect(database, uri=True)) as db:
+    with managed_db(lambda: sqlite3.connect(database, uri=True), commit_on_success=False) as db:
         db.execute('PRAGMA query_only=ON')
         result['database_integrity_ok'] = db.execute('PRAGMA quick_check').fetchone()[0] == 'ok'
         result['schema_version'] = 0

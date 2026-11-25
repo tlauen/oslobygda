@@ -195,3 +195,20 @@ sender e-post eller kontaktar eksterne tenester ved import.
 Denne oppdelinga endrar ikkje skjemaversjonen eller dei historiske
 migreringane. `wsgi.py`, lokale testar og CLI brukar framleis same appinngang.
 Dei nye modulane og testane er med i Ruff-formatkontrollen.
+
+## Databasekontekstar og lokal teststart
+
+Alle vanlege databasetilkoplingar og verktøya for backup, import, lesekontroll og
+migrering bruker `database.managed_db`. Standardmodus committar ved normal
+retur og rullar tilbake ved feil. `commit_on_success=False` blir brukt der
+flyten eig eksplisitte commit-punkt: ferdige kontrollpunkt blir bevarte, men
+uferdig arbeid blir rulla tilbake før tilkoplinga blir lukka, òg ved tidleg
+retur. Skrivelåsar blir frigjevne utan å vente på søppelinnsamling. Den lånte
+migreringstilkoplinga lèt den ytre migreringskøyraren eige heile transaksjonen.
+
+Appen har inga særskild `BYGDELISTA_LOCAL_TEST`-grein. `lokal_test.py` fjernar
+arva produksjonsinnstillingar, set python-dotenv si innebygde
+`PYTHON_DOTENV_DISABLED=1` og installerer sperrer før appimport. Appen bruker
+same kode for både drift og lokal testing. WSGI avviser framleis teststartaren
+som eit ekstra vern mot å eksponere eit lokalt testmiljø i produksjon.
+Python-dotenv-kravet er minst 1.2.4, som alt er låst og installert i produksjon.

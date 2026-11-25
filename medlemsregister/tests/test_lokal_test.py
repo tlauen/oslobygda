@@ -26,3 +26,33 @@ class LocalEnvironmentTests(unittest.TestCase):
             self.assertNotEqual(result.returncode,0)
             self.assertEqual(sentinel.read_text(),'preserve')
             self.assertFalse((Path(folder)/'nidarosbygda.db').exists())
+
+    def test_runner_blocks_dotenv_loading_without_a_test_branch_in_app(self):
+        script = """
+import sys, os
+from unittest.mock import patch
+from lokal_test import prepare
+root, account = prepare(sys.argv[1])
+assert os.environ['PYTHON_DOTENV_DISABLED'] == '1'
+with patch('dotenv.main.DotEnv', side_effect=AssertionError('must not read dotenv')):
+    import app as module
+assert module.app.secret_key == account['session_key']
+assert module.DB_KEY == ''
+assert not os.environ.get('SMTP_HOST')
+assert not os.environ.get('GITHUB_DOCUMENTS_TOKEN')
+try:
+    import wsgi
+except RuntimeError as error:
+    assert 'Lokal testmodus' in str(error)
+else:
+    raise AssertionError('WSGI accepted the local test runner')
+print('dotenv blocked; WSGI rejected test runner')
+"""
+        with tempfile.TemporaryDirectory() as folder:
+            env = dict(os.environ, PYTHON_DOTENV_DISABLED='0', SMTP_HOST='fake-production.invalid',
+                       GITHUB_DOCUMENTS_TOKEN='fake-inherited-token', MEDLEMSREGISTER_SECRET_KEY='fake-inherited-key')
+            result = subprocess.run([sys.executable, '-c', script, folder],
+                                    cwd=Path(__file__).resolve().parents[1], env=env,
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('dotenv blocked; WSGI rejected test runner', result.stdout)

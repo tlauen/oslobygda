@@ -22,7 +22,7 @@ def prepare(root):
     for key in list(os.environ):
         if key.startswith(('MEDLEMSREGISTER_','VIPPS_','GITHUB_','BREVO_','SMTP_','PUBLIC_DOCUMENTS_','BYGDELISTA_','FLASK_')):
             os.environ.pop(key,None)
-    os.environ.update(BYGDELISTA_LOCAL_TEST='1',VIPPS_SIGNUP_MODE='disabled',
+    os.environ.update(PYTHON_DOTENV_DISABLED='1',BYGDELISTA_LOCAL_TEST='1',VIPPS_SIGNUP_MODE='disabled',
                       MEDLEMSREGISTER_DB_KEY='',BYGDELISTA_BILAG_DIR=str(root/'bilag'))
     os.environ['BYGDELISTA_STYRE_FILE']=str(root/'styre.yml')
     settings=root/'testkonto.json'
@@ -174,6 +174,7 @@ def main():
             response=client.get(path)
             assert response.status_code==200,(path,response.status_code)
             assert b'Nidarosbygda' in response.data
+        assert os.environ.get('PYTHON_DOTENV_DISABLED') == '1'
         assert not any(os.environ.get(key) for key in ('SMTP_HOST','BREVO_API_KEY','GITHUB_DOCUMENTS_TOKEN','GITHUB_EVENTS_TOKEN'))
         print('Lokal isolasjon, separat database og sperra nettverk: OK.')
         return

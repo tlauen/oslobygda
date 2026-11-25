@@ -35,8 +35,7 @@ DB_PATH = APP_DIR / "medlemsregister.db"
 try:
     from dotenv import load_dotenv
 
-    if os.environ.get("BYGDELISTA_LOCAL_TEST") != "1":
-        load_dotenv(APP_DIR / ".env")
+    load_dotenv(APP_DIR / ".env")
 except ImportError:
     pass
 

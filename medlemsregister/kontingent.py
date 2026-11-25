@@ -1,6 +1,6 @@
 """Årlege satsar og personlege fornyingslenkjer. Ingen utsending utan styrehandling."""
 
-from contextlib import closing
+from database import managed_db
 from datetime import datetime, date
 from email.message import EmailMessage
 import hashlib
@@ -18,7 +18,7 @@ def today():
 
 
 def init_periods(get_db):
-    with closing(get_db()) as db:
+    with managed_db(get_db, commit_on_success=False) as db:
         db.executescript("""
         CREATE TABLE IF NOT EXISTS membership_periods (
           year INTEGER PRIMARY KEY, minimum_ore INTEGER, superkul_ore INTEGER,
@@ -165,7 +165,7 @@ class Renewals:
         if access_kind not in ("email", "member"):
             raise ValueError("Ugyldig tilgangstype.")
         token = secrets.token_urlsafe(32)
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             payable(db, year)
             member = db.execute(
@@ -207,7 +207,7 @@ class Renewals:
     def resolve(self, token):
         if not isinstance(token, str) or not 40 <= len(token) <= 60:
             return None
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             row = db.execute(
                 """SELECT l.* FROM renewal_links l JOIN members m ON m.id=l.member_id
                 WHERE l.token_hash=? AND l.revoked=0 AND m.privacy_deleted=0""",
@@ -218,7 +218,7 @@ class Renewals:
     def send(self, mid, year, environment):
         if environment != "production":
             raise ValueError("Testlenkjer blir ikkje sende på e-post.")
-        with closing(self.db()) as db:
+        with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             payable(db, year)
             member = db.execute(
@@ -257,7 +257,7 @@ class Renewals:
         except Exception:
             state = "failed"
         finally:
-            with closing(self.db()) as db:
+            with managed_db(self.db, commit_on_success=False) as db:
                 db.execute(
                     "UPDATE renewal_reminders SET mail_status=? WHERE id=?",
                     (state, lid),
@@ -295,7 +295,7 @@ def install_renewals(app, get_db, require_admin):
             try:
                 action = request.form.get("action")
                 if action == "save":
-                    with closing(get_db()) as db:
+                    with managed_db(get_db, commit_on_success=False) as db:
                         db.execute("BEGIN IMMEDIATE")
                         save_period(db, request.form)
                         db.commit()
@@ -322,7 +322,7 @@ def install_renewals(app, get_db, require_admin):
                     raise ValueError("Ugyldig handling.")
             except ValueError as exc:
                 error = str(exc)
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             policies = [
                 dict(r)
                 for r in db.execute(
@@ -362,7 +362,7 @@ def install_renewals(app, get_db, require_admin):
         error = None
         policy = None
         paid = False
-        with closing(get_db()) as db:
+        with managed_db(get_db, commit_on_success=False) as db:
             row = db.execute(
                 """SELECT l.* FROM renewal_links l JOIN members m ON m.id=l.member_id
                 WHERE l.id=? AND l.token_hash=? AND l.revoked=0 AND m.privacy_deleted=0""",
