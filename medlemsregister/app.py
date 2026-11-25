@@ -312,6 +312,25 @@ def _alder_år(fødsel: date, idag: date) -> int:
 
 
 def init_db():
+    from migreringar import Migration, migrate
+    from totp_kryptering import migrate as validate_totp
+
+    migrate(get_db, (
+        Migration(1, "baseline_20261125", lambda db: _initial_schema(lambda: db)),
+    ))
+    # Dette er driftskontroll/dataoppdatering, ikkje skjemamigrering. Feil nøkkel
+    # skal stoppe også når databasen allereie har rett skjemaversjon.
+    with managed_db(get_db) as conn:
+        validate_totp(conn)
+        _oppdater_alle_fra_innbetalingar(conn)
+
+
+def _initial_schema(get_db):
+    """Versjon 1: historisk skjema og oppgradering av databasar utan versjonslogg.
+
+    Denne samansetjinga og init-funksjonane ho bruker utgjer baseline.
+    Nye skjemasteg skal registrerast som nye versjonar i init_db(), ikkje her.
+    """
     from ny_innmelding import init_signup
 
     init_signup(get_db)
@@ -349,21 +368,13 @@ def init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_payments_member_id ON payments(member_id);
         """)
-        # Kan fjernast når alle instansar har køyrt migrering minst éin gong
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(members)")}
         for col in (
-            "adresse",
-            "postnummer",
-            "poststad",
-            "fornamn",
-            "mellomnamn",
-            "etternamn",
-            "birth_date",
+            "adresse", "postnummer", "poststad", "fornamn",
+            "mellomnamn", "etternamn", "birth_date",
         ):
-            try:
+            if col not in columns:
                 conn.execute(f"ALTER TABLE members ADD COLUMN {col} TEXT")
-            except Exception as e:
-                if "duplicate column" not in str(e).lower():
-                    raise
         # Migrer gamle rader: sett fornamn = full_name så brukar kan dele opp ved redigering
         conn.execute(
             "UPDATE members SET fornamn = full_name WHERE fornamn IS NULL AND full_name IS NOT NULL"
@@ -386,11 +397,9 @@ def init_db():
             );
             """
         )
-        try:
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(payments)")}
+        if "for_year" not in columns:
             conn.execute("ALTER TABLE payments ADD COLUMN for_year INTEGER")
-        except Exception as e:
-            if "duplicate column" not in str(e).lower():
-                raise
         default_ar = _default_medlemsbetalingsar()
         conn.execute(
             "UPDATE payments SET for_year = ? WHERE for_year IS NULL", (default_ar,)
@@ -465,7 +474,7 @@ install_payment_import(app, get_db, require_admin)
 from arsmote_utskrift import install_print
 install_print(app, get_db, require_admin)
 
-install_auth(app, get_db, prefix_url)
+install_auth(app, get_db, prefix_url, init_db)
 
 from tilskipingar import install_calendar
 

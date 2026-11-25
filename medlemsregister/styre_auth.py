@@ -51,7 +51,7 @@ def init_auth_db(get_db):
         migrate(db)
 
 
-def install_auth(app, get_db, prefix_url):
+def install_auth(app, get_db, prefix_url, initialize_db):
     dummy_hash = generate_password_hash(secrets.token_urlsafe(32))
 
     def valid_session():
@@ -209,7 +209,7 @@ def install_auth(app, get_db, prefix_url):
     )
     def manage_user(username, sperr, nullstill):
         """Opprett ein konto, nullstill ved mista telefon, eller sperr tilgang."""
-        init_auth_db(get_db)
+        initialize_db()
         username = username.strip().casefold()
         if not username or len(username) > 100 or (sperr and nullstill):
             raise click.ClickException("Ugyldig brukarnamn eller kombinasjon av val.")

@@ -121,6 +121,25 @@ ruff format --check .
 ```
 
 `ruff.toml` avgrensar førebels formateringa til `ny_innmelding.py`,
-`kontingent.py` og `betalingsstatus.py`. Fleire modular kan takast inn i eigne,
+`kontingent.py`, `betalingsstatus.py` og den nye migreringsmodulen med testar.
+Fleire modular kan takast inn i eigne,
 mekaniske endringar. CI køyrer same formatkontroll før testsamlinga. Dette er
 formatkontroll; lintreglar og automatiske kodeendringar er ikkje aktiverte.
+
+## Databaseskjema
+
+`init_db()` køyrer nummererte migreringar via `migreringar.py` og tabellen
+`schema_migrations`. Versjon 1 tek opp både nye og eksisterande databasar med
+dei historiske skjema-/dataoppgraderingane. Seinare oppstartar hoppar over dei.
+TOTP-validering og ordinær oppdatering av betalingsstatus køyrer framleis ved
+oppstart. Sjå [UTRULLING.md](UTRULLING.md) før produksjonsoppgradering.
+
+Nye skjemaendringar skal vere nye `Migration`-steg i `init_db()` med neste
+samanhengande versjonsnummer og eit fast, unikt namn. Ikkje endre ei brukt
+migrering eller dei historiske `init_*`-funksjonane som utgjer baselinen.
+Ein migrering får ei tilkopling til den ytre transaksjonen; ho skal ikkje
+committe, lukke, starte ein eigen transaksjon eller opne andre tilkoplingar.
+Bruk `execute`, `executemany` eller migreringstilkoplinga sin `executescript`.
+SQL-setningar, inkludert triggerar, blir køyrde utan SQLite sitt implisitte
+`executescript`-commit. Registrering av versjonen og alle ventande steg blir
+committa samla. Ukjend, omdøypt eller ufullstendig historikk stoppar oppstarten.

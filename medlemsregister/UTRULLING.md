@@ -126,3 +126,28 @@ frå to nett eller token-rettane i GitHub.
 låsen automatisk. Endringar i låsen skal prøvast i eit reint miljø med `pip check`
 og Python-testsamlinga før installasjon på serveren. CI bruker Python 3.13 som
 produksjonen. Låsen gjer ingen automatisk oppgradering av eksisterande miljø.
+
+## Første versjonerte skjemamigrering
+
+Denne kodeendringa er testa lokalt og er ikkje automatisk aktivert på serveren.
+Før oppdatering: ta ein ny databasebackup med gjenopprettingsprøve og bevar
+`.env`/TOTP-nøkkelen privat etter eksisterande rutine. Første oppstart tek ein
+SQLite-skrivelås, køyrer dei historiske, idempotente oppgraderingane og lagrar
+versjon 1 (`baseline_20261125`) i `schema_migrations`. Eksisterande vedtak og standarddata blir bevarte etter den historiske
+oppstartsrutina; ho endrar ikkje Vipps-modus eller aktiverer utsendingar.
+Alle skjema-/dataendringar i migreringa og
+versjonsregistreringa er i same transaksjon. Ved feil rullar dei tilbake;
+ikkje omgå feilen ved å setje versjonen manuelt.
+
+Etter installasjon og Reload: køyr `driftskontroll.py`. `schema_version` skal
+vere 1, databaseintegriteten skal vere OK, og medlems-/betalingsteljingar og
+TOTP-teljingar skal samsvare med kontrollen før oppgradering. Prøv styre- og
+medlemsinnlogging igjen. Ei ny Reload skal ikkje køyre baselinen om att. Ta
+ny backup etter kontrollen. Ved framtidige migreringar skal kvart nytt steg
+ha eigne testar for oppgradering frå førre versjon og tilbakeføring ved feil.
+
+Migreringane er framoverretta. Kode med ukjend migreringshistorikk stoppar;
+gammal kode frå før denne versjonskontrollen har ikkje denne sperra. Ikkje
+bruk ein eldre kodebackup som automatisk nedgradering av eit nyare skjema,
+og ikkje gjenopprett ein eldre database over nye betalingar. Feilsøk eller
+planlegg ei konkret tilbakeføring først.

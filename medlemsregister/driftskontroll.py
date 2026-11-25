@@ -27,6 +27,9 @@ def inspect(app_dir, log_dir=Path('/var/log')):
     with closing(sqlite3.connect(database, uri=True)) as db:
         db.execute('PRAGMA query_only=ON')
         result['database_integrity_ok'] = db.execute('PRAGMA quick_check').fetchone()[0] == 'ok'
+        result['schema_version'] = 0
+        if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_migrations'").fetchone():
+            result['schema_version'] = db.execute('SELECT COALESCE(MAX(version),0) FROM schema_migrations').fetchone()[0]
         result['totp'] = {}
         for table in ('board_users', 'board_enrollment'):
             values = [row[0] for row in db.execute(f'SELECT totp_secret FROM {table}')]
