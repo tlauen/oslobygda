@@ -7,151 +7,104 @@ title: Personvern og kjeks
 
 Sist oppdatert: 25. november 2026.
 
-Oslobygda kulturlag er behandlingsansvarleg og handsamar opplysningar for å administrere medlemskap,
-betalingar og nyhendebrev. Spørsmål, innsyn, retting og sletting kan rettast til
-[folk@oslobygda.no](mailto:folk@oslobygda.no).
-Organisasjonsnummeret vårt er 937 453 612. Postadressa er Freserveien 29, 0195 Oslo.
+**Oslobygda kulturlag har ansvar for personopplysningane dine.** Kontakt oss på
+[folk@oslobygda.no](mailto:folk@oslobygda.no) om du har spørsmål eller vil bruke
+rettane dine. Organisasjonsnummer: 937 453 612. Postadresse: Freserveien 29, 0195 Oslo.
 
-## Medlemskap og betaling
+## Medlemskap og Mi side
 
-Innmeldinga blir handsama i Bygdelista på `bygdelista.oslobygda.no`. Der lagrar
-me namn, e-postadresse, telefonnummer, postadresse, medlemsår, godkjenning av
-vilkår og betalingsstatus. Opplysningar merkte som obligatoriske i skjemaet
-trengst for å registrere og administrere medlemskapen. Dersom du ikkje vil
-bruke nettskjemaet, kan du kontakte oss om innmelding.
-Vipps handsamar sjølve betalinga. Me lagrar betalingsreferanse og beløp, ikkje
-kortopplysningar eller BankID-data. Me hentar ikkje namn eller telefonnummer
-frå Vipps. Kontaktopplysningane kjem frå medlemsskjemaet, og betalingsreferansen
-koplar betalinga til medlemskapen. Betalaren kan vere ein annan enn medlemmen.
+Me lagrar namn, e-post, telefon, postadresse, medlemsår, godkjenning av vilkår
+og betalingsstatus i Bygdelista. Me treng dei obligatoriske opplysningane for
+å administrere medlemskapen. Du kan òg kontakte oss om innmelding.
+Behandlinga byggjer på medlemsavtalen (GDPR artikkel 6 nr. 1 b).
 
-Nødvendig behandling for innmelding og medlemsadministrasjon byggjer på
-medlemsavtalen (personvernforordninga artikkel 6 nr. 1 bokstav b).
+**Fødselsdato er valfri** og blir brukt til aldersstatistikk med ditt samtykke
+(artikkel 6 nr. 1 a). Du kan fjerne datoen på Mi side eller kontakte oss.
 
-Fødselsdato er valfri og blir førebels brukt til aldersstatistikk. Ved å fylle ut
-feltet samtykkjer du til denne bruken (artikkel 6 nr. 1 bokstav a). Du kan trekkje
-samtykket tilbake ved å fjerne fødselsdatoen på Mi side eller kontakte oss.
-Du kan vere medlem utan å oppgi fødselsdato.
+På Mi side kan du sjå, rette og laste ned eigne opplysningar og endre
+nyhendebrevval. Du loggar inn med ein kode på e-post som varer i ti minutt.
+Økta varer høgst åtte timar. Me avgrensar innloggingsforsøk per e-post og
+IP-adresse. Byte av e-post krev stadfesting på gammal og ny adresse.
 
-Etter stadfesta innmelding sender me ein stadfestingsmail via Brevo SMTP til
-e-postadressa i skjemaet. Dette er ei tenestemelding og krev ikkje påmelding
-til nyhendebrevet.
+Vipps handsamar betalinga. Me lagrar beløp og betalingsreferanse, men ikkje
+kort- eller BankID-data. Me hentar ikkje namn eller telefon frå Vipps.
+Betalaren kan vere ein annan enn medlemmen. Du får stadfesting på e-post
+uavhengig av om du har valt nyhendebrev.
 
-Ved sletting blir medlemsopplysningane og persondata i innmeldingsordrar fjerna.
-Bokførte beløp og betalingsreferansar blir bevarte utan medlemsidentitet for
-avstemming. Pågåande betalingar må avklarast før sletting. Eldre tryggingskopiar
-følgjer laget si særskilde backupforvaltning. Sletting i det aktive registeret
-fjernar ikkje automatisk data frå tidlegare tryggingskopiar.
+## Kor lenge lagrar me opplysningane?
+
+- **Ufullførte innmeldingar:** Persondata blir anonymiserte etter 30 dagar
+  dersom betalinga er avbroten eller avslutta utan bokføring, eller aldri er
+  forsøkt oppretta. Uavklarte betalingar blir haldne att for manuell kontroll.
+- **Medlemskap:** Etter to heile kalenderår utan betalt eller godkjent gratis
+  medlemskap får styret eit sletteforslag med namn og må godkjenne slettinga.
+  Sist dekt år 2026 gir tidlegast forslag 1. januar 2029. Pågåande betalingar
+  og aktiv styretilgang må avklarast først.
+- **Ved sletting:** Kontaktdata blir fjerna. Bokførte beløp og betalingsreferansar
+  blir bevarte utan medlemsidentitet for avstemming. Sletting hos Brevo blir
+  prøvd på nytt dersom tenesta er utilgjengeleg.
 
 ### Tryggingskopiar
 
-Me tek tryggingskopiar for å kunne gjenopprette registeret ved feil eller tap
-av data. Kopiane kan innehalde opplysningar som seinare er sletta frå det
-aktive registeret. For dei ordinære komplette backupsetta, krypterte
-lokale eksportane og kopiane i Proton bevarer me daglege kopiar i 30 dagar
-og deretter vekentlege kopiar fram til 90 dagar. Minst dei to nyaste
-verifiserte kopiane blir bevarte som vern mot datatap. Dersom dette eller
-feil i backupen hindrar normal sletting, blir det varsla for manuell kontroll.
+Ordinære kopiar blir bevarte dagleg i 30 dagar og deretter vekentleg fram til
+90 dagar. Dei to nyaste kontrollerte kopiane blir alltid bevarte. Feil eller
+unntak blir varsla for manuell oppfølging.
 
-Utgåtte Proton-kopiar blir flytta til papirkorga. Styret får e-post med
-filnamna og må slette dei permanent der. Proton kan i tillegg halde interne
-krypterte sikkerheitskopiar i opptil 30 dagar etter sine eigne rutinar.
-90 dagar er difor normalfristen for våre ordinære backupsett, ikkje ein
-lovnad om permanent sletting frå alle lagringslag innan denne fristen.
+Styret må slette utgåtte Proton-kopiar permanent frå papirkorga. Proton kan
+òg behalde eigne krypterte kopiar i opptil 30 dagar. **90 dagar er derfor
+normalfristen, ikkje ein absolutt frist for alle kopiar.**
 
-Eldre manuelle lokale database- og driftskopiar er enno ikkje omfatta av
-rotasjonen og kan innehalde tidlegare medlemsopplysningar. Dei er haldne
-utanfor automatisk sletting. Kontakt oss ved spørsmål om sletting i slike
-kopiar. Ved gjenoppretting skal seinare personvernslettingar gjennomførast
-på nytt før registeret blir teke i bruk.
+Eldre manuelle lokale database- og driftskopiar er enno utanfor rotasjonen og
+kan innehalde sletta medlemsdata. Kontakt oss om sletting i desse kopiane.
+Ved gjenoppretting skal seinare personvernslettingar gjennomførast på nytt.
 
-Persondata i avbrotne, utløpte eller terminerte innmeldingar utan bokføring, og
-innmeldingar der betaling aldri er forsøkt oppretta, blir anonymiserte etter
-30 dagar frå oppretting. Uavklarte betalingar blir haldne att for manuell kontroll.
+## E-post og nyhendebrev
 
-Etter to heile kalenderår utan betalt eller godkjent gratis medlemskap blir
-medlemmen føreslått sletta. Styret får namna på e-post og må godkjenne slettinga.
-Sist dekt medlemsår 2026 gir tidlegast forslag 1. januar 2029. Pågåande betalingar
-og aktiv styretilgang må avklarast før sletting.
+Nyhendebrev er valfritt og byggjer på samtykke (artikkel 6 nr. 1 a). Me sender
+namn og e-post til Brevo. Du kan melde deg av i kvart brev utan å melde deg
+ut av laget.
 
-## Nyhendebrev
+For nye nyhendebrev og tenestemeldingar blir opningar og klikk talde utan å
+bli knytte til bestemte mottakarar. Brevo lagrar transaksjonsloggar i éin
+månad og lagrar ikkje nye e-postførehandsvisingar. Endringane fjernar ikkje
+automatisk eldre sporingsdata eller historiske kampanjerapportar.
 
-Nyhendebrev er ein valfri medlemsfordel basert på samtykke (artikkel 6 nr. 1
-bokstav a). Dersom du vel det, overfører me namn
-og e-postadresse til Brevo for utsending. Du kan melde deg av i kvart brev utan
-å melde deg ut av laget. Ved medlemssletting blir sletting hos Brevo køa og
-prøvd på nytt dersom tenesta er mellombels utilgjengeleg.
+## Kven leverer tenestene?
 
-For nye nyhendebrev og tenestemeldingar via Brevo er anonym sporing aktivert:
-opningar og klikk blir talde utan å bli knytte til bestemte mottakarar.
-Leveringsloggar for tenestemeldingar blir lagra i éin månad. Me har slått av
-lagring av førehandsvisingar for nye tenestemeldingar. Desse endringane
-anonymiserer ikkje automatisk eldre sporingsdata. Eldre transaksjonsloggar
-følgjer den innstilte lagringstida; dette er ikkje ein frist for historiske
-kampanjerapportar.
+- **PythonAnywhere:** drift av Bygdelista, med EU-region.
+- **Vipps MobilePay:** betalingar.
+- **Brevo:** e-post og nyhendebrev. Databasane ligg i EU; støtte og vedlikehald
+  kan innebere behandling i USA og India. [Avtalen](https://www.brevo.com/legal/termsofuse/)
+  omtalar standard personvernklausular med tilleggstiltak og EU–US Data Privacy
+  Framework der det gjeld.
+- **Proton Drive:** krypterte tryggingskopiar på laget sin konto. Proton oppgir
+  fillagring i Sveits, Tyskland eller Noreg.
+  [Personvern og lagring](https://proton.me/drive/privacy-policy).
+- **GitHub Pages:** den offentlege nettstaden og publiserte dokument.
+- **Umami Cloud:** besøksstatistikk, med EU-region.
+  [Databehandlaravtalen](https://umami.is/dpa) regulerer òg overføringar utanfor
+  EØS, mellom anna gjennom EU-standardklausular.
 
-## Mi side
-
-Medlemmar kan logge inn på Mi side med ein kortvarig eingongskode til den
-registrerte e-postadressa. Der kan du sjå og rette eigne opplysningar, fjerne
-valfri fødselsdato, gjere nyhendebrevval og laste ned medlemsopplysningane dine.
-Byte av e-postadresse krev stadfesting på både den gamle og den nye adressa.
-Medlemsinnlogging gir ikkje styretilgang.
-
-Innloggingskodar gjeld i ti minutt og blir lagra som kontrollverdiar, ikkje som
-lesbare kodar. Utløpte kodar blir rydda av vedlikehaldsjobben. Me avgrensar
-innloggingsforsøk per e-postadresse og klient-IP for å verne profilen din.
-Ei innlogga medlemsøkt varer høgst åtte timar.
-
-## Leverandørar
-
-PythonAnywhere driftar Bygdelista. Vipps MobilePay handsamar betalingar, Brevo
-handsamar tenestemeldingar og nyhendebrev, og Proton Drive blir brukt til
-krypterte tryggingskopiar. GitHub Pages driftar den offentlege nettstaden og
-publiserte dokument. Umami blir brukt til besøksstatistikk. Fontane blir leverte
-frå våre eigne nettsider.
-
-Brevo sine bruksvilkår inneheld ein databehandlaravtale. Databasane blir
-lagra i EU, medan støtte og vedlikehald kan innebere behandling i mellom
-anna USA og India. Avtalen viser til standard personvernklausular med
-supplerande tiltak og EU–US Data Privacy Framework der dette gjeld.
-Du kan lese [Brevo sine vilkår med databehandlaravtale og underleverandørliste](https://www.brevo.com/legal/termsofuse/)
-eller be oss om ein kopi.
-
-PythonAnywhere og Umami er valde med EU-region. Det betyr ikkje nødvendigvis
-at all behandling hos leverandørane skjer innanfor EØS. Me held på med å
-kontrollere gjeldande avtalar, underleverandørar og grunnlaget for eventuelle
-overføringar utanfor EØS, mellom anna for GitHub og Umami. Opplysningane
-om slike overføringar er difor ikkje ferdig avklarte. Kontakt oss dersom du
-ønskjer informasjon om status eller kopi av tilgjengeleg avtaledokumentasjon.
-
-Proton Drive blir brukt gjennom laget sin eigen konto. Proton oppgir at
-filene blir lagra kryptert på serverar i Sveits, Tyskland eller Noreg.
-Les [Proton Drive si personvernerklæring](https://proton.me/drive/privacy-policy)
-og [databehandlaravtalen](https://proton.me/legal/dpa).
-
-## Rettane dine
-
-Du kan be om innsyn, retting, sletting og avgrensing av behandlinga, og om
-dataportabilitet eller protestere der vilkåra for desse rettane er oppfylte.
-Samtykke kan trekkjast tilbake utan at det påverkar lovleg behandling før
-tilbaketrekkinga. Kontakt folk@oslobygda.no. Du kan òg klage til
-[Datatilsynet](https://www.datatilsynet.no/).
+EU-region betyr ikkje at all behandling skjer i EØS. Me ventar på avklaringar
+frå PythonAnywhere, GitHub og Umami om avtalar, behandlingsland eller tilgang.
+Kontakt oss for status eller kopi av avtaledokumentasjonen.
 
 ## Kjeks og besøksstatistikk
 
-Bygdelista brukar nødvendige øktkjeks for innmelding, styreinnlogging og
-medlemsinnlogging på Mi side, mellom anna for å verne skjema og vise
-betalingsstatus. Den gamle Brevo-innbygginga
-er avvikla. Hovudnettstaden brukar Umami Cloud i EU-regionen til besøksstatistikk.
-Umami oppgir at IP-adresser blir behandla mellombels for mellom anna levering
-av førespurnader og omtrentleg stadfesting, men ikkje lagra som eigne felt i
-standard statistikkpostar. IP-adresser kan finnast i separate drifts- og
-tryggingsloggar. Me ventar på nærare opplysningar om behandlingsland og
-lagringstid for desse loggane.
+Bygdelista brukar nødvendige øktkjeks for innlogging, skjema og betaling.
+Fontane blir leverte frå våre eigne nettsider.
 
-Umami si [databehandlaravtale](https://umami.is/dpa) inngår i bruksvilkåra
-og regulerer eventuelle overføringar utanfor EØS, mellom anna gjennom
-EU-standardklausular. Sjå òg [personverninformasjonen](https://umami.is/privacy)
-og [underleverandørlista](https://umami.is/subprocessors).
+Umami behandlar IP-adresser mellombels, men lagrar dei ikkje som eigne felt
+i standard besøksstatistikk. IP-adresser kan finnast i separate drifts- og
+tryggingsloggar. Behandlingsland og lagringstid for desse loggane er under
+avklaring. Les [Umami sin personverninformasjon](https://umami.is/privacy).
 
-[Kontakt laget](mailto:folk@oslobygda.no) om du ønskjer meir informasjon.
+## Rettane dine
+
+Du kan be om innsyn, retting, sletting og avgrensing av behandlinga.
+Du kan òg ha rett til å få data utleverte i eit flyttbart format
+(dataportabilitet) og til å protestere mot behandlinga.
+
+Du kan trekkje samtykke tilbake når som helst. Det endrar ikkje om tidlegare
+behandling var lovleg. Skriv til [folk@oslobygda.no](mailto:folk@oslobygda.no).
+Du kan òg klage til [Datatilsynet](https://www.datatilsynet.no/).
