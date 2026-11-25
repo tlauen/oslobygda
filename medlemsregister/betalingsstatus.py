@@ -26,4 +26,3 @@ class Vippsstatus(_Status):
     ABORTED = "ABORTED"
     EXPIRED = "EXPIRED"
     TERMINATED = "TERMINATED"
-

@@ -1,0 +1,3 @@
+-r requirements-pythonanywhere.txt
+# Same formatterversjon lokalt og i CI; ikkje nødvendig i produksjon.
+ruff==0.17.6

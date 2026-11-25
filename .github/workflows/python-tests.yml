@@ -8,6 +8,7 @@ on:
       - '_tillegg/**'
       - 'lutar/**'
       - '.github/workflows/python-tests.yml'
+      - 'ruff.toml'
   pull_request:
     paths:
       - 'medlemsregister/**'
@@ -15,6 +16,7 @@ on:
       - '_tillegg/**'
       - 'lutar/**'
       - '.github/workflows/python-tests.yml'
+      - 'ruff.toml'
 permissions:
   contents: read
 jobs:
@@ -27,8 +29,10 @@ jobs:
           python-version: '3.13'
           cache: pip
           cache-dependency-path: 'medlemsregister/requirements*.txt'
-      - run: python -m pip install -r medlemsregister/requirements-pythonanywhere.txt
+      - run: python -m pip install -r medlemsregister/requirements-dev.txt
       - run: python -m pip check
+      - name: Kontroller format i betalingskoden
+        run: ruff format --check .
       - name: Køyr testar utan produksjonsløyndomar
         env:
           PYTHONPATH: medlemsregister

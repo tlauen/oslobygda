@@ -1,0 +1,4 @@
+# Innfør formatkontroll gradvis, med betalingsflyten først.
+target-version = "py310"
+line-length = 88
+include = ["medlemsregister/ny_innmelding.py", "medlemsregister/kontingent.py", "medlemsregister/betalingsstatus.py"]

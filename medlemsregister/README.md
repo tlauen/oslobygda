@@ -108,3 +108,19 @@ Sletting hos Brevo blir lagd i `privacy_jobs`; den timelege reservejobben prøve
 igjen til leverandøren stadfestar sletting eller at kontakten ikkje finst. E-posten
 blir fjerna frå køen etterpå. Eldre backupkopiar følgjer backup-rotasjonen og må
 ikkje brukast til å reaktivere sletta medlemskap eller nyhendebrevabonnement.
+
+## Formatering av betalingskoden
+
+Ruff-versjonen er låst i `requirements-dev.txt`, utan å leggje formatteren til
+produksjonskrava. Installer utviklingsmiljøet og køyr frå rota av repoet:
+
+```bash
+python -m pip install -r medlemsregister/requirements-dev.txt
+ruff format .
+ruff format --check .
+```
+
+`ruff.toml` avgrensar førebels formateringa til `ny_innmelding.py`,
+`kontingent.py` og `betalingsstatus.py`. Fleire modular kan takast inn i eigne,
+mekaniske endringar. CI køyrer same formatkontroll før testsamlinga. Dette er
+formatkontroll; lintreglar og automatiske kodeendringar er ikkje aktiverte.
