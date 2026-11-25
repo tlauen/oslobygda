@@ -2,6 +2,8 @@
 target-version = "py310"
 line-length = 88
 include = [
+    "medlemsregister/offentleg_kontingent.py",
+    "medlemsregister/tests/test_offentleg_kontingent.py",
     "medlemsregister/backup_rotasjon.py",
     "medlemsregister/proton_rotasjon.py",
     "medlemsregister/tests/test_backup_rotasjon.py",

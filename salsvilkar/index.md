@@ -2,6 +2,7 @@
 layout: standard
 title: Salsvilkår for medlemskap
 permalink: /salsvilkar/
+kontingentoversikt: true
 description: Vilkår for medlemskap, betaling, angrerett og utmelding i Oslobygda kulturlag.
 ---
 
@@ -28,9 +29,12 @@ Medlemskapen støttar arbeidet vårt for levande folkekultur og gjeld
 **kalenderåret som står i betalingsskjemaet**. Billettar er ikkje inkluderte
 med mindre det er opplyst særskilt.
 
-I **2026** kostar **Kul 5 kroner**. Vel du **Superkul**, betalar du ein valfri
-sum over 5 kroner. Heile beløpet er medlemskontingent. Det kjem ingen ekstra
-gebyr frå laget. Pris for nye medlemsår blir opplyst før betaling.
+{% include kontingent.html %}
+
+Du vel beløpet, som må vere minst årets minimumssats. Beløp over Superkul-grensa
+gir kategorien Superkul; andre beløp gir Kul. Heile beløpet er medlemskontingent,
+og det kjem ingen ekstra gebyr frå laget. Medlemsår og totalbeløp blir viste før
+betaling. Satsendringar endrar ikkje beløpet på ei allereie oppretta betaling.
 
 **Medlemskapen blir ikkje automatisk fornya.** Det er ingen faste trekk;
 fornying krev ei ny betaling.
@@ -51,8 +55,7 @@ Me kontrollerer betalinga og rettar eventuelle feil utan ugrunna opphald.
 ## Angrerett og refusjon
 
 Du kan angre **innan 14 dagar etter at medlemsavtalen vart inngått**, utan å
-oppgi grunn. Me refunderer heile kontingenten, også den valfrie delen over
-5 kroner. Eventuelle lengre lovfesta fristar gjeld framleis.
+oppgi grunn. Me refunderer heile kontingenten, også den delen du eventuelt valde å betale utover minimumssatsen. Eventuelle lengre lovfesta fristar gjeld framleis.
 
 Send melding til [folk@oslobygda.no](mailto:folk@oslobygda.no). Oppgi namn på
 medlemmen og nok informasjon til at me finn betalinga, til dømes dato, beløp

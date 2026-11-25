@@ -9,6 +9,7 @@ on:
       - 'lutar/**'
       - '.github/workflows/python-tests.yml'
       - 'ruff.toml'
+      - 'skript/test_kontingent.js'
   pull_request:
     paths:
       - 'medlemsregister/**'
@@ -17,6 +18,7 @@ on:
       - 'lutar/**'
       - '.github/workflows/python-tests.yml'
       - 'ruff.toml'
+      - 'skript/test_kontingent.js'
 permissions:
   contents: read
 jobs:
@@ -33,6 +35,11 @@ jobs:
       - run: python -m pip check
       - name: Kontroller format i betalingskoden
         run: ruff format --check .
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Kontroller offentleg prisvising
+        run: node skript/test_kontingent.js
       - name: Køyr testar utan produksjonsløyndomar
         env:
           PYTHONPATH: medlemsregister

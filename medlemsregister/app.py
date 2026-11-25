@@ -523,6 +523,8 @@ app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 from kontingent import install_renewals
 install_renewals(app,get_db,require_admin)
+from offentleg_kontingent import install_public_rates
+install_public_rates(app, get_db)
 from personvern_vedlikehald import install_retention
 install_retention(app, get_db, require_admin)
 from mi_side import install_member_portal

@@ -212,3 +212,20 @@ arva produksjonsinnstillingar, set python-dotenv si innebygde
 same kode for både drift og lokal testing. WSGI avviser framleis teststartaren
 som eit ekstra vern mot å eksponere eit lokalt testmiljø i produksjon.
 Python-dotenv-kravet er minst 1.2.4, som alt er låst og installert i produksjon.
+
+
+## Offentleg kontingentoversikt
+
+`GET /api/kontingent` leverer berre inneverande medlemsår, valuta og om
+betaling er open; ved open produksjonsbetaling kjem minimumssats og
+Superkul-grense i øre. Ruta bruker same `kontingent.payable` og vedtekne
+`membership_periods` som innmeldingsskjemaet. Ho viser ikkje utkast,
+framtidige vedtak, medlemsdata eller satsar frå eit eldre år som reserve.
+Svaret blir ikkje mellomlagra og kan lesast utan innlogging frå nettsida.
+
+Salsvilkåra bruker `_tillegg/kontingent.html` og `lutar/kontingent.js`.
+Ved nettverksfeil eller utan JavaScript står ei lenkje til betalingsskjemaet
+att; ingen fast eller gamal pris blir vist som reserve. Kallet sender ikkje
+øktkjeks. Pris og medlemsår på ei oppretta betalingsordre blir ikkje endra.
+Ingen databasemigrering eller nye Python-pakkar er nødvendige, men serverkoden
+må oppdaterast og Web Reload køyrast før prisruta er tilgjengeleg.
