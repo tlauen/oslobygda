@@ -9,6 +9,7 @@ import csv
 import io
 import json
 from betalingsreglar import manual_amount_ore as _nok_to_ore, member_kind
+from csrf import csrf_exempt
 from datetime import timedelta
 import os
 import sys
@@ -518,6 +519,7 @@ def _brevo_request(
 
 
 @app.route("/api/innmelding", methods=["POST"])
+@csrf_exempt
 def api_innmelding():
     """Utgått API. Ikkje send e-post eller opprett kontaktar utan betaling."""
     return jsonify({"error": "Dette skjemaet er avvikla. Bruk /bli-medlem."}), 410

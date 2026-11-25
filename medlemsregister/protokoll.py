@@ -14,6 +14,7 @@ from urllib.parse import urlsplit
 from flask import abort, flash, redirect, render_template, request, session, send_from_directory
 from arsdokument import canonical, digest, stamp, today, year, integer, DocumentConflict
 from database import managed_db
+from csrf import csrf_exempt
 from epost import send_message, DeliveryUncertain
 
 LINK_DAYS = 14
@@ -425,6 +426,7 @@ def install_minutes(app,get_db,require_admin):
         return response
 
     @app.post('/api/protokoll/publiser')
+    @csrf_exempt
     def minutes_auto_publish():
         expected=os.environ.get('BYGDELISTA_PUBLICATION_TOKEN','')
         supplied=request.headers.get('Authorization','')

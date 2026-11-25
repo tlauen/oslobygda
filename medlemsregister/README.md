@@ -161,3 +161,18 @@ medlemsåret. Vipps-innmelding og fornying bruker satsen som er lagra på ordren
 refaktoreringa endrar ikkje kva medlemsår eller sats som blir lagt til grunn.
 Maksimumsfeltet i dei offentlege betalingsskjemaa kjem frå same grense som
 servervalideringa. Ingen skjemaendring eller databasemigrering er nødvendig.
+
+## CSRF-vern og maskinkall
+
+`csrf.py` krev nettlesarøkt og korrekt CSRF-token for alle endrande metodar som
+standard. Unntak blir merkte med `@csrf_exempt` på sjølve view-funksjonen,
+under ruteregistreringa (`@app.route`/`@app.post`). Rutenamn blir ikkje brukte
+som unntaksliste. Vanlege skjema, innlogging, medlemsendringar og betalingar
+skal framleis ha CSRF-vern.
+
+Dei tre eksisterande unntaka er Vipps-webhooken (HMAC-signatur), protokollen
+si maskinpublisering (eige Bearer-token), og det avvikla innmeldings-API-et
+(svarer alltid 410 utan sideeffektar). Dekoratoren erstattar ikkje autentisering.
+Nye unntak krev ei konkret grunngiving og testar som viser at alternativt vern
+framleis avviser uautoriserte kall. Nye CSRF-modular og testar blir òg formaterte
+med Ruff.

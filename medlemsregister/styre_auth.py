@@ -10,6 +10,7 @@ import pyotp
 from flask import abort, redirect, render_template, request, session
 from styre_registrering import install_registration, eligible_account
 from database import managed_db
+from csrf import install_csrf
 from totp_kryptering import protect, reveal, migrate
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -76,28 +77,7 @@ def install_auth(app, get_db, prefix_url, initialize_db):
 
     app.extensions["styre_auth_valid"] = valid_session
 
-    def csrf_token():
-        if "csrf_token" not in session:
-            session["csrf_token"] = secrets.token_urlsafe(32)
-        return session["csrf_token"]
-
-    app.jinja_env.globals["csrf_token"] = csrf_token
-
-    @app.before_request
-    def protect_changes():
-        if request.method not in (
-            "GET",
-            "HEAD",
-            "OPTIONS",
-        ) and request.endpoint not in ("api_innmelding", "signup_webhook", "minutes_auto_publish"):
-            expected = session.get("csrf_token", "")
-            supplied = request.headers.get("X-CSRF-Token") or request.form.get(
-                "csrf_token", ""
-            )
-            if not expected or not hmac.compare_digest(
-                expected.encode(), supplied.encode()
-            ):
-                abort(400, "Ugyldig skjema. Last sida på nytt.")
+    install_csrf(app)
 
     @app.after_request
     def private_responses(response):

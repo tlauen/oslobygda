@@ -1,6 +1,7 @@
 """Nyinnmelding: varig ordre før Vipps-kall, stadfesta trekk før bokføring."""
 
 from betalingsstatus import Ordrestatus, Vippsstatus
+from csrf import csrf_exempt
 from betalingsreglar import member_kind, VIPPS_MAX_NOK
 
 import base64
@@ -1028,6 +1029,7 @@ def install_signup(
         )
 
     @app.route("/vipps/webhook/<environment>", methods=["POST"])
+    @csrf_exempt
     def signup_webhook(environment):
         if environment not in ("test", "production"):
             abort(404)
