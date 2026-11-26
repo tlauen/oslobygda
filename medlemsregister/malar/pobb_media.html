@@ -1,7 +1,7 @@
 {% extends 'hjelp_base.html' %}
 {% block title %}Bilete og filmar – Folkemusikkpøbben{% endblock %}
 {% macro tokens() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ revision }}"><input type="hidden" name="source_revision" value="{{ source_revision }}">{% endmacro %}
-{% macro media_url(path) %}{% if path in local %}{{ prefix_url('pub_media_asset',name=path.split('/')[-1]) }}{% else %}https://oslobygda.no/lutar/bilete/pobb/{{ path | urlencode }}{% endif %}{% endmacro %}
+
 {% block content %}
 <div class="medieredigerar">
 <header class="toppfelt"><h1>Bilete og filmar</h1></header>
@@ -25,6 +25,10 @@
 </form></details>
 {% if items %}<form method="post">{{ tokens() }}<button name="action" value="preview">Førehandsvis galleriutkast</button></form>{% endif %}
 {% endif %}
+{% if preview_mode %}
+<p><a href="{{ prefix_url('pub_gallery_preview') }}" target="_blank" rel="noopener">Opne førehandsvisinga i full breidd ↗</a></p>
+<iframe class="galleri-forehandsvising" title="Galleriet slik det blir vist på nettsida" src="{{ prefix_url('pub_gallery_preview') }}"></iframe>
+{% else %}
 <div class="galleri-redigering">
 {% for item in items %}<article class="galleri-redigering__kort"{% if editing == item.fil %} aria-label="Innslaget du redigerer"{% endif %}>
 {% if item.fil.endswith('.mp4') %}<video controls playsinline preload="none"{% if item.plakat %} poster="{{ media_url(item.plakat) }}"{% endif %} aria-label="{{ item.tekst }}"><source src="{{ media_url(item.fil) }}" type="video/mp4"></video>
@@ -34,6 +38,7 @@
 {% if not preview_mode %}<p class="medie-handling"><a href="{{ prefix_url('pub_gallery_editor',edit=item.fil) }}">Rediger innslag →</a></p><details class="medie-fjern"><summary>Fjern frå galleriet</summary><p>Fila blir bevart, men innslaget blir fjerna frå galleriutkastet. Publiser for å endre nettsida.</p><form method="post">{{ tokens() }}<input type="hidden" name="edit" value="{{ item.fil }}"><button name="action" value="remove">Fjern frå utkastet</button></form></details>{% endif %}
 </article>{% else %}<p>Galleriet er tomt.</p>{% endfor %}
 </div>
+{% endif %}
 {% if not preview_mode %}<details class="medie-panel medie-tilbakestill"><summary>Hent publisert galleri på nytt</summary><p>Dette byter ut galleriutkastet. Opplasta filer blir bevarte.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkastet med publisert galleri</button></form></details>{% endif %}
 </div>
 {% endblock %}

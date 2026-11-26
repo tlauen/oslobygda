@@ -1,57 +1,13 @@
-<section class="om-modul pobb-galleri" aria-labelledby="pobb-galleri-tittel">
-  <p class="modul-etikett">{{ site.data.sidetekstar.pub.source.gallery_subtitle | escape }}</p>
-  <h2 id="pobb-galleri-tittel">{{ site.data.sidetekstar.pub.source.gallery_title | escape }}</h2>
-  {% include markdown-tekst.html html=site.data.sidetekstar.pub.html.gallery_body %}
-  {% assign foto = 0 %}{% assign filmar = 0 %}
-  {% for medium in site.data.pobb_bilete %}
-    {% assign type = medium.fil | split: '.' | last %}
-    {% if type == 'mp4' %}{% assign filmar = filmar | plus: 1 %}{% else %}{% assign foto = foto | plus: 1 %}{% endif %}
-  {% endfor %}
-  {% assign rader = foto | at_least: filmar | plus: 1 %}
-  <div class="pobb-galleri__rutenett" style="--pobb-rader: {{ rader }}; --pobb-rader-brei: {{ rader | divided_by: 2 | plus: 1 }}">
-    {% assign grupper = 'Foto,Film' | split: ',' %}
-    {% for gruppe in grupper %}
-    <div class="pobb-galleri__kolonne">
-      <h3>{{ gruppe }}</h3>
-    {% for medium in site.data.pobb_bilete %}
-    {% assign medielenkje = '/lutar/bilete/pobb/' | append: medium.fil %}
-    {% assign filtype = medium.fil | split: '.' | last %}
-    {% assign mediegruppe = 'Foto' %}
-    {% if filtype == 'mp4' %}{% assign mediegruppe = 'Film' %}{% endif %}
-    {% if gruppe == mediegruppe %}
-    <figure class="pobb-galleri__kort">
-      {% if filtype == 'mp4' %}
-      {% assign plakatlenkje = '/lutar/bilete/pobb/' | append: medium.plakat %}
-      <video controls playsinline preload="none" poster="{{ plakatlenkje | relative_url | escape }}" aria-label="{{ medium.tekst | escape }}">
-        <source src="{{ medielenkje | relative_url | escape }}" type="video/mp4">
-        <a href="{{ medielenkje | relative_url | escape }}">Opne filmen: {{ medium.tekst | escape }}</a>
-      </video>
-      {% else %}
-      <a data-pobb-bilete href="{{ medielenkje | relative_url | escape }}" aria-label="Sjå heile biletet: {{ medium.tekst | escape }}">
-        <img src="{{ medielenkje | relative_url | escape }}" alt="{{ medium.tekst | escape }}" loading="lazy" decoding="async">
-      </a>
-      {% endif %}
-      <figcaption>{% if filtype == 'mp4' %}Film · {% endif %}{{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">{% if filtype == 'mp4' %}Film{% else %}Foto{% endif %}: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
-    </figure>
-    {% endif %}
-    {% endfor %}
-    </div>
-    {% endfor %}
-  </div>
-</section>
+{% assign gallery_title = site.data.sidetekstar.pub.source.gallery_title %}
+{% assign gallery_subtitle = site.data.sidetekstar.pub.source.gallery_subtitle %}
+{% capture gallery_body %}{% include markdown-tekst.html html=site.data.sidetekstar.pub.html.gallery_body %}{% endcapture %}
+{% assign gallery_videos = site.data.pobb_bilete | where_exp: 'medium', "medium.fil contains '.mp4'" %}
+{% assign gallery_photos = "" | split: "," %}
+{% for medium in site.data.pobb_bilete %}{% unless medium.fil contains '.mp4' %}{% assign gallery_photos = gallery_photos | push: medium %}{% endunless %}{% endfor %}
+{% assign gallery_rows = gallery_photos.size | at_least: gallery_videos.size | plus: 1 %}
+{% assign gallery_rows_wide = gallery_rows | divided_by: 2 | plus: 1 %}
+{% assign media_base = '/lutar/bilete/pobb/' | relative_url %}
+{% include pobb-galleri-innhald.html %}
 
-<dialog class="pobb-visar" aria-label="Bilete frå Folkemusikkpøbben">
-  <div class="pobb-visar__topp">
-    <span class="pobb-visar__teljar" aria-live="polite"></span>
-    <button type="button" data-lukk autofocus>Lukk <span aria-hidden="true">×</span></button>
-  </div>
-  <figure>
-    <img class="pobb-visar__bilete" alt="">
-    <figcaption class="pobb-visar__tekst"></figcaption>
-  </figure>
-  <div class="pobb-visar__piler">
-    <button type="button" data-forrige aria-label="Førre bilete">← Førre</button>
-    <button type="button" data-neste aria-label="Neste bilete">Neste →</button>
-  </div>
-</dialog>
-<script defer src="{{ '/lutar/pobb-galleri.js' | relative_url }}"></script>
+{% assign gallery_script = '/lutar/pobb-galleri.js' | relative_url %}
+{% include pobb-galleri-visar.html %}

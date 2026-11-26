@@ -85,7 +85,7 @@ def install_auth(app, get_db, prefix_url, initialize_db):
             response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         document_frame = (
-            request.endpoint in ("annual_print", "ledger_document_preview")
+            request.endpoint in ("annual_print", "ledger_document_preview", "pub_gallery_preview")
             and response.status_code == 200
         )
         response.headers["X-Frame-Options"] = "SAMEORIGIN" if document_frame else "DENY"

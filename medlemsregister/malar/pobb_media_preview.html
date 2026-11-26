@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Førehandsvis galleri – Folkemusikkpøbben</title>
+<link rel="stylesheet" href="https://oslobygda.no/lutar/stilar.css">
+<link rel="stylesheet" href="https://oslobygda.no/lutar/fonts/fraunces.css">
+</head><body><main class="hovudfelt"><div class="ramme">
+{% include 'nettstad/pobb-galleri-innhald.html' %}
+{% with gallery_script='https://oslobygda.no/lutar/pobb-galleri.js' %}{% include 'nettstad/pobb-galleri-visar.html' %}{% endwith %}
+</div></main><script defer src="{{ prefix_url('shared_membership_script') }}"></script></body></html>

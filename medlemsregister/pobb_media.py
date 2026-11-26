@@ -4,11 +4,15 @@ import base64
 import hashlib
 import io
 import json
+import unicodedata
 from pathlib import PurePosixPath
+from urllib.parse import quote
 
 from database import managed_db
-from flask import abort, render_template, request, send_file
-from nettsidetekst import ROOT, digest
+from flask import abort, current_app, render_template, request, send_file
+from markupsafe import Markup
+from nettsidetekst import BLOCK_MARKERS, MEMBERSHIP_MARKER, ROOT, digest
+from nettsidetekst import FILE as TEXT_FILE
 from publisering import GithubDocuments, PublicationConflict, PublicationError
 
 FILE = "_data/pobb_bilete.yml"
@@ -193,7 +197,20 @@ class GithubGallery(GithubDocuments):
         )
 
 
+def public_media_url(path):
+    # Git stores NFC names. Percent-encoding NFD names produced 404s for å/ø/æ.
+    return "https://oslobygda.no/lutar/bilete/pobb/" + quote(
+        unicodedata.normalize("NFC", path), safe="/"
+    )
+
+
 def install_gallery(app, get_db, require_admin):
+    # Same filter name as Jekyll for the shared gallery template. Preview URLs
+    # are already encoded, so preserve percent escapes and normalise raw Unicode.
+    app.jinja_env.filters["uri_escape"] = lambda value: quote(
+        unicodedata.normalize("NFC", str(value)), safe="/:%?=&"
+    )
+
     @app.get("/nettsida/pobb/media/<name>")
     @require_admin
     def pub_media_asset(name):
@@ -211,6 +228,73 @@ def install_gallery(app, get_db, require_admin):
         )
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+
+    def media_url(path, local):
+        if path in local:
+            return current_app.jinja_env.globals["prefix_url"](
+                "pub_media_asset", name=PurePosixPath(path).name
+            )
+        return public_media_url(path)
+
+    @app.get("/nettsida/pobb/forehandsvis")
+    @require_admin
+    def pub_gallery_preview():
+        with managed_db(get_db) as db:
+            saved = read_setting(db, SETTING)
+            text = read_setting(db, "website_text_draft_pub")
+            items = saved["items"] if saved else json.loads((ROOT / FILE).read_text())
+            local = {
+                path
+                for item in items
+                for path in (item["fil"], item.get("plakat", ""))
+                if asset_key(path) and read_setting(db, asset_key(path))
+            }
+        page = (
+            text["page"] if text else json.loads((ROOT / TEXT_FILE).read_text())["pub"]
+        )
+        view = [
+            {
+                **item,
+                "fil": media_url(item["fil"], local),
+                "plakat": media_url(item["plakat"], local)
+                if item.get("plakat")
+                else "",
+            }
+            for item in items
+        ]
+        photos = [item for item in view if not item["fil"].endswith(".mp4")]
+        videos = [item for item in view if item["fil"].endswith(".mp4")]
+        rows = max(len(photos), len(videos)) + 1
+        widget = Markup(
+            '<span data-kontingent-url="'
+            + current_app.jinja_env.globals["prefix_url"]("public_membership_rates")
+            + '" data-kontingent-vising="belop">sjå gjeldande sats i innmeldingsskjemaet</span>'
+        )
+        body = Markup(
+            render_template(
+                "_markdown_preview.html",
+                html=page["html"]["gallery_body"],
+                membership_widget=widget,
+                membership_marker=MEMBERSHIP_MARKER,
+                block_markers=BLOCK_MARKERS,
+            )
+        )
+        response = app.make_response(
+            render_template(
+                "pobb_media_preview.html",
+                gallery_title=page["source"]["gallery_title"],
+                gallery_subtitle=page["source"]["gallery_subtitle"],
+                gallery_body=body,
+                gallery_photos=photos,
+                gallery_videos=videos,
+                gallery_rows=rows,
+                gallery_rows_wide=rows // 2 + 1,
+                media_base="",
+            )
+        )
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
         return response
 
     @app.route("/nettsida/pobb/galleri", methods=["GET", "POST"])
@@ -319,7 +403,7 @@ def install_gallery(app, get_db, require_admin):
                     message = "Galleriet er lagra i GitHub. Kontroller nettsida når bygginga er ferdig."
                 else:
                     raise ValueError("Vel ei gyldig handling.")
-                if action in ("save", "remove", "reload"):
+                if action in ("save", "remove", "reload", "preview"):
                     validate_gallery(items)
                     next_state = {
                         "items": items,
@@ -375,6 +459,7 @@ def install_gallery(app, get_db, require_admin):
                     error=error,
                     message=message,
                     max_file=MAX_FILE,
+                    media_url=lambda path: media_url(path, local),
                     position=next(
                         (
                             i + 1

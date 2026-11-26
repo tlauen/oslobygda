@@ -308,3 +308,14 @@ publiserte kvar for seg, og nettsida må byggjast før endringane blir synlege.
 Oppdater serverkopien av `oppdater-bygdelista.py` etter første oppdateringskøyring
 og køyr på nytt, slik at `_data/pobb_bilete.yml` blir med til PythonAnywhere.
 Det er ingen ny Python-avhengnad eller skjemamigrering for denne funksjonen.
+
+Galleri-førehandsvisinga bruker den delte malen
+`_tillegg/pobb-galleri-innhald.html` og biletvisaren frå
+`_tillegg/pobb-galleri-visar.html`, med det offentlege stilarket og fontane.
+Ho blir vist i ei eiga ramme, berre tilgjengeleg for innlogga styrebrukarar.
+Ramma er tillaten frå same origin, medan andre sider framleis avviser innramming.
+Opplasta utkastfiler blir henta frå den private medievisinga også i ramma.
+Eksisterande offentlege medielenkjer blir normaliserte til NFC før URL-koding,
+slik at norske bokstavar svarar til filnamna i Git og på GitHub Pages.
+Ved denne oppdateringa må serverkopien av oppdateringsskriptet oppdaterast og
+køyrast på nytt for å få med dei to delte malane.

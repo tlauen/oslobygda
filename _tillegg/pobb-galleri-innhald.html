@@ -1,0 +1,30 @@
+<section class="om-modul pobb-galleri" aria-labelledby="pobb-galleri-tittel">
+  <p class="modul-etikett">{{ gallery_subtitle | escape }}</p>
+  <h2 id="pobb-galleri-tittel">{{ gallery_title | escape }}</h2>
+  {{ gallery_body }}
+  <div class="pobb-galleri__rutenett" style="--pobb-rader: {{ gallery_rows }}; --pobb-rader-brei: {{ gallery_rows_wide }}">
+    <div class="pobb-galleri__kolonne">
+      <h3>Foto</h3>
+      {% for medium in gallery_photos %}
+      <figure class="pobb-galleri__kort">
+        <a data-pobb-bilete href="{{ media_base }}{{ medium.fil | uri_escape | escape }}" aria-label="Sjå heile biletet: {{ medium.tekst | escape }}">
+          <img src="{{ media_base }}{{ medium.fil | uri_escape | escape }}" alt="{{ medium.tekst | escape }}" loading="lazy" decoding="async">
+        </a>
+        <figcaption>{{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">Foto: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+    <div class="pobb-galleri__kolonne">
+      <h3>Film</h3>
+      {% for medium in gallery_videos %}
+      <figure class="pobb-galleri__kort">
+        <video controls playsinline preload="none"{% if medium.plakat %} poster="{{ media_base }}{{ medium.plakat | uri_escape | escape }}"{% endif %} aria-label="{{ medium.tekst | escape }}">
+          <source src="{{ media_base }}{{ medium.fil | uri_escape | escape }}" type="video/mp4">
+          <a href="{{ media_base }}{{ medium.fil | uri_escape | escape }}">Opne filmen: {{ medium.tekst | escape }}</a>
+        </video>
+        <figcaption>Film · {{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">Film: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+  </div>
+</section>

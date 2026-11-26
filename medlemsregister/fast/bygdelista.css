@@ -125,3 +125,4 @@
 .bygdelista-kropp .medieskjema input[type="file"] { border:0; padding:0; background:transparent; font-size:.9rem; }
 .medieskjema input[type="file"]::file-selector-button { border:1px solid var(--line); border-radius:4px; padding:.6rem .8rem; margin-right:.75rem; background:#eeeae2; color:inherit; cursor:pointer; font:inherit; }
 .medieskjema .medie-plassering { max-width:12rem; }
+.galleri-forehandsvising { display:block; box-sizing:border-box; width:100%; height:80vh; min-height:640px; border:1px solid var(--line); margin:1rem 0; background:#fcf9f3; }

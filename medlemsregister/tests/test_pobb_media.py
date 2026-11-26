@@ -91,6 +91,7 @@ class PubMediaTests(unittest.TestCase):
         self.assertEqual(first["fotograf"], "Fotograf")
         self.assertIsNotNone(asset_key(first["fil"]))
         asset_url = "/nettsida/pobb/media/" + first["fil"].split("/")[-1]
+        self.assertIn(asset_url, self.client.get("/nettsida/pobb/forehandsvis").text)
         response = self.client.get(asset_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, b"\xff\xd8\xffimage")
@@ -223,3 +224,34 @@ class PubMediaTests(unittest.TestCase):
             client.opener.open.call_args.args[0].get_header("Accept"),
             "application/vnd.github.object+json",
         )
+
+    def test_unicode_urls_and_shared_public_preview(self):
+        from pobb_media import public_media_url
+
+        self.assertEqual(
+            public_media_url("dans pa\u030a folkemusikkpøbben.jpg"),
+            "https://oslobygda.no/lutar/bilete/pobb/dans%20p%C3%A5%20folkemusikkp%C3%B8bben.jpg",
+        )
+        self.assertEqual(
+            self.client.get("/nettsida/pobb/forehandsvis").status_code, 302
+        )
+        fixtures.BoardAuthTests.login(self)
+        form = self.form(action="preview")
+        response = self.client.post("/nettsida/pobb/galleri", data=form)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("<iframe", response.text)
+        preview = self.client.get("/nettsida/pobb/forehandsvis")
+        self.assertEqual(preview.status_code, 200)
+        self.assertEqual(preview.headers["Cache-Control"], "no-store")
+        self.assertEqual(preview.headers["X-Frame-Options"], "SAMEORIGIN")
+        self.assertEqual(
+            preview.headers["Content-Security-Policy"], "frame-ancestors 'self'"
+        )
+        self.assertIn("https://oslobygda.no/lutar/stilar.css", preview.text)
+        self.assertIn('class="pobb-galleri__kolonne"', preview.text)
+        self.assertIn("<h3>Foto</h3>", preview.text)
+        self.assertIn("<h3>Film</h3>", preview.text)
+        self.assertIn("aspect-ratio", (ROOT / "lutar/stilar/_om.scss").read_text())
+        self.assertIn("dans%20p%C3%A5", preview.text)
+        self.assertNotIn("%CC%8A", preview.text)
+        self.assertNotIn("galleri-redigering__kort", preview.text)
