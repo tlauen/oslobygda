@@ -268,6 +268,9 @@ første versjonen har ikkje ein eigen historikkveljar i redigeraren.
 
 Markdown-HTML blir filtrert med ei lita tillatingsliste, og rå HTML, bilete og
 Jekyll/Liquid-kode blir ikkje køyrde. `[[frilynt]]` i Om-teksten gir den faste
-ordforklaringa. Nettsida brukar dei publiserte tekstfelta utan å tolke dei som
+ordforklaringa. `[[kontingent]]` i eit Markdown-felt set inn gjeldande sats frå
+Bygdelista på den valde staden. I kodefelt står markøren som vanleg tekst.
+Om-sida har berre tittel og eitt Markdown-felt, inkludert innmeldingslenkja.
+Eldre Om-utkast med separate lenkjefelt blir samla når dei blir opna. Nettsida brukar dei publiserte tekstfelta utan å tolke dei som
 Jekyll-malar. Etter publisering må GitHub Pages byggje før endringa blir synleg;
 kontroller den offentlege nettsida etterpå.

@@ -11,6 +11,7 @@
 <input type="hidden" name="revision" value="{{ revision }}">
 {% endmacro %}
 {% block content %}
+{% set membership_widget %}<span data-kontingent-url="{{ prefix_url('public_membership_rates') }}" data-kontingent-vising="belop">sjå gjeldande sats i innmeldingsskjemaet</span>{% endset %}
 <header class="toppfelt"><h1>{{ 'Førehandsvis ' if preview_mode else 'Rediger ' }}{{ title }}</h1></header>
 {% if error %}<p class="feil" role="alert">{{ error }} Teksten i felta er bevart.</p>{% endif %}
 {% if message %}<p role="status">{{ message }}</p>{% endif %}
@@ -19,10 +20,10 @@
 <section aria-label="Tekstførehandsvising">
 {% for name,label,is_markdown in fields if name != 'description' %}
 {% if name in ['title','member_title','events_title'] %}<h2>{{ preview.source[name] }}</h2>
-{% elif is_markdown %}<div>{{ preview.html[name] | safe }}</div>
+{% elif is_markdown %}<div>{{ preview.html[name] | safe | replace(membership_marker, membership_widget) | replace('[[frilynt]]','frilynt') | safe }}</div>
 {% endif %}
 {% endfor %}
-<details><summary>Småtekstar og søkemotortekst</summary>{% for name,label,is_markdown in fields if not is_markdown and name not in ['title','member_title','events_title'] %}<p><strong>{{ label }}:</strong> {{ preview.source[name] }}</p>{% endfor %}</details>
+{% if key != 'om' %}<details><summary>Småtekstar og søkemotortekst</summary>{% for name,label,is_markdown in fields if not is_markdown and name not in ['title','member_title','events_title'] %}<p><strong>{{ label }}:</strong> {{ preview.source[name] }}</p>{% endfor %}</details>{% endif %}
 </section>
 <form method="post">
 {{ tokens() }}
@@ -42,11 +43,12 @@
 {% for name,label,is_markdown in fields if name in names %}{{ field(name,label,is_markdown) }}{% set main.names=main.names+[name] %}{% endfor %}
 </details>
 {% endfor %}
-<details name="tekstseksjon"><summary>Fleire tekstval</summary>{% for name,label,is_markdown in fields if name not in main.names %}{{ field(name,label,is_markdown) }}{% endfor %}</details>
-<details><summary>Hjelp til Markdown</summary><p><code>**feit tekst**</code>, <code>*kursiv*</code>, <code>[lenkjetekst](https://døme.no)</code>, <code>## Mellomoverskrift</code> og lister med <code>-</code>. Skil avsnitt med ei tom linje. HTML og Jekyll-kode blir ikkje køyrde.</p><p>På Om-sida gir <code>[[frilynt]]</code> den faste ordforklaringa.</p></details>
+{% if key != 'om' %}<details name="tekstseksjon"><summary>Fleire tekstval</summary>{% for name,label,is_markdown in fields if name not in main.names %}{{ field(name,label,is_markdown) }}{% endfor %}</details>{% endif %}
+<details><summary>Hjelp til Markdown</summary><p><code>**feit tekst**</code>, <code>*kursiv*</code>, <code>[lenkjetekst](https://døme.no)</code>, <code>## Mellomoverskrift</code> og lister med <code>-</code>. Skil avsnitt med ei tom linje. HTML og Jekyll-kode blir ikkje køyrde.</p><p>Skriv til dømes <code>Bli medlem for [[kontingent]].</code> for å vise gjeldande beløp, som «5 kr». Satsen blir henta automatisk frå Bygdelista; ved stengt betaling eller teknisk feil blir det vist rettleiing utan gammal pris. I kodefelt blir markøren vist som tekst. På Om-sida gir <code>[[frilynt]]</code> den faste ordforklaringa.</p></details>
 <button name="action" value="save">Lagre og førehandsvis</button>
 </form>
 <details><summary>Hent publisert tekst på nytt</summary><p>Dette byter ut utkastet. Ta vare på eventuelle endringar først.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkast med publisert tekst</button></form></details>
 {% endif %}
-<script defer src="{{ prefix_url('static',filename='markdown-redigering.js') }}?v=20261126-2"></script>
+<script defer src="{{ prefix_url('static',filename='markdown-redigering.js') }}?v=20261126-3"></script>
+{% if preview_mode %}<script defer src="{{ prefix_url('shared_membership_script') }}"></script>{% endif %}
 {% endblock %}

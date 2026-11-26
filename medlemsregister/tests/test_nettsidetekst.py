@@ -164,3 +164,51 @@ class WebsiteTextTests(unittest.TestCase):
             self.assertIn(
                 'name="confirmed" value="yes">Publiser på nettsida', response.text
             )
+
+    def test_membership_extension_and_legacy_about_text(self):
+        from nettsidetekst import MEMBERSHIP_MARKER, editor_page, validate_envelope
+
+        html = markdown_html(
+            "Før [[kontingent]] etter.\n\n[[kontingent]]\n\n`[[kontingent]]`"
+        )
+        self.assertEqual(html.count(MEMBERSHIP_MARKER), 2)
+        self.assertIn("<code>[[kontingent]]</code>", html)
+        old = make_page(
+            "om",
+            {
+                "title": "Om laget",
+                "description": "Ei skildring",
+                "body": "Eksisterande tekst",
+                "join_text": "Vil du bli med?",
+                "join_button": "Bli medlem",
+            },
+            legacy=True,
+        )
+        data = json.loads((ROOT / FILE).read_text())
+        data["om"] = old
+        self.assertEqual(validate_envelope(data)["om"], old)
+        converted = editor_page("om", old)
+        self.assertEqual(set(converted["source"]), {"title", "body"})
+        self.assertIn("Eksisterande tekst", converted["source"]["body"])
+        self.assertIn("[Bli medlem](/bli-medlem/)", converted["source"]["body"])
+        self.assertIn("[[kontingent]]", converted["source"]["body"])
+
+    @patch.dict(os.environ, {"GITHUB_DOCUMENTS_TOKEN": ""})
+    def test_about_editor_has_only_title_and_markdown_and_live_preview(self):
+        fixtures.BoardAuthTests.login(self)
+        response = self.client.get("/nettsida/tekst/om")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("Fleire tekstval", response.text)
+        self.assertNotIn('name="join_text"', response.text)
+        page = json.loads((ROOT / FILE).read_text())["om"]
+        form = dict(
+            page["source"],
+            action="save",
+            revision=digest(None),
+            source_revision=digest(page),
+            csrf_token=self.token(),
+        )
+        response = self.client.post("/nettsida/tekst/om", data=form)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-kontingent-url="/api/kontingent"', response.text)
+        self.assertIn("/felles/kontingent.js", response.text)

@@ -10,7 +10,7 @@ kontingentoversikt: true
   <div class="helt__innhald">
     <p class="framside__overtekst">{{ tekst.source.overtekst | escape }}</p>
     <h1 id="framside-tittel" class="helt__tittel">{{ tekst.source.title | escape }}</h1>
-    <div class="helt__ingress">{{ tekst.html.intro }}</div>
+    <div class="helt__ingress">{% include markdown-tekst.html html=tekst.html.intro %}</div>
     <div class="framside__handlingar">
       <a class="framside__knapp framside__knapp--lys" href="#det-skjer">{{ tekst.source.events_button | escape }} <span aria-hidden="true">↓</span></a>
       <a class="framside__tekstlenkje" href="{{ '/bli-medlem/' | relative_url }}">{{ tekst.source.join_button | escape }} <span aria-hidden="true">↗</span></a>
@@ -34,8 +34,7 @@ kontingentoversikt: true
   <div>
     <p class="framside__overtekst">{{ tekst.source.member_overline | escape }}</p>
     <h2 id="medlem-tittel">{{ tekst.source.member_title | escape }}</h2>
-    {{ tekst.html.member_body }}
-    <p>{% include kontingent-kort.html %}</p>
+    {% include markdown-tekst.html html=tekst.html.member_body %}
     <div class="framside__handlingar">
       <a class="framside__knapp" href="{{ '/bli-medlem/' | relative_url }}">{{ tekst.source.member_button | escape }} <span aria-hidden="true">→</span></a>
       <a href="{{ '/om/' | relative_url }}">{{ tekst.source.about_button | escape }}</a>

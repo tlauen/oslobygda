@@ -71,3 +71,17 @@ test('framsidetekst og merke deler éi henting og følgjer endra sats', async ()
     }
   }
 });
+
+test('Markdown-markøren viser berre beløpet inne i ein setning', async () => {
+  for (const open of [true, false]) {
+    const block = { dataset: { kontingentUrl: '/api/kontingent', kontingentVising: 'belop' }, textContent: 'sjå gjeldande sats i innmeldingsskjemaet', querySelector: () => null };
+    vm.runInNewContext(source, {
+      document: { querySelectorAll: () => [block] },
+      fetch: async () => ({ ok: true, json: async () => ({ year: 2028, currency: 'NOK', open, minimum_ore: 7500, superkul_ore: 10000 }) }),
+      AbortController, setTimeout, clearTimeout,
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    if (open) assert.match(block.textContent, /^75\s+kr$/);
+    else assert.equal(block.textContent, 'sjå gjeldande sats i innmeldingsskjemaet');
+  }
+});

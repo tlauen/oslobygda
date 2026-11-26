@@ -32,7 +32,9 @@
           || !Number.isSafeInteger(rates.superkul_ore)
           || rates.superkul_ore < rates.minimum_ore) return;
       const minimum = amount.format(rates.minimum_ore / 100);
-      if (mode === 'kort') {
+      if (mode === 'belop') {
+        block.textContent = minimum;
+      } else if (mode === 'kort') {
         block.textContent = `Medlemskap i ${rates.year}: frå ${minimum}.`;
       } else if (mode === 'merke') {
         const number = new Intl.NumberFormat('nn-NO', { maximumFractionDigits: 0 }).format(rates.minimum_ore / 100);

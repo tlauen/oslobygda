@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from database import managed_db
-from flask import abort, render_template, request
+from flask import abort, render_template, request, send_file
 from publisering import GithubDocuments, PublicationConflict, PublicationError
 
 FILE = "_data/sidetekstar.json"
@@ -41,6 +41,10 @@ FIELDS = {
         ("join_button", "Innmeldingslenkje", False),
     ],
 }
+LEGACY_OM_FIELDS = FIELDS["om"]
+FIELDS["om"] = [("title", "Sidetittel", False), ("body", "Om laget", True)]
+MEMBERSHIP_MARKER = "<span data-md-kontingent></span>"
+
 GROUPS = {
     "framside": [
         ("Toppfelt", ("title", "intro")),
@@ -82,11 +86,15 @@ class SafeHTML(HTMLParser):
         }
     )
 
-    def __init__(self):
+    def __init__(self, tokens=True):
+        self.tokens = tokens
+        self.code_depth = 0
         super().__init__(convert_charrefs=True)
         self.output = []
 
     def handle_starttag(self, tag, attrs):
+        if tag in ("code", "pre"):
+            self.code_depth += 1
         if tag not in self.tags:
             return
         attr = ""
@@ -109,17 +117,22 @@ class SafeHTML(HTMLParser):
         self.output.append("<" + tag + attr + ">")
 
     def handle_endtag(self, tag):
+        if tag in ("code", "pre"):
+            self.code_depth = max(0, self.code_depth - 1)
         if tag in self.tags and tag not in ("br", "hr"):
             self.output.append("</" + tag + ">")
 
     def handle_data(self, data):
-        self.output.append(escape(data))
+        text = escape(data)
+        if self.tokens and not self.code_depth:
+            text = text.replace("[[kontingent]]", MEMBERSHIP_MARKER)
+        self.output.append(text)
 
 
-def markdown_html(source):
+def markdown_html(source, tokens=True):
     import markdown
 
-    parser = SafeHTML()
+    parser = SafeHTML(tokens=tokens)
     # Escape HTML before parsing. User text is data, never a Liquid template.
     parser.feed(
         markdown.markdown(escape(source, quote=False), extensions=["sane_lists"])
@@ -127,12 +140,14 @@ def markdown_html(source):
     return "".join(parser.output)
 
 
-def make_page(key, values):
+def make_page(key, values, legacy=False):
     if key not in FIELDS:
         raise ValueError("Ukjend side.")
     source = {}
     rendered = {}
-    for name, label, is_markdown in FIELDS[key]:
+    for name, label, is_markdown in (
+        LEGACY_OM_FIELDS if legacy and key == "om" else FIELDS[key]
+    ):
         value = values.get(name, "")
         maximum = 12000 if is_markdown else 500
         if (
@@ -146,7 +161,7 @@ def make_page(key, values):
             raise ValueError(f"«{label}» skal vere éi linje.")
         source[name] = value.strip()
         if is_markdown:
-            rendered[name] = markdown_html(source[name])
+            rendered[name] = markdown_html(source[name], tokens=not legacy)
     return {"source": source, "html": rendered}
 
 
@@ -155,7 +170,14 @@ def validate_envelope(value):
         raise PublicationError("Sidetekstfila har ukjent format.")
     for key in FIELDS:
         try:
-            if make_page(key, value[key]["source"]) != value[key]:
+            if (
+                make_page(
+                    key,
+                    value[key]["source"],
+                    legacy=key == "om" and "join_text" in value[key]["source"],
+                )
+                != value[key]
+            ):
                 raise ValueError()
         except (KeyError, TypeError, ValueError):
             raise PublicationError("Sidetekstfila har ugyldig innhald.") from None
@@ -199,7 +221,26 @@ class GithubTexts(GithubDocuments):
         )
 
 
+def editor_page(key, page):
+    """Flytt gamle Om-felt inn i teksten utan å endre eit publisert dokument."""
+    source = page["source"]
+    if key != "om" or "join_text" not in source:
+        return page
+    label = source["join_button"].replace("[", "\\[").replace("]", "\\]")
+    body = (
+        source["body"]
+        + "\n\n"
+        + source["join_text"]
+        + f" [{label}](/bli-medlem/) Medlemskap: frå [[kontingent]]."
+    )
+    return make_page(key, {"title": source["title"], "body": body})
+
+
 def install_text_editor(app, get_db, require_admin):
+    @app.get("/felles/kontingent.js")
+    def shared_membership_script():
+        return send_file(ROOT / "lutar" / "kontingent.js", mimetype="text/javascript")
+
     @app.route("/nettsida/tekst", defaults={"key": "framside"}, methods=["GET", "POST"])
     @app.route("/nettsida/tekst/<key>", methods=["GET", "POST"])
     @require_admin
@@ -225,8 +266,8 @@ def install_text_editor(app, get_db, require_admin):
                 status = 503
         state = draft or {"page": published, "base": digest(published)}
         revision = digest(draft)
-        values = state["page"]["source"]
-        preview = state["page"]
+        preview = editor_page(key, state["page"])
+        values = preview["source"]
         if request.method == "POST":
             values = request.form.to_dict()
             try:
@@ -249,7 +290,8 @@ def install_text_editor(app, get_db, require_admin):
                             "Stadfest at utkastet kan bytast ut med publisert tekst."
                         )
                     page = GithubTexts().read_texts()[0][key] if ready else published
-                    next_state = {"page": page, "base": digest(page)}
+                    next_state = {"page": editor_page(key, page), "base": digest(page)}
+                    page = next_state["page"]
                 else:
                     page = make_page(key, values)
                     preview = page
@@ -325,6 +367,7 @@ def install_text_editor(app, get_db, require_admin):
                     and not error,
                     values=values,
                     preview=preview,
+                    membership_marker=MEMBERSHIP_MARKER,
                     revision=revision,
                     source_revision=state["base"],
                     ready=ready,
