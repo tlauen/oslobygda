@@ -8,3 +8,5 @@ PyOTP>=2.9.0,<3
 segno>=1.6,<2
 PyYAML>=6,<7
 cryptography>=46
+
+Markdown>=3.10,<3.11

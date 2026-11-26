@@ -1,0 +1,37 @@
+{
+  "framside": {
+    "source": {
+      "description": "Folkemusikk, dans og gode møte i Oslo. Sjå kva som skjer, og bli med i Oslobygda kulturlag.",
+      "overtekst": "Folkemusikkpøbb i Oslo · sidan 2021",
+      "title": "Byliv med bygdepuls.",
+      "intro": "Folkemusikk, dans og kjekke folk i Oslo. Kom ned i kjellaren på Kaffistova og bli med på Folkemusikkpøbb!",
+      "events_button": "Sjå kva som skjer",
+      "join_button": "Bli medlem",
+      "events_overline": "Me sjåast!",
+      "events_title": "Dette skjer framover",
+      "calendar_button": "Heile kalenderen",
+      "member_overline": "Plass til fleire i laget",
+      "member_title": "Glad i det me finn på? Bli med då vel!",
+      "member_body": "Som medlem i Oslobygda kulturlag støttar du arbeidet for levande folkekultur i hovudstaden.",
+      "member_button": "Ja, eg vil bli medlem",
+      "about_button": "Bli kjend med laget",
+      "badge_text": "Meir folkekultur."
+    },
+    "html": {
+      "intro": "<p>Folkemusikk, dans og kjekke folk i Oslo. Kom ned i kjellaren på Kaffistova og bli med på Folkemusikkpøbb!</p>",
+      "member_body": "<p>Som medlem i Oslobygda kulturlag støttar du arbeidet for levande folkekultur i hovudstaden.</p>"
+    }
+  },
+  "om": {
+    "source": {
+      "title": "Om Oslobygda kulturlag",
+      "description": "Bli kjend med Oslobygda kulturlag og arbeidet vårt for levande folkekultur i hovudstaden.",
+      "body": "Oslobygda kulturlag skal på [[frilynt]] grunn skape engasjement for levande folkekultur i hovudstaden – fortrinnsvis innafor Ring 2, så lenge T-banen går.\n\nLaget blei offisielt skipa 5. mars 2026 under ein lønsjprat på Wessels plass, godt innafor Ring 1. Men i praksis har me jo eksistert sidan den første folkemusikkpøbben blei skipa til hausten 2021.\n\nMe skipar til Folkemusikkpøbb omlag 9 gonger i året, hovudsakleg siste onsdagen i månaden. Me kan òg finne på andre ting viss me syns det er kult.",
+      "join_text": "Vil du bli med i laget?",
+      "join_button": "Bli medlem her!"
+    },
+    "html": {
+      "body": "<p>Oslobygda kulturlag skal på [[frilynt]] grunn skape engasjement for levande folkekultur i hovudstaden – fortrinnsvis innafor Ring 2, så lenge T-banen går.</p>\n<p>Laget blei offisielt skipa 5. mars 2026 under ein lønsjprat på Wessels plass, godt innafor Ring 1. Men i praksis har me jo eksistert sidan den første folkemusikkpøbben blei skipa til hausten 2021.</p>\n<p>Me skipar til Folkemusikkpøbb omlag 9 gonger i året, hovudsakleg siste onsdagen i månaden. Me kan òg finne på andre ting viss me syns det er kult.</p>"
+    }
+  }
+}

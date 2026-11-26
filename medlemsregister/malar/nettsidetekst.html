@@ -1,0 +1,28 @@
+{% extends 'hjelp_base.html' %}
+{% block title %}Rediger {{ title }}{% endblock %}
+{% block content %}
+<header class="toppfelt"><h1>Rediger {{ title }}</h1></header>
+<p><a href="{{ prefix_url('website_text_editor',key='framside') }}">Framsida</a> · <a href="{{ prefix_url('website_text_editor',key='om') }}">Om-sida</a></p>
+<p>Lagre utkastet, kontroller tekstførehandsvisinga og publiser når det er klart. Kalender, styreoversikt, satsar og lenkjemål blir styrte frå dei eigne modulane.</p>
+{% if not ready %}<p role="status">Publisering er ikkje konfigurert. Du kan framleis lagre utkast og førehandsvise tekst.</p>{% endif %}
+{% if error %}<p class="feil" role="alert">{{ error }} Teksten i felta er bevart.</p>{% endif %}
+{% if message %}<p role="status">{{ message }}</p>{% endif %}
+<form method="post" class="medlemsskjema">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="source_revision" value="{{ source_revision }}">
+<input type="hidden" name="revision" value="{{ revision }}">
+{% for name,label,is_markdown in fields %}
+<div class="felt"><label for="text-{{ name }}">{{ label }}{% if is_markdown %} (Markdown){% endif %}</label>
+{% if is_markdown %}<textarea id="text-{{ name }}" name="{{ name }}" rows="7" maxlength="12000" data-markdown required>{{ values.get(name,'') }}</textarea>
+{% else %}<input id="text-{{ name }}" name="{{ name }}" value="{{ values.get(name,'') }}" maxlength="500" required>{% endif %}</div>
+{% endfor %}
+<details><summary>Hjelp til Markdown</summary><p><code>**feit tekst**</code>, <code>*kursiv*</code>, <code>[lenkjetekst](https://døme.no)</code>, <code>## Mellomoverskrift</code> og lister med <code>-</code>. Skil avsnitt med ei tom linje. HTML, bilete og Jekyll-kode blir ikkje køyrde.</p><p>På Om-sida gir <code>[[frilynt]]</code> den faste ordforklaringa. Kontingentsatsen blir sett inn automatisk etter innmeldingsteksten.</p></details>
+<div><button name="action" value="save">Lagre utkast</button> <button name="action" value="preview" class="sekundaer">Førehandsvis tekst</button></div>
+<label><input type="checkbox" name="confirmed" value="yes"> Teksten er kontrollert og kan publiserast. Ved «Hent publisert tekst» godtek eg at utkastet blir bytt ut.</label>
+<div><button name="action" value="publish" {% if not ready %}disabled{% endif %}>Publiser lagra utkast</button> <button name="action" value="reload" class="sekundaer" formnovalidate>Hent publisert tekst</button></div>
+</form>
+<section aria-labelledby="tekst-preview"><h2 id="tekst-preview">Tekstførehandsvising</h2><p>Viser formatert tekst, ikkje den ferdige sideutforminga. Kontroller òg den offentlege sida etter publisering.</p>
+{% for name,label,is_markdown in fields %}<article><h3>{{ label }}</h3>{% if is_markdown %}<div>{{ preview.html.get(name,'') | safe }}</div>{% else %}<p>{{ preview.source.get(name,'') }}</p>{% endif %}</article>{% endfor %}
+</section>
+<script defer src="{{ prefix_url('static',filename='markdown-redigering.js') }}"></script>
+{% endblock %}

@@ -235,3 +235,37 @@ att; ingen fast eller gamal pris blir vist som reserve. Kallet sender ikkje
 øktkjeks. Pris og medlemsår på ei oppretta betalingsordre blir ikkje endra.
 Ingen databasemigrering eller nye Python-pakkar er nødvendige, men serverkoden
 må oppdaterast og Web Reload køyrast før prisruta er tilgjengeleg.
+
+## Sidetekstar på framsida og Om-sida
+
+Under **Nettsida → Sidetekstar** kan styret redigere overskrifter, knappetekstar,
+søkemotortekst og lengre Markdown-tekstar. Utkast blir lagra i den eksisterande
+appdatabasen og følgjer databasebackupen. Førehandsvisinga viser formatert tekst,
+ikkje heile nettsideutforminga. Kalender, styreoversikt, satsar og lenkjemål blir
+ikkje endra av redigeraren.
+
+Oppdater Python-pakkane før omlasting på PythonAnywhere, i appen sitt virtuelle
+miljø og frå reporota:
+
+```bash
+python -m pip install -r medlemsregister/requirements-pythonanywhere.txt
+```
+
+Redigeraren bruker den låste Markdown-pakka. Publisering bruker eksisterande
+`GITHUB_DOCUMENTS_TOKEN`, `GITHUB_DOCUMENTS_REPO` og `GITHUB_DOCUMENTS_BRANCH` frå
+årsrapportpubliseringa, og treng skrivetilgang til `_data/sidetekstar.json` i
+nettsiderepoet. Nøklar skal berre liggje i serveroppsettet. Utan oppsett kan styret
+lagre utkast og førehandsvise, medan publiseringsknappen er deaktivert.
+
+Publisering krev eit lagra, uendra utkast og eksplisitt stadfesting. GitHub si
+filrevisjon hindrar overskriving ved samtidige endringar. Ei endring på den andre
+sida blir bevart, og eit nytt forsøk etter uvisst nettverksutfall opprettar ikkje
+same endring på nytt. Ved konflikt må brukaren ta vare på teksten og hente nyare
+publisert tekst. Tidlegare publiserte versjonar ligg i Git-historikken; denne
+første versjonen har ikkje ein eigen historikkveljar i redigeraren.
+
+Markdown-HTML blir filtrert med ei lita tillatingsliste, og rå HTML, bilete og
+Jekyll/Liquid-kode blir ikkje køyrde. `[[frilynt]]` i Om-teksten gir den faste
+ordforklaringa. Nettsida brukar dei publiserte tekstfelta utan å tolke dei som
+Jekyll-malar. Etter publisering må GitHub Pages byggje før endringa blir synleg;
+kontroller den offentlege nettsida etterpå.

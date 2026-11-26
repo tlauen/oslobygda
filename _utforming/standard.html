@@ -6,7 +6,9 @@
 
   {%- assign tilskiping = site.data.kalender | where: 'uid', page.uid | first -%}
   {%- assign site_title = site.title | default: "Oslobygda kulturlag" -%}
+  {%- assign sidetekst = site.data.sidetekstar[page.sidetekst] -%}
   {%- assign page_title = tilskiping.tittel | default: page.title | default: site_title -%}
+  {%- if page.sidetekst == 'om' -%}{%- assign page_title = sidetekst.source.title -%}{%- endif -%}
   {%- if page_title == site_title -%}
     {%- assign full_title = site_title -%}
   {%- else -%}
@@ -14,7 +16,7 @@
   {%- endif -%}
 
   {%- assign canonical = page.url | absolute_url -%}
-  {%- assign og_desc = tilskiping.merknad | default: page.description | default: site.description | default: "Oslobygda kulturlag" -%}
+  {%- assign og_desc = tilskiping.merknad | default: sidetekst.source.description | default: page.description | default: site.description | default: "Oslobygda kulturlag" -%}
   {%- assign default_share_img = site.share_image | default: "/lutar/bilete/og-oslobygda.jpg" -%}
   {%- assign og_img_rel = tilskiping.bilete | default: page.og_image | default: default_share_img -%}
   {%- if og_img_rel == nil or og_img_rel == "" -%}
