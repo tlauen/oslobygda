@@ -95,8 +95,14 @@ krev manuell kontroll. Hald oversikta under oppsyn, særleg etter driftsavbrot.
 
 ## Nye medlemmar og Brevo
 
-Eksisterande e-postadresser og andre pågåande innmeldingar med same adresse blir
-stoppa før betalingsoppretting. Det blir aldri gjetta medlem ut frå Vipps-betalaren.
+Ubrukte kladdar reserverer ikkje e-postadressa: ein annan nettlesar kan starte og
+redigere si eiga innmelding med same adresse. Ved betalingsstart blir ordren lesen
+og adressa kontrollert under same databaselås som markerer betalingsforsøket.
+Berre éin ordre med same adresse og Vipps-miljø får starte betaling. Eksisterande
+medlemmar blir òg stoppa før betalingsoppretting, etter at e-postadressa er stadfesta. Eit uvisst betalingsforsøk held
+reservasjonen til utfallet er avklart; eit stadfesta avbrot, utløp eller terminering
+frigjer henne. Gjentaking av same forsøk bruker same referanse og idempotensnøkkel.
+Det blir aldri gjetta medlem ut frå Vipps-betalaren.
 Dersom adressa blir registrert av styret medan betaling pågår, blir ei stadfesta
 betaling sett til manuell kontroll utan å endre det eksisterande medlemmet.
 
@@ -178,3 +184,14 @@ leveringsloggen i Brevo før eventuell ny sending. SMTP garanterer ikkje nøyakt
 
 Ved personvernsletting blir òg Vipps-betalarnamn og telefon sletta, og ventande
 stadfestingsmail stoppa. Sletting blir avvist medan ei sending pågår.
+
+## E-poststadfesting før ny betaling
+
+Nye kladdar får same offentlege flyt anten adressa er ny, registrert eller har
+andre pågåande innmeldingar. Skjemaet sender ikkje e-post direkte. Ein åttesifra
+kode blir lagd kryptert i den varige køa og send av [kodearbeidaren](AUTH-EPOST.md).
+Koden gjeld i ti minutt, har fem forsøk og høyrer til innmeldinga i same nettlesar.
+Byte av adresse krev ny stadfesting. Først etter stadfesting kan betalingsstart
+avklare om adressa er registrert eller har eit anna betalingsforsøk.
+Fornying frå Mi side eller ei gyldig personleg fornyingslenkje bevarer sitt eige
+tilgangsvern og treng ikkje dette ekstra steget.

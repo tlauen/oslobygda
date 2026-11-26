@@ -100,6 +100,7 @@ class EncryptedRegistrationTests(unittest.TestCase):
         with patch.dict(os.environ,{'MEDLEMSREGISTER_TOTP_KEY':Fernet.generate_key().decode()}):
             with managed_db(module.get_db) as db:migrate(db)
             self.client.post('/registrer',data={'email':'board@example.org','csrf_token':self.token()})
+            module.app.extensions['auth_mail'].process()
             self.client.post('/registrer/stadfest',data={'email_code':self.send.call_args.args[1],'csrf_token':self.token()})
             self.assertEqual(self.client.get('/registrer/konto').status_code,200)
             with managed_db(module.get_db) as db:
@@ -124,6 +125,7 @@ class EncryptedResetTests(unittest.TestCase):
         with patch.dict(os.environ,{'MEDLEMSREGISTER_TOTP_KEY':Fernet.generate_key().decode()}):
             with managed_db(module.get_db) as db:migrate(db)
             self.client.post('/gløymt-passord',data={'email':'board@example.org','csrf_token':self.token()})
+            module.app.extensions['auth_mail'].process()
             response=self.client.post('/gløymt-passord/byt',data={'email_code':self.send.call_args.args[1],'password':'a new sufficiently long password','confirmation':'a new sufficiently long password','code':pyotp.TOTP(self.secret).now(),'csrf_token':self.token()})
             self.assertEqual(response.status_code,200)
             with managed_db(module.get_db) as db:

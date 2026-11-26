@@ -246,7 +246,10 @@ class AppMigrationTests(unittest.TestCase):
                     payment["for_year"], module._default_medlemsbetalingsar()
                 )
                 self.assertEqual(
-                    db.execute("SELECT version FROM schema_migrations").fetchone()[0], 1
+                    db.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[
+                        0
+                    ],
+                    2,
                 )
 
     def test_wrong_or_missing_totp_key_stops_already_versioned_startup(self):
@@ -269,7 +272,8 @@ class AppMigrationTests(unittest.TestCase):
                 encrypted,
             )
             self.assertEqual(
-                db.execute("SELECT version FROM schema_migrations").fetchall()[0][0], 1
+                db.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0],
+                2,
             )
         with patch.dict(os.environ, MEDLEMSREGISTER_TOTP_KEY=key.decode()):
             module.init_db()

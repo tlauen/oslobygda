@@ -30,6 +30,10 @@ def build():
                         path.write_text(html)
                         page.goto(path.as_uri(),wait_until='networkidle')
                         page.evaluate('document.fonts.ready')
+                        # Lazy bilete utanfor skjermen byrjar elles aldri å laste,
+                        # og ei ubunden decode()-venting kan henge heile bygginga.
+                        page.locator('img').evaluate_all('(images)=>images.forEach(img=>img.loading="eager")')
+                        page.wait_for_function('Array.from(document.images).every(img=>img.complete)',timeout=20000)
                         page.locator('img').evaluate_all('(images)=>Promise.all(images.map(img=>img.decode().catch(()=>{})))')
                         page.pdf(path=str(path.with_suffix('.pdf')),format='A4',print_background=True,prefer_css_page_size=True,display_header_footer=False)
         finally:browser.close()

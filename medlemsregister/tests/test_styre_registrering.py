@@ -31,9 +31,11 @@ class RegistrationTests(unittest.TestCase):
         fixtures.BoardAuthTests.tearDown(self)
 
     def start(self, email="board@example.org"):
-        return self.client.post(
+        response = self.client.post(
             "/registrer", data={"email": email, "csrf_token": self.token()}
         )
+        module.app.extensions["auth_mail"].process()
+        return response
 
     def verify(self, code=None):
         return self.client.post(
@@ -192,7 +194,7 @@ class RegistrationTests(unittest.TestCase):
         with patch("styre_registrering.mail_ready", return_value=False):
             self.assertEqual(self.client.get("/registrer").status_code, 503)
         self.send.side_effect = RuntimeError("do not log this")
-        with self.assertLogs(module.app.logger, level="ERROR") as logs:
+        with self.assertLogs(module.app.logger, level="WARNING") as logs:
             self.assertEqual(self.start().status_code, 302)
         self.assertNotIn("do not log this", str(logs.output))
         with managed_db(module.get_db) as db:

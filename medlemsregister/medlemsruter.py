@@ -137,7 +137,7 @@ def install_members(
             mellomnamn = (data.get("mellomnamn", row.get("mellomnamn")) or "").strip()
             etternamn = (data.get("etternamn", row.get("etternamn")) or "").strip()
             full_name = _build_full_name(fornamn, mellomnamn, etternamn)
-            email = (data.get("email", row.get("email")) or "").strip().lower()
+            email = (data.get("email", row.get("email")) or "").strip().casefold()
             phone = (data.get("phone", row.get("phone")) or "").strip()
             adresse = (data.get("adresse", row.get("adresse")) or "").strip()
             postnummer = (data.get("postnummer", row.get("postnummer")) or "").strip()
@@ -157,6 +157,23 @@ def install_members(
                 return jsonify({"error": "Epost er påkrevd"}), 400
             now = datetime.now(timezone.utc).isoformat()
             with managed_db(get_db) as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                current = conn.execute(
+                    "SELECT * FROM members WHERE id=? AND privacy_deleted=0", (mid,)
+                ).fetchone()
+                if not current or dict(current) != row:
+                    return jsonify(
+                        {"error": "Medlemmen er endra. Last opplysningane på nytt."}
+                    ), 409
+                if email != row["email"]:
+                    from medlem_auth import update_email
+                    from medlem_nyhendebrev import choose
+
+                    try:
+                        update_email(conn, row, email)
+                    except ValueError as exc:
+                        return jsonify({"error": str(exc)}), 409
+                    choose(conn, row, False)
                 conn.execute(
                     """UPDATE members SET full_name=?, fornamn=?, mellomnamn=?, etternamn=?, email=?, phone=?, adresse=?, postnummer=?, poststad=?, birth_date=?, membership_type=?, payment_status=?, updated_at=?
                        WHERE id=?""",
@@ -177,7 +194,12 @@ def install_members(
                         mid,
                     ),
                 )
-                if "payment_status" in data:
+                # Ein uendra status i eit fullt profilskjema er ikkje eit nytt vedtak.
+                if "payment_status" in data and (
+                    payment_status != row["payment_status"]
+                    or data.get("approve_payment_status") is True
+                    or set(data) == {"payment_status"}
+                ):
                     from personvern_vedlikehald import approve_year
 
                     if payment_status in ("gratis", "betalt"):
@@ -191,15 +213,6 @@ def install_members(
                             "DELETE FROM paid_membership_years WHERE member_id=? AND for_year=?",
                             (mid, get_year(conn)),
                         )
-                if email != row["email"]:
-                    from medlem_auth import revoke_access
-                    from medlem_nyhendebrev import choose
-
-                    revoke_access(conn, mid)
-                    choose(conn, row, False)
-                    conn.execute(
-                        "UPDATE renewal_links SET revoked=1 WHERE member_id=?", (mid,)
-                    )
                 conn.commit()
             return jsonify({"message": "Oppdatert"})
 

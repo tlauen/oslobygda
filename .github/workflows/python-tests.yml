@@ -9,7 +9,7 @@ on:
       - 'lutar/**'
       - '.github/workflows/python-tests.yml'
       - 'ruff.toml'
-      - 'skript/test_kontingent.js'
+      - 'skript/**'
   pull_request:
     paths:
       - 'medlemsregister/**'
@@ -18,7 +18,7 @@ on:
       - 'lutar/**'
       - '.github/workflows/python-tests.yml'
       - 'ruff.toml'
-      - 'skript/test_kontingent.js'
+      - 'skript/**'
 permissions:
   contents: read
 jobs:
@@ -38,6 +38,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+      - name: Kontroller kalender og nyhendebrev
+        run: |
+          node skript/test_kalender.js
+          ruby skript/test_nyhendebrev.rb
+      - name: Kontroller serveroppdateraren
+        env:
+          PYTHONPATH: medlemsregister
+        run: python -m unittest discover -s skript -p 'test_*.py'
       - name: Kontroller offentleg prisvising
         run: node skript/test_kontingent.js
       - name: Køyr testar utan produksjonsløyndomar

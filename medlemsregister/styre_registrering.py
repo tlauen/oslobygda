@@ -47,7 +47,11 @@ def send_code(email, code, password_reset=False):
     message = EmailMessage()
     message["From"] = os.environ["STYRE_EPOST_FRA"]
     message["To"] = email
-    message["Subject"] = "Byt passord i Bygdelista" if password_reset else "Stadfest styrekonto i Bygdelista"
+    message["Subject"] = (
+        "Byt passord i Bygdelista"
+        if password_reset
+        else "Stadfest styrekonto i Bygdelista"
+    )
     message.set_content(f"""Stadfestingskoden din er: {code}
 
 Gå tilbake til registreringa i Bygdelista og skriv inn koden.
@@ -56,7 +60,9 @@ Koden gjeld i 15 minutt. Han gir ikkje tilgang utan passord og autentiseringsapp
 Dersom du ikkje bad om ein konto, kan du sjå bort frå denne e-posten.
 """)
     if password_reset:
-        message.set_content(f"Stadfestingskoden for passordbyte i Bygdelista er: {code}\n\nKoden gjeld i 15 minutt. Gå tilbake til passordbyte i same nettlesar. Du treng òg autentiseringsappen din.\n\nDersom du ikkje bad om passordbyte, kan du sjå bort frå denne e-posten. Passordet er ikkje endra.")
+        message.set_content(
+            f"Stadfestingskoden for passordbyte i Bygdelista er: {code}\n\nKoden gjeld i 15 minutt. Gå tilbake til passordbyte i same nettlesar. Du treng òg autentiseringsappen din.\n\nDersom du ikkje bad om passordbyte, kan du sjå bort frå denne e-posten. Passordet er ikkje endra."
+        )
     send_message(message)
 
 
@@ -131,7 +137,6 @@ def install_registration(app, get_db, prefix_url):
         now = int(time.time())
         identifier = secrets.token_urlsafe(32)
         code = f"{secrets.randbelow(100000000):08d}"
-        should_send = False
         with managed_db(get_db) as db:
             db.execute("BEGIN IMMEDIATE")
             db.execute("DELETE FROM board_enrollment WHERE expires<=?", (now,))
@@ -162,19 +167,11 @@ def install_registration(app, get_db, prefix_url):
                         now + 900,
                     ),
                 )
-                should_send = True
+                app.extensions["auth_mail"].enqueue(
+                    db, identifier, "board", email, code, now + 900
+                )
             db.commit()
         session["enrollment_id"] = identifier
-        if should_send:
-            try:
-                send_code(email, code)
-            except Exception:
-                # Ikkje logg kodar, e-postadresser, SMTP-passord eller leverandørmeldingar.
-                app.logger.error(
-                    "Sending av stadfestingskode feila. Kontroller SMTP-oppsettet."
-                )
-                with managed_db(get_db) as db:
-                    db.execute("DELETE FROM board_enrollment WHERE id=?", (identifier,))
         # Same svar for ukjend adresse, eksisterande konto og leveringfeil.
         return redirect(prefix_url("board_verify_email"))
 

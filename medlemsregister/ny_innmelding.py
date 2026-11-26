@@ -1,8 +1,7 @@
 """Nyinnmelding: varig ordre før Vipps-kall, stadfesta trekk før bokføring."""
 
 from betalingsstatus import Ordrestatus, Vippsstatus
-from csrf import csrf_exempt
-from betalingsreglar import member_kind, VIPPS_MAX_NOK
+from betalingsreglar import member_kind
 
 import base64
 from database import managed_db
@@ -18,8 +17,7 @@ import secrets
 import time
 from urllib.parse import urlsplit
 
-from dotenv import dotenv_values, set_key
-from flask import abort, redirect, render_template, request, session
+from dotenv import dotenv_values
 from vipps_client import VippsClient, VippsError, amount_ore
 from epost import DeliveryUncertain
 
@@ -48,6 +46,18 @@ FIELDS = {
     "poststad": 100,
     "birth_date": 10,
 }
+
+
+def _email_has_payment(db, email, environment, reference=""):
+    """Ubetalte kladdar reserverer ikkje adresser; uvisse betalingsforsøk gjer det."""
+    return db.execute(
+        f"""SELECT 1 FROM signup_orders
+        WHERE email=? AND environment=? AND reference<>?
+        AND status NOT IN ('{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}',
+                           '{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}')
+        AND (status<>'{Ordrestatus.NEW}' OR create_attempted=1)""",
+        (email, environment, reference),
+    ).fetchone()
 
 
 def init_signup(get_db):
@@ -206,18 +216,6 @@ class SignupService:
                 "INSERT INTO signup_limits VALUES (?,1,?) ON CONFLICT(bucket) DO UPDATE SET count=count+1",
                 (bucket, now + 3600),
             )
-            existing = db.execute(
-                "SELECT 1 FROM members WHERE lower(trim(email))=?", (data["email"],)
-            ).fetchone()
-            pending = db.execute(
-                f"SELECT 1 FROM signup_orders WHERE email=? AND environment=? AND status NOT IN ('{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}')",
-                (data["email"], environment),
-            ).fetchone()
-            if existing or pending:
-                db.commit()
-                raise ValueError(
-                    "Me kan ikkje starte ei ny innmelding med denne e-postadressa. Har du meldt deg inn før, kontakt folk@oslobygda.no."
-                )
             ref = "ny-" + secrets.token_hex(16)
             db.execute(
                 """INSERT INTO signup_orders(reference,browser_key,email,details,amount_ore,for_year,environment,msn,create_key,capture_key,newsletter,created_at,consent_at,confirmation_status,period_revision,threshold_ore)
@@ -263,19 +261,6 @@ class SignupService:
                 )
             policy = payable(db, order["for_year"])
             data, ore = validate(values, policy["minimum_ore"])
-            if (
-                db.execute(
-                    "SELECT 1 FROM members WHERE lower(trim(email))=? AND privacy_deleted=0",
-                    (data["email"],),
-                ).fetchone()
-                or db.execute(
-                    f"SELECT 1 FROM signup_orders WHERE email=? AND environment=? AND reference<>? AND status NOT IN ('{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}')",
-                    (data["email"], order["environment"], reference),
-                ).fetchone()
-            ):
-                raise ValueError(
-                    "Me kan ikkje bruke denne e-postadressa. Kontakt folk@oslobygda.no om du har meldt deg inn før."
-                )
             db.execute(
                 """UPDATE signup_orders SET email=?,details=?,amount_ore=?,newsletter=?,consent_at=?,
                 period_revision=?,threshold_ore=? WHERE reference=?""",
@@ -382,13 +367,36 @@ class SignupService:
             db.commit()
         return ref
 
-    def create(self, reference, return_url):
-        order = self.order(reference)
+    def create(self, reference, return_url, *, verified_email=None):
         from kontingent import payable, member_paid
 
         with managed_db(self.db, commit_on_success=False) as db:
             db.execute("BEGIN IMMEDIATE")
             try:
+                # Les under same lås som reserverer betalingsforsøket. To kladdar
+                # med same adresse kan finnast, men berre éin får starte betaling.
+                row = db.execute(
+                    "SELECT * FROM signup_orders WHERE reference=?", (reference,)
+                ).fetchone()
+                if not row:
+                    raise ValueError("Innmeldinga finst ikkje.")
+                order = dict(row)
+                if verified_email is not None and order["email"] != verified_email:
+                    raise ValueError(
+                        "E-postadressa er endra. Stadfest henne på nytt før betaling."
+                    )
+                if not order.get("renewal_member_id"):
+                    existing = db.execute(
+                        "SELECT 1 FROM members WHERE lower(trim(email))=?",
+                        (order["email"],),
+                    ).fetchone()
+                    if existing or _email_has_payment(
+                        db, order["email"], order["environment"], reference
+                    ):
+                        raise ValueError(
+                            "Ei anna innmelding med denne e-postadressa er allereie starta. "
+                            "Kontakt folk@oslobygda.no om du treng hjelp."
+                        )
                 policy = payable(db, order["for_year"])
                 if (
                     order.get("period_revision") is not None
@@ -836,14 +844,6 @@ def install_signup(
     service = SignupService(get_db, get_year, get_threshold, newsletter, confirmation)
     app.extensions["signup_service"] = service
 
-    @app.context_processor
-    def payment_status_constants():
-        return {
-            "Ordrestatus": Ordrestatus,
-            "Vippsstatus": Vippsstatus,
-            "vipps_max_nok": VIPPS_MAX_NOK,
-        }
-
     def sync_followups_safely(reference):
         service.send_confirmation(reference)
         # Brevo er uavhengig av bokføringa. Feil blir liggjande i den varige køen.
@@ -855,354 +855,17 @@ def install_signup(
             )
             return False
 
-    def mode():
-        selected = os.environ.get("VIPPS_SIGNUP_MODE", "disabled")
-        if selected == "production-preview":
-            if not app.extensions["styre_auth_valid"]():
-                abort(
-                    503,
-                    "Nyinnmelding er snart klar. Kontakt folk@oslobygda.no i mellomtida.",
-                )
-            return "production"
-        if selected not in ("test", "production"):
-            abort(503, "Nyinnmelding med Vipps er ikkje opna enno.")
-        return selected
+    from innmelding_ruter import install_routes
+    from innmelding_kommandoar import install_commands
 
-    @app.route("/bli-medlem", methods=["GET", "POST"])
-    def new_signup():
-        environment = mode()
-        key = session.setdefault("signup_key", secrets.token_urlsafe(32))
-        values = {}
-        error = None
-        if request.method == "POST":
-            values = request.form.to_dict()
-            try:
-                if values.get("website"):
-                    raise ValueError("Ugyldig innsending.")
-                reference = service.new(
-                    values, key, environment, request.remote_addr or "unknown"
-                )
-                session["signup_reference"] = reference
-                return redirect("/bli-medlem/status", code=303)
-            except ValueError as exc:
-                error = str(exc)
-                app.logger.warning(
-                    "Nyinnmelding: validering stoppa innsendinga (%s)", error
-                )
-        with managed_db(get_db, commit_on_success=False) as db:
-            from kontingent import today, payable
+    from types import SimpleNamespace
 
-            year = today().year
-            try:
-                policy = payable(db, year)
-            except ValueError as exc:
-                return render_template(
-                    "kontingent_stengt.html", environment=environment, reason=str(exc)
-                ), 200
-            threshold = policy["superkul_ore"]
-        return render_template(
-            "ny_innmelding.html",
-            values=values,
-            error=error,
-            environment=environment,
-            year=year,
-            threshold=threshold,
-            minimum=policy["minimum_ore"],
-        ), 400 if error else 200
-
-    def owned():
-        reference = session.get("signup_reference", "")
-        order = service.order(reference)
-        if (
-            not order
-            or order["status"] == Ordrestatus.REDACTED
-            or order["environment"] != mode()
-        ):
-            abort(404)
-        if order.get("renewal_link_id"):
-            with managed_db(get_db, commit_on_success=False) as db:
-                link = db.execute(
-                    "SELECT * FROM renewal_links WHERE id=? AND revoked=0",
-                    (order["renewal_link_id"],),
-                ).fetchone()
-                if (
-                    not link
-                    or session.get("renewal_link") != link["id"]
-                    or session.get("renewal_digest") != link["token_hash"]
-                ):
-                    abort(404)
-                if link["access_kind"] == "member":
-                    member = app.extensions["member_auth"].member(session)
-                    if not member or member["id"] != link["member_id"]:
-                        abort(404)
-        return order
-
-    @app.route("/bli-medlem/rediger", methods=["GET", "POST"])
-    def signup_edit():
-        order = owned()
-        if (
-            order["status"] != Ordrestatus.NEW
-            or order["create_attempted"]
-            or order["renewal_member_id"]
-        ):
-            abort(
-                409,
-                "Betaling er allereie forsøkt oppretta eller dette er ei fornying. Kontakt styret for retting.",
-            )
-        values = {
-            **json.loads(order["details"]),
-            "amount": order["amount_ore"] // 100,
-            "newsletter": "1" if order["newsletter"] else "",
-            "terms": "1",
-        }
-        error = None
-        if request.method == "POST":
-            values = request.form.to_dict()
-            try:
-                service.edit(order["reference"], values)
-                return redirect("/bli-medlem/status", code=303)
-            except ValueError as exc:
-                error = str(exc)
-        with managed_db(get_db, commit_on_success=False) as db:
-            from kontingent import payable
-
-            try:
-                policy = payable(db, order["for_year"])
-            except ValueError as exc:
-                abort(409, str(exc))
-        return render_template(
-            "ny_innmelding.html",
-            values=values,
-            error=error,
-            environment=order["environment"],
-            year=order["for_year"],
-            threshold=policy["superkul_ore"],
-            minimum=policy["minimum_ore"],
-            editing=True,
-        ), 400 if error else 200
-
-    @app.route("/bli-medlem/status", methods=["GET", "POST"])
-    def signup_status():
-        order = owned()
-        error = None
-        if request.method == "POST":
-            try:
-                if request.form.get("action") == "pay":
-                    origin = os.environ.get(
-                        "VIPPS_PUBLIC_ORIGIN", "https://bygdelista.oslobygda.no"
-                    ).rstrip("/")
-                    return redirect(
-                        service.create(
-                            order["reference"], origin + "/bli-medlem/status"
-                        ),
-                        code=303,
-                    )
-                service.reconcile(order["reference"])
-                sync_followups_safely(order["reference"])
-            except VippsError as exc:
-                error = str(exc)
-            order = service.order(order["reference"])
-        return render_template(
-            "innmelding_status.html",
-            order=order,
-            error=error,
-            environment=order["environment"],
-            details=json.loads(order["details"]),
-            can_edit=order["status"] == Ordrestatus.NEW
-            and not order["create_attempted"]
-            and not order["renewal_member_id"],
-        )
-
-    @app.route("/bli-medlem/prov-igjen", methods=["POST"])
-    def signup_restart():
-        order = owned()
-        if order["status"] not in (
-            Vippsstatus.ABORTED,
-            Vippsstatus.EXPIRED,
-            Vippsstatus.TERMINATED,
-        ):
-            abort(409)
-        session.pop("signup_reference", None)
-        session["signup_key"] = secrets.token_urlsafe(32)
-        return redirect(
-            "/forny" if order.get("renewal_member_id") else "/bli-medlem", code=303
-        )
-
-    @app.route("/vipps/webhook/<environment>", methods=["POST"])
-    @csrf_exempt
-    def signup_webhook(environment):
-        if environment not in ("test", "production"):
-            abort(404)
-        secret = credentials(environment).get("VIPPS_WEBHOOK_SECRET", "")
-        if not secret or not webhook_valid(request, secret):
-            abort(401)
-        payload = request.get_json(silent=True) or {}
-        reference = payload.get("reference", "")
-        order = service.order(reference) if isinstance(reference, str) else None
-        if (
-            order
-            and order["environment"] == environment
-            and str(payload.get("msn", "")) == order["msn"]
-        ):
-            try:
-                service.reconcile(reference)
-                sync_followups_safely(reference)
-            except VippsError:
-                return "", 503
-        return "", 200
-
-    @app.route("/innmeldingar")
-    @require_admin
-    def signup_overview():
-        with managed_db(get_db, commit_on_success=False) as db:
-            orders = [
-                dict(row)
-                for row in db.execute(
-                    "SELECT o.*,p.paid_at FROM signup_orders o LEFT JOIN payments p ON p.id=o.payment_id WHERE o.overview_archived=0 ORDER BY o.created_at DESC LIMIT 100"
-                )
-            ]
-        for order in orders:
-            order["member_details"] = json.loads(order["details"])
-            order["created_display"] = datetime.fromtimestamp(
-                order["created_at"], timezone.utc
-            ).isoformat()
-        return render_template("innmeldingar.html", orders=orders)
-
-    @app.cli.command("innmelding-testmodus")
-    def test_mode():
-        config = credentials("test")
-        if not all(
-            config.get(key)
-            for key in (
-                "VIPPS_CLIENT_ID",
-                "VIPPS_CLIENT_SECRET",
-                "VIPPS_SUBSCRIPTION_KEY",
-                "VIPPS_MSN",
-            )
-        ):
-            raise SystemExit("Legg inn testnøklar med konfigurer_vipps.py først.")
-        env = Path(__file__).resolve().parent / ".env"
-        env.touch(mode=0o600, exist_ok=True)
-        env.chmod(0o600)
-        set_key(env, "VIPPS_SIGNUP_MODE", "test")
-        print(
-            "Testmodus er valt. Produksjonsnøklane er bevarte. Trykk Web → Reload, og opne /bli-medlem."
-        )
-
-    @app.cli.command("innmelding-produksjonsprove")
-    def production_preview():
-        """Vel produksjonsprøve berre for innlogga styret. Ikkje opne offentleg."""
-        client_for("production")  # Kontroller berre at alle verdiar er sette.
-        env = Path(__file__).resolve().parent / ".env"
-        env.touch(mode=0o600, exist_ok=True)
-        env.chmod(0o600)
-        set_key(env, "VIPPS_SIGNUP_MODE", "production-preview")
-        print(
-            "Produksjonsprøve er vald for innlogga styret. Registrer produksjonswebhook og trykk Web → Reload. Publikum får ikkje tilgang."
-        )
-
-    @app.cli.command("innmelding-webhook")
-    def register_webhook():
-        environment = os.environ.get("VIPPS_SIGNUP_MODE", "disabled")
-        if environment == "production-preview":
-            environment = "production"
-        if environment not in ("test", "production"):
-            raise SystemExit("Vel testmodus før webhook blir registrert.")
-        config = credentials(environment)
-        if config.get("VIPPS_WEBHOOK_SECRET"):
-            print("Webhook er allereie sett opp. Ingen ny registrering utført.")
-            return
-        origin = os.environ.get(
-            "VIPPS_PUBLIC_ORIGIN", "https://bygdelista.oslobygda.no"
-        ).rstrip("/")
-        result = client_for(environment)._authenticated(
-            "POST",
-            "/webhooks/v1/webhooks",
-            {
-                "url": origin + "/vipps/webhook/" + environment,
-                "events": [
-                    "epayments.payment." + event + ".v1"
-                    for event in (
-                        "authorized",
-                        "captured",
-                        "aborted",
-                        "expired",
-                        "terminated",
-                        "cancelled",
-                        "refunded",
-                    )
-                ],
-            },
-        )
-        secret = result.get("secret", "")
-        webhook_id = result.get("id", "")
-        if (
-            not isinstance(secret, str)
-            or not secret
-            or not isinstance(webhook_id, str)
-            or not webhook_id
-        ):
-            raise SystemExit(
-                "Kunne ikkje stadfeste webhook-oppsettet. Kontroller registreringa i Vipps-portalen før nytt forsøk."
-            )
-        env = Path(__file__).resolve().parent / (
-            ".env.vipps-test" if environment == "test" else ".env"
-        )
-        env.touch(mode=0o600, exist_ok=True)
-        env.chmod(0o600)
-        set_key(env, "VIPPS_WEBHOOK_SECRET", secret)
-        set_key(env, "VIPPS_WEBHOOK_ID", webhook_id)
-        print(
-            "Webhook registrert og løyndomen lagra. Trykk Web → Reload før du testar ei betaling."
-        )
-
-    @app.cli.command("innmelding-vedlikehald")
-    def maintain():
-        """Stadfest uferdige betalingar og prøv Brevo-køen på nytt."""
-        with managed_db(get_db, commit_on_success=False) as db:
-            refs = [
-                r[0]
-                for r in db.execute(
-                    f"SELECT reference FROM signup_orders WHERE status NOT IN ('{Ordrestatus.COMPLETE}','{Ordrestatus.REVIEW}','{Vippsstatus.ABORTED}','{Vippsstatus.EXPIRED}','{Vippsstatus.TERMINATED}','{Ordrestatus.REDACTED}') ORDER BY checked_at LIMIT 100"
-                )
-            ]
-            news = [
-                r[0]
-                for r in db.execute(
-                    f"SELECT reference FROM signup_orders WHERE environment='production' AND status='{Ordrestatus.COMPLETE}' AND newsletter=1 AND newsletter_done=0 LIMIT 100"
-                )
-            ]
-        with managed_db(get_db, commit_on_success=False) as db:
-            confirmations = [
-                row[0]
-                for row in db.execute(
-                    f"SELECT reference FROM signup_orders WHERE environment='production' AND status='{Ordrestatus.COMPLETE}' AND confirmation_status='pending' LIMIT 100"
-                )
-            ]
-        for ref in confirmations:
-            service.send_confirmation(ref)
-        privacy_done = privacy_maintenance()
-        problems = 0
-        for ref in refs:
-            try:
-                service.reconcile(ref)
-                sync_followups_safely(ref)
-            except (VippsError, ValueError):
-                problems += 1
-        for ref in news:
-            sync_followups_safely(ref)
-        from kontingent import today
-        from personvern_vedlikehald import prepare, send_pending
-
-        newsletter_done = app.extensions.get(
-            "member_newsletter_maintenance", lambda: 0
-        )()
-        with managed_db(get_db, commit_on_success=False) as db:
-            db.execute("DELETE FROM member_challenges WHERE expires<=?", (time.time(),))
-            db.execute("DELETE FROM login_limits WHERE expires<=?", (time.time(),))
-            db.commit()
-        cleaned = prepare(get_db, today())
-        notified = send_pending(get_db, today())
-        print(
-            f"Kontrollert {len(refs)} betalingar; {problems} må prøvast igjen. Handsama {len(news)} Brevo-oppføringar, {newsletter_done} medlemsval og {privacy_done} slettingar. Anonymisert {cleaned} gamle ordrar og sendt {notified} styrevarsel."
-        )
+    payments = SimpleNamespace(
+        credentials=lambda *args, **kwargs: credentials(*args, **kwargs),
+        client_for=lambda *args, **kwargs: client_for(*args, **kwargs),
+        webhook_valid=lambda *args, **kwargs: webhook_valid(*args, **kwargs),
+    )
+    install_routes(app, get_db, service, require_admin, sync_followups_safely, payments)
+    install_commands(
+        app, get_db, service, privacy_maintenance, sync_followups_safely, payments
+    )

@@ -1,5 +1,10 @@
 # Kontrollert utrulling av årsmøte og økonomi
 
+**Ny kodeversjon 26. november 2026:** Denne versjonen har skjemaversjon 2 og
+kølagt sending av eingongskodar. Følg [AUTH-EPOST.md](AUTH-EPOST.md) og set opp
+ein eigen kodearbeidar før Reload. Den timevise vedlikehaldsjobben er ikkje
+nok. Ingen produksjonsutrulling av desse endringane er utført enno.
+
 Historisk sjekkliste frå oktober. Produksjonskontrollen 25. november 2026
 stadfesta open Vipps-innmelding, fullførte produksjonsordrar og aktiverte
 vedlikehalds-/backupjobbar. Han stadfesta ikkje alle ferdigkriteria nedanfor.
@@ -145,7 +150,7 @@ versjonsregistreringa er i same transaksjon. Ved feil rullar dei tilbake;
 ikkje omgå feilen ved å setje versjonen manuelt.
 
 Etter installasjon og Reload: køyr `driftskontroll.py`. `schema_version` skal
-vere 1, databaseintegriteten skal vere OK, og medlems-/betalingsteljingar og
+vere 2 for denne kodeversjonen, databaseintegriteten skal vere OK, og medlems-/betalingsteljingar og
 TOTP-teljingar skal samsvare med kontrollen før oppgradering. Prøv styre- og
 medlemsinnlogging igjen. Ei ny Reload skal ikkje køyre baselinen om att. Ta
 ny backup etter kontrollen. Ved framtidige migreringar skal kvart nytt steg

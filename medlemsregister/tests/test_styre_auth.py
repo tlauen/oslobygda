@@ -48,7 +48,9 @@ class BoardAuthTests(unittest.TestCase):
         self.assertEqual(self.login(code='abcdef').status_code, 401)
         self.assertEqual(self.login().status_code, 302)
         self.assertEqual(self.client.get('/api/members').status_code, 200)
-        self.assertIn(b'X-CSRF-Token', self.client.get('/').data)
+        self.assertIn(b'medlemsliste.js', self.client.get('/').data)
+        with self.client.get('/fast/medlemsliste.js') as response:
+            self.assertIn(b'X-CSRF-Token', response.data)
 
     def test_replay_rejected_across_clients(self):
         # Frys tidspunkt slik at testen ikkje kryssar eit kodeskifte.

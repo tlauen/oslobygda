@@ -19,6 +19,12 @@ har éi felles kjelde i repoet.
 - [Sakliste, møtereglar og protokoll med to godkjenningar](SAKLISTE.md) på `/sakliste`.
 - Offentleg eksport, utskriftsvising og kryptert backup med gjenopprettingskontroll.
 
+## Kodar på e-post
+
+Innmelding, medlemsinnlogging, styrekontoregistrering og passordbyte bruker
+ein eigen utsendingsarbeidar. Sjå [oppsett og utrulling](AUTH-EPOST.md).
+Arbeidaren må vere i drift før denne kodeversjonen blir teken i bruk.
+
 ## Årsmøte, økonomi og drift
 
 Start med [rekneskap](REKNESKAP.md), [årsdokument](ARSDOKUMENT.md) og
@@ -73,7 +79,7 @@ python -m unittest discover -s tests
 
 - `_data/nav.yml`: same fire menyval på nettsida og i innmeldingsflyten.
 - `_tillegg/kolofon.html`: éin footer-mal med ordforklaring og logo.
-- `lutar/kolofon.css` og `lutar/topp.css`: felles CSS, levert under `/felles/`.
+- `lutar/kolofon.css`, `lutar/topp.css` og `lutar/arsmelding-tilskipingar.css`: felles CSS, levert under `/felles/`.
 
 Desse filene må følgje med serverkoden. Ikkje kopier berre `medlemsregister/`.
 

@@ -32,11 +32,88 @@ class SignupTests(unittest.TestCase):
         self.assertEqual(validate(self.fields())[1],10000)
         for change in ({'amount':'5.50'},{'amount':'4.99'},{'amount':'nan'},{'terms':''},{'email':'bad'},{'postnummer':'1'},{'birth_date':'3000-01-01'},{'phone':'bad'}):
             with self.assertRaises(ValueError): validate(self.fields(**change))
-    def test_order_idempotence_and_duplicate_email(self):
-        ref=self.new();self.assertEqual(self.new(),ref)
-        with patch('ny_innmelding.credentials',return_value={'VIPPS_MSN':'123456'}):
-            with self.assertRaises(ValueError): self.service.new(self.fields(),'other-browser','production','127.0.0.1')
-        self.assertEqual(self.count('members'),0);self.assertEqual(self.count('signup_orders'),1)
+    def test_unused_drafts_do_not_reserve_email(self):
+        first = self.new()
+        self.assertEqual(self.new(), first)
+        with patch('ny_innmelding.credentials', return_value={'VIPPS_MSN': '123456'}):
+            second = self.service.new(
+                self.fields(), 'owner-browser', 'production', '192.0.2.2'
+            )
+        self.assertNotEqual(first, second)
+        self.service.edit(second, self.fields(amount='200'))
+        self.assertEqual(self.service.order(first)['amount_ore'], 10000)
+        self.assertEqual(self.service.order(second)['amount_ore'], 20000)
+        self.assertEqual(self.count('members'), 0)
+        self.assertEqual(self.count('payments'), 0)
+        self.assertEqual(self.count('signup_orders'), 2)
+
+    def test_competing_drafts_only_start_one_payment(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+
+        first = self.new()
+        with patch('ny_innmelding.credentials', return_value={'VIPPS_MSN': '123456'}):
+            second = self.service.new(
+                self.fields(), 'owner-browser', 'production', '192.0.2.2'
+            )
+        barrier = Barrier(2)
+        client = Mock()
+        client.create.return_value = {'redirectUrl': 'https://api.vipps.no/test-payment'}
+
+        def start(reference):
+            barrier.wait(timeout=10)
+            try:
+                self.service.create(reference, 'https://example.org/status')
+                return reference
+            except VippsError:
+                return None
+
+        with patch('ny_innmelding.client_for', return_value=client):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(pool.map(start, (first, second)))
+        self.assertEqual(sum(result is not None for result in results), 1)
+        client.create.assert_called_once()
+        winner = next(result for result in results if result is not None)
+        loser = second if winner == first else first
+        self.assertEqual(self.service.order(loser)['create_attempted'], 0)
+        # An uncertain create remains reserved, and retries use the same key.
+        self.assertEqual(self.service.order(winner)['create_attempted'], 1)
+        self.service.edit(loser, self.fields())
+        with patch('ny_innmelding.credentials', return_value={'VIPPS_MSN': '123456'}):
+            third = self.service.new(self.fields(), 'third-browser', 'production', '192.0.2.3')
+        with patch('ny_innmelding.client_for') as provider:
+            with self.assertRaises(VippsError):
+                self.service.create(third, 'https://example.org/status')
+            provider.assert_not_called()
+
+    def test_uncertain_payment_blocks_other_drafts_until_verified_terminal(self):
+        first = self.new()
+        with patch('ny_innmelding.credentials', return_value={'VIPPS_MSN': '123456'}):
+            second = self.service.new(
+                self.fields(), 'owner-browser', 'production', '192.0.2.2'
+            )
+        client = Mock()
+        client.create.side_effect = VippsError('Lost response')
+        with patch('ny_innmelding.client_for', return_value=client):
+            with self.assertRaises(VippsError):
+                self.service.create(first, 'https://example.org/status')
+            with self.assertRaises(VippsError):
+                self.service.create(second, 'https://example.org/status')
+        client.create.assert_called_once()
+        self.assertEqual(self.service.order(first)['status'], 'new')
+        self.assertEqual(self.service.order(first)['create_attempted'], 1)
+        # Reconciliation verifies that no payment remains before releasing it.
+        result = self.details(first)
+        result['state'] = 'EXPIRED'
+        result['aggregate']['authorizedAmount']['value'] = 0
+        client.get.return_value = result
+        client.create.side_effect = None
+        client.create.return_value = {'redirectUrl': 'https://api.vipps.no/second-payment'}
+        with patch('ny_innmelding.client_for', return_value=client):
+            self.service.reconcile(first)
+            self.service.create(second, 'https://example.org/status')
+        self.assertEqual(client.create.call_count, 2)
+
     def test_capture_book_once_and_brevo_retry(self):
         ref=self.new();client=Mock();client.get.side_effect=[self.details(ref),self.details(ref,10000),self.details(ref,10000)]
         with patch('ny_innmelding.client_for',return_value=client):
@@ -112,7 +189,9 @@ class SignupTests(unittest.TestCase):
         ref=self.new();client=Mock();client.get.return_value=self.details(ref,10000)
         with patch('ny_innmelding.client_for',return_value=client): self.service.reconcile(ref)
         with patch('ny_innmelding.credentials',return_value={'VIPPS_MSN':'123456'}):
-            with self.assertRaises(ValueError): self.service.new(self.fields(fornamn='Someone else'),'other-key','production','127.0.0.1')
+            other = self.service.new(self.fields(fornamn='Someone else'),'other-key','production','127.0.0.1')
+        with self.assertRaises(VippsError):
+            self.service.create(other, 'https://example.org/status')
         with closing(module.get_db()) as db:
             self.assertEqual(db.execute('SELECT fornamn FROM members').fetchone()[0],'Test')
 
@@ -144,6 +223,7 @@ class SignupTests(unittest.TestCase):
         client.get.return_value = self.details(ref, 10000)
         with self.client.session_transaction() as session:
             session['signup_reference'] = ref
+            session['signup_verified_email'] = [ref, self.service.order(ref)['email']]
         with patch.dict('os.environ', {'VIPPS_SIGNUP_MODE': 'production'}), patch('ny_innmelding.client_for', return_value=client), patch.object(self.service, 'newsletter', side_effect=[RuntimeError('private detail'), True]) as news:
             with self.assertLogs(module.app.logger, level='ERROR') as logs:
                 response = self.client.post('/bli-medlem/status', data={'csrf_token': self.token()})

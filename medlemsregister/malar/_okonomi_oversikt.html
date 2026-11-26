@@ -1,0 +1,90 @@
+{% if ledger_part=='oversikt' %}
+  <h2>Balanse per 31. desember {{ year }}</h2>
+  <p class="feltforklaring">Oversikta viser kva laget eig og skuldar ut frå alle bokførte postar i året, også eventuelle fordelingar seinare i året. Dette er ikkje nødvendigvis saldoen i banken i dag.</p>
+  <div class="tabell-rull" tabindex="0" role="region" aria-label="Intern balanse">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Post</th>
+          <th scope="col">Beløp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set balance=namespace(assets=0,debt=0) %}
+        {% for kind,title in [('asset','Eigedelar'),('liability','Gjeld')] %}
+          <tr class="kategori-gruppe">
+            <th colspan="2">{{ title }}</th>
+          </tr>
+          {% for code,info in accounts.items() if info[1]==kind %}
+            {% set amount=ending.get(code,0)*(1 if kind=='asset' else -1) %}
+            {% if kind=='asset' %}
+              {% set balance.assets=balance.assets+amount %}
+            {% else %}
+              {% set balance.debt=balance.debt+amount %}
+            {% endif %}
+            <tr>
+              <th scope="row">{{ info[0] }}<small class="kategori-note">{{ balance_notes.get(code,'') }}</small>
+              </th>
+              <td>{{ amount|kroner }}</td>
+            </tr>
+          {% endfor %}
+          <tr class="kategori-sum">
+            <th scope="row">Sum {{ title|lower }}</th>
+            <td>{{ (balance.assets if kind=='asset' else balance.debt)|kroner }}</td>
+          </tr>
+        {% endfor %}
+        <tr class="resultat-sum">
+          <th scope="row">Eigenkapital <small class="kategori-note">Eigedelar minus gjeld, inkludert opparbeidd resultat.</small>
+          </th>
+          <td>{{ (balance.assets-balance.debt)|kroner }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <details class="omgrepshjelp">
+    <summary>Kva betyr dei ulike saldoane?</summary>
+    <dl>
+      <dt>Bank</dt>
+      <dd>Pengar på laget sin bankkonto.</dd>
+      <dt>Vipps til gode</dt>
+      <dd>Betalingar som er registrerte hos Vipps, men enno ikkje gjorde opp til bank.</dd>
+      <dt>Kontantar</dt>
+      <dd>Kontantar laget faktisk har. Kontingent som du har betalt vidare via Vipps, skal ikkje i tillegg førast som kontantar.</dd>
+      <dt>Skuldige private utlegg</dt>
+      <dd>Pengar laget skal betale tilbake til deg eller andre som har lagt ut privat.</dd>
+      <dt>Leverandørgjeld</dt>
+      <dd>Rekningar laget har fått, men enno ikkje betalt.</dd>
+      <dt>Forskotsbetalte kostnader</dt>
+      <dd>Det som alt er betalt, men gjeld seinare år, til dømes delar av eit årsabonnement.</dd>
+      <dt>Andre krav</dt>
+      <dd>Pengar andre skuldar laget.</dd>
+      <dt>Eigenkapital</dt>
+      <dd>Det laget eig, minus det laget skuldar. Dette er ikkje ein eigen bankkonto.</dd>
+    </dl>
+  </details>
+  <h3>Interne mellomverande</h3>
+  <p class="feltforklaring">Her ser du kven laget skuldar pengar, og kor mykje. Når eit privat utlegg blir refundert, skal beløpet her gå ned.</p>
+  <ul>
+    {% for party in parties %}
+      <li>{{ accounts[party.account][0] }} – {{ party.party }}: {{ (-party.amount_ore)|kroner }}</li>
+    {% else %}
+      <li>Ingen registrerte mellomverande.</li>
+    {% endfor %}
+  </ul>
+  <details id="opningsbalanse" {% if request.args.get('opning')=='1' %}open{% endif %}>
+    <summary>{{ 'Korriger inngåande balanse' if opening_exists else 'Dokumenter inngåande balanse' }}</summary>
+    <h2>Dokumenter inngåande balanse</h2>
+    <p class="feltforklaring">Dette er startpunktet for året: Kva hadde laget, og kva skulda laget, før hendingane du skal føre? For 2026 kan saldoane vere null dersom laget starta utan pengar eller gjeld. Utlegg frå 2026 som du fører enkeltvis etterpå, skal ikkje også leggjast inn her som inngåande gjeld.</p>
+    <p>Gjer dette før første bokføring. Fyll inn null der det ikkje er noko saldo. Seinare år fører vidare saldoane automatisk. Ved korrigering oppgir du heile den korrekte opningsbalansen, ikkje berre differansen. Originalpostane blir bevarte. Dette skjemaet støttar éin namngitt kreditor per gjeldskategori i opningsbalansen; ved fleire må grunnlaget førast særskilt før årsavslutning.</p>
+    <form method="post" class="innmelding-skjema">{{ hidden('opening_correction' if opening_exists else 'opening') }}
+      {% for account in ['bank','vipps','cash','prepaid','receivable','private','payable'] %}
+        <label>{{ accounts[account][0] }} <input name="{{ account }}" inputmode="decimal" value="0" required>
+        </label>
+      {% endfor %}
+      <label>Intern motpart for eventuell inngåande gjeld <input name="party" maxlength="200">
+      </label>
+      <label>Dokumentasjonsgrunnlag <textarea name="note" maxlength="1000" required></textarea></label>
+      <button>{{ 'Korriger full opningsbalanse' if opening_exists else 'Stadfest opningssaldoar' }}</button>
+    </form>
+  </details>
+{% endif %}

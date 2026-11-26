@@ -52,5 +52,5 @@ def render_document(payload):
     html=env.get_template('arsmote_utskrift.html').render(kind=payload['kind'],report=payload,title=payload.get('title',f'Rekneskap {payload["report_year"]}'),structured_report=structured(payload))
     import re
     html=re.sub(r'<link rel="stylesheet" href="">','',html)
-    styles='\n'.join((ROOT/'fast'/name).read_text() for name in ('arsmote-utskrift.css','arsmelding-tilskipingar.css'))
+    styles=(ROOT/'fast/arsmote-utskrift.css').read_text()+'\n'+(ROOT.parent/'lutar/arsmelding-tilskipingar.css').read_text()
     return html.replace('</head>','<!-- arsmote-utskrift.css + arsmelding-tilskipingar.css --><style>'+styles+'</style></head>')

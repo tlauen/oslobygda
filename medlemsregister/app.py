@@ -11,7 +11,7 @@ from datetime import timedelta
 import os
 import sys
 import sqlite3
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import (
@@ -80,6 +80,11 @@ def shared_header_css():
 @app.get('/felles/fonts/<path:filename>')
 def shared_fonts(filename):
     return send_from_directory(APP_DIR.parent / 'lutar' / 'fonts', filename)
+
+
+@app.get("/felles/arsmelding-tilskipingar.css")
+def shared_annual_events_css():
+    return send_from_directory(APP_DIR.parent / "lutar", "arsmelding-tilskipingar.css")
 
 
 @app.get("/felles/kolofon.css")
@@ -250,34 +255,14 @@ def _oppdater_alle_fra_innbetalingar(conn):
         _oppdater_fra_innbetalingar(conn, row[0])
 
 
-def _parse_dato_ymd(s: str | None) -> date | None:
-    """Parsar dato YYYY-MM-DD (eller ISO med tid), elles None."""
-    if s is None:
-        return None
-    t = str(s).strip()
-    if len(t) < 10:
-        return None
-    t = t[:10]
-    try:
-        y, m, d = t.split("-")
-        return date(int(y), int(m), int(d))
-    except (ValueError, TypeError, AttributeError):
-        return None
-
-
-def _alder_år(fødsel: date, idag: date) -> int:
-    a = idag.year - fødsel.year
-    if (idag.month, idag.day) < (fødsel.month, fødsel.day):
-        a -= 1
-    return a
-
-
 def init_db():
     from migreringar import Migration, migrate
     from totp_kryptering import migrate as validate_totp
 
+    from auth_epost import init_queue
     migrate(get_db, (
         Migration(1, "baseline_20261125", lambda db: _initial_schema(lambda: db)),
+        Migration(2, "auth_mail_queue", init_queue),
     ))
     # Dette er driftskontroll/dataoppdatering, ikkje skjemamigrering. Feil nøkkel
     # skal stoppe også når databasen allereie har rett skjemaversjon.
@@ -435,6 +420,8 @@ install_payment_import(app, get_db, require_admin)
 from arsmote_utskrift import install_print
 install_print(app, get_db, require_admin)
 
+from auth_epost import install_auth_mail
+install_auth_mail(app, get_db, init_db)
 install_auth(app, get_db, prefix_url, init_db)
 
 from tilskipingar import install_calendar

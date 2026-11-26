@@ -1,0 +1,73 @@
+{% if ledger_part=='bilag' %}
+  <section id="bilag-panel">
+    {% set bilagdel=request.args.get('bilagdel','liste') %}
+    {% if values.get('action')=='attach' %}
+      {% set bilagdel='knytt' %}
+    {% endif %}
+    <nav id="bilag-meny" class="rekneskap-meny bilag-undermeny" aria-label="Bilag">
+      {% for key,label in [('nytt','Last opp nytt bilag'),('knytt','Knytt bilag til post'),('liste','Bilag')] %}
+        <a href="{{ prefix_url('ledger_index') }}?year={{ year }}&amp;del=bilag&amp;bilagdel={{ key }}#bilag-meny"{% if bilagdel==key %} aria-current="page"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+    {% if bilagdel=='nytt' %}
+      <h2>Last opp nytt bilag</h2>
+      <p>Du kan laste opp bilaget her, eller direkte når du registrerer ein post. Du kan bruke PDF eller eit tydeleg bilete. Bilaget får eit internt nummer, til dømes B1. Originalfiler er berre tilgjengelege for styret, ikkje i offentleg rekneskap.</p>
+      <form method="post" action="{{ prefix_url('ledger_upload') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <label>PDF, JPEG eller PNG, maks 10 MiB <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
+        </label>
+        <label>Erstattar bilagsnummer (valfritt) <input type="number" name="replaces_id" min="1">
+        </label>
+        <label>Grunn til erstatning <input name="reason" maxlength="1000">
+        </label>
+        <button>Last opp internt bilag</button>
+      </form>
+    {% elif bilagdel=='knytt' %}
+      <h2>Knytt bilag til post</h2>
+      <p class="feltforklaring">Bruk dette når ein post alt er bokført og du vil leggje ved meir dokumentasjon. Postnummeret er merkt P i lista «Bokførte postar». Dette opprettar ikkje ei ny utgift.</p>
+      <form method="post">{{ hidden('attach') }}<label>Postnummer <input name="journal_id" type="number" min="1" required>
+        </label>
+        <label>Bilag <select name="receipt_id" required>
+            {% for receipt in receipts %}
+              <option value="{{ receipt.id }}">B{{ receipt.id }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button>Knytt bilag til post</button>
+      </form>
+    {% else %}
+      <h2>Bilag <span class="bilag-tal">{{ receipts|length }} lagra</span>
+      </h2>
+      <ul class="bilagsliste">
+        {% for receipt in receipts %}
+          <li>
+            <div class="bokfort-topp">
+              <span class="bokfort-referanse">B{{ receipt.id }} · {{ {'application/pdf':'PDF','image/jpeg':'JPEG-bilete','image/png':'PNG-bilete'}.get(receipt.media_type,'Dokument') }}</span>
+              <span class="bokfort-referanse">{{ (receipt.size/1024)|round(0)|int }} kB</span>
+            </div>
+            <h3 class="bilag-filnamn">{{ receipt.original_name }}</h3>
+            <a class="btn sekundaer" href="{{ prefix_url('ledger_receipt',receipt_id=receipt.id) }}">Opne bilag B{{ receipt.id }}</a>
+            {% if receipt.replaces_id %}
+              <p class="bilag-erstatning">Erstattar B{{ receipt.replaces_id }}. {{ receipt.reason }}</p>
+            {% endif %}
+            <details class="bokfort-detaljar">
+              <summary>Om bilaget</summary>
+              <dl>
+                <dt>Lasta opp</dt>
+                <dd>{{ receipt.created_at|lesbart_tidspunkt }}</dd>
+                <dt>Lasta opp av</dt>
+                <dd>{{ receipt.actor }}</dd>
+                <dt>Kontrollsum</dt>
+                <dd class="bilag-kontrollsum">{{ receipt.sha256 }}</dd>
+              </dl>
+              <p class="feltforklaring">Kontrollsummen blir brukt til å kontrollere at fila ikkje er endra. Originalfila blir bevart.</p>
+            </details>
+          </li>
+        {% else %}
+          <li>Ingen bilag enno.</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+{% endif %}
