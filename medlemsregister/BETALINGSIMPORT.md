@@ -131,3 +131,194 @@ medlemsåra må svare til året for posten. Skjemabetalingar med ePayment blir
 framleis kontrollerte enkeltvis mot Vipps. Ei betaling eller ein post som alt er
 kopla, kan ikkje brukast om att. Reversering eller endra betalingsbeløp viser
 avvik og krev manuell oppfølging; samla koplingar blir ikkje sletta.
+
+## Utforsking 26. november 2026
+
+### Tilrådd første steg: skjemabetalingane
+
+Den eksisterande ePayment-importen er det kortaste steget til mindre manuelt
+arbeid. Innmelding/fornying registrerer medlemskap og betaling allereie;
+rekneskapsimporten er separat og eksplisitt avslått som standard. Koden har vern
+mot dobbeltføring, krev fersk Vipps-kontroll og stoppar ved refusjon eller tvil.
+Det er ikkje undersøkt om funksjonen er aktivert på produksjonsserveren.
+
+Før tidsstyrt drift bør vi leggje til ei førehandsvising som viser kva som vil
+bli bokført utan å bokføre, og betre køa og avvikshandteringa:
+
+- Stadfesta køproblem: Dersom 50 betalingar manglar kjeldekontroll og henting
+  stadig feilar, blir dei same 50 valde på nytt. Seinare betalingar kan bli
+  ståande ubehandla. To simulerte køyringar med 51 betalingar stadfesta dette.
+  Prioritering må ta omsyn til mislukka forsøk, med rotasjon og ventetid.
+- Betalingar før startdato bør skiljast frå reelle avvik, slik at historiske
+  kjelder ikkje stadig fyller kontrollista.
+- Styret bør få ei tydeleg oversikt over ubehandla betalingar og avvik, gjerne
+  med varsling når noko krev handling. CLI-tal aleine er lite synlege i drift.
+
+Etter dette: kontroller opningsbalanse, historiske føringar og startdato, gjer
+kontrollert lesing mot eiga salseining og prøv ei avgrensa innføring før tidsstyring.
+Dei 12 eksisterande importtestane bestod lokalt med simulerte svar. Dette provar
+ikkje produksjonstilgang eller at alle kanttilfelle er dekte. Ingen import er
+aktivert og ingen verkelege Vipps-kall er utførte under denne utforskinga.
+
+### Direkte betaling til Vippsnummer: rapportimport
+
+Vipps tilbyr oppgjørsrapport som CSV og XLSX. Ein første versjon kan bruke CSV
+og vise ei førehandsvising av betalingar, refusjonar, gebyr og planlagde oppgjer.
+Vippsnummer-rapporten kan òg innehalde namn, telefonnummer og melding dersom
+«Personlig informasjon» er valt ved eksport. Desse opplysningane er interne og
+skal ikkje følgje med offentleg rekneskapsinnsyn.
+
+Vi bør fyrst kontrollere kolonnane i ein anonymisert faktisk eksport. Importen
+må bruke stabile kjeldeidentifikatorar og salseining til duplikatvern, slik at
+overlappande rapportperiodar kan importerast trygt. Beløp og namn aleine er ikkje
+nok. Manglande eller uklare identifikatorar må stoppe automatisk føring.
+
+Ei innbetaling er ikkje nødvendigvis kontingent, og betalaren kan betale for ein
+annan. Systemet kan foreslå medlemskoplingar, men uvisse tilfelle må godkjennast.
+Medlemsår og betalingstype må avklarast før oppdatering av medlemsstatus.
+Skjemabetalingar som finst frå før må koplast, ikkje opprettast på nytt.
+
+Rapporten viser rørsler i Vipps-balansen, ikkje alltid ei enkel gruppe betalingar
+per bankutbetaling. Inntekta blir ført éin gong; bankoppgjer flyttar pengar frå
+Vipps til bank. Gebyr og refusjonar må handsamast separat. Planlagt utbetaling må
+avstemmast mot faktisk kontoutskrift før ho blir registrert som bankoppgjer.
+
+### Full automatikk med Report API: eit seinare steg
+
+Vipps si tilgangsside, oppdatert 4. november 2026, seier at ePayment og Recurring
+kan bruke Report API med salseininga sine vanlege API-nøklar. Vippsnummer kan
+ikkje bruke API-et direkte, men kan gi ein rekneskapspartnar tilgang. Det er
+ikkje stadfesta kva rapporttilgang Oslobygda faktisk har.
+
+For den eigne ePayment-salseininga kan API-et på sikt levere grunnlag for gebyr
+og oppgjersavstemming. For direkte Vippsnummer er filimport eit mindre omfattande
+første steg enn å etablere ei eiga partnarintegrasjon. Ingen ny leverandør er
+nødvendig for å prøve filimport.
+
+Offisielle kjelder kontrollerte 26. november 2026:
+
+- [Report API: tilgang per produkttype](https://developer.vippsmobilepay.com/docs/APIs/report-api/api-guide/overview/).
+- [Forstå oppgjørsrapporten](https://help.vippsmobilepay.com/nb-NO/articles/understand-the-settlement-report).
+- [Vel rapportformat](https://help.vippsmobilepay.com/nb-NO/articles/find-the-right-report).
+
+Dette er ei tilrådd utviklingsrekkjefølgje, ikkje ei aktivert produksjonsløysing.
+
+## Framdriftsplan – 26. november 2026
+
+Målet er at dokumenterte medlemsbetalingar frå innmeldingsløysinga kan bokførast
+éin gong, at direkte Vippsbetalingar kan importerast utan dobbeltføring, og at
+gebyr, refusjonar og bankoppgjer blir synlege for kontroll. Vi byggjer vidare på
+importen som finst. Planen aktiverer ikkje produksjonsimport.
+
+### 1. Gjere den eksisterande importkøa robust
+
+Ansvar: utvikling.
+
+- Rette blokkeringa der mislukka henting for dei første 50 betalingane kan
+  hindre alle seinare betalingar. Bruk forsøkstidspunkt, rotasjon og ventetid.
+- Skilje betalingar før startdato frå reelle feil og nye, ubehandla betalingar.
+- Bevare seinare kontroll av allereie bokførte betalingar, slik at nye refusjonar
+  eller endra kjelde blir oppdaga.
+- Teste fleire køyringar, parallelle jobbar og avbrot utan dobbel bokføring.
+
+Ferdig når ein feilande ordre ikkje blokkerer andre, og gjenteken køyring gir
+same bokførte resultat. Kan gjerast utan produksjonstilgang.
+
+### 2. Lage ein enkel kontrollflyt i Bygdelista
+
+Ansvar: utvikling, deretter brukarkontroll av utforminga.
+
+- Samle status på Økonomi → Medlemspengar: klare, bokførte og til kontroll.
+- Lage førehandsvising av foreslåtte føringar utan å bokføre. Lesing frå Vipps
+  skal vere tydeleg skild frå endring av rekneskapen.
+- Vise beløp, betalingsdato, medlemsår, kjelde og eventuell eksisterande kopling.
+- La brukaren godkjenne dei kontrollerte føringane samla; nye kjeldeendringar
+  skal ugyldiggjere ei gammal førehandsvising.
+- Gi ei kort, synleg melding når noko krev oppfølging, utan rå leverandørdata.
+
+Ferdig når ein kan kontrollere og godkjenne ein avgrensa import frå grensesnittet,
+og avvik har ei forståeleg forklaring og ei handling. Automatikk er framleis av.
+
+### 3. Kontrollere oppstart mot verkelege opplysningar
+
+Ansvar: styret kontrollerer dokumentasjonen; utvikling støttar samanlikninga.
+
+- Kontrollere opningsbalanse og kva medlemsbetalingar som allereie er bokførte,
+  også betalingar som inngår i historiske samlepostar.
+- Avtale startdato for nye automatiske føringar. Historikken blir ikkje automatisk
+  etterført som nye inntekter.
+- Gjere kontrollert lesing av ei kjend produksjonsbetaling og samanlikne referanse,
+  faktisk trekt beløp og betalingsdato med Vipps og medlemsregisteret.
+- Godkjenne ei lita, tydeleg avgrensa bokføring gjennom kontrollflyten frå steg 2.
+  Kontrollere også eventuell offentleg rekneskapsvising etterpå.
+
+Ferdig når kjelde, medlemsbetaling og éi rekneskapsføring samsvarar, og ny køyring
+ikkje opprettar ei ny inntekt. Dette er kontrollpunktet før automatisk drift.
+
+### 4. Setje skjemabetalingane i automatisk drift
+
+Ansvar: utvikling og driftsansvarleg; styret vel aktivering og startdato.
+
+- Setje opp ein avgrensa, tidsstyrt jobb på PythonAnywhere når den kontrollerte
+  manuelle flyten fungerer. Frekvensen blir vald ut frå tilgjengeleg driftsoppsett.
+- Hindre overlappande jobbar og halde nettverksfeil til nye forsøk med ventetid.
+- Vise siste vellukka køyring, tal på behandla betalingar og opne avvik.
+- Ha ein enkel av-knapp. Stans skal stoppe nye automatiske føringar og bevare
+  allereie bokførte postar, kjeldehistorikk og manuell kontroll.
+- Kontrollere første driftsperiode mot Vipps og rekneskap før vi aukar omfanget.
+
+Ferdig når nye, eintydige skjemabetalingar blir førte éin gong, og uvisse tilfelle
+stoppar til kontroll. Dersom tidsstyring ikkje er tilgjengeleg, kan steg 2 brukast
+manuelt i mellomtida.
+
+### 5. Lage rapportimport for direkte Vippsnummer
+
+Ansvar: styret leverer ein anonymisert faktisk eksport; utvikling lagar importen.
+Dette kan spesifiserast parallelt med steg 1–4 når eksporten ligg føre.
+
+- Kontrollere kolonnar og stabile identifikatorar i ein faktisk CSV-rapport.
+- Lage opplasting og førehandsvising før noko blir registrert eller bokført.
+- Skilje medlemsbetalingar, gåver, gebyr, refusjonar og oppgjersrørsler.
+- Behandle uvisse medlemskoplingar manuelt. Betalarnamn eller likt beløp er ikkje
+  åleine grunnlag for å tildele medlemskap.
+- Kople skjemabetalingar som finst frå før, og hindre duplikat ved ny opplasting
+  og rapportar med overlappande datoar. Uklare identifikatorar krev kontroll.
+
+Ferdig når ein kontrollert rapport kan importerast to gonger utan nye duplikat,
+og ingen uvisse medlemskap blir stadfesta automatisk.
+
+### 6. Forenkle gebyr, refusjonar og bankavstemming
+
+Ansvar: utvikling med kontroll mot rapport og kontoutskrift frå styret.
+
+- Lage forslag til gebyr og oppgjer frå rapportgrunnlaget, med vern mot føringar
+  som finst frå før. Bankutbetaling skal ikkje gi ei ny medlemsinntekt.
+- Avstemme planlagt oppgjer mot faktisk innbetaling på bankkonto.
+- Vise refusjonar som avvik med originalbetaling og eventuell eksisterande retting.
+  Rekneskapsføring skal ikkje utføre sjølve refusjonen i Vipps.
+- Vise kva som er avstemt, kva som manglar og kva som krev manuell avgjerd.
+
+Ferdig når ei heil oppgjersperiode kan kontrollerast mot Vipps-rapport og bank,
+med forklarte differansar og utan dobbeltførte gebyr, inntekter eller oppgjer.
+
+### 7. Vurdere vidare API-automatisering
+
+Ansvar: utvikling; styret vurderer nytte etter at filimporten er prøvd.
+
+Undersøkje faktisk Report API-tilgang for den aktuelle salseininga og vurdere om
+rapporthenting bør automatiserast. Behalde filimport som reserve. Eventuell
+partnarteneste blir ei eiga avgjerd etter at behov og arbeidsmengde er kjende.
+
+Ferdig når vi har eit konkret grunnlag for å velje vidare API-utvikling eller
+halde fram med rapportimport. Dette er ikkje ein føresetnad for steg 1–6.
+
+### Praktisk rekkjefølgje og bidrag
+
+Start med steg 1 og 2. Dei kan utviklast og prøvast med simulerte data utan å
+vente på nye leverandørsvar. Før steg 3 treng vi ei kjend produksjonsbetaling,
+kontrollert opningsgrunnlag og vald startdato. Før steg 5 treng vi ein anonymisert
+Vippsnummer-eksport; før steg 6 ei samsvarande kontoutskrift eller anonymiserte
+oppgjerstal. Hemmelege nøklar skal framleis berre liggje i serveroppsettet.
+
+Etter kvar milepåle skal løysinga kunne brukast, også om neste steg ventar.
+Eksisterande bokføring blir ikkje omskriven automatisk som del av planen.
