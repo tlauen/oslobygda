@@ -1,15 +1,7 @@
-  <div class="om-modul pobb-galleri__folg">
-    <p>Følg oss for fleire glimt og nytt frå pøbben.</p>
-    <div class="pobb-galleri__lenkjer">
-      <a href="https://www.instagram.com/folkemusikkpub/"><svg class="pobb-galleri__sosialikon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> <span>Følg oss på Instagram</span></a>
-      <a href="https://www.facebook.com/folkemusikkpub"><svg class="pobb-galleri__sosialikon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M14 22v-9h3l.5-4H14V7c0-1.1.3-2 2-2h2V1.4A25 25 0 0 0 15 1c-3 0-5 1.8-5 5v3H7v4h3v9z"/></svg> <span>Følg oss på Facebook</span></a>
-    </div>
-  </div>
-
 <section class="om-modul pobb-galleri" aria-labelledby="pobb-galleri-tittel">
-  <p class="modul-etikett">Glimt frå pøbben</p>
-  <h2 id="pobb-galleri-tittel">Musikk, dans og godt lag</h2>
-  <p>Ein jam rundt bordet, ein svingom på golvet og musikk gjennom kvelden. Her er nokre glimt frå Folkemusikkpøbben.</p>
+  <p class="modul-etikett">{{ site.data.sidetekstar.pub.source.gallery_subtitle | escape }}</p>
+  <h2 id="pobb-galleri-tittel">{{ site.data.sidetekstar.pub.source.gallery_title | escape }}</h2>
+  {% include markdown-tekst.html html=site.data.sidetekstar.pub.html.gallery_body %}
   {% assign foto = 0 %}{% assign filmar = 0 %}
   {% for medium in site.data.pobb_bilete %}
     {% assign type = medium.fil | split: '.' | last %}
@@ -39,7 +31,7 @@
         <img src="{{ medielenkje | relative_url | escape }}" alt="{{ medium.tekst | escape }}" loading="lazy" decoding="async">
       </a>
       {% endif %}
-      <figcaption>{% if filtype == 'mp4' %}Film · {% endif %}{{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">Foto: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
+      <figcaption>{% if filtype == 'mp4' %}Film · {% endif %}{{ medium.tekst | escape }}{% if medium.fotograf %}<span class="pobb-galleri__kreditering">{% if filtype == 'mp4' %}Film{% else %}Foto{% endif %}: {{ medium.fotograf | escape }}</span>{% endif %}</figcaption>
     </figure>
     {% endif %}
     {% endfor %}

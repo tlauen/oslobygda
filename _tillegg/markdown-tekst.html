@@ -1,3 +1,6 @@
 {%- capture kontingent -%}{% include kontingent-belop.html %}{%- endcapture -%}
 {%- capture frilynt -%}{% include kontekstlenkje.html %}{%- endcapture -%}
-{{- include.html | replace: '<span data-md-kontingent></span>', kontingent | replace: '[[frilynt]]', frilynt -}}
+{%- capture kalenderknapp -%}{% include pobb-kalenderknapp.html %}{%- endcapture -%}
+{%- capture kalenderabonnement -%}{% include kalenderabonnement.html %}{%- endcapture -%}
+{%- capture folg -%}{% include pobb-folg.html %}{%- endcapture -%}
+{{- include.html | replace: '<span data-md-kontingent></span>', kontingent | replace: '[[frilynt]]', frilynt | replace: '<div data-md-kalenderknapp></div>', kalenderknapp | replace: '<div data-md-kalenderabonnement></div>', kalenderabonnement | replace: '<div data-md-folg-oss></div>', folg -}}

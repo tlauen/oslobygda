@@ -1,0 +1,37 @@
+{% extends 'hjelp_base.html' %}
+{% block title %}Bilete og filmar – Folkemusikkpøbben{% endblock %}
+{% macro tokens() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ revision }}"><input type="hidden" name="source_revision" value="{{ source_revision }}">{% endmacro %}
+{% macro media_url(path) %}{% if path in local %}{{ prefix_url('pub_media_asset',name=path.split('/')[-1]) }}{% else %}https://oslobygda.no/lutar/bilete/pobb/{{ path | urlencode }}{% endif %}{% endmacro %}
+{% block content %}
+<header class="toppfelt"><h1>Bilete og filmar</h1></header>
+<p><a href="{{ prefix_url('website_text_editor',key='pub') }}">Til tekstane på Folkemusikkpøbb-sida</a></p>
+{% if error %}<p class="feil" role="alert">{{ error }} Vel eventuelle opplastingsfiler på nytt.</p>{% endif %}
+{% if message %}<p role="status">{{ message }}</p>{% endif %}
+{% if preview_mode %}
+<h2>Førehandsvis galleriutkastet</h2><p>Endringane blir synlege på nettsida først når du publiserer.</p>
+<form method="post">{{ tokens() }}<input type="hidden" name="action" value="publish">{% if ready %}<button name="confirmed" value="yes">Publiser galleriet på nettsida</button>{% else %}<p>Publisering er ikkje konfigurert. Utkastet er lagra.</p>{% endif %}</form>
+<p><a href="{{ prefix_url('pub_gallery_editor') }}">Endre eller legg til fleire innslag</a></p>
+{% else %}
+<details{% if editing or error %} open{% endif %}><summary>{{ 'Rediger innslag' if editing else 'Last opp bilete eller film' }}</summary>
+<form method="post" enctype="multipart/form-data" class="medlemsskjema">
+{{ tokens() }}<input type="hidden" name="edit" value="{{ editing }}">
+<label for="media-file">{{ 'Byt bilete eller film (valfritt)' if editing else 'Bilete eller film' }}</label><input id="media-file" type="file" name="media" accept="image/jpeg,image/png,image/webp,video/mp4" {% if not editing %}required{% endif %}>
+<p>JPEG, PNG, WebP eller MP4. Høgst 10 MiB per fil; komprimer større filmar før opplasting.</p>
+<label for="media-text">Bilettekst / skildring av innhaldet</label><input id="media-text" name="tekst" maxlength="500" value="{{ values.get('tekst','') }}" required>
+<label for="media-credit">Foto/film av (valfritt)</label><input id="media-credit" name="fotograf" maxlength="500" value="{{ values.get('fotograf','') }}">
+<label for="media-poster">Framsidebilete til film (valfritt, høgst 3 MiB)</label><input id="media-poster" type="file" name="poster" accept="image/jpeg,image/png,image/webp">
+<label for="media-position">Plassering i galleriet</label><input id="media-position" name="position" type="number" min="1" max="{{ items|length if editing else items|length+1 }}" value="{{ values.get('position', position) }}" required>
+<button name="action" value="save">Lagre og førehandsvis</button>
+</form></details>
+{% if items %}<form method="post">{{ tokens() }}<button name="action" value="preview">Førehandsvis galleriutkast</button></form>{% endif %}
+{% endif %}
+<div class="galleri-redigering">
+{% for item in items %}<article class="galleri-redigering__kort">
+{% if item.fil.endswith('.mp4') %}<video controls playsinline preload="none"{% if item.plakat %} poster="{{ media_url(item.plakat) }}"{% endif %} aria-label="{{ item.tekst }}"><source src="{{ media_url(item.fil) }}" type="video/mp4"></video>
+{% else %}<img src="{{ media_url(item.fil) }}" alt="{{ item.tekst }}" loading="lazy">{% endif %}
+<p>{{ loop.index }}. {{ item.tekst }}</p>{% if item.fotograf %}<p>Foto/film: {{ item.fotograf }}</p>{% endif %}
+{% if not preview_mode %}<p><a href="{{ prefix_url('pub_gallery_editor',edit=item.fil) }}">Rediger innslag</a></p><details><summary>Fjern frå galleriet</summary><p>Fila blir bevart, men innslaget blir fjerna frå galleriutkastet. Publiser for å endre nettsida.</p><form method="post">{{ tokens() }}<input type="hidden" name="edit" value="{{ item.fil }}"><button name="action" value="remove">Fjern frå utkastet</button></form></details>{% endif %}
+</article>{% else %}<p>Galleriet er tomt.</p>{% endfor %}
+</div>
+{% if not preview_mode %}<details><summary>Hent publisert galleri på nytt</summary><p>Dette byter ut galleriutkastet. Opplasta filer blir bevarte.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkastet med publisert galleri</button></form></details>{% endif %}
+{% endblock %}

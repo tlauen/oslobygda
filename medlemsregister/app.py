@@ -431,6 +431,9 @@ install_calendar(app, require_admin)
 from nettsidetekst import install_text_editor
 install_text_editor(app, get_db, require_admin)
 
+from pobb_media import install_gallery
+install_gallery(app, get_db, require_admin)
+
 from arsdokument import install_documents
 install_documents(app, get_db, require_admin)
 from sakliste import install_meetings

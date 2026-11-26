@@ -30,5 +30,17 @@
     "html": {
       "body": "<p>Oslobygda kulturlag skal på [[frilynt]] grunn skape engasjement for levande folkekultur i hovudstaden – fortrinnsvis innafor Ring 2, så lenge T-banen går.</p>\n<p>Laget blei offisielt skipa 5. mars 2026 under ein lønsjprat på Wessels plass, godt innafor Ring 1. Men i praksis har me jo eksistert sidan den første folkemusikkpøbben blei skipa til hausten 2021.</p>\n<p>Me skipar til Folkemusikkpøbb omlag 9 gonger i året, hovudsakleg siste onsdagen i månaden. Me kan òg finne på andre ting viss me syns det er kult.</p>\n<p>Vil du bli med i laget? <a href=\"/bli-medlem/\">Bli medlem her!</a> Medlemskap: frå <span data-md-kontingent></span>.</p>"
     }
+  },
+  "pub": {
+    "source": {
+      "body": "# Folkemusikkpøbben\n\nMe har skipa til folkemusikkpøbb på Kaffistova i Oslo sidan hausten 2021. Det er gratis å kome inn, og pøbben blir organisert på dugnad og stort sett utan nokon form for økonomi. Kaffistova lånar ut lokalet gratis, organisatorane organiserar på dugnad og musikarane speler på dugnad.\n\nTanken, og ønsket, er å legge til rett for ein arena der musikarar kan møtast for å spele og jamme, for at dansarar skal få danse, og at dei som helst vil drikke øl og preike skit skal få lov til det.\n\nKan du tenkje deg å hjelpe til med organisering, leie ein jam-session eller spele til dans? Send ein epost til [folk@oslobygda.no](mailto:folk@oslobygda.no)!\n\n[[kalenderknapp]]\n\n[[kalenderabonnement]]\n\n[[folg-oss]]",
+      "gallery_title": "Musikk, dans og godt lag",
+      "gallery_subtitle": "Glimt frå pøbben",
+      "gallery_body": "Ein jam rundt bordet, ein svingom på golvet og musikk gjennom kvelden. Her er nokre glimt frå Folkemusikkpøbben."
+    },
+    "html": {
+      "body": "<h1>Folkemusikkpøbben</h1>\n<p>Me har skipa til folkemusikkpøbb på Kaffistova i Oslo sidan hausten 2021. Det er gratis å kome inn, og pøbben blir organisert på dugnad og stort sett utan nokon form for økonomi. Kaffistova lånar ut lokalet gratis, organisatorane organiserar på dugnad og musikarane speler på dugnad.</p>\n<p>Tanken, og ønsket, er å legge til rett for ein arena der musikarar kan møtast for å spele og jamme, for at dansarar skal få danse, og at dei som helst vil drikke øl og preike skit skal få lov til det.</p>\n<p>Kan du tenkje deg å hjelpe til med organisering, leie ein jam-session eller spele til dans? Send ein epost til <a href=\"mailto:folk@oslobygda.no\">folk@oslobygda.no</a>!</p>\n<div data-md-kalenderknapp></div>\n<div data-md-kalenderabonnement></div>\n<div data-md-folg-oss></div>",
+      "gallery_body": "<p>Ein jam rundt bordet, ein svingom på golvet og musikk gjennom kvelden. Her er nokre glimt frå Folkemusikkpøbben.</p>"
+    }
   }
 }

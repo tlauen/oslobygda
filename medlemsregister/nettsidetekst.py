@@ -41,6 +41,16 @@ FIELDS = {
         ("join_button", "Innmeldingslenkje", False),
     ],
 }
+FIELDS["pub"] = [
+    ("body", "Hovudtekst", True),
+    ("gallery_title", "Tittel", False),
+    ("gallery_subtitle", "Undertittel", False),
+    ("gallery_body", "Innhald", True),
+]
+BLOCK_MARKERS = {
+    name: "<div data-md-" + name + "></div>"
+    for name in ("kalenderknapp", "kalenderabonnement", "folg-oss")
+}
 LEGACY_OM_FIELDS = FIELDS["om"]
 FIELDS["om"] = [("title", "Sidetittel", False), ("body", "Om laget", True)]
 MEMBERSHIP_MARKER = "<span data-md-kontingent></span>"
@@ -52,9 +62,16 @@ GROUPS = {
         ("Medlemskap", ("member_title", "member_body")),
     ],
     "om": [("Om laget", ("title", "body"))],
+    "pub": [
+        ("Modul 1: Hovudtekst", ("body",)),
+        (
+            "Modul 2: Bilete og filmar",
+            ("gallery_title", "gallery_subtitle", "gallery_body"),
+        ),
+    ],
 }
 
-LABELS = {"framside": "Framsida", "om": "Om-sida"}
+LABELS = {"framside": "Framsida", "om": "Om-sida", "pub": "Folkemusikkpøbben"}
 
 
 def digest(value):
@@ -77,6 +94,7 @@ class SafeHTML(HTMLParser):
             "ol",
             "li",
             "blockquote",
+            "h1",
             "h2",
             "h3",
             "h4",
@@ -137,7 +155,11 @@ def markdown_html(source, tokens=True):
     parser.feed(
         markdown.markdown(escape(source, quote=False), extensions=["sane_lists"])
     )
-    return "".join(parser.output)
+    html = "".join(parser.output)
+    if tokens:
+        for name, marker in BLOCK_MARKERS.items():
+            html = html.replace("<p>[[" + name + "]]</p>", marker)
+    return html
 
 
 def make_page(key, values, legacy=False):
@@ -166,9 +188,13 @@ def make_page(key, values, legacy=False):
 
 
 def validate_envelope(value):
-    if not isinstance(value, dict) or set(value) != set(FIELDS):
+    if (
+        not isinstance(value, dict)
+        or not {"framside", "om"}.issubset(value)
+        or not set(value).issubset(FIELDS)
+    ):
         raise PublicationError("Sidetekstfila har ukjent format.")
-    for key in FIELDS:
+    for key in value:
         try:
             if (
                 make_page(
@@ -200,9 +226,9 @@ class GithubTexts(GithubDocuments):
 
     def publish_page(self, key, page, base):
         data, sha = self.read_texts()
-        if data[key] == page:
+        if data.get(key) == page:
             return
-        if digest(data[key]) != base:
+        if digest(data.get(key)) != base:
             raise PublicationConflict(
                 "Sida er endra i GitHub. Ta vare på teksten din og hent publisert tekst før du prøver igjen."
             )
@@ -260,7 +286,7 @@ def install_text_editor(app, get_db, require_admin):
         # With publication configured, use the current remote text as the starting point.
         if ready and not draft:
             try:
-                published = GithubTexts().read_texts()[0][key]
+                published = GithubTexts().read_texts()[0].get(key, published)
             except PublicationError as exc:
                 error = str(exc)
                 status = 503
@@ -368,6 +394,7 @@ def install_text_editor(app, get_db, require_admin):
                     values=values,
                     preview=preview,
                     membership_marker=MEMBERSHIP_MARKER,
+                    block_markers=BLOCK_MARKERS,
                     revision=revision,
                     source_revision=state["base"],
                     ready=ready,

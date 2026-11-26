@@ -274,3 +274,37 @@ Om-sida har berre tittel og eitt Markdown-felt, inkludert innmeldingslenkja.
 Eldre Om-utkast med separate lenkjefelt blir samla når dei blir opna. Nettsida brukar dei publiserte tekstfelta utan å tolke dei som
 Jekyll-malar. Etter publisering må GitHub Pages byggje før endringa blir synleg;
 kontroller den offentlege nettsida etterpå.
+
+### Folkemusikkpøbben: tekst og galleri
+
+Nettsida → Sidetekstar → Folkemusikkpøbben har to tekstseksjonar: hovudtekst som
+eitt Markdown-felt, og galleriet sin tittel, undertittel og Markdown-innhald.
+`[[kalenderknapp]]`, `[[kalenderabonnement]]` og `[[folg-oss]]` må stå på eigne
+linjer med tom linje før og etter. Dei bruker faste Jekyll-inkluderingar; dei
+same markørane i kodefelt blir viste bokstavleg.
+
+Medieoversikta har eit separat utkast. Styret kan laste opp eller byte bilete
+og MP4-filmar, endre skildring/kreditering, rekkjefølgje og filmplakat, og fjerne
+innslag frå galleriutkastet. Dette er administrasjon av filer og opplysningar,
+ikkje beskjering eller filmklipping. Eit innslag må ha skildring. Opplasting
+aksepterer JPEG/PNG/WebP eller MP4 etter filsignatur, høgst 10 MiB per mediefil
+og 3 MiB per filmplakat. Appen si globale opplastingsgrense er uendra.
+
+Utkast og opplasta filer ligg i appdatabasen (`app_settings`) og følgjer den
+krypterte databasebackupen. Dei blir berre leverte til innlogga styrebrukarar,
+med rett MIME-type, `nosniff` og utan mellomlagring. Unngå svært store, ubrukte
+opplastingar: filene blir bevarte også ved fjerning frå utkastet, så databasen
+kan vekse. Eksisterande filer blir aldri overskrivne.
+
+Publisering bruker den eksisterande dokumenttilgangen til GitHub. Nye filer får
+innhaldshash som namn under `lutar/bilete/pobb/opplasta/` og blir sende før
+`_data/pobb_bilete.yml` blir oppdatert. JSON-formatet i denne YAML-fila er bevart.
+Manifestet blir kontrollert på nytt etter filopplastingane, med SHA-basert
+konfliktvern. Ved uvisst nettverksutfall kan same utkast prøvast igjen utan
+å lage nye filnamn eller duplikat. Ei avbroten publisering kan etterlate filer
+i repoet som enno ikkje er refererte frå galleriet. Tekst og galleri blir
+publiserte kvar for seg, og nettsida må byggjast før endringane blir synlege.
+
+Oppdater serverkopien av `oppdater-bygdelista.py` etter første oppdateringskøyring
+og køyr på nytt, slik at `_data/pobb_bilete.yml` blir med til PythonAnywhere.
+Det er ingen ny Python-avhengnad eller skjemamigrering for denne funksjonen.

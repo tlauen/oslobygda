@@ -68,7 +68,7 @@ class GithubDocuments:
         url=f'https://api.github.com/repos/{self.repo}/contents/{path}'
         if method=='GET': url+='?ref='+quote(self.branch,safe='')
         request=Request(url,method=method,data=canonical(body).encode() if body is not None else None,
-                        headers={'Authorization':'Bearer '+self.token,'Accept':'application/vnd.github+json',
+                        headers={'Authorization':'Bearer '+self.token,'Accept':getattr(self,'accept','application/vnd.github+json'),
                                  'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'Bygdelista-documents'})
         try:
             with self.opener.open(request,timeout=20) as response:

@@ -19,11 +19,11 @@
 <p>Utkastet er lagra. Sjå gjennom teksten før du publiserer. Førehandsvisinga viser tekstformateringa, ikkje heile sideutforminga.</p>
 <section aria-label="Tekstførehandsvising">
 {% for name,label,is_markdown in fields if name != 'description' %}
-{% if name in ['title','member_title','events_title'] %}<h2>{{ preview.source[name] }}</h2>
-{% elif is_markdown %}<div>{{ preview.html[name] | safe | replace(membership_marker, membership_widget) | replace('[[frilynt]]','frilynt') | safe }}</div>
+{% if name in ['title','member_title','events_title','gallery_title'] %}<h2>{{ preview.source[name] }}</h2>
+{% elif is_markdown %}<div>{% with html=preview.html[name] %}{% include '_markdown_preview.html' %}{% endwith %}</div>
 {% endif %}
 {% endfor %}
-{% if key != 'om' %}<details><summary>Småtekstar og søkemotortekst</summary>{% for name,label,is_markdown in fields if not is_markdown and name not in ['title','member_title','events_title'] %}<p><strong>{{ label }}:</strong> {{ preview.source[name] }}</p>{% endfor %}</details>{% endif %}
+{% if key == 'framside' %}<details><summary>Småtekstar og søkemotortekst</summary>{% for name,label,is_markdown in fields if not is_markdown and name not in ['title','member_title','events_title','gallery_title'] %}<p><strong>{{ label }}:</strong> {{ preview.source[name] }}</p>{% endfor %}</details>{% endif %}
 </section>
 <form method="post">
 {{ tokens() }}
@@ -33,7 +33,7 @@
 </form>
 <p><a href="{{ prefix_url('website_text_editor',key=key) }}">Tilbake til redigering</a></p>
 {% else %}
-<p><a href="{{ prefix_url('website_text_editor',key='framside') }}">Framsida</a> · <a href="{{ prefix_url('website_text_editor',key='om') }}">Om-sida</a></p>
+<p><a href="{{ prefix_url('website_text_editor',key='framside') }}">Framsida</a> · <a href="{{ prefix_url('website_text_editor',key='om') }}">Om-sida</a> · <a href="{{ prefix_url('website_text_editor',key='pub') }}">Folkemusikkpøbben</a></p>
 <p>Opne seksjonen du vil endre. Kalender, styreoversikt og kontingentsats blir henta automatisk.</p>
 <form method="post" class="medlemsskjema">
 {{ tokens() }}
@@ -41,10 +41,11 @@
 {% for group,names in groups %}
 <details name="tekstseksjon"{% if loop.first %} open{% endif %}><summary>{{ group }}</summary>
 {% for name,label,is_markdown in fields if name in names %}{{ field(name,label,is_markdown) }}{% set main.names=main.names+[name] %}{% endfor %}
+{% if key == 'pub' and loop.last %}<p><a href="{{ prefix_url('pub_gallery_editor') }}">Last opp og rediger bilete og filmar</a></p>{% endif %}
 </details>
 {% endfor %}
-{% if key != 'om' %}<details name="tekstseksjon"><summary>Fleire tekstval</summary>{% for name,label,is_markdown in fields if name not in main.names %}{{ field(name,label,is_markdown) }}{% endfor %}</details>{% endif %}
-<details><summary>Hjelp til Markdown</summary><p><code>**feit tekst**</code>, <code>*kursiv*</code>, <code>[lenkjetekst](https://døme.no)</code>, <code>## Mellomoverskrift</code> og lister med <code>-</code>. Skil avsnitt med ei tom linje. HTML og Jekyll-kode blir ikkje køyrde.</p><p>Skriv til dømes <code>Bli medlem for [[kontingent]].</code> for å vise gjeldande beløp, som «5 kr». Satsen blir henta automatisk frå Bygdelista; ved stengt betaling eller teknisk feil blir det vist rettleiing utan gammal pris. I kodefelt blir markøren vist som tekst. På Om-sida gir <code>[[frilynt]]</code> den faste ordforklaringa.</p></details>
+{% if key == 'framside' %}<details name="tekstseksjon"><summary>Fleire tekstval</summary>{% for name,label,is_markdown in fields if name not in main.names %}{{ field(name,label,is_markdown) }}{% endfor %}</details>{% endif %}
+<details><summary>Hjelp til Markdown</summary><p><code>**feit tekst**</code>, <code>*kursiv*</code>, <code>[lenkjetekst](https://døme.no)</code>, <code>## Mellomoverskrift</code> og lister med <code>-</code>. Skil avsnitt med ei tom linje. HTML og Jekyll-kode blir ikkje køyrde.</p><p>Skriv til dømes <code>Bli medlem for [[kontingent]].</code> for å vise gjeldande beløp, som «5 kr». Satsen blir henta automatisk frå Bygdelista; ved stengt betaling eller teknisk feil blir det vist rettleiing utan gammal pris. I kodefelt blir markøren vist som tekst. På Om-sida gir <code>[[frilynt]]</code> den faste ordforklaringa. Skriv <code>[[kalenderknapp]]</code>, <code>[[kalenderabonnement]]</code> og <code>[[folg-oss]]</code> på eigne linjer, med tom linje før og etter, for dei faste pøbbmodulane.</p></details>
 <button name="action" value="save">Lagre og førehandsvis</button>
 </form>
 <details><summary>Hent publisert tekst på nytt</summary><p>Dette byter ut utkastet. Ta vare på eventuelle endringar først.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkast med publisert tekst</button></form></details>

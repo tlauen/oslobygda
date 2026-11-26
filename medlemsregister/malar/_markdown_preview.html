@@ -1,0 +1,9 @@
+{% set calendar_widget %}<p><a href="https://oslobygda.no/kalender/">Sjå komande og tidlegare tilskipingar</a></p>{% endset %}
+{% set subscription_widget %}<details><summary>Få tilskipingane i kalenderen din</summary><p>Abonner éin gong. Nye tilskipingar og endringar blir henta automatisk.</p><p><a href="webcal://oslobygda.no/kalender.ics">Abonner på kalenderen</a></p><p>Adresse til kalenderappen: <code>https://oslobygda.no/kalender.ics</code></p></details>{% endset %}
+{% set follow_widget %}<p>Følg oss for fleire glimt og nytt frå pøbben. <a href="https://www.instagram.com/folkemusikkpub/">Instagram</a> · <a href="https://www.facebook.com/folkemusikkpub">Facebook</a></p>{% endset %}
+{{ html | safe
+  | replace(membership_marker, membership_widget)
+  | replace('[[frilynt]]','frilynt')
+  | replace(block_markers['kalenderknapp'], calendar_widget)
+  | replace(block_markers['kalenderabonnement'], subscription_widget)
+  | replace(block_markers['folg-oss'], follow_widget) }}
