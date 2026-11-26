@@ -4,7 +4,41 @@
 <header class="toppfelt"><h1>Hjelp til nettsida</h1></header>
 <p class="arsmote-ingress">Hald den offentlege kalenderen og presentasjonen av styret oppdaterte.</p>
 <nav class="hjelp-innhald" aria-label="Innhald på hjelpesida"><a href="#markdown">Markdown</a><a href="#sidetekstar">Sidetekstar</a><a href="#pobb">Folkemusikkpøbben</a><a href="#kalender">Tilskipingar</a><a href="#styret">Styrepresentasjon</a><a href="#publisering">Publisering</a></nav>
-<section id="markdown"><h2>Markdown og faste funksjonar</h2><p><code>**feit tekst**</code>, <code>*kursiv*</code>, <code>[lenkjetekst](https://døme.no)</code>, <code>## Mellomoverskrift</code> og lister med <code>-</code>. Skil avsnitt med ei tom linje. HTML og Jekyll-kode blir ikkje køyrde.</p><p>Skriv til dømes <code>Bli medlem for [[kontingent]].</code> for å vise gjeldande beløp, som «5 kr». Satsen blir henta automatisk frå Bygdelista; ved stengt betaling eller teknisk feil blir det vist rettleiing utan gammal pris. I kodefelt blir markøren vist som tekst. På Om-sida gir <code>[[frilynt]]</code> den faste ordforklaringa. Skriv <code>[[kalenderknapp]]</code>, <code>[[kalenderabonnement]]</code> og <code>[[folg-oss]]</code> på eigne linjer, med tom linje før og etter, for dei faste pøbbmodulane.</p></section>
+<section id="markdown">
+<h2>Slik skriv du med Markdown</h2>
+<p>Skriv vanleg tekst, og bruk teikna nedanfor når du vil formatere noko. Vel «Lagre og førehandsvis» for å sjå resultatet.</p>
+<h3>Vanleg formatering</h3>
+<dl class="hjelp-sider">
+<dt>Feit tekst</dt><dd>Skriv <code>**viktig**</code> → <strong>viktig</strong></dd>
+<dt>Kursiv</dt><dd>Skriv <code>*velkomen*</code> → <em>velkomen</em></dd>
+<dt>Overskrift</dt><dd>Skriv <code>## Om pøbben</code> på ei eiga linje.</dd>
+<dt>Lenkje</dt><dd>Skriv <code>[Sjå kalenderen](/kalender/)</code> for ei lenkje med teksten «Sjå kalenderen».</dd>
+<dt>Nytt avsnitt</dt><dd>La det vere ei tom linje mellom avsnitta.</dd>
+<dt>Punktliste</dt><dd>Start kvar linje med ein bindestrek og eit mellomrom:
+<pre><code>- Musikk
+- Dans
+- Godt lag</code></pre></dd>
+</dl>
+<h3>Vis gjeldande medlemspengar</h3>
+<p>Skriv:</p>
+<pre><code>Bli medlem for [[kontingent]].</code></pre>
+<p>Det blir til dømes vist som: <strong>Bli medlem for 5 kr.</strong> Beløpet blir oppdatert automatisk frå Bygdelista.</p>
+<p>Dersom betalinga er stengd eller satsen ikkje kan hentast, blir lesaren vist vidare til innmeldingsskjemaet.</p>
+<h3>Set inn ferdige delar av sida</h3>
+<p>Kopier den markøren du treng. Dei tre første må stå på ei eiga linje, med ei tom linje før og etter.</p>
+<dl class="hjelp-sider">
+<dt><code>[[kalenderknapp]]</code></dt><dd>Set inn knappen «Sjå komande og tidlegare tilskipingar».</dd>
+<dt><code>[[kalenderabonnement]]</code></dt><dd>Set inn «Få tilskipingane i kalenderen din», med fast rettleiing og abonnementsknapp.</dd>
+<dt><code>[[folg-oss]]</code></dt><dd>Set inn «Følg oss», med faste lenkjer til Instagram og Facebook.</dd>
+<dt><code>[[frilynt]]</code></dt><dd>Set inn ordet «frilynt» med ordforklaring på Om-sida. Kan stå midt i ei setning.</dd>
+</dl>
+<p>Eit døme du kan kopiere:</p>
+<pre><code>Kom på folkemusikkpøbb!
+
+[[kalenderknapp]]
+
+[[folg-oss]]</code></pre>
+</section>
 <section id="sidetekstar"><h2>Rediger framsida, Om-sida og Folkemusikkpøbben</h2><ol class="hjelp-steg"><li><strong>Opne <a href="{{ prefix_url('website_text_editor') }}">Sidetekstar</a> og vel side.</strong> Opne Toppfelt, Arrangement eller Medlemskap på framsida. Om-sida har tittel og eitt Markdown-felt. På framsida ligg knappetekstar, små overtekstar og søkemotortekst under «Fleire tekstval». På Om-sida skriv du innmeldingslenkja som del av Markdown-teksten. Skriv <code>[[kontingent]]</code> der du vil vise gjeldande medlemspengar. Markøren kan brukast i alle Markdown-felta.</li><li><strong>Vel «Lagre og førehandsvis».</strong> Utkast er interne og endrar ikkje nettsida. Førehandsvisinga viser teksten med formatering, ikkje heile sideutforminga.</li><li><strong>Kontroller og publiser.</strong> Vel «Publiser på nettsida» frå førehandsvisinga når teksten er kontrollert, eller gå tilbake for å redigere meir. Bygdelista sender teksten til GitHub; kontroller den offentlege sida etter at bygginga er ferdig.</li></ol><p>«Hent publisert tekst på nytt» ligg i eit lukka felt og har ein eigen knapp som stadfestar at utkastet skal bytast ut. Ved samtidig endring blir lagring stoppa; kopier teksten din før du opnar siste versjon. Kalender, styreoversikt, kontingentsats og lenkjemål blir framleis styrte separat. HTML og Jekyll-kode blir ikkje køyrde frå tekstfelta.</p></section>
 <section id="pobb"><h2>Folkemusikkpøbben</h2><p>Vel Folkemusikkpøbben under Sidetekstar. Modul 1 er eitt Markdown-felt med hovudteksten, inkludert overskrift. På eigne linjer med tom linje før og etter kan du bruke <code>[[kalenderknapp]]</code>, <code>[[kalenderabonnement]]</code> og <code>[[folg-oss]]</code>. Dei set inn faste, felles modular.</p><p>Modul 2 har tittel, undertittel og Markdown-innhald. Vel <a href="{{ prefix_url('pub_gallery_editor') }}">Last opp og rediger bilete og filmar</a> for å endre galleriet. Du kan laste opp og byte JPEG-, PNG-, WebP- og MP4-filer, endre skildring, kreditering og rekkjefølgje, og velje framsidebilete til ein film. Grensa er 10 MiB per mediefil og 3 MiB per framsidebilete.</p><p>Lagre tekstendringar før du opnar medieoversikta. Tekst og galleri har kvart sitt utkast og blir publiserte kvar for seg. Fjerning frå eit utkast slettar ikkje originalfila eller noko på den offentlege nettsida. Etter publisering blir innslaget fjerna frå galleriet, medan fila og Git-historikken blir bevarte.</p></section>
 <section id="kalender"><h2>1–2–3: Legg inn ei tilskiping</h2><ol class="hjelp-steg"><li><strong>Sjå om tilskipinga alt finst.</strong> Opne henne for redigering framfor å lage ein duplikat.</li><li><strong>Fyll inn dato, klokkeslett, stad og offentleg omtale.</strong> Hald private opplysningar utanfor kalenderteksten.</li><li><strong>Lagre og kontroller.</strong> Kalenderen er ei kjelde for årsmeldinga, men ei tilskiping blir ikkje automatisk vald inn i årsmeldinga eller registrert som innkome/utgift.</li></ol></section>
