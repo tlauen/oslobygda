@@ -63,7 +63,7 @@ def install_budgets(app,get_db,require_admin):
             if not row: abort(404)
             versions=db.execute('SELECT * FROM budget_versions WHERE year=? ORDER BY id DESC',(budget_year,)).fetchall()
         return render_template('budsjett.html',budget=row,content=json.loads(row['content']),versions=versions,
-                               followup=service.followup(budget_year),accounts=ACCOUNTS,categories=CATEGORIES,
+                               accounts=ACCOUNTS,categories=CATEGORIES,
                                values=request.form,error=error),status
 
     @app.route('/budsjett/versjon/<int:version_id>',methods=['GET','POST'])

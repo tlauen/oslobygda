@@ -15,7 +15,7 @@ har éi felles kjelde i repoet.
 - Årsfesta styre med namn, verv og portrett på `/styret`.
 - Strukturert årsmelding med kalenderimport og faste versjonar på `/arsmote`.
 - Rekneskap, bilag, balanse og stegvis årsslutt på `/okonomi`.
-- Budsjett og oppfølging på `/budsjett`.
+- Budsjettframlegg og vedtak under Årsmøte på `/budsjett`.
 - [Sakliste, møtereglar og protokoll med to godkjenningar](SAKLISTE.md) på `/sakliste`.
 - Offentleg eksport, utskriftsvising og kryptert backup med gjenopprettingskontroll.
 
@@ -366,3 +366,5 @@ DOM-testane på desse. Ein eigen Playwright-test i CI kontrollerer òg ekte nett
 lagrar skjermbilete frå testdata som kortliva byggjevedlegg.
 Testavhengnadene blir berre brukte under utvikling, ikkje
 på PythonAnywhere. Oppdateringsskriptet tek med dei nye statiske filene.
+
+Budsjett ligg under Årsmøte, med framlegg og vedtak. Budsjettoppfølging gjennom året er fjerna; samanlikning med førre års rekneskap ved utarbeiding er framleis med.

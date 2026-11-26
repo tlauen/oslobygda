@@ -34,8 +34,8 @@ class BudgetTests(unittest.TestCase):
         self.create();init_budgets(module.get_db)
         content=json.loads(self.current()['content']);self.assertEqual(content['previous']['state'],'not_started')
         self.service.update(2027,1,'styret','save',self.form())
-        report=self.service.followup(2027)
-        self.assertEqual(report['budget_result_ore'],300000);self.assertFalse(report['started'])
+        content=json.loads(self.current()['content'])
+        self.assertEqual(content['amounts']['membership']-content['amounts']['events'],300000)
         with self.assertRaises(ValueError): self.service.update(2027,2,'styret','copy_previous',{'confirmed':'yes'})
         with self.assertRaises(DocumentConflict): self.service.create(2027,'styret')
 
@@ -51,7 +51,7 @@ class BudgetTests(unittest.TestCase):
         self.assertEqual(self.payload(proposal),old)
         self.assertNotIn('PRIVATE',json.dumps(old));self.assertNotIn('SECRET',json.dumps(old))
 
-    def test_proposal_approval_and_followup_uses_approved_version(self):
+    def test_proposal_approval_preserves_approved_version(self):
         self.ledger();self.create();self.service.update(2027,1,'styret','save',self.form())
         proposal=self.service.freeze(2027,2,'meeting','','styret')
         with patch('budsjett.today',return_value=date(2027,2,24)):
@@ -59,9 +59,7 @@ class BudgetTests(unittest.TestCase):
             self.assertEqual(self.service.freeze(2027,2,'approved','2027-02-24','styret'),approved)
             with self.assertRaises(ValueError): self.service.freeze(2027,2,'approved','2027-02-25','styret')
             self.service.update(2027,2,'styret','save',self.form(amount_events='4000'))
-            report=self.service.followup(2027)
-            self.assertEqual(report['basis'],'budsjett-'+str(approved));self.assertEqual(report['budget_result_ore'],300000)
-            expense=next(r for r in report['rows'] if r['category']=='events');self.assertEqual(expense['remaining_ore'],200000)
+            self.assertEqual(self.payload(approved)['result_ore'],300000)
         self.assertNotEqual(approved,proposal)
         with managed_db(module.get_db) as db:
             with self.assertRaises(sqlite3.IntegrityError): db.execute('DELETE FROM budget_versions')
@@ -96,7 +94,10 @@ class BudgetTests(unittest.TestCase):
         fixtures.BoardAuthTests.login(self)
         self.assertEqual(self.client.post('/budsjett',data={'year':2027}).status_code,400)
         csrf=self.token();self.assertEqual(self.client.post('/budsjett',data={'year':2027,'csrf_token':csrf}).status_code,302)
-        self.assertEqual(self.client.get('/budsjett/2027').status_code,200)
+        page=self.client.get('/budsjett/2027')
+        self.assertEqual(page.status_code,200)
+        self.assertIn('aria-current="page">Årsmøte',page.text)
+        self.assertNotIn('Oppfølging gjennom året',page.text)
         form=self.form();form.update(action='save',revision=1,csrf_token=csrf)
         self.assertEqual(self.client.post('/budsjett/2027',data=form).status_code,302)
         stale=self.client.post('/budsjett/2027',data=form);self.assertEqual(stale.status_code,409)
@@ -106,17 +107,3 @@ class BudgetTests(unittest.TestCase):
         self.assertEqual(self.client.post('/budsjett/versjon/'+str(vid),data={'csrf_token':csrf}).status_code,400)
         self.assertEqual(self.client.post('/budsjett/versjon/'+str(vid),data={'csrf_token':csrf,'confirmed':'yes'}).status_code,302)
         self.assertEqual(self.client.get('/budsjett/1902').status_code,404)
-
-    def test_actual_spending_and_income_variance_update_without_double_counting(self):
-        self.ledger();self.create();self.service.update(2027,1,'styret','save',self.form())
-        ledger=module.app.extensions['ledger']
-        ledger.post(dict(kind='private_expense',day='2027-03-01',amount='250',category='events',party='Torbjørn',public_text='Kake og arrangement',evidence_note='Bilag'),'styret','2027expense')
-        ledger.post(dict(kind='income',day='2027-03-01',amount='1000',account='bank',category='membership',public_text='Kontingent',evidence_note='Rapport'),'styret','2027income')
-        ledger.post(dict(kind='private_refund',day='2027-03-02',amount='250',party='Torbjørn',public_text='Oppgjer',evidence_note='Overføring'),'styret','2027refund')
-        with patch('budsjett.today',return_value=date(2027,3,2)):
-            report=self.service.followup(2027)
-        expense=next(r for r in report['rows'] if r['category']=='events')
-        income=next(r for r in report['rows'] if r['category']=='membership')
-        self.assertEqual(expense['actual_ore'],25000);self.assertEqual(expense['remaining_ore'],175000)
-        self.assertIsNone(income['remaining_ore']);self.assertEqual(income['variance_ore'],-400000)
-        self.assertEqual(report['actual_result_ore'],75000)

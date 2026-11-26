@@ -214,25 +214,3 @@ class Budgets:
             validate_budget(json.loads(row['payload']))
             db.execute('INSERT OR IGNORE INTO budget_publication_queue(version_id,payload,content_hash,created_by,created_at) VALUES (?,?,?,?,?)',
                        (vid,row['payload'],row['content_hash'],actor,stamp()))
-
-    def followup(self,budget_year):
-        with managed_db(self.get_db) as db:
-            row=db.execute('SELECT * FROM budgets WHERE year=?',(budget_year,)).fetchone()
-            if not row: raise ValueError('Budsjettet finst ikkje.')
-            approved=db.execute("SELECT payload FROM budget_versions WHERE year=? AND status='approved' ORDER BY id DESC LIMIT 1",(budget_year,)).fetchone()
-            if approved:
-                payload=json.loads(approved[0]);amounts={line['category']:line['amount_ore'] for line in payload['lines']};basis=payload['version_id'];basis_status='approved'
-            else:
-                amounts=json.loads(row['content'])['amounts'];basis='Arbeidsutkast, revisjon '+str(row['revision']);basis_status='draft'
-            cutoff=min(today().isoformat(),f'{budget_year}-12-31')
-            actual=actuals(db,budget_year,cutoff)
-            started=today().year>=budget_year and bool(db.execute('SELECT 1 FROM ledger_years WHERE opening_confirmed=1 AND year<=?',(budget_year,)).fetchone())
-            rows=[]
-            for code in CATEGORIES:
-                kind=ACCOUNTS[code][1];budget=amounts.get(code,0);used=actual[code]
-                rows.append(dict(category=code,label=ACCOUNTS[code][0],kind=kind,budget_ore=budget,actual_ore=used,
-                                 remaining_ore=budget-used if kind=='expense' else None,
-                                 variance_ore=budget-used if kind=='expense' else used-budget))
-            return dict(rows=rows,basis=basis,basis_status=basis_status,as_of=cutoff,started=started,
-                        budget_result_ore=sum(r['budget_ore']*(1 if r['kind']=='income' else -1) for r in rows),
-                        actual_result_ore=sum(r['actual_ore']*(1 if r['kind']=='income' else -1) for r in rows))
