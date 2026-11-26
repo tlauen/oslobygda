@@ -142,3 +142,25 @@ class WebsiteTextTests(unittest.TestCase):
                 client.publish_page(
                     "framside", original["framside"], digest(original["framside"])
                 )
+
+    @patch.dict(os.environ, {"GITHUB_DOCUMENTS_TOKEN": ""})
+    def test_editing_and_publication_are_separate_simple_steps(self):
+        fixtures.BoardAuthTests.login(self)
+        response = self.client.get("/nettsida/tekst")
+        self.assertIn('name="tekstseksjon" open', response.text)
+        self.assertIn("Fleire tekstval</summary>", response.text)
+        self.assertEqual(response.text.count('value="save"'), 1)
+        self.assertNotIn('value="preview"', response.text)
+        self.assertNotIn('value="publish"', response.text)
+        self.assertNotIn('type="checkbox"', response.text)
+        response = self.client.post("/nettsida/tekst", data=self.form())
+        self.assertIn("Tekstførehandsvising", response.text)
+        self.assertNotIn("<textarea", response.text)
+        self.assertNotIn('value="save"', response.text)
+        self.assertNotIn('value="reload"', response.text)
+        # A configured publisher reveals only the publication action at this step.
+        with patch.dict(os.environ, {"GITHUB_DOCUMENTS_TOKEN": "test-only"}):
+            response = self.client.post("/nettsida/tekst", data=self.form())
+            self.assertIn(
+                'name="confirmed" value="yes">Publiser på nettsida', response.text
+            )

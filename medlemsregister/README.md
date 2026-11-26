@@ -257,7 +257,9 @@ Redigeraren bruker den låste Markdown-pakka. Publisering bruker eksisterande
 nettsiderepoet. Nøklar skal berre liggje i serveroppsettet. Utan oppsett kan styret
 lagre utkast og førehandsvise, medan publiseringsknappen er deaktivert.
 
-Publisering krev eit lagra, uendra utkast og eksplisitt stadfesting. GitHub si
+«Lagre og førehandsvis» lagrar utkastet og opnar tekstførehandsvisinga.
+Der kan brukaren velje «Publiser på nettsida» som eksplisitt stadfesting.
+Publisering krev eit lagra, uendra utkast. GitHub si
 filrevisjon hindrar overskriving ved samtidige endringar. Ei endring på den andre
 sida blir bevart, og eit nytt forsøk etter uvisst nettverksutfall opprettar ikkje
 same endring på nytt. Ved konflikt må brukaren ta vare på teksten og hente nyare

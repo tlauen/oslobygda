@@ -41,6 +41,15 @@ FIELDS = {
         ("join_button", "Innmeldingslenkje", False),
     ],
 }
+GROUPS = {
+    "framside": [
+        ("Toppfelt", ("title", "intro")),
+        ("Arrangement", ("events_title",)),
+        ("Medlemskap", ("member_title", "member_body")),
+    ],
+    "om": [("Om laget", ("title", "body"))],
+}
+
 LABELS = {"framside": "Framsida", "om": "Om-sida"}
 
 
@@ -310,6 +319,10 @@ def install_text_editor(app, get_db, require_admin):
                     key=key,
                     title=LABELS[key],
                     fields=FIELDS[key],
+                    groups=GROUPS[key],
+                    preview_mode=request.method == "POST"
+                    and request.form.get("action") in ("save", "preview")
+                    and not error,
                     values=values,
                     preview=preview,
                     revision=revision,
