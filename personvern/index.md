@@ -5,7 +5,7 @@ title: Personvern og kjeks
 
 # Personvern og kjeks
 
-Sist oppdatert: 25. november 2026.
+Sist oppdatert: 26. november 2026.
 
 **Oslobygda kulturlag har ansvar for personopplysningane dine.** Kontakt oss på
 [folk@oslobygda.no](mailto:folk@oslobygda.no) om du har spørsmål eller vil bruke
@@ -81,12 +81,14 @@ automatisk eldre sporingsdata eller historiske kampanjerapportar.
   fillagring i Sveits, Tyskland eller Noreg.
   [Personvern og lagring](https://proton.me/drive/privacy-policy).
 - **GitHub Pages:** den offentlege nettstaden og publiserte dokument.
-- **Umami Cloud:** besøksstatistikk, med EU-region.
+- **Umami Cloud:** besøksstatistikk, med EU-region. Umami opplyser at analysedata
+  blir behandla og lagra i Frankfurt i Tyskland, og ikkje rutinemessig kopierte
+  ut av EU. Støttetenester kan innebere behandling utanfor EØS.
   [Databehandlaravtalen](https://umami.is/dpa) regulerer òg overføringar utanfor
   EØS, mellom anna gjennom EU-standardklausular.
 
 EU-region betyr ikkje at all behandling skjer i EØS. Me ventar på avklaringar
-frå PythonAnywhere, GitHub og Umami om avtalar, behandlingsland eller tilgang.
+frå PythonAnywhere og GitHub om avtalar, behandlingsland eller tilgang.
 Kontakt oss for status eller kopi av avtaledokumentasjonen.
 
 ## Kjeks og besøksstatistikk
@@ -94,10 +96,14 @@ Kontakt oss for status eller kopi av avtaledokumentasjonen.
 Bygdelista brukar nødvendige øktkjeks for innlogging, skjema og betaling.
 Fontane blir leverte frå våre eigne nettsider.
 
-Umami behandlar IP-adresser mellombels, men lagrar dei ikkje som eigne felt
-i standard besøksstatistikk. IP-adresser kan finnast i separate drifts- og
-tryggingsloggar. Behandlingsland og lagringstid for desse loggane er under
-avklaring. Les [Umami sin personverninformasjon](https://umami.is/privacy).
+Umami opplyser at IP-adresser ikkje blir lagra i analysedatabasen, men kan
+finnast i separate drifts- og tryggingsloggar. Cloudflare bruker eit globalt
+nettverk til trafikkhandtering og tryggleik. Axiom, som leverer driftslogging,
+er basert i USA. Driftsloggane hos Axiom blir lagra i 90 dagar.
+
+EU-regionen for analysedata inneber derfor ikkje at alle tenestene bak
+statistikken er avgrensa til EØS. Sjå [Umami sine underleverandørar](https://umami.is/subprocessors)
+og [personverninformasjon](https://umami.is/privacy).
 
 ## Rettane dine
 
