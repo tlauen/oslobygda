@@ -45,7 +45,7 @@
 </details>
 {% endfor %}
 {% if key == 'framside' %}<details name="tekstseksjon"><summary>Fleire tekstval</summary>{% for name,label,is_markdown in fields if name not in main.names %}{{ field(name,label,is_markdown) }}{% endfor %}</details>{% endif %}
-<details><summary>Hjelp til Markdown</summary><p><code>**feit tekst**</code>, <code>*kursiv*</code>, <code>[lenkjetekst](https://døme.no)</code>, <code>## Mellomoverskrift</code> og lister med <code>-</code>. Skil avsnitt med ei tom linje. HTML og Jekyll-kode blir ikkje køyrde.</p><p>Skriv til dømes <code>Bli medlem for [[kontingent]].</code> for å vise gjeldande beløp, som «5 kr». Satsen blir henta automatisk frå Bygdelista; ved stengt betaling eller teknisk feil blir det vist rettleiing utan gammal pris. I kodefelt blir markøren vist som tekst. På Om-sida gir <code>[[frilynt]]</code> den faste ordforklaringa. Skriv <code>[[kalenderknapp]]</code>, <code>[[kalenderabonnement]]</code> og <code>[[folg-oss]]</code> på eigne linjer, med tom linje før og etter, for dei faste pøbbmodulane.</p></details>
+
 <button name="action" value="save">Lagre og førehandsvis</button>
 </form>
 <details><summary>Hent publisert tekst på nytt</summary><p>Dette byter ut utkastet. Ta vare på eventuelle endringar først.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkast med publisert tekst</button></form></details>
