@@ -1,22 +1,4 @@
-* [x] Vis/skjul passord i innloggingsskjemaet til Bygdelista.
-  Implementert med ein knapp ved passordfeltet. Passordet er skjult ved
-  sideopning og blir skjult att før innsending. Prøvd i lokal Safari med
-  fiktivt passord; dei åtte eksisterande styreinnloggingstestane bestod.
-
-* [ ] Utforske moglegheitene for å automatisere/forenkle bokføring av nye
-  medlemskap og innbetalingar frå Vipps.
-  - Innmelding og fornying gjennom medlemsløysinga registrerer allereie
-    medlemskap og stadfesta betaling i medlemsregisteret.
-  - Rekneskapsdelen har ein separat, valfri automatisk import for desse
-    produksjonsbetalingane: `importer-medlemsbetalingar --hent-vipps`.
-    Han krev aktivert innstilling, kontrollert opningsbalanse og startdato,
-    og stoppar ved mogleg dobbeltføring eller uavklart kjelde/refusjon.
-  - Før neste steg må vi avklare om ønsket gjeld medlemsløysinga, direkte
-    Vippsnummerbetalingar eller begge delar. For direkte betalingar må vi
-    undersøkje faktisk tilgjengeleg rapport/eksport. Gebyr og bankoppgjer
-    har framleis eiga oppfølging.
-  - Ingen produksjonsimport eller automatisk bokføring er aktivert av denne
-    gjennomgangen. Sjå medlemsregister/BETALINGSIMPORT.md for dagens løysing.
-
-Leverandøroppfølging: ventar framleis på svar frå Umami, GitHub og
-PythonAnywhere. Dette er separat frå den avslutta kodegjennomgangen.
+* Vis/skjul passord i innloggingsskjemaet til bygdelista
+* Utforske moglegheitane for å automatisere/forenkle prosessen med å bokføre nye medlemsskap og innbetalingar frå Vipps.
+* [x] Skilje mellom Økonomi og Årsmøte i Bygdelista som ulike modular/menypunkt
+* [x] "please fill out this field" i innmeldingsskjemaet bør vere på nynorsk.

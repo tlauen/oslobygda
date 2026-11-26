@@ -1,6 +1,6 @@
 <header class="bygdelista-topp"><div><p class="arsmote-overline">Oslobygda kulturlag</p><p class="arsmote-merke">Bygdelista</p></div><div class="bygdelista-kontroll"><span class="arsmote-intern">For styret</span><form method="post" action="{{ prefix_url('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Logg ut</button></form></div></header>
-{% set member_part=request.endpoint in ['index','annual_fees','signup_overview','event_editor','board_editor','member_help','privacy_followup'] %}
-<nav class="bygdelista-delar" aria-label="Delar av Bygdelista"><a href="{{ prefix_url('index') }}"{% if member_part %} aria-current="page"{% endif %}>Medlemsliste</a><a href="{{ prefix_url('ledger_index') }}"{% if not member_part %} aria-current="page"{% endif %}>Årsmøte og økonomi</a></nav>
+{% import '_bygdelista_menydata.html' as navigation with context %}
+<nav class="bygdelista-delar" aria-label="Delar av Bygdelista"><a href="{{ prefix_url('index') }}"{% if navigation.member_part %} aria-current="page"{% endif %}>Medlemsliste</a><a href="{{ prefix_url('ledger_index') }}"{% if navigation.economy_part %} aria-current="page"{% endif %}>Økonomi</a><a href="{{ prefix_url('annual_documents') }}"{% if not navigation.member_part and not navigation.economy_part %} aria-current="page"{% endif %}>Årsmøte</a></nav>
 
 <script defer src="{{ prefix_url('static',filename='skjema-retur.js') }}"></script>
 
