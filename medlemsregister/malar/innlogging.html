@@ -6,6 +6,7 @@
   <title>Logg inn – Bygdelista</title>
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
   <script src="{{ prefix_url('static', filename='innlogging-kode.js') }}" defer></script>
+  <script src="{{ prefix_url('static', filename='vis-passord.js') }}" defer></script>
 {% include '_favicon.html' %}<link rel="stylesheet" href="{{ prefix_url('shared_fonts', filename='fraunces.css') }}">
 </head>
 <body class="innlogging-kropp">
@@ -20,7 +21,10 @@
       <label for="username">E-post eller brukarnamn</label>
       <input type="text" id="username" name="username" required autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="100" />
       <label for="password">Passord</label>
-      <input type="password" id="password" name="password" required autocomplete="current-password" />
+      <div class="innlogging-passord">
+        <input type="password" id="password" name="password" required autocomplete="current-password" />
+        <button type="button" id="vis-passord" aria-controls="password" aria-pressed="false" hidden>Vis passord</button>
+      </div>
       <label for="code">Kode frå autentiseringsappen</label>
       <div class="innlogging-koderuter">
         <div class="innlogging-kodebakgrunn" aria-hidden="true">

@@ -114,6 +114,24 @@ body {
   background: var(--accent-hover);
 }
 
+.innlogging-passord {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.innlogging-passord input {
+  min-width: 0;
+  margin-bottom: 0;
+}
+.innlogging-passord button {
+  width: auto;
+  padding: 0.5rem 0.65rem;
+  background: transparent;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 .innlogging-val {
   display: grid;
   grid-template-columns: 1fr;
