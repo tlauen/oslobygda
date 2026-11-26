@@ -115,22 +115,32 @@ body {
 }
 
 .innlogging-passord {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.5rem;
+  position: relative;
   margin-bottom: 1rem;
 }
 .innlogging-passord input {
-  min-width: 0;
+  box-sizing: border-box;
+  width: 100%;
+  padding-right: 3.25rem;
   margin-bottom: 0;
 }
-.innlogging-passord button {
-  width: auto;
-  padding: 0.5rem 0.65rem;
+.innlogging-passord .passord-auge {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  padding: 0;
   background: transparent;
-  font-size: 0.9rem;
-  white-space: nowrap;
+  border: 0;
+  border-radius: 4px;
+  color: inherit;
 }
+.innlogging-passord .passord-auge:hover { background: var(--accent-hover); }
+.passord-auge svg { width: 1.35rem; height: 1.35rem; pointer-events: none; }
 
 .innlogging-val {
   display: grid;
