@@ -12,17 +12,15 @@
   <body class="arsmote-kropp bygdelista-kropp">
     <main class="omslag">
       {% include '_arsmote_nav.html' %}
-      <header class="toppfelt">
-        <h1>Intern rekneskap {{ year }}</h1>
-        <a href="{{ prefix_url('ledger_index') }}">Økonomi</a>
-      </header>
+      <header class="toppfelt rekneskap-topp">
+        <h1>{{ {'oversikt':'Rekneskap','registrer':'Registrer post','bilag':'Bilag','postar':'Bokførte postar','kontroll':'Avstemming og årsslutt'}.get(ledger_part,'Rekneskap') }} <small>{{ year }}</small></h1>
       <form method="get" class="rekneskap-arsval">
         <input type="hidden" name="del" value="{{ ledger_part }}">
         <label>Rekneskapsår <input type="number" name="year" value="{{ year }}" min="1900" max="2200" required>
         </label>
         <button>Vis år</button>
-        <p class="feltforklaring">Årsvalet følgjer deg mellom delane nedanfor.</p>
       </form>
+      </header>
       {% include '_rekneskap_meny.html' %}
       {% macro hidden(action) %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -48,7 +46,7 @@
         <p>Kontroller felta før du prøver på nytt. Ved endra innhald på ei innsending som alt er bokført, opne eit nytt skjema.</p>
       {% endif %}
       {% if ledger_part=='oversikt' %}<p class="feltforklaring">Resultat er innkome minus kostnader for året. Det er ikkje det same som pengane på bankkontoen: Ei utgift du har lagt ut privat, reduserer resultatet sjølv om laget ikkje har betalt deg tilbake enno.</p>{% endif %}
-      <p class="arsmote-status">Status: {{ 'Avslutta rekneskapsår' if year_row and year_row.closed else 'Ope rekneskapsår' }}. Resultat: {{ result|kroner }}.</p>
+      {% if ledger_part!='registrer' %}<p class="arsmote-status">Status: {{ 'Avslutta rekneskapsår' if year_row and year_row.closed else 'Ope rekneskapsår' }}. Resultat: {{ result|kroner }}.</p>{% endif %}
       {% include '_okonomi_oversikt.html' %}
       {% include '_okonomi_bilag.html' %}
       {% include '_okonomi_registrering.html' %}

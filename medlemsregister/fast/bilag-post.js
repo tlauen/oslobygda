@@ -29,9 +29,10 @@
    const year=/^\d{4}-/.test(day)?day.slice(0,4):form.dataset.year;
    const response=await fetch(form.dataset.statusUrl+'?year='+encodeURIComponent(year),{headers:{Accept:'application/json'},credentials:'same-origin'});
    if(!response.ok)throw new Error();const result=await response.json();
+   if(!result.ready)document.getElementById('post-driftsstatus').open=true;
    initiallyDisabled=!result.ready;submit.disabled=initiallyDisabled||busy||unresolved;
    explanation.textContent=result.ready?'Klart for bokføring. Fyll ut dato, beløp og skildring, og vel bilag eller forklar dokumentasjonen.':result.reason;
-  }catch(error){explanation.textContent='Status kunne ikkje kontrollerast. Behald skjemaet og prøv kontrollknappen igjen.';}
+  }catch(error){document.getElementById('post-driftsstatus').open=true;explanation.textContent='Status kunne ikkje kontrollerast. Behald skjemaet og prøv kontrollknappen igjen.';}
  }
  check.addEventListener('click',refreshStatus);window.addEventListener('focus',refreshStatus);
  form.elements.namedItem('day').addEventListener('change',refreshStatus);

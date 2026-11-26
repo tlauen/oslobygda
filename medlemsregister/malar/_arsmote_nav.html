@@ -6,7 +6,7 @@
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
  document.querySelectorAll('.arsmote-kropp table, .okonomi-tabell').forEach(table=>{
-  if(!table.dataset.viewControl){
+  if(!table.dataset.viewControl&&!table.querySelector('input,select,textarea')){
    table.dataset.viewControl='yes';
    const button=document.createElement('button');button.type='button';button.className='tabell-vising';
    table.classList.add('kompakt-tabell');

@@ -7,7 +7,7 @@
 {% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}{% if message %}<p role="status">{{ message }}</p>{% endif %}
 {% if preview is not none %}
 <h2>Kontroller forslag</h2><p>Berre klare forslag blir førte. Avvik står att til kontroll. Same rapport eller godkjenning kan ikkje bokførast to gonger.</p>
-<ul>{% for row in preview %}<li>{{ row.day }} · {{ row.amount_ore|kroner }} · {{ {'ready':'Klar','link':'Koplar eksisterande post','booked':'Allereie ført','review':'Treng kontroll'}[row.plan.status] }}{% if row.plan.message %}: {{ row.plan.message }}{% endif %}</li>{% endfor %}</ul>
+<ul data-steg-liste="10">{% for row in preview %}<li>{{ row.day }} · {{ row.amount_ore|kroner }} · {{ {'ready':'Klar','link':'Koplar eksisterande post','booked':'Allereie ført','review':'Treng kontroll'}[row.plan.status] }}{% if row.plan.message %}: {{ row.plan.message }}{% endif %}</li>{% endfor %}</ul>
 <form method="post">{{ csrf() }}<input type="hidden" name="action" value="approve"><input type="hidden" name="token" value="{{ token }}"><p>Ved bokføring stadfestar du at kjeldene er kontrollerte og ikkje inngår i eldre samleføringar.</p><button name="confirmed" value="yes">Bokfør dei klare forslaga</button></form>
 {% else %}
 {% if api_ready %}<form method="post">{{ csrf() }}<input type="hidden" name="action" value="fetch_api"><button>Hent rapport frå Vipps</button></form>{% endif %}

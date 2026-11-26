@@ -3,16 +3,6 @@
     {% for message in get_flashed_messages(category_filter=['bokfort']) %}
       <p class="melding melding-ok" role="status">{{ message }}</p>
     {% endfor %}
-    <details class="omgrepshjelp">
-      <summary>Kva omfattar kategoriane?</summary>
-      <dl>
-        {% for code,note in category_notes.items() %}
-          <dt>{{ accounts[code][0] }} ({{ 'innkome' if accounts[code][1]=='income' else 'utgift' }})</dt>
-          <dd>{{ note }}</dd>
-        {% endfor %}
-      </dl>
-    </details>
-    <h2>Registrer post</h2>
     <p>Svar på spørsmåla, fyll inn beløp og dato og legg ved dokumentasjon. Me viser berre felta du treng.</p>
     <details class="omgrepshjelp" id="post-avansert-hjelp">
       <summary>Kva type skal eg velje? Sjå praktiske døme</summary>
@@ -37,7 +27,7 @@
         <dd>Laget flyttar eigne pengar mellom kontoar. Vel både frå-konto og målkonto. Dette er inga ny innkome eller utgift.</dd>
       </dl>
     </details>
-    <form method="post" class="innmelding-skjema" id="post-form" data-steg="post" data-status-url="{{ prefix_url('ledger_post_status') }}" data-year="{{ year }}" data-upload-url="{{ prefix_url('ledger_upload') }}">{{ hidden('post') }}<aside id="post-forklaring" class="rekneskap-hjelp" role="status" aria-live="polite">
+    <form method="post" class="innmelding-skjema" id="post-form" data-steg="post" data-status-url="{{ prefix_url('ledger_post_status') }}" data-year="{{ year }}" data-upload-url="{{ prefix_url('ledger_upload') }}">{{ hidden('post') }}<details id="post-driftsstatus" {% if not opening_exists or (year_row and year_row.closed) %}open{% endif %}><summary>Bokføringsstatus og teknisk kontroll</summary><aside id="post-forklaring" class="rekneskap-hjelp" role="status" aria-live="polite">
         {% if not opening_exists %}
           <strong>Før du kan bokføre: Stadfest inngåande balanse.</strong>
           <p>Dette er startpunktet for rekneskapen. Dersom laget starta utan pengar eller gjeld, fyller du inn null og forklarer grunnlaget. Ikkje legg inn denne posten som inngåande gjeld i tillegg.</p>
@@ -49,7 +39,7 @@
           <p>Fyll ut dato, beløp og offentleg skildring. Vel kategori som passar typen. Du må velje bilag eller forklare dokumentasjonen utan bilag.</p>
         {% endif %}
       </aside>
-      <button type="button" id="post-kontroller-status">Kontroller om bokføring er klar</button>
+      <button type="button" class="sekundaer" id="post-kontroller-status">Kontroller status på nytt</button></details>
       <div id="post-feil" role="alert" tabindex="-1" hidden>
       </div>
       <fieldset id="post-sporsmal" hidden>
@@ -190,5 +180,14 @@
       <p>Bruk faktisk NOK-beløp frå dokumentasjonen. Historisk kontant kontingent som alt er betalt vidare gjennom Vipps skal førast éin gong. Bankoppgjer frå Vipps er overføring, ikkje ny innkome.</p>
       <button {% if not opening_exists or (year_row and year_row.closed) %}disabled{% endif %} id="bokfor-post">Bokfør post</button>
     </form>
+    <details class="omgrepshjelp">
+      <summary>Kva omfattar kategoriane?</summary>
+      <dl>
+        {% for code,note in category_notes.items() %}
+          <dt>{{ accounts[code][0] }} ({{ 'innkome' if accounts[code][1]=='income' else 'utgift' }})</dt>
+          <dd>{{ note }}</dd>
+        {% endfor %}
+      </dl>
+    </details>
   </div>
 {% endif %}
