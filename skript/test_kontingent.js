@@ -22,10 +22,10 @@ async function render(payload, { fail = false, ok = true } = {}) {
 }
 
 test('viser variable satsar og sender ikkje nettlesarøkta', async () => {
-  const result = await render({ year: 2028, currency: 'NOK', open: true, minimum_ore: 7500, superkul_ore: 12550 });
+  const result = await render({ year: 2028, currency: 'NOK', open: true, minimum_ore: 7500, superkul_ore: 12500 });
   assert.match(result.text, /2028/);
   assert.match(result.text, /75/);
-  assert.match(result.text, /125,50/);
+  assert.match(result.text, /125/);
   assert.equal(result.calls[0].options.credentials, 'omit');
   assert.equal(result.calls[0].options.cache, 'no-store');
 });
@@ -62,7 +62,8 @@ test('framsidetekst og merke deler éi henting og følgjer endra sats', async ()
     assert.equal(badge.hidden, !open);
     if (open) {
       assert.match(short.textContent, /2028: frå 75/);
-      assert.match(price.textContent, /75/);
+      assert.equal(price.textContent, '75');
+      assert.doesNotMatch(short.textContent, /75,00/);
       assert.match(badge['aria-label'], /2028: frå 75/);
     } else {
       assert.match(short.textContent, /innmeldingsskjemaet/);

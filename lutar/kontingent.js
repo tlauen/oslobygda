@@ -1,7 +1,7 @@
 /* Vedtekne satsar frå betalingsløysinga. Ingen gammal pris ved feil eller stengt år. */
 (() => {
   const amount = new Intl.NumberFormat('nn-NO', {
-    style: 'currency', currency: 'NOK', maximumFractionDigits: 2,
+    style: 'currency', currency: 'NOK', minimumFractionDigits: 0, maximumFractionDigits: 0,
   });
   const requests = new Map();
   function fetchRates(url) {
@@ -35,7 +35,9 @@
       if (mode === 'kort') {
         block.textContent = `Medlemskap i ${rates.year}: frå ${minimum}.`;
       } else if (mode === 'merke') {
-        block.querySelector('[data-kontingent-belop]').textContent = minimum;
+        const number = new Intl.NumberFormat('nn-NO', { maximumFractionDigits: 0 }).format(rates.minimum_ore / 100);
+        block.querySelector('[data-kontingent-belop]').textContent = number;
+        block.setAttribute('style', '--kontingent-storleik: ' + Math.min(112, 130 / (number.length * 0.7)) + 'px');
         block.setAttribute('aria-label', `Medlemskap i ${rates.year}: frå ${minimum}`);
         block.hidden = false;
       } else if (text) {

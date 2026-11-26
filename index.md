@@ -42,7 +42,7 @@ kontingentoversikt: true
     </div>
   </div>
   <div class="framside__kontingent" data-kontingent-url="{{ site.medlemsregister_url | append: '/api/kontingent' | escape }}" data-kontingent-vising="merke" hidden>
-    <span data-kontingent-belop aria-hidden="true"></span>
+    <span class="framside__pris" aria-hidden="true"><span data-kontingent-belop></span><span class="framside__kr">kr</span></span>
     <p>{{ tekst.source.badge_text | escape }}</p>
   </div>
 </section>
