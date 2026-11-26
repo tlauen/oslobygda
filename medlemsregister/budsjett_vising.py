@@ -30,8 +30,30 @@ def install_budgets(app,get_db,require_admin):
         if request.method=='POST':
             try:
                 action=request.form.get('action');revision=request.form.get('revision');actor=session['board_username']
-                if action=='freeze':
-                    service.freeze(budget_year,revision,request.form.get('status'),request.form.get('decision_date',''),actor)
+                if action == "publish_current":
+                    service.update(budget_year, revision, actor, "save", request.form)
+                    with managed_db(get_db) as db:
+                        revision = db.execute(
+                            "SELECT revision FROM budgets WHERE year=?", (budget_year,)
+                        ).fetchone()[0]
+                    vid = service.freeze(budget_year, revision, "meeting", "", actor)
+                    service.enqueue(vid, actor)
+                    from publisering import publish_from_button
+
+                    publish_from_button(app, ("budget", "budsjett-" + str(vid)))
+                elif action in ("freeze", "freeze_publish"):
+                    vid = service.freeze(
+                        budget_year,
+                        revision,
+                        request.form.get("status"),
+                        request.form.get("decision_date", ""),
+                        actor,
+                    )
+                    if action == "freeze_publish":
+                        service.enqueue(vid, actor)
+                        from publisering import publish_from_button
+
+                        publish_from_button(app,('budget','budsjett-'+str(vid)))
                 else: service.update(budget_year,revision,actor,action,request.form)
                 return redirect(app.jinja_env.globals['prefix_url']('budget_editor',budget_year=budget_year))
             except (ValueError,TypeError) as exc:

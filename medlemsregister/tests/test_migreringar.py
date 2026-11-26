@@ -249,7 +249,7 @@ class AppMigrationTests(unittest.TestCase):
                     db.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[
                         0
                     ],
-                    2,
+                    3,
                 )
 
     def test_wrong_or_missing_totp_key_stops_already_versioned_startup(self):
@@ -273,7 +273,7 @@ class AppMigrationTests(unittest.TestCase):
             )
             self.assertEqual(
                 db.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0],
-                2,
+                3,
             )
         with patch.dict(os.environ, MEDLEMSREGISTER_TOTP_KEY=key.decode()):
             module.init_db()

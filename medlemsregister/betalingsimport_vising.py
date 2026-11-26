@@ -13,11 +13,20 @@ def install_payment_import(app,get_db,require_admin):
     @app.route('/okonomi/betalingar',methods=['GET','POST'])
     @require_admin
     def payment_import_index():
-        error=None;status=200
+        error=None;status=200;batch=None;batch_token=None;message=None
         if request.method=='POST':
             try:
                 action=request.form.get('action');actor=session['board_username']
-                if action=='configure':
+                if action=='preview_batch':
+                    batch_token,batch=service.preview(actor)
+                elif action=='approve_batch':
+                    if request.form.get('confirmed')!='yes':raise ValueError('Stadfest kontrollen før bokføring.')
+                    result=service.approve(request.form.get('token'),actor)
+                    message=f'{len(result)} medlemsbetalingar er bokførte.'
+                elif action=='sync':
+                    result=service.run(fetch=True)
+                    message=f"{result['booked']} bokførte; {result['review']} til kontroll."
+                elif action=='configure':
                     enabled=request.form.get('enabled')=='yes'
                     if enabled and request.form.get('confirmed')!='yes': raise ValueError('Stadfest at opningsbalanse og historiske føringar er kontrollerte.')
                     service.configure(enabled,request.form.get('from_day'),actor)
@@ -40,7 +49,7 @@ def install_payment_import(app,get_db,require_admin):
                     else: raise ValueError('Ugyldig handling.')
                 try: app.extensions['public_ledger'].refresh_enabled(actor)
                 except ValueError: app.logger.warning('Offentleg kø krev kontroll etter betalingsimport.')
-                return redirect(app.jinja_env.globals['prefix_url']('payment_import_index')+('?betaling='+str(int(request.form['payment_id']))+'#betaling-'+str(int(request.form['payment_id'])) if request.form.get('payment_id','').isdigit() else ''))
+                if action not in ('preview_batch','approve_batch','sync'):return redirect(app.jinja_env.globals['prefix_url']('payment_import_index')+('?betaling='+str(int(request.form['payment_id']))+'#betaling-'+str(int(request.form['payment_id'])) if request.form.get('payment_id','').isdigit() else ''))
             except (ValueError,VippsError,TypeError) as exc: error=str(exc);status=400
         with managed_db(get_db) as db:
             rows=[]
@@ -50,6 +59,9 @@ def install_payment_import(app,get_db,require_admin):
                     _,order=service._source(db,payment['id']);item['order']=order
                     evidence=db.execute('SELECT * FROM payment_evidence WHERE payment_id=? ORDER BY revision DESC LIMIT 1',(payment['id'],)).fetchone()
                     item['evidence']=dict(evidence) if evidence else None
+                    if evidence:
+                        check=db.execute('SELECT checked_at FROM payment_checks WHERE payment_id=? AND evidence_id=?',(payment['id'],evidence['id'])).fetchone()
+                        if check:item['evidence']['checked_at']=check[0]
                     item['linked']=service._linked(db,payment['id'])
                     item['group']=db.execute('SELECT * FROM payment_group_links WHERE payment_id=?',(payment['id'],)).fetchone()
                     item['candidates']=service._candidates(db,payment,evidence) if evidence else []
@@ -69,7 +81,9 @@ def install_payment_import(app,get_db,require_admin):
                     item.update(order=None,evidence=None,linked=None,candidates=[],problem=str(exc))
                 rows.append(item)
             settings=db.execute('SELECT * FROM payment_import_settings WHERE id=1').fetchone()
-        return render_template('betalingsimport.html',rows=rows,settings=settings,error=error,today=today().isoformat()),status
+            last_run=db.execute("SELECT * FROM finance_runs WHERE kind='payments' ORDER BY id DESC LIMIT 1").fetchone()
+            readiness=bool(db.execute("SELECT 1 FROM payment_checks c JOIN payment_evidence e ON e.id=c.evidence_id WHERE e.refunded_ore=0 LIMIT 1").fetchone())
+        return render_template('betalingsimport.html',rows=rows,settings=settings,error=error,today=today().isoformat(),batch=batch,batch_token=batch_token,message=message,last_run=last_run,readiness=readiness),status
 
     @app.cli.command('importer-medlemsbetalingar')
     @click.option('--hent-vipps',is_flag=True,help='Les produksjonsstatus og hendingslogg frå Vipps. Ingen trekk/refusjon.')

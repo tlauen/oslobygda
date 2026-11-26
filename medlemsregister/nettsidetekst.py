@@ -300,7 +300,7 @@ def install_text_editor(app, get_db, require_admin):
                 if error:
                     raise PublicationError(error)
                 action = values.get("action")
-                if action not in ("preview", "save", "publish", "reload"):
+                if action not in ("preview", "save", "save_publish", "publish", "reload"):
                     raise ValueError("Vel ei gyldig handling.")
                 if not draft and values.get("source_revision") != state["base"]:
                     raise PublicationConflict(
@@ -322,7 +322,7 @@ def install_text_editor(app, get_db, require_admin):
                     page = make_page(key, values)
                     preview = page
                     next_state = {"page": page, "base": state["base"]}
-                if action in ("save", "reload"):
+                if action in ("save", "save_publish", "reload"):
                     with managed_db(get_db) as db:
                         db.execute("BEGIN IMMEDIATE")
                         current = db.execute(
@@ -345,15 +345,17 @@ def install_text_editor(app, get_db, require_admin):
                     preview = page
                     message = (
                         "Utkastet er lagra. Nettsida er ikkje endra."
-                        if action == "save"
+                        if action in ("save", "save_publish")
                         else "Publisert tekst er henta inn som nytt utkast."
                     )
-                elif action == "publish":
+                if action in ("publish", "save_publish"):
+                    if action == "save_publish":
+                        draft = state
                     if not draft or page != draft["page"]:
                         raise ValueError(
                             "Lagre og førehandsvis utkastet før publisering."
                         )
-                    if values.get("confirmed") != "yes":
+                    if request.form.get("confirmed") != "yes":
                         raise ValueError(
                             "Stadfest at teksten er kontrollert og kan publiserast."
                         )
@@ -366,7 +368,7 @@ def install_text_editor(app, get_db, require_admin):
                             (
                                 json.dumps(updated, ensure_ascii=False),
                                 setting,
-                                row["value"],
+                                json.dumps(draft, ensure_ascii=False),
                             ),
                         )
                     state = updated

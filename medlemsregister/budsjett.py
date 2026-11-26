@@ -161,7 +161,14 @@ class Budgets:
                 if content['previous']['state']=='not_started': raise ValueError('Førre års rekneskap er ikkje registrert. Fyll inn budsjettet sjølv.')
                 content['amounts']={code:max(0,n) for code,n in content['previous']['amounts'].items()}
             else: raise ValueError('Ugyldig handling.')
-            raw=canonical(content);new_revision=row['revision']+1
+            raw = canonical(content)
+            from publiseringsflyt import without_check_time
+
+            if without_check_time(content) == without_check_time(
+                json.loads(row["content"])
+            ):
+                return
+            new_revision=row['revision']+1
             db.execute('UPDATE budgets SET revision=?,content=?,actor=?,updated_at=? WHERE year=?',(new_revision,raw,actor,stamp(),budget_year))
             db.execute('INSERT INTO budget_edits(year,revision,content,actor,created_at) VALUES (?,?,?,?,?)',(budget_year,new_revision,raw,actor,stamp()))
 
@@ -178,6 +185,21 @@ class Budgets:
                 if old['decision_date']!=decision_date: raise DocumentConflict('Versjonen har annan vedtaksdato. Lag ny revisjon for retting.')
                 return old['id']
             content=json.loads(row['content'])
+            from publiseringsflyt import material
+
+            candidate = public_budget(
+                content,
+                budget_year,
+                row["revision"],
+                "budsjett-1",
+                status,
+                decision_date,
+            )
+            for prior in db.execute(
+                "SELECT id,payload FROM budget_versions WHERE year=? AND status=? ORDER BY id DESC LIMIT 1",
+                (budget_year, status),
+            ):
+                if material(json.loads(prior['payload']))==material(candidate):return prior['id']
             vid=db.execute('INSERT INTO budget_versions(year,source_revision,status,decision_date,actor,created_at) VALUES (?,?,?,?,?,?)',
                            (budget_year,row['revision'],status,decision_date,actor,stamp())).lastrowid
             payload=canonical(public_budget(content,budget_year,row['revision'],'budsjett-'+str(vid),status,decision_date))

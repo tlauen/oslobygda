@@ -204,6 +204,14 @@ class PublicLedger:
             return snapshot(db,year,'preview')
 
     def _capture(self,db,year,actor,status='provisional',meeting_year=None,decision_date=None):
+        from publiseringsflyt import material
+
+        candidate = snapshot(db, year, "preview", status, meeting_year, decision_date)
+        for old in db.execute(
+            "SELECT id,payload FROM public_ledger_versions WHERE year=? AND status=? ORDER BY id DESC LIMIT 1",
+            (year, status),
+        ):
+            if material(json.loads(old['payload']))==material(candidate):return old['id']
         vid=db.execute('INSERT INTO public_ledger_versions(year,status,actor,created_at) VALUES (?,?,?,?)',(year,status,actor,stamp())).lastrowid
         payload=snapshot(db,year,'rekneskap-'+str(vid),status,meeting_year,decision_date)
         raw=canonical(payload)
@@ -229,11 +237,12 @@ class PublicLedger:
             count=0
             for setting in settings:
                 year=setting[0]
-                old=db.execute("SELECT payload FROM public_ledger_versions WHERE year=? AND status='provisional' ORDER BY id DESC LIMIT 1",(year,)).fetchone()
+                old=db.execute("SELECT id,payload FROM public_ledger_versions WHERE year=? AND status='provisional' ORDER BY id DESC LIMIT 1",(year,)).fetchone()
                 if old:
-                    value=json.loads(old[0]);cutoff=min(today(),date(year,12,31)).isoformat()
+                    value=json.loads(old['payload']);cutoff=min(today(),date(year,12,31)).isoformat()
                     if value['source_revision']==revision and value['as_of']==cutoff: continue
-                self._capture(db,year,actor);count+=1
+                vid = self._capture(db, year, actor)
+                if not old or vid!=old['id']:count+=1
             return count
 
     def freeze(self,year,status,meeting_year,decision_date,actor,expected_revision):

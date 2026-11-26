@@ -100,6 +100,20 @@ class WebsiteTextTests(unittest.TestCase):
             )
             publish.assert_called_once()
 
+    def test_direct_publication_saves_submitted_text_and_publishes(self):
+        fixtures.BoardAuthTests.login(self)
+        data = self.form("save_publish")
+        data["confirmed"] = "yes"
+        data["title"] = "Direkte publisert"
+        with (
+            patch.object(GithubTexts, "__init__", return_value=None),
+            patch.object(GithubTexts, "publish_page") as publish,
+        ):
+            response = self.client.post("/nettsida/tekst", data=data)
+            self.assertEqual(response.status_code, 200)
+            publish.assert_called_once()
+            self.assertIn("Direkte publisert", str(publish.call_args))
+
     def test_safe_markdown_and_literal_template_code(self):
         html = markdown_html(
             "**Feit** og *kursiv*\n\n- Ein\n- To\n\n<script>alert(1)</script> [farleg](javascript:alert(1)) {{ site.secret }} {% include x %}"

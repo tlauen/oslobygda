@@ -1,0 +1,25 @@
+{% extends 'hjelp_base.html' %}
+{% block title %}Vipps-rapport{% endblock %}
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+{% block content %}
+<h1>Vipps-rapport</h1><p><a href="{{ prefix_url('payment_import_index') }}">Til medlemsbetalingane</a></p>
+{% if report_error %}<p role="status">{{ report_error }}</p>{% endif %}
+{% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}{% if message %}<p role="status">{{ message }}</p>{% endif %}
+{% if preview is not none %}
+<h2>Kontroller forslag</h2><p>Berre klare forslag blir førte. Avvik står att til kontroll. Same rapport eller godkjenning kan ikkje bokførast to gonger.</p>
+<ul>{% for row in preview %}<li>{{ row.day }} · {{ row.amount_ore|kroner }} · {{ {'ready':'Klar','link':'Koplar eksisterande post','booked':'Allereie ført','review':'Treng kontroll'}[row.plan.status] }}{% if row.plan.message %}: {{ row.plan.message }}{% endif %}</li>{% endfor %}</ul>
+<form method="post">{{ csrf() }}<input type="hidden" name="action" value="approve"><input type="hidden" name="token" value="{{ token }}"><p>Ved bokføring stadfestar du at kjeldene er kontrollerte og ikkje inngår i eldre samleføringar.</p><button name="confirmed" value="yes">Bokfør dei klare forslaga</button></form>
+{% else %}
+{% if api_ready %}<form method="post">{{ csrf() }}<input type="hidden" name="action" value="fetch_api"><button>Hent rapport frå Vipps</button></form>{% endif %}
+<p>Last opp den nye oppgjørsrapporten frå Vipps som CSV, eitt salssted om gongen. Kjende betalingar blir kopla, ikkje førte på nytt. {{ pending }} kjelder står att.</p>
+<form method="post" enctype="multipart/form-data" class="medlemsskjema tekstredigering">{{ csrf() }}<input type="hidden" name="action" value="upload"><div class="felt"><label for="report-msn">Vippsnummer/MSN i rapporten</label><input id="report-msn" name="msn" maxlength="30" required></div><div class="felt"><label for="report-file">Vipps-rapport (CSV)</label><input id="report-file" name="report" type="file" accept=".csv,text/csv" required></div><button>Les rapport</button></form>
+<details class="tekstredigering-verktoy"><summary>Legg til bankgrunnlag for oppgjer</summary><p>CSV med kolonnane Dato, Beløp og Referanse. Oppgjersnummer og beløp må stemme eintydig; likt beløp åleine er ikkje nok.</p><form method="post" enctype="multipart/form-data">{{ csrf() }}<input type="hidden" name="action" value="bank"><input type="file" name="report" accept=".csv" required><button>Kontroller bankinnbetalingar</button></form></details>
+<form method="post">{{ csrf() }}<input type="hidden" name="action" value="preview">
+{% for row in rows %}<details><summary>{{ row.day }} · {{ row.amount_ore|kroner }} · {{ {'capture':'Innbetaling','fee':'Gebyr','refund':'Refusjon','payout':'Oppgjer'}.get(row.kind,'Anna hending') }}</summary>
+<input type="hidden" name="identity" value="{{ row.identity }}">{% if row.reversed %}<p role="status">Kopla post P{{ row.journal_id }} er reversert og treng manuell kontroll.</p>{% endif %}<p>MSN {{ row.msn }} · intern referanse {{ row.reference }}</p>
+{% if row.kind=='capture' %}<label>Gjeld <select name="category_{{ row.identity }}"><option value="">Vel for direkte betaling</option><option value="membership">Medlemspengar</option><option value="donations">Gåve</option><option value="event_income">Tilskiping</option><option value="other_income">Anna innkome</option></select></label><label>Medlem (ved medlemspengar)<select name="member_id_{{ row.identity }}"><option value="">Vel medlem</option>{% for member in members %}<option value="{{ member.id }}">{{ member.full_name }}</option>{% endfor %}</select></label><label>Medlemsår<input type="number" name="year_{{ row.identity }}" value="{{ year }}" min="2026" max="2200"></label>{% endif %}
+{% if row.kind=='refund' %}<label>Originalpost P-nummer<input type="number" name="original_journal_{{ row.identity }}" min="1"></label>{% endif %}
+{% if row.kind=='payout' %}<details><summary>Stadfest oppgjer manuelt mot kontoutskrifta</summary><label>Faktisk bankdato<input type="date" name="bank_day_{{ row.identity }}"></label><label>Beløp inn på bank<input name="bank_amount_{{ row.identity }}" inputmode="decimal" value="{{ '%.2f'|format(-row.amount_ore/100) }}"></label><label>Faktisk bankreferanse<input name="bank_reference_{{ row.identity }}" maxlength="500"></label><button name="confirm_payout" value="{{ row.identity }}">Stadfest at oppgjeret er motteke i banken</button></details>{% endif %}
+<label>Allereie bokført? Oppgi P-nummer (elles tomt)<input type="number" name="existing_journal_{{ row.identity }}" min="1"></label></details>{% endfor %}
+{% if rows %}<button>Kontroller og førehandsvis forslag</button>{% endif %}</form><p>{% if page>1 %}<a href="{{ prefix_url('vipps_report_index',page=page-1) }}">Førre side</a> · {% endif %}{% if rows|length==200 %}<a href="{{ prefix_url('vipps_report_index',page=page+1) }}">Neste side</a>{% endif %}</p>
+{% endif %}{% endblock %}

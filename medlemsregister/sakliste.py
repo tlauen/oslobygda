@@ -126,9 +126,10 @@ class Meetings:
                 raise ValueError('Årssida for dokumentet er ikkje klargjord.')
         with managed_db(self.get_db) as db:
             db.execute('BEGIN IMMEDIATE')
-            old=db.execute('SELECT revision FROM meeting_drafts WHERE kind=? AND report_year=?',(kind,report_year)).fetchone()
+            old=db.execute('SELECT revision,content FROM meeting_drafts WHERE kind=? AND report_year=?',(kind,report_year)).fetchone()
             if (old['revision'] if old else 0) != integer(revision):
                 raise DocumentConflict('Dokumentet er endra av nokon andre. Teksten din er bevart nedanfor. Opne siste versjon før du lagrar.')
+            if old and old['content']==canonical(content):return
             db.execute('INSERT INTO meeting_drafts(kind,report_year,revision,content) VALUES (?,?,1,?) ON CONFLICT(kind,report_year) DO UPDATE SET revision=revision+1,content=excluded.content', (kind,report_year,canonical(content)))
 
     def enqueue(self, kind, report_year, revision):
@@ -137,9 +138,16 @@ class Meetings:
             row=db.execute('SELECT * FROM meeting_drafts WHERE kind=? AND report_year=?',(kind,report_year)).fetchone()
             if not row or row['revision'] != integer(revision): raise DocumentConflict('Dokumentet er endra. Last inn og kontroller siste versjon før publisering.')
             # Each revision is frozen once; retries reuse its original payload and timestamp.
-            for queued in db.execute('SELECT payload FROM meeting_publication_queue'):
-                payload=json.loads(queued['payload'])
-                if payload['kind']==kind and payload['source_revision']==row['revision'] and (kind=='motereglar' or payload['report_year']==report_year): return payload
+            for queued in db.execute('SELECT payload FROM meeting_publication_queue ORDER BY id DESC'):
+                payload = json.loads(queued["payload"])
+                if payload["kind"] == kind and (
+                    kind == "motereglar" or payload["report_year"] == report_year
+                ):
+                    if payload["source_revision"] == row["revision"] or payload[
+                        "content"
+                    ] == json.loads(row["content"]):
+                        return payload
+                    break
             next_id=db.execute('SELECT COALESCE(MAX(id),0)+1 FROM meeting_publication_queue').fetchone()[0]
             payload=dict(schema_version=1,kind=kind,report_year=report_year or today().year,status='meeting',version_id=f'{kind}-{next_id}',source_revision=row['revision'],generated_at=stamp(),content=json.loads(row['content']))
             validate_meeting(payload)
@@ -193,6 +201,16 @@ def install_meetings(app,get_db,require_admin):
                         if not len(titles)==len(bodies)==len(links)==len(subs)==len(proposals): raise ValueError('Ufullstendig sakliste.')
                         submitted=dict(title=request.form.get('title','').strip(),details=request.form.get('details','').strip(),items=[dict(title=t.strip(),body=b.strip(),document=d,proposal=proposal.strip(),subitems=[line.strip() for line in sub.splitlines() if line.strip()]) for t,b,d,sub,proposal in zip(titles,bodies,links,subs,proposals)])
                     service.save(kind,report_year,request.form.get('revision'),submitted)
+                    if request.form.get("action") == "save_publish":
+                        with managed_db(get_db) as db:
+                            current_revision = db.execute(
+                                "SELECT revision FROM meeting_drafts WHERE kind=? AND report_year=?",
+                                (kind, report_year),
+                            ).fetchone()[0]
+                        payload = service.enqueue(kind, report_year, current_revision)
+                        from publisering import publish_from_button
+
+                        publish_from_button(app,('meeting',payload['version_id']))
                 return redirect(app.jinja_env.globals['prefix_url']('agenda_index' if kind=='motereglar' else 'agenda_editor',**({} if kind=='motereglar' else {'meeting_year':report_year})))
             except ValueError as exc:
                 error=str(exc); status=409 if isinstance(exc,DocumentConflict) else 400

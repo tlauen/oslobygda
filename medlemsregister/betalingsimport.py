@@ -106,7 +106,7 @@ class PaymentImport:
         old=db.execute('SELECT * FROM payment_evidence WHERE payment_id=? ORDER BY revision DESC LIMIT 1',(pid,)).fetchone()
         fields=('amount_ore','day','account','captured_ore','refunded_ore','source','source_reference')
         note=label(note,1000,True)
-        if old and all(old[k]==values[k] for k in fields) and old['note']==note and datetime.now(timezone.utc)-datetime.fromisoformat(old['checked_at'])<timedelta(minutes=5):
+        if old and all(old[k]==values[k] for k in fields) and old['note']==note :
             db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
             return old['id']
         revision=old['revision']+1 if old else 1
@@ -143,12 +143,17 @@ class PaymentImport:
             db.execute('BEGIN IMMEDIATE');fresh,fresh_order=self._source(db,pid)
             if fresh['amount_ore']!=payment['amount_ore'] or not fresh_order or any(fresh_order[k]!=order[k] for k in ('reference','msn','environment','payment_id')):
                 raise ValueError('Betalingskjelda er endra under kontroll. Prøv igjen.')
-            return self._record(db,pid,values,actor,'Kontrollert status og hendingslogg direkte frå Vipps.')
+            eid=self._record(db,pid,values,actor,'Kontrollert status og hendingslogg direkte frå Vipps.')
+            db.execute('INSERT INTO payment_checks VALUES (?,?,?) ON CONFLICT(payment_id) DO UPDATE SET evidence_id=excluded.evidence_id,checked_at=excluded.checked_at',(pid,eid,stamp()))
+            return eid
 
     def _evidence(self,db,pid):
         payment,order=self._source(db,pid)
         evidence=db.execute('SELECT * FROM payment_evidence WHERE payment_id=? ORDER BY revision DESC LIMIT 1',(pid,)).fetchone()
         if not evidence: raise ValueError('Betalingsdato og dokumentasjonsgrunnlag må kontrollerast først.')
+        evidence=dict(evidence)
+        check=db.execute('SELECT checked_at FROM payment_checks WHERE payment_id=? AND evidence_id=?',(pid,evidence['id'])).fetchone()
+        if check:evidence['checked_at']=check[0]
         if evidence['amount_ore']!=payment['amount_ore']: raise ValueError('Beløpet er endra etter kjeldekontroll.')
         if order and (evidence['source']!='vipps-events' or evidence['source_reference']!=order['reference']):
             raise ValueError('Vipps-kjelda stemmer ikkje med dokumentasjonen.')
@@ -222,33 +227,36 @@ class PaymentImport:
         return [row[0] for row in db.execute('''SELECT j.id FROM ledger_journals j JOIN ledger_lines l ON l.journal_id=j.id
             WHERE j.state='posted' AND l.account='membership' AND l.amount_ore=? AND substr(j.day,1,4)=?
             AND j.reversal_of IS NULL AND NOT EXISTS(SELECT 1 FROM ledger_journals r WHERE r.reversal_of=j.id)
-            AND j.source_kind IS NULL AND NOT EXISTS(SELECT 1 FROM payment_group_links g WHERE g.journal_id=j.id) AND NOT EXISTS(SELECT 1 FROM payment_ledger_links p WHERE p.journal_id=j.id)
+            AND (j.source_kind IS NULL OR j.source_kind NOT IN ('membership_payment','vipps_report')) AND NOT EXISTS(SELECT 1 FROM payment_group_links g WHERE g.journal_id=j.id) AND NOT EXISTS(SELECT 1 FROM payment_ledger_links p WHERE p.journal_id=j.id)
             ORDER BY j.id''',(-payment['amount_ore'],evidence['day'][:4]))]
 
     def book(self,pid,evidence_id,actor,confirm_no_duplicate=False,automatic=False):
         with managed_db(self.get_db) as db:
-            db.execute('BEGIN IMMEDIATE');payment,order,evidence=self._evidence(db,pid)
-            if evidence['id']!=int(evidence_id): raise ValueError('Kjeldekontrollen er endra. Opne førehandsvisinga på nytt.')
-            existing=self._linked(db,pid)
-            if existing:
-                self._check_link(db,existing,payment,evidence)
-                db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
-                return existing
-            if automatic:
-                settings=db.execute('SELECT * FROM payment_import_settings WHERE id=1 AND enabled=1').fetchone()
-                if not settings or not order or evidence['source']!='vipps-events' or order['status'] not in (Ordrestatus.COMPLETE,Ordrestatus.REDACTED) or evidence['day']<settings['from_day']:
-                    raise ValueError('Betalinga er ikkje omfatta av aktivert automatikk.')
-                if datetime.now(timezone.utc)-datetime.fromisoformat(evidence['checked_at'])>timedelta(hours=1):
-                    raise ValueError('Vipps-kontrollen er for gammal for automatisk bokføring.')
-            candidates=self._candidates(db,payment,evidence)
-            if candidates and (automatic or not confirm_no_duplicate): raise ValueError('Mogleg eksisterande føring. Kople til rett post eller stadfest etter kontroll.')
-            jid=self.ledger._post(db,evidence['day'],[(evidence['account'],payment['amount_ore'],''),('membership',-payment['amount_ore'],'')],
-                                  'Medlemskontingent','Betalingsår '+str(payment['for_year']),actor,'member-import-'+str(pid),
-                                  evidence['note'],source_kind='membership_payment',source_id=str(pid))
-            db.execute('INSERT INTO payment_ledger_links(payment_id,journal_id,evidence_id,actor,created_at) VALUES (?,?,?,?,?)',(pid,jid,evidence['id'],actor,stamp()))
-            db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
-            return jid
+            db.execute('BEGIN IMMEDIATE')
+            return self.book_in_db(db,pid,evidence_id,actor,confirm_no_duplicate,automatic)
 
+    def book_in_db(self,db,pid,evidence_id,actor,confirm_no_duplicate=False,automatic=False):
+        payment,order,evidence=self._evidence(db,pid)
+        if evidence['id']!=int(evidence_id): raise ValueError('Kjeldekontrollen er endra. Opne førehandsvisinga på nytt.')
+        existing=self._linked(db,pid)
+        if existing:
+            self._check_link(db,existing,payment,evidence)
+            db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
+            return existing
+        if automatic:
+            settings=db.execute('SELECT * FROM payment_import_settings WHERE id=1 AND enabled=1').fetchone()
+            if not settings or not order or evidence['source']!='vipps-events' or order['status'] not in (Ordrestatus.COMPLETE,Ordrestatus.REDACTED) or evidence['day']<settings['from_day']:
+                raise ValueError('Betalinga er ikkje omfatta av aktivert automatikk.')
+            if datetime.now(timezone.utc)-datetime.fromisoformat(evidence['checked_at'])>timedelta(hours=1):
+                raise ValueError('Vipps-kontrollen er for gammal for automatisk bokføring.')
+        candidates=self._candidates(db,payment,evidence)
+        if candidates and (automatic or not confirm_no_duplicate): raise ValueError('Mogleg eksisterande føring. Kople til rett post eller stadfest etter kontroll.')
+        jid=self.ledger._post(db,evidence['day'],[(evidence['account'],payment['amount_ore'],''),('membership',-payment['amount_ore'],'')],
+                              'Medlemskontingent','Betalingsår '+str(payment['for_year']),actor,'member-import-'+str(pid),
+                              evidence['note'],source_kind='membership_payment',source_id=str(pid))
+        db.execute('INSERT INTO payment_ledger_links(payment_id,journal_id,evidence_id,actor,created_at) VALUES (?,?,?,?,?)',(pid,jid,evidence['id'],actor,stamp()))
+        db.execute('DELETE FROM payment_import_errors WHERE payment_id=?',(pid,))
+        return jid
     def correct_reversed(self,pid,evidence_id,old_jid,actor):
         with managed_db(self.get_db) as db:
             db.execute('BEGIN IMMEDIATE');payment,order,evidence=self._evidence(db,pid)
@@ -288,35 +296,25 @@ class PaymentImport:
 
     def configure(self,enabled,from_day,actor):
         from_day=iso_day(from_day)
-        if from_day<today().isoformat(): raise ValueError('Automatikk skal starte i dag eller seinare. Historiske betalingar blir gjennomgått manuelt.')
+        with managed_db(self.get_db) as db:old=db.execute('SELECT from_day FROM payment_import_settings WHERE id=1').fetchone()
+        if not enabled:from_day=old[0] if old else today().isoformat()
+        if enabled and from_day<today().isoformat() and (not old or old[0]!=from_day): raise ValueError('Ny automatikk skal starte i dag eller seinare. Historiske betalingar blir gjennomgått manuelt.')
         with managed_db(self.get_db) as db:
+            if enabled and not db.execute("SELECT 1 FROM payment_checks c JOIN payment_evidence e ON e.id=c.evidence_id JOIN signup_orders o ON o.payment_id=c.payment_id WHERE o.environment='production' AND o.status IN ('complete','redacted') AND e.refunded_ore=0 LIMIT 1").fetchone():
+                raise ValueError('Kontroller ei kjend produksjonsbetaling mot Vipps før automatikk blir aktivert.')
             if enabled and not db.execute('SELECT 1 FROM ledger_years WHERE opening_confirmed=1 AND year<=?',(int(from_day[:4]),)).fetchone():
                 raise ValueError('Dokumenter inngåande balanse før automatikk blir aktivert.')
+            db.execute("DELETE FROM payment_attempts WHERE status='historical'")
             db.execute('INSERT INTO payment_import_settings(id,enabled,from_day,actor,updated_at) VALUES (1,?,?,?,?) ON CONFLICT(id) DO UPDATE SET enabled=excluded.enabled,from_day=excluded.from_day,actor=excluded.actor,updated_at=excluded.updated_at',(int(enabled),from_day,actor,stamp()))
 
+    def preview(self,actor,limit=20,client_factory=None):
+        from betalingsflyt import PaymentFlow
+        return PaymentFlow(self).preview(actor,limit,client_factory)
+
+    def approve(self,token,actor):
+        from betalingsflyt import PaymentFlow
+        return PaymentFlow(self).approve(token,actor)
+
     def run(self,fetch=False,limit=50,client_factory=None):
-        counts=dict(checked=0,booked=0,review=0)
-        with managed_db(self.get_db) as db:
-            settings=db.execute('SELECT * FROM payment_import_settings WHERE id=1 AND enabled=1').fetchone()
-            if not settings: return counts
-            pids=[r[0] for r in db.execute(f'''SELECT p.id FROM payments p JOIN signup_orders o ON o.payment_id=p.id
-                WHERE o.environment='production' AND o.status IN ('{Ordrestatus.COMPLETE}','{Ordrestatus.REVIEW}','{Ordrestatus.REDACTED}')
-                ORDER BY COALESCE((SELECT MAX(checked_at) FROM payment_evidence e WHERE e.payment_id=p.id),'') ASC,p.id LIMIT ?''',(limit,))]
-        for pid in pids:
-            try:
-                if fetch: self.fetch(pid,'vedlikehald',client_factory);counts['checked']+=1
-                with managed_db(self.get_db) as db:
-                    evidence=db.execute('SELECT * FROM payment_evidence WHERE payment_id=? ORDER BY revision DESC LIMIT 1',(pid,)).fetchone()
-                    linked=self._linked(db,pid)
-                    if linked and evidence:
-                        payment,_=self._source(db,pid)
-                        self._check_link(db,linked,payment,evidence)
-                if not evidence: raise ValueError('Kjeldetidspunkt manglar. Hent Vipps-kontroll.')
-                if evidence['refunded_ore']: raise ValueError('Refusjon observert; samanlikn med registrerte refusjonspostar.')
-                if not linked:
-                    self.book(pid,evidence['id'],'vedlikehald',automatic=True);counts['booked']+=1
-            except (ValueError,VippsError,KeyError,TypeError):
-                counts[Ordrestatus.REVIEW]+=1
-                with managed_db(self.get_db) as db:
-                    db.execute('INSERT INTO payment_import_errors(payment_id,message,checked_at) VALUES (?,?,?) ON CONFLICT(payment_id) DO UPDATE SET message=excluded.message,checked_at=excluded.checked_at',(pid,'Kjelde eller bokføring krev manuell kontroll. Opne betalingsimporten.',stamp()))
-        return counts
+        from betalingsflyt import PaymentFlow
+        return PaymentFlow(self).run(fetch,limit,client_factory)

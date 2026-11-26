@@ -62,7 +62,7 @@ class MeetingTests(unittest.TestCase):
         # Older open forms must not erase a proposal by omitting the new field.
         data.pop('item_proposal');data['revision']=1
         self.assertEqual(self.client.post('/sakliste/2027',data=data).status_code,302)
-        self.assertEqual(self.service.enqueue('sakliste',2027,2)['content']['items'][0]['proposal'],item['proposal'])
+        self.assertEqual(self.service.enqueue('sakliste',2027,1)['content']['items'][0]['proposal'],item['proposal'])
 
     def test_revisions_publication_and_validation(self):
         self.service.save('sakliste',2027,0,self.agenda())

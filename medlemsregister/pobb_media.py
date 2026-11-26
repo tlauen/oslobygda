@@ -204,6 +204,24 @@ def public_media_url(path):
     )
 
 
+def publish_gallery_state(get_db, state, revision):
+    assets = []
+    with managed_db(get_db) as db:
+        for item in state["items"]:
+            for path in (item["fil"], item.get("plakat", "")):
+                key = asset_key(path)
+                asset = read_setting(db, key) if key else None
+                if asset:
+                    assets.append(asset)
+    GithubGallery().publish_gallery(state, assets)
+    updated = {"items": state["items"], "base": digest(state["items"])}
+    with managed_db(get_db) as db:
+        db.execute("BEGIN IMMEDIATE")
+        if digest(read_setting(db, SETTING)) == revision:
+            write_setting(db, SETTING, updated)
+    return updated
+
+
 def install_gallery(app, get_db, require_admin):
     # Same filter name as Jekyll for the shared gallery template. Preview URLs
     # are already encoded, so preserve percent escapes and normalise raw Unicode.
@@ -337,7 +355,7 @@ def install_gallery(app, get_db, require_admin):
                 action = values.get("action")
                 items = [dict(item) for item in state["items"]]
                 assets = []
-                if action == "save":
+                if action in ("save", "save_publish"):
                     old = next((item for item in items if item["fil"] == editing), None)
                     if editing and old is None:
                         raise PublicationConflict(
@@ -385,25 +403,12 @@ def install_gallery(app, get_db, require_admin):
                         raise ValueError(
                             "Lagre, kontroller og stadfest utkastet først."
                         )
-                    with managed_db(get_db) as db:
-                        for item in items:
-                            for path in (item["fil"], item.get("plakat", "")):
-                                key = asset_key(path)
-                                asset = read_setting(db, key) if key else None
-                                if asset:
-                                    assets.append(asset)
-                    GithubGallery().publish_gallery(state, assets)
-                    updated = {"items": items, "base": digest(items)}
-                    with managed_db(get_db) as db:
-                        db.execute("BEGIN IMMEDIATE")
-                        if digest(read_setting(db, SETTING)) == revision:
-                            write_setting(db, SETTING, updated)
-                    state = updated
-                    revision = digest(updated)
+                    state = publish_gallery_state(get_db, state, revision)
+                    revision = digest(state)
                     message = "Galleriet er lagra i GitHub. Kontroller nettsida når bygginga er ferdig."
                 else:
                     raise ValueError("Vel ei gyldig handling.")
-                if action in ("save", "remove", "reload", "preview"):
+                if action in ("save", "save_publish", "remove", "reload", "preview"):
                     validate_gallery(items)
                     next_state = {
                         "items": items,
@@ -424,6 +429,11 @@ def install_gallery(app, get_db, require_admin):
                     values = {}
                     preview_mode = True
                     message = "Galleriutkastet er lagra. Nettsida er ikkje endra."
+                    if action == "save_publish":
+                        state = publish_gallery_state(get_db, state, revision)
+                        revision = digest(state)
+                        message = "Galleriet er lagra i GitHub. Kontroller nettsida når bygginga er ferdig."
+                        preview_mode = False
             except (ValueError, PublicationError) as exc:
                 error = str(exc)
                 status = (

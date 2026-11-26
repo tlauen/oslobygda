@@ -6,7 +6,7 @@
 <div class="medieredigerar">
 <header class="toppfelt"><h1>Bilete og filmar</h1></header>
 <p><a href="{{ prefix_url('website_text_editor',key='pub') }}">Til tekstane på Folkemusikkpøbb-sida</a></p>
-{% if error %}<p class="feil" role="alert">{{ error }} Vel eventuelle opplastingsfiler på nytt.</p>{% endif %}
+{% if error %}<p class="feil" role="alert">{{ error }} {% if not preview_mode %}Vel eventuelle opplastingsfiler på nytt.{% endif %}</p>{% endif %}
 {% if message %}<p role="status">{{ message }}</p>{% endif %}
 {% if preview_mode %}
 <h2>Førehandsvis galleriutkastet</h2><p>Endringane blir synlege på nettsida først når du publiserer.</p>
@@ -21,7 +21,7 @@
 <div class="felt"><label for="media-credit">Foto/film av <span class="medie-valfritt">(valfritt)</span></label><input id="media-credit" name="fotograf" maxlength="500" value="{{ values.get('fotograf','') }}"></div>
 <div class="felt"><label for="media-poster">Framsidebilete til film <span class="medie-valfritt">(valfritt)</span></label><input id="media-poster" type="file" name="poster" accept="image/jpeg,image/png,image/webp"><p class="medie-note">Høgst 3 MiB</p></div>
 <div class="felt medie-plassering"><label for="media-position">Plassering i galleriet</label><input id="media-position" name="position" type="number" min="1" max="{{ items|length if editing else items|length+1 }}" value="{{ values.get('position', position) }}" required></div>
-<button name="action" value="save">Lagre og førehandsvis</button>
+{% if ready %}<button name="action" value="save_publish">Publiser galleriet</button><button name="action" value="save" class="sekundaer">Lagre utkast og førehandsvis</button>{% else %}<button name="action" value="save">Lagre og førehandsvis</button>{% endif %}
 </form></details>
 {% if items %}<form method="post">{{ tokens() }}<button name="action" value="preview">Førehandsvis galleriutkast</button></form>{% endif %}
 {% endif %}

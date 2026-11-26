@@ -46,7 +46,7 @@
 {% endfor %}
 {% if key == 'framside' %}<details name="tekstseksjon"><summary>Fleire tekstval</summary>{% for name,label,is_markdown in fields if name not in main.names %}{{ field(name,label,is_markdown) }}{% endfor %}</details>{% endif %}
 
-<button name="action" value="save">Lagre og førehandsvis</button>
+{% if ready %}<button name="action" value="save_publish">Publiser på nettsida</button><input type="hidden" name="confirmed" value="yes"><button class="sekundaer" name="action" value="save">Lagre utkast og førehandsvis</button>{% else %}<button name="action" value="save">Lagre og førehandsvis</button>{% endif %}
 </form>
 <details class="tekstredigering-verktoy"><summary>Hent publisert tekst på nytt</summary><p>Dette byter ut utkastet. Ta vare på eventuelle endringar først.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkast med publisert tekst</button></form></details>
 {% endif %}

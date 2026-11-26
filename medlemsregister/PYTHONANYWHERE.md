@@ -180,3 +180,18 @@ tabellane ved oppstart. Ingen publiserings- eller betalingsjobb blir aktivert av
 Følg [UTRULLING.md](UTRULLING.md) før oppdatering. Der er oppdatert filoversikt,
 styrelagring, backup, røykprøve og tilbakeføring samla. Ingen lokal testdata skal
 kopierast til produksjon.
+
+
+## Betalingsautomatikk og enklare publisering (november 2026)
+
+Oppdater med den eksisterande kopieringsrutinen og vel Reload på Web-fana.
+Databasemigrering 3 blir køyrd ved oppstart; ta som vanleg backup først.
+Ingen nye Python-avhengnader er lagde til. Den aktive mappa treng ikkje vere eit
+Git-repo. Bruk `python3 /home/oslobygda/oppdater-bygdelista.py`.
+
+Eksisterande planlagd `innmelding-vedlikehald` køyrer òg finanskontroll og
+publiseringskø. Automatisk bokføring er av fram til ho er aktivert i Bygdelista,
+og rapporthenting er av utan `VIPPS_REPORT_FETCH_ENABLED=1` og korrekt
+`VIPPS_REPORT_LEDGER_ID`. Bruk eksisterande produksjonsnøklar på serveren.
+Sjå [kontroll og utrulling](BETALINGSIMPORT.md) før aktivering. Publiseringsjobbar
+bruker eksisterande `GITHUB_DOCUMENTS_TOKEN`; feil blir ståande for oppfølging.

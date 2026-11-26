@@ -67,6 +67,16 @@ class PubMediaTests(unittest.TestCase):
         self.assertIn('href="https://oslobygda.no/kalender/"', response.text)
         self.assertIn("<details><summary>Få tilskipingane", response.text)
 
+    def test_direct_publication_includes_new_upload(self):
+        fixtures.BoardAuthTests.login(self)
+        form = self.form(action="save_publish", tekst="Direkte bilete", fotograf="Fotograf", position="1")
+        form["media"] = (io.BytesIO(b"\xff\xd8\xffimage"), "direkte.jpg")
+        with patch.object(GithubGallery, "__init__", return_value=None), patch.object(GithubGallery, "publish_gallery") as publish:
+            response = self.client.post("/nettsida/pobb/galleri", data=form)
+            self.assertEqual(response.status_code, 200)
+            publish.assert_called_once()
+            self.assertIn("Direkte bilete", str(publish.call_args))
+
     def test_private_upload_replace_edit_and_remove(self):
         path = "/nettsida/pobb/galleri"
         self.assertEqual(self.client.get(path).status_code, 302)

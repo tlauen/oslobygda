@@ -319,3 +319,17 @@ Eksisterande offentlege medielenkjer blir normaliserte til NFC før URL-koding,
 slik at norske bokstavar svarar til filnamna i Git og på GitHub Pages.
 Ved denne oppdateringa må serverkopien av oppdateringsskriptet oppdaterast og
 køyrast på nytt for å få med dei to delte malane.
+
+
+## Samla betalingsflyt og direkte publisering
+
+Sjå [Betalingsautomatikk og avstemming](BETALINGSIMPORT.md) for samla godkjenning,
+CSV-/API-rapportar, bankkontroll og trygg aktivering i drift. Eksisterande
+vedlikehaldsjobb handterer nye forsøk og publiseringskø.
+
+Årsmelding, budsjett, sakliste og møtereglar kan lagrast og publiserast i éi
+handling frå redigeraren. Sidetekst og galleri har direkte publisering når
+GitHub-tilgangen er konfigurert, med valfri lagring og førehandsvising. Uendra
+innhald gjenbruker siste relevante versjon. Reelle endringar og tilbakeføringar
+får ny historikk; eksisterande historikk blir bevart. Årsmøtegodkjenning krev
+framleis faktisk vedtaksdato, og protokollen krev dei to underskrivarane.

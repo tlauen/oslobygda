@@ -1,6 +1,7 @@
 <a class="arsmote-hopp" href="#hovudinnhald">Hopp til innhald</a>
 {% include '_bygdelista_topp.html' %}
 {% include '_bygdelista_undermeny.html' %}
+{% for message in get_flashed_messages(category_filter=['publisering']) %}<p role="status">{{ message }}</p>{% endfor %}
 <div id="hovudinnhald" tabindex="-1"></div>
 <script>
 document.addEventListener('DOMContentLoaded',()=>{

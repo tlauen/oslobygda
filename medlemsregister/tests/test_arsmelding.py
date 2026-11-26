@@ -144,7 +144,7 @@ class ReportTests(unittest.TestCase):
         fixtures.BoardAuthTests.login(self)
         response=self.client.post(f'/arsmote/{self.doc_id}',data=dict(csrf_token=self.token(),action='freeze',revision=self.doc()['revision'],status='approved',decision_date='2026-01-01'))
         self.assertEqual(response.status_code,400)
-        self.assertIn('Lagre årsmeldinga',response.get_data(as_text=True))
+        self.assertIn('Lagre utkast',response.get_data(as_text=True))
         self.assertFalse(re.search(r'<button[^>]*\bdisabled',response.get_data(as_text=True)))
         form=self.form();form.update(csrf_token=self.token(),action='save_report',revision=self.doc()['revision'])
         self.assertEqual(self.client.post(f'/arsmote/{self.doc_id}',data=form).status_code,302)

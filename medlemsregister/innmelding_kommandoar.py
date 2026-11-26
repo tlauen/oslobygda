@@ -149,6 +149,36 @@ def install_commands(
             )
             db.execute("DELETE FROM auth_mail_jobs WHERE expires<=?", (time.time(),))
             db.commit()
+        from arsdokument import stamp
+        from vipps_rapport_api import automate_reports
+        import json
+
+        financial = app.extensions['payment_import'].run(fetch=True)
+        try:
+            report_counts = automate_reports(app.extensions['vipps_reports'])
+            with managed_db(get_db) as db:
+                db.execute(
+                    "INSERT INTO finance_runs(kind,started_at,finished_at,counts) VALUES ('reports',?,?,?)",
+                    (stamp(), stamp(), json.dumps(report_counts)),
+                )
+            app.extensions['public_ledger'].refresh_enabled()
+        except (ValueError, VippsError, KeyError, TypeError):
+            with managed_db(get_db) as db:
+                db.execute(
+                    "INSERT INTO finance_runs(kind,started_at,finished_at,error) VALUES ('reports',?,?,?)",
+                    (stamp(), stamp(), 'Rapporttenesta eller avstemming krev kontroll.'),
+                )
+            report_counts = {'review': 1}
+            app.logger.warning('Vipps-rapport eller økonomikontroll krev oppfølging.')
+        print(
+            f"Økonomi: {financial['booked']} medlemsbetalingar bokførte, "
+            f"{financial['review']} til kontroll. Rapport: {report_counts}."
+        )
+        if os.environ.get('GITHUB_DOCUMENTS_TOKEN', '').strip():
+            try:
+                app.extensions['document_publisher'].run(limit=5)
+            except ValueError:
+                app.logger.warning('Publiseringskøa blir prøvd igjen seinare.')
         cleaned = prepare(get_db, today())
         notified = send_pending(get_db, today())
         print(

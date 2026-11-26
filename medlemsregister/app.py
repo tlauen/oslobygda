@@ -260,9 +260,11 @@ def init_db():
     from totp_kryptering import migrate as validate_totp
 
     from auth_epost import init_queue
+    from okonomi_automatikk import migrate_finance
     migrate(get_db, (
         Migration(1, "baseline_20261125", lambda db: _initial_schema(lambda: db)),
         Migration(2, "auth_mail_queue", init_queue),
+        Migration(3, "finance_automation", migrate_finance),
     ))
     # Dette er driftskontroll/dataoppdatering, ikkje skjemamigrering. Feil nøkkel
     # skal stoppe også når databasen allereie har rett skjemaversjon.
@@ -433,6 +435,9 @@ install_text_editor(app, get_db, require_admin)
 
 from pobb_media import install_gallery
 install_gallery(app, get_db, require_admin)
+
+from vipps_rapport_vising import install_reports
+install_reports(app, get_db, require_admin, _oppdater_fra_innbetalingar)
 
 from arsdokument import install_documents
 install_documents(app, get_db, require_admin)

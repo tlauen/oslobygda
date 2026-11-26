@@ -174,9 +174,10 @@ class Documents:
         title, body = text_fields(title, body)
         with managed_db(self.get_db) as db:
             db.execute('BEGIN IMMEDIATE')
-            current = db.execute('SELECT report_json FROM annual_documents WHERE id=?', (doc_id,)).fetchone()
+            current = db.execute('SELECT * FROM annual_documents WHERE id=?', (doc_id,)).fetchone()
             if current and current['report_json'] != '{}':
                 raise ValueError('Bruk skjemaet for strukturert årsmelding.')
+            if current and current['revision']==integer(revision) and (current['title'],current['body'],current['meeting_year'])==(title,body,year(meeting_year)):return
             changed = db.execute('''UPDATE annual_documents SET title=?,body=?,meeting_year=?,
                 revision=revision+1,updated_by=?,updated_at=? WHERE id=? AND revision=?''',
                 (title, body, year(meeting_year), actor, stamp(), doc_id, integer(revision)))
@@ -237,6 +238,12 @@ class Documents:
             else:
                 raise ValueError('Ugyldig handling.')
             body = compose(report)
+            from publiseringsflyt import without_check_time
+
+            fresh = db.execute(
+                "SELECT title,meeting_year FROM annual_documents WHERE id=?", (doc_id,)
+            ).fetchone()
+            if without_check_time(json.loads(doc['report_json']))==without_check_time(report) and doc['body']==body and (fresh['title'],fresh['meeting_year'])==(doc['title'],doc['meeting_year']):return
             text_fields(doc['title'], body)
             db.execute("""UPDATE annual_documents SET report_json=?,body=?,revision=revision+1,
                 updated_by=?,updated_at=? WHERE id=?""", (canonical(report), body, actor, stamp(), doc_id))
@@ -264,6 +271,11 @@ class Documents:
                     raise DocumentConflict('Versjonen har ein annan vedtaksdato. Lag eit nytt arbeidsutkast for rettinga.')
                 return old['id']
             snapshot = canonical({k: doc[k] for k in ('kind','report_year','meeting_year','title','body','report_json')})
+            identical = db.execute(
+                "SELECT id,content_hash,decision_date FROM annual_versions WHERE document_id=? AND status=? ORDER BY id DESC LIMIT 1",
+                (doc_id, status),
+            ).fetchone()
+            if identical and identical['content_hash']==digest(snapshot) and identical['decision_date']==decision_date:return identical['id']
             return db.execute('''INSERT INTO annual_versions
                 (document_id,source_revision,status,snapshot,content_hash,created_by,created_at,decision_date)
                 VALUES (?,?,?,?,?,?,?,?)''', (doc_id, doc['revision'], status, snapshot, digest(snapshot), actor, stamp(), decision_date)).lastrowid
@@ -309,18 +321,70 @@ def install_documents(app, get_db, require_admin):
                 actor = session['board_username']
                 action = request.form.get('action')
                 revision = request.form.get('revision')
-                if action == 'save':
-                    service.save(doc_id, revision, request.form.get('title',''), request.form.get('body',''), request.form.get('meeting_year'), actor)
-                elif action in ('save_report', 'add_manual', 'refresh_membership', 'remove_membership', 'import_calendar', 'refresh_board', 'remove_board'):
+                if action in ("publish_report", "publish_text"):
+                    if action == "publish_report":
+                        service.update_report(
+                            doc_id, revision, actor, "save_report", request.form
+                        )
+                    else:
+                        service.save(
+                            doc_id,
+                            revision,
+                            request.form.get("title", ""),
+                            request.form.get("body", ""),
+                            request.form.get("meeting_year"),
+                            actor,
+                        )
+                    with managed_db(get_db) as db:
+                        revision = db.execute(
+                            "SELECT revision FROM annual_documents WHERE id=?",
+                            (doc_id,),
+                        ).fetchone()[0]
+                    vid = service.freeze(doc_id, revision, "meeting", "", actor)
+                    service.enqueue(vid, actor)
+                    from publisering import publish_from_button
+
+                    publish_from_button(app, ("annual", vid))
+                elif action == "save":
+                    service.save(
+                        doc_id,
+                        revision,
+                        request.form.get("title", ""),
+                        request.form.get("body", ""),
+                        request.form.get("meeting_year"),
+                        actor,
+                    )
+                elif action in (
+                    "save_report",
+                    "add_manual",
+                    "refresh_membership",
+                    "remove_membership",
+                    "import_calendar",
+                    "refresh_board",
+                    "remove_board",
+                ):
                     calendar = None
-                    if action == 'import_calendar':
+                    if action == "import_calendar":
                         _, source_revision, events = GithubCalendar().read()
                         calendar = (source_revision, events)
-                    service.update_report(doc_id, revision, actor, action, request.form, calendar)
-                elif action == 'freeze':
-                    service.freeze(doc_id, revision, request.form.get('status'), request.form.get('decision_date',''), actor)
+                    service.update_report(
+                        doc_id, revision, actor, action, request.form, calendar
+                    )
+                elif action in ("freeze", "freeze_publish"):
+                    vid = service.freeze(
+                        doc_id,
+                        revision,
+                        request.form.get("status"),
+                        request.form.get("decision_date", ""),
+                        actor,
+                    )
+                    if action == "freeze_publish":
+                        service.enqueue(vid, actor)
+                        from publisering import publish_from_button
+
+                        publish_from_button(app, ("annual", vid))
                 else:
-                    raise ValueError('Ugyldig handling.')
+                    raise ValueError("Ugyldig handling.")
                 return redirect(app.jinja_env.globals['prefix_url']('annual_document', doc_id=doc_id))
             except (ValueError, CalendarError) as exc:
                 error = str(exc)

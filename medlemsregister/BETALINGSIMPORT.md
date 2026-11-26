@@ -1,4 +1,55 @@
-# Medlemsinntekter og betalingsavstemming – steg 8
+# Betalingsautomatikk og avstemming
+
+## Implementert – må kontrollerast i drift
+
+Koden for framdriftsplanen 1–7 er implementert: samla kontroll og godkjenning,
+ePayment-kontroll, tidsstyrt bokføring med lås og nye forsøk, CSV-rapport,
+gebyr/refusjonsforslag, bankkontroll og valfri Report API-henting. Ingen
+produksjonsbetalingar er henta eller bokførte under utviklinga. Planen nedanfor
+er framleis kontrollgrunnlag for utrulling; leverandørtilgang og faktiske tal er
+ikkje stadfesta av utviklingstestane.
+
+1. Oppdater serveren, og kontroller backup og dokumentert opningsbalanse.
+2. På «Medlemspengar og betalingskontroll»: kontroller ei kjend
+   produksjonsbetaling mot Vipps, førehandsvis og godkjenn dei eintydige forslaga.
+3. Avstem tidlegare manuelle samleføringar. Vel startdato og aktiver automatikken
+   først når desse ikkje kan bli førte på nytt. Av-knappen bevarer historikken.
+4. Den eksisterande `innmelding-vedlikehald`-jobben køyrer automatisk kontroll,
+   bokføring og oppfølging av autoriserte publiseringsjobbar. Ingen ny jobb er
+   nødvendig dersom denne alt køyrer. Sjekk første periode mot kjeldene.
+5. Under «Vipps-rapport»: last opp ny Vipps-CSV for eitt MSN og NOK om gongen,
+   maksimalt 3 MiB / 10 000 rader. Overlappande rapportar blir gjenkjende med
+   stabile kjelde-ID-ar. Kjeldeendringar blir stoppa til kontroll.
+6. Vel medlem og medlemsår for direkte medlemspengar, eller inntektskategori.
+   Kople eksisterande P-nummer dersom føringa alt finst. Kontroller refusjon mot
+   originalpost. Stadfest faktisk bankoppgjer med dato, beløp og referanse, eller
+   last opp bank-CSV med `Dato;Beløp;Referanse`. Automatisk bankkopling krev
+   eintydig oppgjersnummer og beløp. Planlagd utbetaling åleine er ikkje bankbevis.
+7. Valfri API-henting: set `VIPPS_REPORT_FETCH_ENABLED=1` og
+   `VIPPS_REPORT_LEDGER_ID=<faktisk ledger-ID>` i servermiljøet, med eksisterande
+   produksjonstilgang. Før henting blir NOK og eigarskap til éi salseining
+   kontrollert. Bruk knappen «Hent rapport frå Vipps» eller Flask-kommandoen
+   `hent-vippsrapport`. Faktisk tilgang må prøvast på serveren.
+
+API-henting er lesande. Automatisk rapportføring krev òg aktivert
+betalingsautomatikk og vald startdato. Berre API-kjelder med eintydig eksisterande
+betalingskopling, gebyr eller bankstadfesta oppgjer blir behandla automatisk.
+CSV-kjelder, direkte inntekter, refusjonar og ukjende typar krev godkjenning.
+Gebyrlinjene er eigne kjelder; gebyrkolonnen på kvar betaling blir ikkje ført om
+att. Ingen funksjon her overfører pengar eller utfører Vipps-refusjonar.
+
+Ny kontroll av uendra betalingsgrunnlag oppdaterer kontrolltidspunktet utan å
+lage ny kjeldeversjon. Reelle endringar bevarer tidlegare bevis. Ei batchgodkjenning
+er atomisk og kan sendast på nytt utan ny bokføring. Nettverksfeil får ventetid,
+og seinare betalingar blir ikkje blokkerte av dei første feila.
+
+Implementasjonen byggjer på dei offisielle [rapporttypane](https://developer.vippsmobilepay.com/docs/APIs/report-api/api-guide/entry-types/)
+og [API-spesifikasjonen](https://developer.vippsmobilepay.com/redocusaurus/report-swagger-id.yaml).
+Den offentlege CSV-eksempelrapporten er brukt som formatgrunnlag; eigen eksport
+og samsvarande kontoutskrift må framleis kontrollerast før ordinær drift.
+
+## Tidlegare spesifikasjon og framdriftsplan
+
 
 Inngang frå intern rekneskap til `/okonomi/betalingar`. Alle styrekontoar har same
 tilgang. Ingen produksjonsdata er henta eller førte under utviklinga. Brukaren
