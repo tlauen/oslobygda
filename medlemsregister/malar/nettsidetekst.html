@@ -35,20 +35,20 @@
 {% else %}
 <p><a href="{{ prefix_url('website_text_editor',key='framside') }}">Framsida</a> · <a href="{{ prefix_url('website_text_editor',key='om') }}">Om-sida</a> · <a href="{{ prefix_url('website_text_editor',key='pub') }}">Folkemusikkpøbben</a></p>
 <p>Opne seksjonen du vil endre. Kalender, styreoversikt og kontingentsats blir henta automatisk.</p>
-<form method="post" class="medlemsskjema">
+<form method="post" class="medlemsskjema tekstredigering">
 {{ tokens() }}
 {% set main=namespace(names=[]) %}
 {% for group,names in groups %}
-<details name="tekstseksjon"{% if loop.first %} open{% endif %}><summary>{{ group }}</summary>
+{% if key != 'om' %}<details name="tekstseksjon"{% if loop.first %} open{% endif %}><summary>{{ group }}</summary>{% endif %}
 {% for name,label,is_markdown in fields if name in names %}{{ field(name,label,is_markdown) }}{% set main.names=main.names+[name] %}{% endfor %}
 {% if key == 'pub' and loop.last %}<p><a href="{{ prefix_url('pub_gallery_editor') }}">Last opp og rediger bilete og filmar</a></p>{% endif %}
-</details>
+{% if key != 'om' %}</details>{% endif %}
 {% endfor %}
 {% if key == 'framside' %}<details name="tekstseksjon"><summary>Fleire tekstval</summary>{% for name,label,is_markdown in fields if name not in main.names %}{{ field(name,label,is_markdown) }}{% endfor %}</details>{% endif %}
 
 <button name="action" value="save">Lagre og førehandsvis</button>
 </form>
-<details><summary>Hent publisert tekst på nytt</summary><p>Dette byter ut utkastet. Ta vare på eventuelle endringar først.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkast med publisert tekst</button></form></details>
+<details class="tekstredigering-verktoy"><summary>Hent publisert tekst på nytt</summary><p>Dette byter ut utkastet. Ta vare på eventuelle endringar først.</p><form method="post">{{ tokens() }}<input type="hidden" name="action" value="reload"><button name="confirmed" value="yes">Byt ut utkast med publisert tekst</button></form></details>
 {% endif %}
 <script defer src="{{ prefix_url('static',filename='markdown-redigering.js') }}?v=20261126-3"></script>
 {% if preview_mode %}<script defer src="{{ prefix_url('shared_membership_script') }}"></script>{% endif %}

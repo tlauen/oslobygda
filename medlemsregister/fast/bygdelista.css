@@ -80,3 +80,32 @@
 .galleri-redigering { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:1.25rem; margin:1.5rem 0; }
 .galleri-redigering__kort { min-width:0; padding:1rem; border:1px solid var(--line); border-radius:12px; background:var(--panel-strong); }
 .galleri-redigering__kort :is(img,video) { display:block; width:100%; max-height:320px; object-fit:contain; }
+
+/* Tekstredigering: eitt ope arbeidsområde, med felta som einaste boksar. */
+.bygdelista-kropp .medlemsskjema.tekstredigering {
+  grid-template-columns:minmax(0,1fr);
+  gap:1.5rem;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  max-width:54rem;
+  margin:2rem 0;
+}
+.bygdelista-kropp .tekstredigering details,
+.bygdelista-kropp details.tekstredigering-verktoy {
+  margin:0;
+  padding:0;
+  border:0;
+  border-top:1px solid var(--line);
+  border-radius:0;
+  background:transparent;
+}
+.tekstredigering summary,
+.tekstredigering-verktoy summary { padding:1rem 0; }
+.tekstredigering details[open] { padding-bottom:.5rem; }
+.bygdelista-kropp .tekstredigering .felt + .felt { margin-top:1.25rem; }
+.bygdelista-kropp .tekstredigering label { margin-bottom:.5rem; }
+.bygdelista-kropp .tekstredigering textarea { min-height:20rem; }
+.bygdelista-kropp details.tekstredigering-verktoy { max-width:54rem; margin-top:2.5rem; }
