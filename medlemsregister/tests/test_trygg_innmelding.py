@@ -47,7 +47,7 @@ class EditTests(unittest.TestCase):
             self.assertEqual(self.client.post('/bli-medlem/rediger',data=self.fields()).status_code,400)
             page=self.client.get('/bli-medlem/status').get_data(as_text=True)
             self.assertIn('test@example.org',page)
-            self.assertIn('Rediger medlemsopplysningar',page)
+            self.assertIn('Feil e-postadresse? Endre her.',page)
             response=self.client.post('/bli-medlem/rediger',data={**self.fields(email='changed@example.org'),'csrf_token':self.token()})
             self.assertEqual(response.status_code,303)
             self.assertIn('changed@example.org',self.client.get('/bli-medlem/status').get_data(as_text=True))

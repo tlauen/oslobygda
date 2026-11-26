@@ -3,7 +3,10 @@
 {% block content %}
 <section class="form-card">
   <h1>Stadfest e-postadressa</h1>
-  <p>E-post: {{ order.email }}</p>
+  <p>
+    E-post: {{ order.email }}<br>
+    <a href="{{ prefix_url('signup_edit') }}">Feil e-postadresse? Endre her.</a>
+  </p>
   <p>Du får ein kode til adressa du oppgav. Skriv koden her for å gå vidare med innmeldinga eller få rettleiing om medlemskapen.</p>
   {% if error %}<p class="error-notice" role="alert">{{ error }}</p>{% endif %}
   <form method="post">
@@ -16,7 +19,6 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button name="action" value="resend" class="button button-secondary">Be om kode etter at den gamle er utgått</button>
   </form>
-  <p><a href="{{ prefix_url('signup_edit') }}">Rediger medlemsopplysningar og beløp</a></p>
   <p><a href="{{ prefix_url('member_login') }}">Logg inn på Mi side</a> for å fornye medlemskapen din.</p>
 </section>
 {% endblock %}
