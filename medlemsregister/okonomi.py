@@ -35,6 +35,13 @@ def install_ledger(app,get_db,require_admin,db_path):
         response.headers['Cache-Control']='no-store'
         return response
 
+    @app.get('/okonomi/hjelp')
+    @require_admin
+    def economy_help():
+        response=app.make_response(render_template('okonomi_hjelp.html'))
+        response.headers['Cache-Control']='no-store'
+        return response
+
     def receipt_dir():
         root=Path(app.config['BILAG_DIR']).expanduser().resolve()
         repo=Path(__file__).resolve().parent.parent

@@ -13,7 +13,7 @@ class HelpTests(unittest.TestCase):
         self.assertEqual(response.status_code,200)
         self.assertEqual(response.headers['Cache-Control'],'no-store')
         raw=response.data.decode()
-        for section in ('forste-gong','vanleg-foring','medlemspengar','kontroll','budsjett','arsmelding','publisering','arsmote','retting','backup'):
+        for section in ('arsmelding','sakliste','publisering','arsmote'):
             self.assertIn(f'id="{section}"',raw)
         self.assertIn('aria-current="page">Hjelp',raw)
         self.assertEqual(raw.count('<form'),1)

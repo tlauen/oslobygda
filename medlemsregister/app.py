@@ -450,6 +450,14 @@ def member_help():
     return response
 
 
+@app.get("/nettsida/hjelp")
+@require_admin
+def website_help():
+    response=app.make_response(render_template("nettsida_hjelp.html"))
+    response.headers["Cache-Control"]="no-store"
+    return response
+
+
 # —— Offentleg innmeldingsskjema (ingen innlogging) ——
 
 
