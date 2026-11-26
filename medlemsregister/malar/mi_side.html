@@ -33,6 +33,17 @@
 <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="newsletter"><div class="member-actions"><button class="button button-secondary" name="newsletter" value="yes">Meld meg på</button><button class="button button-secondary" name="newsletter" value="no">Meld meg av</button></div></form>
 <p class="small-note">Ved påmelding blir namn og e-post overførte til Brevo. Du kan òg melde deg av i kvart nyhendebrev.</p>
 </section>
+<section class="member-section member-divider" aria-labelledby="calendar-title">
+<h2 id="calendar-title">Tilskipingane i kalenderen din</h2>
+<p>Abonner éin gong, så kjem nye tilskipingar og endringar automatisk inn i kalenderen din.</p>
+<p><a class="button button-secondary" href="webcal://oslobygda.no/kalender.ics">Abonner på kalenderen</a></p>
+<details><summary>Brukar du Google Kalender eller ein annan kalenderapp?</summary>
+<p>Legg til eit kalenderabonnement frå denne adressa:</p>
+<p class="member-calendar-feed"><code>https://oslobygda.no/kalender.ics</code></p>
+<ul><li><strong>Google Kalender:</strong> På datamaskin: «Andre kalendrar» → + → «Frå nettadresse».</li><li><strong>Apple Kalender:</strong> Bruk knappen ovanfor eller «Nytt kalenderabonnement».</li><li><strong>Outlook:</strong> «Legg til kalender» → «Abonner frå nettet».</li></ul>
+<p class="small-note">Vel abonnement, ikkje filimport. Kalenderappen kan bruke litt tid på å hente endringar. Du avsluttar abonnementet i kalenderappen din.</p>
+</details>
+</section>
 <section class="member-section member-divider"><h2>Innsyn og hjelp</h2><p><a href="{{ prefix_url('member_export') }}">Last ned medlemsopplysningane dine</a></p><p class="small-note">Kontakt folk@oslobygda.no om opplysningane eller medlemskapen, eller om du ønskjer sletting.</p></section>
 </aside></div></div>
 {% endblock %}
