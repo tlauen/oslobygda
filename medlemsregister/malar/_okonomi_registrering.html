@@ -37,7 +37,7 @@
         <dd>Laget flyttar eigne pengar mellom kontoar. Vel både frå-konto og målkonto. Dette er inga ny innkome eller utgift.</dd>
       </dl>
     </details>
-    <form method="post" class="innmelding-skjema" id="post-form" data-status-url="{{ prefix_url('ledger_post_status') }}" data-year="{{ year }}" data-upload-url="{{ prefix_url('ledger_upload') }}">{{ hidden('post') }}<aside id="post-forklaring" class="rekneskap-hjelp" role="status" aria-live="polite">
+    <form method="post" class="innmelding-skjema" id="post-form" data-steg="post" data-status-url="{{ prefix_url('ledger_post_status') }}" data-year="{{ year }}" data-upload-url="{{ prefix_url('ledger_upload') }}">{{ hidden('post') }}<aside id="post-forklaring" class="rekneskap-hjelp" role="status" aria-live="polite">
         {% if not opening_exists %}
           <strong>Før du kan bokføre: Stadfest inngåande balanse.</strong>
           <p>Dette er startpunktet for rekneskapen. Dersom laget starta utan pengar eller gjeld, fyller du inn null og forklarer grunnlaget. Ikkje legg inn denne posten som inngåande gjeld i tillegg.</p>

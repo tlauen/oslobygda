@@ -14,6 +14,10 @@
   combinedOption.disabled=purpose==='other_income';
   if(combinedOption.disabled&&state==='settled_new'){field('vipps_state').value='';state='';}
   const incoming=['membership','donations','other_income'].includes(purpose),advanced=purpose==='other';
+  field('purpose').required=true;
+  field('payment_method').required=incoming;
+  field('vipps_state').required=incoming&&method==='vipps';
+  field('expense_paid').required=purpose==='expense';
   questions.querySelector('[data-question="income"]').hidden=!incoming;
   questions.querySelector('[data-question="vipps"]').hidden=!(incoming&&method==='vipps');
   questions.querySelector('[data-question="expense"]').hidden=purpose!=='expense';
@@ -38,7 +42,11 @@
   field('category').replaceChildren(...originalOptions.filter(x=>allowed.includes(x.value)).map(x=>x.cloneNode(true)));
   if(allowed.includes(selected))field('category').value=selected;
   display('category',purpose==='other_income'||purpose==='expense'||advanced);
-  display('party',['private_expense','invoice','private_refund','private_forgiveness','pay_invoice'].includes(kind));
+  const needsParty=['private_expense','invoice','private_refund','private_forgiveness','pay_invoice'].includes(kind);
+  display('party',needsParty);field('party').required=needsParty;
+  field('original_id').required=kind==='refund_income';
+  field('settlement_day').required=kind==='vipps_income_settled';
+  field('vipps_not_booked').required=kind==='vipps_income_settled';
   const partyLabel=label('party');
   partyLabel.querySelector('.post-feltnamn').textContent=kind==='private_forgiveness'?'Kven ettergir gjelda?':'Intern utleggshavar/leverandør (bruk same namn ved refusjon)';
   partyLabel.querySelector('.feltforklaring').textContent=kind==='private_forgiveness'?'Skriv nøyaktig same namn som på det private utlegget.':'Til dømes Torbjørn. Bruk nøyaktig same namn når laget seinare betalar utlegget tilbake.';

@@ -8,7 +8,7 @@
 <p>Gratis medlemskap blir godkjent for det aktive medlemsåret ved å lagre «Gratis» i medlemslista. Aktive styrekontoar blir haldne utanfor denne oppryddinga.</p>
 {% if candidates %}
 <h2>Kontroller før du godkjenner</h2>
-{% for m in candidates %}<section>
+<div data-steg-liste="10">{% for m in candidates %}<section>
 <h3>{{ m.full_name }} · medlemsnummer {{ m.id }}</h3>
 <p>Sist dekt medlemsår: {{ m.last_covered or 'Ingen registrert' }}. Tidlegast sletting: {{ m.eligible_on }}.</p>
 {% if m.notified %}<form method="post">
@@ -17,7 +17,7 @@
 <p>Kontaktopplysningar og eventuell styretilgang blir fjerna. Bokførte beløp og referansar blir bevarte utan kontaktopplysningar. Sletting hos Brevo blir køa.</p>
 <button type="submit">Godkjenn og slett denne medlemmen</button>
 </form>{% else %}<p>Vent på at e-postvarselet blir sendt før sletting kan godkjennast.</p>{% endif %}
-</section>{% endfor %}
+</section>{% endfor %}</div>
 {% else %}<p>Ingen medlemmar ventar på godkjenning av sletting.</p>{% endif %}
 {% if notifications %}<h2>Varsel som ventar</h2><p>Avviste sendingar blir prøvde igjen kvar time. Uvisst leveringsutfall krev kontroll før nytt forsøk.</p>
 {% for n in notifications %}<p>{{ 'Medlemssletting' if n.kind=='deletions' else 'Manuell kontroll' }}: {{ {'pending':'Ventar på sending','sending':'Sending pågår','uncertain':'Uvisst om e-posten kom fram'}.get(n.state,n.state) }}</p>

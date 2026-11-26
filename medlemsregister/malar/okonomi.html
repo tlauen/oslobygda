@@ -30,7 +30,7 @@
         <input type="hidden" name="action" value="{{ action }}">
         <input type="hidden" name="request_key" value="{{ key }}-{{ action }}">
       {% endmacro %}
-      <p class="arsmote-ingress">Før innkome og utgifter, ta vare på bilaga og følg med på økonomien. Publisering og betalingsimport blir styrte frå eigne sider.</p>
+      {% if ledger_part=='oversikt' %}<p class="arsmote-ingress">Før innkome og utgifter, ta vare på bilaga og følg med på økonomien. Publisering og betalingsimport blir styrte frå eigne sider.</p>{% endif %}
       {% if ledger_part=='oversikt' %}
         <aside class="rekneskap-hjelp">
           <strong>Slik kjem du i gang</strong>
@@ -47,7 +47,7 @@
         <p role="alert" class="feil">{{ error }}</p>
         <p>Kontroller felta før du prøver på nytt. Ved endra innhald på ei innsending som alt er bokført, opne eit nytt skjema.</p>
       {% endif %}
-      <p class="feltforklaring">Resultat er innkome minus kostnader for året. Det er ikkje det same som pengane på bankkontoen: Ei utgift du har lagt ut privat, reduserer resultatet sjølv om laget ikkje har betalt deg tilbake enno.</p>
+      {% if ledger_part=='oversikt' %}<p class="feltforklaring">Resultat er innkome minus kostnader for året. Det er ikkje det same som pengane på bankkontoen: Ei utgift du har lagt ut privat, reduserer resultatet sjølv om laget ikkje har betalt deg tilbake enno.</p>{% endif %}
       <p class="arsmote-status">Status: {{ 'Avslutta rekneskapsår' if year_row and year_row.closed else 'Ope rekneskapsår' }}. Resultat: {{ result|kroner }}.</p>
       {% include '_okonomi_oversikt.html' %}
       {% include '_okonomi_bilag.html' %}
@@ -57,7 +57,7 @@
         {% include '_arsavslutning.html' %}
       {% endif %}
     </main>
-<script src="{{ prefix_url('static',filename='post-sporsmal.js',v='20261030-ol') }}" defer></script>
-<script src="{{ prefix_url('static',filename='bilag-post.js',v='20261030-ol') }}" defer></script>
+<script src="{{ prefix_url('static',filename='post-sporsmal.js',v='20261126-steg') }}" defer></script>
+<script src="{{ prefix_url('static',filename='bilag-post.js',v='20261126-steg') }}" defer></script>
 </body>
 </html>

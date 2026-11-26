@@ -7,7 +7,7 @@
   </details>
   <h2>Rett feil med reversering</h2>
   <p class="feltforklaring">Reversering lagar ein motpost som opphevar ei feilføring. Til dømes: Ei utgift på 350 kr vart lagra to gonger. Reverser den eine posten med P-nummeret hans. Dette flyttar ikkje pengar i banken. Skal du rette beløpet, reverserer du feilposten og registrerer han på nytt med rett beløp.</p>
-  <form method="post">{{ hidden('reverse') }}<label>Postnummer <input name="journal_id" type="number" min="1" required>
+  <form data-steg="okonomi" method="post">{{ hidden('reverse') }}<label>Postnummer <input name="journal_id" type="number" min="1" required>
     </label>
     <label>Rettingsdato <input name="day" type="date" required>
     </label>

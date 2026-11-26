@@ -236,6 +236,7 @@
     }
 
     function openModal(id) {
+      skjema.dispatchEvent(new CustomEvent("skjemasteg:start"));
       const tittel = document.getElementById("modal-tittel");
       document.getElementById("medlem-id").value = id || "";
       tittel.textContent = id ? "Rediger medlem" : "Legg til medlem";

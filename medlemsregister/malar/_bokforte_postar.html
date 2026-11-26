@@ -1,4 +1,4 @@
-<ol class="postliste">
+<ol class="postliste" data-steg-liste="15">
 {% for post in journals %}
 {% set total=namespace(value=0) %}{% for line in lines[post.id] if line.amount_ore>0 %}{% set total.value=total.value+line.amount_ore %}{% endfor %}
 <li><details class="bokfort-post" id="post-{{ post.id }}"><summary><span class="bokfort-referanse">P{{ post.id }} · <time datetime="{{ post.day }}">{{ post.day[8:10] }}.{{ post.day[5:7] }}.{{ post.day[:4] }}</time></span><span class="bokfort-korttittel">{{ post.public_text }}{% if post.reversal_of %}<small>Retting av P{{ post.reversal_of }}</small>{% endif %}</span><strong class="bokfort-belop">{{ total.value|kroner }}</strong></summary><div class="bokfort-innhald">

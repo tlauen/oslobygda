@@ -38,6 +38,32 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Kontroller stegvis utfylling
+        env:
+          PYTHONPATH: medlemsregister:medlemsregister/tests
+          PYTHON_DOTENV_DISABLED: '1'
+          MEDLEMSREGISTER_DB_KEY: ''
+          SMTP_HOST: ''
+          BREVO_API_KEY: ''
+        run: |
+          npm ci --prefix skript --ignore-scripts --no-audit --no-fund
+          python skript/skjemasteg_testdata.py > "$RUNNER_TEMP/skjemasteg.json"
+          SKJEMASTEG_TESTDATA="$RUNNER_TEMP/skjemasteg.json" npm test --prefix skript
+      - name: Kontroller skjema i ekte nettlesar og mobilbreidd
+        env:
+          SKJEMASTEG_TESTDATA: ${{ runner.temp }}/skjemasteg.json
+          SKJEMASTEG_SCREENSHOTS: ${{ runner.temp }}/skjemasteg-bilete
+        run: |
+          skript/node_modules/.bin/playwright install --with-deps chromium
+          node skript/test_skjemasteg_browser.cjs
+      - name: Ta vare på skjermbilete frå skjemakontrollen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skjemasteg-mobil-og-datamaskin
+          path: ${{ runner.temp }}/skjemasteg-bilete
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'

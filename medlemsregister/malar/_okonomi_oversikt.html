@@ -76,7 +76,7 @@
     <h2>Dokumenter inngåande balanse</h2>
     <p class="feltforklaring">Dette er startpunktet for året: Kva hadde laget, og kva skulda laget, før hendingane du skal føre? For 2026 kan saldoane vere null dersom laget starta utan pengar eller gjeld. Utlegg frå 2026 som du fører enkeltvis etterpå, skal ikkje også leggjast inn her som inngåande gjeld.</p>
     <p>Gjer dette før første bokføring. Fyll inn null der det ikkje er noko saldo. Seinare år fører vidare saldoane automatisk. Ved korrigering oppgir du heile den korrekte opningsbalansen, ikkje berre differansen. Originalpostane blir bevarte. Dette skjemaet støttar éin namngitt kreditor per gjeldskategori i opningsbalansen; ved fleire må grunnlaget førast særskilt før årsavslutning.</p>
-    <form method="post" class="innmelding-skjema">{{ hidden('opening_correction' if opening_exists else 'opening') }}
+    <form data-steg="opning" method="post" class="innmelding-skjema">{{ hidden('opening_correction' if opening_exists else 'opening') }}
       {% for account in ['bank','vipps','cash','prepaid','receivable','private','payable'] %}
         <label>{{ accounts[account][0] }} <input name="{{ account }}" inputmode="decimal" value="0" required>
         </label>

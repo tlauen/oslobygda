@@ -1,0 +1,40 @@
+/* Same korte arbeidsflate i alle modulane, utan rammer inni rammer. */
+.skjemasteg { display: block !important; max-width: 52rem; }
+.skjemasteg [hidden], .skjemasteg-sider [hidden] { display: none !important; }
+.skjemasteg-topp { grid-column: 1 / -1; border-bottom: 1px solid #d8d6cc; margin-bottom: 1.5rem; padding-bottom: .7rem; scroll-margin-top: 1rem; }
+.skjemasteg-topp p { font-size: .9rem; color: #526354; margin: 0 0 .35rem; }
+.skjemasteg-topp h2 { margin: 0; font-size: 1.5rem; }
+.skjemasteg-panel { border: 0 !important; padding: 0 !important; margin: 0 !important; background: none !important; box-shadow: none !important; }
+.skjemasteg-panel > label, .skjemasteg-panel > .felt { display: block; margin-bottom: 1.2rem; }
+.skjemasteg-panel > fieldset, .skjemasteg-panel > details { border: 0; box-shadow: none; padding: .4rem 0; background: none; }
+.skjemasteg-panel input:not([type=checkbox]):not([type=radio]), .skjemasteg-panel select, .skjemasteg-panel textarea { max-width: 100%; box-sizing: border-box; }
+.skjemasteg-knappar { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; margin-top: 1.5rem; padding: .85rem 0; border-top: 1px solid #d8d6cc; background: #fbfaf5; }
+.skjemasteg-knappar button { margin: 0; }
+.skjemasteg-innsending { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; margin: 0; }
+.skjemasteg-oppsummering section { border: 0; border-bottom: 1px solid #d8d6cc; border-radius: 0; padding: 1rem 0; margin: 0; background: none; box-shadow: none; }
+.skjemasteg-oppsummering h3 { margin-top: 0; }
+.skjemasteg-oppsummering dl { margin: .5rem 0 1rem; }
+.skjemasteg-oppsummering dl > div { display: grid; grid-template-columns: minmax(8rem, 1fr) 2fr; gap: 1rem; padding: .45rem 0; }
+.skjemasteg-oppsummering dt { font-weight: 600; }
+.skjemasteg-oppsummering dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.skjemasteg-verknad { font-weight: 600; }
+.skjemasteg-sider { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; margin: 1rem 0; }
+@media (max-width: 40rem) {
+  .skjemasteg-oppsummering dl > div { display: block; }
+  .skjemasteg-oppsummering dd { margin-top: .2rem; }
+  .skjemasteg-knappar { padding-bottom: max(.85rem, env(safe-area-inset-bottom)); }
+}
+@media print { .skjemasteg-knappar, .skjemasteg-topp, .skjemasteg-sider { display: none !important; } }
+
+[data-steg-liste] > [hidden], [data-steg-oppgaver] > [hidden] { display: none !important; }
+[data-steg-oppgaver] { padding-left: 0; list-style: none; }
+.skjemasteg-saker label, .skjemasteg-oppgaver label { display: block; margin-bottom: 1rem; }
+
+.skjemasteg-topp label { display: block; max-width: 30rem; margin-top: .8rem; font-size: .9rem; }
+.skjemasteg-open-del > summary { display: none; }
+.skjemasteg-panel > fieldset > legend { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.bygdelista-kropp form.skjemasteg .skjemasteg-panel > :is(label,.felt) { margin: 0 0 1.2rem; }
+.bygdelista-kropp form.skjemasteg .skjemasteg-topp h2 { margin: 0; font-size: 1.5rem; }
+.bygdelista-kropp form.skjemasteg .skjemasteg-topp p { margin: 0 0 .35rem; }
+.skjemasteg button.sekundaer { background: transparent; color: #253c2c; border-color: #cbc9c0; }
+.skjemasteg button.sekundaer:hover { background: #edf2e7; }

@@ -13,7 +13,7 @@
    const destination=new URL(form.action||location.href,location.href);
    if(destination.origin!==location.origin)return;
    const state={path:location.pathname,year:year(),time:Date.now(),y:scrollY,
-    formId:form.id,index:forms().indexOf(form),
+    formId:form.id,index:forms().indexOf(form),step:Number(form.dataset.stegIndeks||0),
     opened:Array.from(document.querySelectorAll('details')).map((node,index)=>node.open?index:-1).filter(index=>index>=0)};
    try{sessionStorage.setItem(key,JSON.stringify(state));}catch{}
   });
@@ -26,6 +26,7 @@
   for(const index of state.opened||[])if(details[index])details[index].open=true;
   const error=Array.from(document.querySelectorAll('[role="alert"]')).find(node=>node.textContent.trim()&&node.getClientRects().length);
   const form=(state.formId&&document.getElementById(state.formId))||forms()[state.index];
+  if(error&&form&&Number.isInteger(state.step))form.dispatchEvent(new CustomEvent('skjemasteg:tilsteg',{detail:state.step}));
   const messages=Array.from(document.querySelectorAll('[role="status"]')).filter(node=>node.textContent.trim()&&node.getClientRects().length);
   const banner=document.createElement('div');banner.className='skjema-retur-melding';banner.setAttribute('role','status');
   const text=document.createElement('span');

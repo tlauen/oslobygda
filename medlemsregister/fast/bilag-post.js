@@ -11,6 +11,8 @@
  const check=document.getElementById('post-kontroller-status');
  let busy=false,unresolved=false;let initiallyDisabled=submit.disabled;
  form.noValidate=true;
+ function evidenceRequired(){select.required=!form.elements.namedItem('evidence_note').value.trim();}
+ form.addEventListener('input',evidenceRequired);form.addEventListener('change',evidenceRequired);evidenceRequired();
  const vippsPanel=document.getElementById('vipps-samla');
  const kindField=form.elements.namedItem('kind');
  function vippsFields(){
@@ -34,7 +36,7 @@
  check.addEventListener('click',refreshStatus);window.addEventListener('focus',refreshStatus);
  form.elements.namedItem('day').addEventListener('change',refreshStatus);
  form.addEventListener('submit',event=>{
-  if(busy||unresolved){event.preventDefault();status.textContent='Vent på opplastinga, eller fjern filvalet før du bokfører.';file.focus();return;}
+  if(busy||unresolved){event.preventDefault();status.textContent='Vent på opplastinga, eller fjern filvalet før du bokfører.';file.dispatchEvent(new CustomEvent('skjemasteg:visfelt',{bubbles:true}));file.focus();return;}
   const missing=[];
   const kind=form.elements.namedItem('kind').value;
   for(const [name,label] of [['day','Dato'],['amount','Beløp'],['public_text','Offentleg skildring']]){
@@ -66,7 +68,7 @@
    const receipt=await response.json();
    if(!Number.isInteger(receipt.id)||typeof receipt.name!=='string')throw new Error();
    const option=new Option('B'+receipt.id+' – '+receipt.name,String(receipt.id),true,true);
-   select.add(option);select.value=String(receipt.id);
+   select.add(option);select.value=String(receipt.id);evidenceRequired();
    status.textContent='Bilag B'+receipt.id+' er lasta opp og valt. Kontroller resten og trykk «Bokfør post».';
    file.value='';unresolved=false;
   }catch(error){

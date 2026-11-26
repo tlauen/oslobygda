@@ -12,7 +12,7 @@
     {% if bilagdel=='nytt' %}
       <h2>Last opp nytt bilag</h2>
       <p>Du kan laste opp bilaget her, eller direkte når du registrerer ein post. Du kan bruke PDF eller eit tydeleg bilete. Bilaget får eit internt nummer, til dømes B1. Originalfiler er berre tilgjengelege for styret, ikkje i offentleg rekneskap.</p>
-      <form method="post" action="{{ prefix_url('ledger_upload') }}" enctype="multipart/form-data">
+      <form data-steg="okonomi" method="post" action="{{ prefix_url('ledger_upload') }}" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="year" value="{{ year }}">
         <label>PDF, JPEG eller PNG, maks 10 MiB <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
@@ -26,7 +26,7 @@
     {% elif bilagdel=='knytt' %}
       <h2>Knytt bilag til post</h2>
       <p class="feltforklaring">Bruk dette når ein post alt er bokført og du vil leggje ved meir dokumentasjon. Postnummeret er merkt P i lista «Bokførte postar». Dette opprettar ikkje ei ny utgift.</p>
-      <form method="post">{{ hidden('attach') }}<label>Postnummer <input name="journal_id" type="number" min="1" required>
+      <form data-steg="okonomi" method="post">{{ hidden('attach') }}<label>Postnummer <input name="journal_id" type="number" min="1" required>
         </label>
         <label>Bilag <select name="receipt_id" required>
             {% for receipt in receipts %}
@@ -39,7 +39,7 @@
     {% else %}
       <h2>Bilag <span class="bilag-tal">{{ receipts|length }} lagra</span>
       </h2>
-      <ul class="bilagsliste">
+      <ul class="bilagsliste" data-steg-liste="12">
         {% for receipt in receipts %}
           <li>
             <div class="bokfort-topp">

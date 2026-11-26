@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="api-prefix" content="{{ url_prefix }}">
-<script src="{{ prefix_url('static', filename='medlemsliste.js') }}" defer></script>
+<script src="{{ prefix_url('static', filename='medlemsliste.js',v='20261126-steg') }}" defer></script>
 <link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}<link rel="stylesheet" href="{{ prefix_url('shared_fonts', filename='fraunces.css') }}">
 </head>
 <body class="bygdelista-kropp">
@@ -75,7 +75,7 @@
   <div id="modal-dekke" class="modal-dekke er-skjult" aria-hidden="true">
     <div class="modal-vindauge" role="dialog" aria-labelledby="modal-tittel">
       <h2 id="modal-tittel">Legg til medlem</h2>
-      <form id="medlem-skjema" class="medlemsskjema">
+      <form id="medlem-skjema" data-steg="medlem" class="medlemsskjema">
         <p class="skjema-hjelp skjema-brei">Felt merkte med * må fyllast ut. Kontaktopplysningane blir berre viste internt.</p>
         <input type="hidden" id="medlem-id" />
         <div class="felt">

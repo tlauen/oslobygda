@@ -14,7 +14,7 @@
 <p><a href="{{ prefix_url('pub_gallery_editor') }}">Endre eller legg til fleire innslag</a></p>
 {% else %}
 <details class="medie-panel"{% if editing or error %} open{% endif %}><summary>{{ 'Rediger innslag' if editing else 'Last opp bilete eller film' }}</summary>
-<form method="post" enctype="multipart/form-data" class="medlemsskjema tekstredigering medieskjema">
+<form method="post" enctype="multipart/form-data" class="medlemsskjema tekstredigering medieskjema" data-steg="galleri">
 {{ tokens() }}<input type="hidden" name="edit" value="{{ editing }}">
 <div class="felt"><label for="media-file">{{ 'Byt bilete eller film (valfritt)' if editing else 'Bilete eller film' }}</label><input id="media-file" type="file" name="media" accept="image/jpeg,image/png,image/webp,video/mp4" {% if not editing %}required{% endif %}><p class="medie-note">JPEG, PNG, WebP eller MP4 · høgst 10 MiB</p></div>
 <div class="felt"><label for="media-text">Bilettekst / skildring av innhaldet</label><input id="media-text" name="tekst" maxlength="500" value="{{ values.get('tekst','') }}" required></div>

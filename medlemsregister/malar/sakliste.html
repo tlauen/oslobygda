@@ -8,10 +8,10 @@
 
 <h2>Møtereglar</h2><p>Felles reglar som blir viste under saklisteoversikta. Bruk ## framfor mellomtitlar og ei tom linje mellom avsnitt.</p>
 {% else %}<p><a href="{{ prefix_url('agenda_index') }}">← Alle saklister og møtereglar</a></p><h2>Årsmøtet {{ meeting_year }}</h2><p><a class="btn" href="{{ prefix_url('minutes_editor',meeting_year=meeting_year) }}">Før protokoll / sjå godkjenningar</a></p><p>Sakene blir viste i rekkjefølgja nedanfor. Flytt ei sak med pilknappane. Dokumentkoplingar går til den offentlege årssida for dokumentet.</p>{% endif %}
-<form method="post" class="medlemsskjema"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ revision }}">
+<form method="post" class="medlemsskjema" data-steg="sakliste" data-steg-redigering><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ revision }}">
 {% if kind=='motereglar' %}<label class="skjema-brei">Møtereglar<textarea name="body" rows="28" maxlength="30000" required>{{ content.body }}</textarea></label>
 {% else %}<label>Tittel<input name="title" maxlength="200" value="{{ content.title }}" required></label><label>Dato, stad og innleiing<textarea name="details" rows="4" maxlength="4000">{{ content.details }}</textarea></label>
-<div id="saker" class="skjema-brei">{% for item in content["items"] %}{% include '_sakliste_felt.html' %}{% endfor %}</div><button type="button" id="lovendringar" class="sekundaer">Legg til sak om lovendringar</button><button type="button" id="ny-sak" class="sekundaer">Legg til sak</button>
+<div id="saker" class="skjema-brei" data-steg-del="Sakene" data-steg-saker>{% for item in content["items"] %}{% include '_sakliste_felt.html' %}{% endfor %}</div><button type="button" id="lovendringar" class="sekundaer">Legg til sak om lovendringar</button><button type="button" id="ny-sak" class="sekundaer">Legg til sak</button>
 {% endif %}<button name="action" value="save_publish">Publiser {{ 'møtereglane' if kind=='motereglar' else 'saklista' }}</button> <button name="action" value="save" class="sekundaer">Lagre utkast</button></form>
 {% if kind=='sakliste' %}<template id="sak-mal">{% set item={'title':'','body':'','document':''} %}{% include '_sakliste_felt.html' %}</template>
 <script>

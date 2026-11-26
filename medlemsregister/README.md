@@ -340,3 +340,29 @@ og godkjend (låst ved årsmøtevedtak). Godkjenning krev avstemt og avslutta å
 faktisk vedtaksdato. Ho stoppar vidare førebelse oppdateringar, og kan ikkje
 brukast til å overskrive ein godkjend kopi. Eldre møteversjonar blir bevarte som
 historikk, men nye slike versjonar blir ikkje oppretta.
+
+
+## Felles stegvis skjemaflyt
+
+Lange interne skjema i medlemsliste, økonomi, årsmøte og nettsideredigeraren
+bruker `fast/skjemasteg.js` og `skjemasteg.css`. Steg blir berre aktiverte på
+skjema merkte med `data-steg`; korte skjema og innlogging held fram på éi side.
+Felta blir flytta som originale DOM-nodar innanfor same skjema. Neste/Tilbake
+sender ingen skjema, lagrar ingen feltverdiar i nettlesarlager og opprettar ingen
+utkastversjonar. Innsending bevarer CSRF, versjonskontroll, filval, gjentekne
+feltnamn og den faktiske handlinga på innsendingsknappen. Servervalideringa er
+framleis autoritativ. Utan JavaScript blir heile skjemaet vist.
+
+Kontrollsteget viser berre relevante felt, bruker tekstnoder for innhald og har
+Endre-lenkjer som knappar. Skjulte felt for andre greiner skal ikkje blokkere
+utfyllinga; valideringsfeil opnar rett steg. Handlingsrada er fast ved nedre kant
+når ein skrollar. Sakliste og årsavslutning viser éi sak/eitt kontrollpunkt om
+gongen; betalings- og bilagslister har korte sider utan å miste val frå andre
+sider. Protokollunderskrifter og sjølve godkjenningane er uendra.
+
+Test: `npm ci --prefix skript` og `npm test --prefix skript`. CI render òg ekte
+skjema mot ein mellombels database med `skript/skjemasteg_testdata.py`, og køyrer
+DOM-testane på desse. Ein eigen Playwright-test i CI kontrollerer òg ekte nettlesar og mobilbreidd og
+lagrar skjermbilete frå testdata som kortliva byggjevedlegg.
+Testavhengnadene blir berre brukte under utvikling, ikkje
+på PythonAnywhere. Oppdateringsskriptet tek med dei nye statiske filene.
