@@ -1,7 +1,8 @@
 ---
 layout: standard
 title: Oslobygda kulturlag
-description: "Folkemusikk, dans og gode møte i Oslo. Sjå kva som skjer, og bli med i Oslobygda kulturlag for ein femkroning."
+description: "Folkemusikk, dans og gode møte i Oslo. Sjå kva som skjer, og bli med i Oslobygda kulturlag."
+kontingentoversikt: true
 ---
 
 <section class="helt" aria-labelledby="framside-tittel">
@@ -11,7 +12,7 @@ description: "Folkemusikk, dans og gode møte i Oslo. Sjå kva som skjer, og bli
     <p class="helt__ingress">Folkemusikk, dans og kjekke folk i Oslo. Kom ned i kjellaren på Kaffistova og bli med på Folkemusikkpøbb!</p>
     <div class="framside__handlingar">
       <a class="framside__knapp framside__knapp--lys" href="#det-skjer">Sjå kva som skjer <span aria-hidden="true">↓</span></a>
-      <a class="framside__tekstlenkje" href="{{ '/bli-medlem/' | relative_url }}">Bli medlem for ein femmar <span aria-hidden="true">↗</span></a>
+      <a class="framside__tekstlenkje" href="{{ '/bli-medlem/' | relative_url }}">Bli medlem <span aria-hidden="true">↗</span></a>
     </div>
   </div>
   <div class="helt__logo" aria-hidden="true"></div>
@@ -32,14 +33,14 @@ description: "Folkemusikk, dans og gode møte i Oslo. Sjå kva som skjer, og bli
   <div>
     <p class="framside__overtekst">Plass til fleire i laget</p>
     <h2 id="medlem-tittel">Glad i det me finn på?<br>Bli med då vel!</h2>
-    <p>For ein femkroning blir du medlem i Oslobygda kulturlag og støttar arbeidet for levande folkekultur i hovudstaden.</p>
+    <p>Som medlem i Oslobygda kulturlag støttar du arbeidet for levande folkekultur i hovudstaden. {% include kontingent-kort.html %}</p>
     <div class="framside__handlingar">
       <a class="framside__knapp" href="{{ '/bli-medlem/' | relative_url }}">Ja, eg vil bli medlem <span aria-hidden="true">→</span></a>
       <a href="{{ '/om/' | relative_url }}">Bli kjend med laget</a>
     </div>
   </div>
-  <div class="framside__femmar" aria-label="Medlemskap kostar 5 kroner">
-    <span aria-hidden="true">5<span>kr</span></span>
-    <p>Ein femmar.<br>Meir folkekultur.</p>
+  <div class="framside__kontingent" data-kontingent-url="{{ site.medlemsregister_url | append: '/api/kontingent' | escape }}" data-kontingent-vising="merke" hidden>
+    <span data-kontingent-belop aria-hidden="true"></span>
+    <p>Meir folkekultur.</p>
   </div>
 </section>

@@ -1,6 +1,7 @@
 ---
 layout: standard
 title: Om Oslobygda kulturlag
+kontingentoversikt: true
 ---
 
 # Om Oslobygda kulturlag
@@ -11,7 +12,7 @@ Laget blei offisielt skipa 5. mars 2026 under ein lønsjprat på Wessels plass, 
 
 Me skipar til Folkemusikkpøbb omlag 9 gonger i året, hovudsakleg siste onsdagen i månaden. Me kan òg finne på andre ting viss me syns det er kult.
 
-Vil du bli med i laget? [Bli medlem her!]({{ site.innmelding_url }}) Kostar deg ein femkroning.
+Vil du bli med i laget? [Bli medlem her!]({{ site.innmelding_url }}) {% include kontingent-kort.html %}
 
 {% include styret.html %}
 

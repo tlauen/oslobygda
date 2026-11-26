@@ -45,3 +45,28 @@ test('feil og ugyldige svar bevarer rettleiinga til betalingsskjemaet', async ()
     assert.match((await render(payload, options)).text, /betalingsskjemaet/);
   }
 });
+
+test('framsidetekst og merke deler éi henting og følgjer endra sats', async () => {
+  for (const open of [true, false]) {
+    const short = { dataset: { kontingentUrl: 'https://example.test/api/kontingent', kontingentVising: 'kort' }, textContent: 'Sjå gjeldande sats i innmeldingsskjemaet.', querySelector: () => null };
+    const price = { textContent: '' };
+    const badge = { dataset: { ...short.dataset, kontingentVising: 'merke' }, hidden: true, querySelector: selector => selector === '[data-kontingent-belop]' ? price : null, setAttribute(name, value) { this[name] = value; } };
+    let calls = 0;
+    vm.runInNewContext(source, {
+      document: { querySelectorAll: () => [short, badge] },
+      fetch: async () => { calls++; return { ok: true, json: async () => ({ year: 2028, currency: 'NOK', open, minimum_ore: 7500, superkul_ore: 10000 }) }; },
+      AbortController, setTimeout, clearTimeout,
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(calls, 1);
+    assert.equal(badge.hidden, !open);
+    if (open) {
+      assert.match(short.textContent, /2028: frå 75/);
+      assert.match(price.textContent, /75/);
+      assert.match(badge['aria-label'], /2028: frå 75/);
+    } else {
+      assert.match(short.textContent, /innmeldingsskjemaet/);
+      assert.equal(price.textContent, '');
+    }
+  }
+});
