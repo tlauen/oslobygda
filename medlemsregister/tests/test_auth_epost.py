@@ -173,3 +173,134 @@ class AuthMailTests(unittest.TestCase):
             response = self.client.get("/")
         self.assertIn(b'<meta name="api-prefix" content="/test-prefix">', response.data)
         self.assertIn(b"/test-prefix/fast/medlemsliste.js", response.data)
+
+    def test_correct_email_after_back_or_edit_sends_new_code(self):
+        service = module.app.extensions["signup_service"]
+        worker = module.app.extensions["auth_mail"]
+        for path in ("/bli-medlem", "/bli-medlem/rediger"):
+            with self.subTest(path=path):
+                client = module.app.test_client()
+                with (
+                    patch(
+                        "ny_innmelding.credentials",
+                        return_value={"VIPPS_MSN": "123456"},
+                    ),
+                    patch(
+                        "signup_stadfesting.secrets.randbelow", return_value=11111111
+                    ),
+                ):
+                    client.post(
+                        "/bli-medlem",
+                        data={
+                            **self.fields(email="typo@example.org"),
+                            "csrf_token": self.token(client),
+                        },
+                    )
+                with client.session_transaction() as state:
+                    reference = state["signup_reference"]
+                worker.process()
+                old_code = self.mail.call_args.args[1]
+                self.assertEqual(
+                    client.post(
+                        "/bli-medlem/status",
+                        data={
+                            "action": "verify",
+                            "code": old_code,
+                            "csrf_token": self.token(client),
+                        },
+                    ).status_code,
+                    303,
+                )
+                self.mail.reset_mock()
+                if path == "/bli-medlem":
+                    response = client.get(path)
+                    self.assertEqual(response.status_code, 303)
+                    self.assertTrue(response.location.endswith("/bli-medlem/rediger"))
+                    self.assertIn(
+                        b"typo@example.org", client.get(response.location).data
+                    )
+                with (
+                    patch(
+                        "ny_innmelding.credentials",
+                        return_value={"VIPPS_MSN": "123456"},
+                    ),
+                    patch(
+                        "signup_stadfesting.secrets.randbelow", return_value=22222222
+                    ),
+                ):
+                    response = client.post(
+                        path,
+                        data={
+                            **self.fields(email="corrected@example.org"),
+                            "csrf_token": self.token(client),
+                        },
+                    )
+                self.assertEqual(response.status_code, 303)
+                self.assertEqual(
+                    service.order(reference)["email"], "corrected@example.org"
+                )
+                page = client.get("/bli-medlem/status")
+                self.assertIn(b"corrected@example.org", page.data)
+                self.assertNotIn(b"typo@example.org", page.data)
+                worker.process()
+                self.mail.assert_called_once()
+                self.assertEqual(self.mail.call_args.args[0], "corrected@example.org")
+                code = self.mail.call_args.args[1]
+                self.assertEqual(
+                    client.post(
+                        "/bli-medlem/status",
+                        data={
+                            "action": "verify",
+                            "code": old_code,
+                            "csrf_token": self.token(client),
+                        },
+                    ).status_code,
+                    400,
+                )
+                self.assertEqual(
+                    client.post(
+                        "/bli-medlem/status",
+                        data={
+                            "action": "verify",
+                            "code": code,
+                            "csrf_token": self.token(client),
+                        },
+                    ).status_code,
+                    303,
+                )
+
+    def test_resubmitting_initial_form_cannot_edit_started_payment(self):
+        service = module.app.extensions["signup_service"]
+        with patch("ny_innmelding.credentials", return_value={"VIPPS_MSN": "123456"}):
+            self.client.post(
+                "/bli-medlem",
+                data={
+                    **self.fields(email="original@example.org"),
+                    "csrf_token": self.token(),
+                },
+            )
+            with self.client.session_transaction() as state:
+                reference = state["signup_reference"]
+            with managed_db(module.get_db) as db:
+                db.execute(
+                    "UPDATE signup_orders SET create_attempted=1 WHERE reference=?",
+                    (reference,),
+                )
+            response = self.client.post(
+                "/bli-medlem",
+                data={
+                    **self.fields(email="changed@example.org", amount="200"),
+                    "csrf_token": self.token(),
+                },
+            )
+        self.assertEqual(response.status_code, 303)
+        order = service.order(reference)
+        self.assertEqual(order["email"], "original@example.org")
+        self.assertEqual(order["amount_ore"], 10000)
+        self.assertEqual(
+            self.client.post(
+                "/bli-medlem/rediger",
+                data={**self.fields(), "csrf_token": self.token()},
+            ).status_code,
+            409,
+        )

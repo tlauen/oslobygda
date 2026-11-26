@@ -265,3 +265,16 @@ sårbarheitsmeldingar for tredjepartspakkar.
 Før produksjonsbruk: verifiser og start kodearbeidaren etter AUTH-EPOST.md,
 installer den samla kodeversjonen og køyr migrering 2, Reload og røykprøve.
 Eksterne tenester og faktisk e-postlevering er ikkje prøvde i denne økta.
+
+## Oppfølging etter røykprøve av innmelding
+
+Røykprøva avdekte at tilbakeknappen og ny innsending av hovudskjemaet kunne
+bruke ein gammal kladd utan å lagre retta e-postadresse. Dette er retta:
+«Bli medlem» opnar no den eksisterande kladden for redigering, og ei innsending
+frå eit eldre hovudskjema oppdaterer kladden før kode blir køa. Ny adresse krev
+ny stadfesting. Ordren blir framleis ikkje endra etter starta betalingsforsøk.
+To regresjonstestar dekkjer retting av adresse, ny mottakar, ugyldig gammal kode
+og vern av påbegynt betaling. Oppfølginga krev kodeoppdatering og Reload,
+men ingen ny databasemigrering eller endring av arbeidarkommandoen.
+
+Alle 318 Python-testar og formatkontrollen bestod etter denne rettinga.

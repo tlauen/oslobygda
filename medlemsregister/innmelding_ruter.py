@@ -36,12 +36,32 @@ def install_routes(
             abort(503, "Nyinnmelding med Vipps er ikkje opna enno.")
         return selected
 
+    def editable(order):
+        return (
+            order["status"] == Ordrestatus.NEW
+            and not order["create_attempted"]
+            and not order["renewal_member_id"]
+        )
+
     @app.route("/bli-medlem", methods=["GET", "POST"])
     def new_signup():
         environment = mode()
         key = session.setdefault("signup_key", secrets.token_urlsafe(32))
         values = {}
         error = None
+        if request.method == "GET":
+            from kontingent import today
+
+            previous = service.order(session.get("signup_reference", ""))
+            if (
+                previous
+                and previous["environment"] == environment
+                and previous["for_year"] == today().year
+                and previous["status"] != Ordrestatus.REDACTED
+                and not previous["renewal_member_id"]
+            ):
+                target = "signup_edit" if editable(previous) else "signup_status"
+                return redirect(app.jinja_env.globals["prefix_url"](target), code=303)
         if request.method == "POST":
             values = request.form.to_dict()
             try:
@@ -51,9 +71,17 @@ def install_routes(
                     values, key, environment, request.remote_addr or "unknown"
                 )
                 session["signup_reference"] = reference
-                from signup_stadfesting import issue
+                order = service.order(reference)
+                if editable(order):
+                    # Tilbakeknappen kan sende hovudskjemaet på nytt. Bevar same
+                    # referanse, men lagre dei nye felta før neste kodesteg.
+                    service.edit(reference, values)
+                    updated = service.order(reference)
+                    if updated["email"] != order["email"]:
+                        session.pop("signup_verified_email", None)
+                    from signup_stadfesting import issue
 
-                issue(app, get_db, service.order(reference))
+                    issue(app, get_db, updated)
                 return redirect("/bli-medlem/status", code=303)
             except ValueError as exc:
                 error = str(exc)
@@ -111,11 +139,7 @@ def install_routes(
     @app.route("/bli-medlem/rediger", methods=["GET", "POST"])
     def signup_edit():
         order = owned()
-        if (
-            order["status"] != Ordrestatus.NEW
-            or order["create_attempted"]
-            or order["renewal_member_id"]
-        ):
+        if not editable(order):
             abort(
                 409,
                 "Betaling er allereie forsøkt oppretta eller dette er ei fornying. Kontakt styret for retting.",
