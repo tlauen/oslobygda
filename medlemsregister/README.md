@@ -333,3 +333,10 @@ GitHub-tilgangen er konfigurert, med valfri lagring og førehandsvising. Uendra
 innhald gjenbruker siste relevante versjon. Reelle endringar og tilbakeføringar
 får ny historikk; eksisterande historikk blir bevart. Årsmøtegodkjenning krev
 framleis faktisk vedtaksdato, og protokollen krev dei to underskrivarane.
+
+
+Rekneskapen har to val i arbeidsflyten: førebels (løpande automatisk publisering)
+og godkjend (låst ved årsmøtevedtak). Godkjenning krev avstemt og avslutta år og
+faktisk vedtaksdato. Ho stoppar vidare førebelse oppdateringar, og kan ikkje
+brukast til å overskrive ein godkjend kopi. Eldre møteversjonar blir bevarte som
+historikk, men nye slike versjonar blir ikkje oppretta.

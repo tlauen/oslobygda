@@ -225,6 +225,8 @@ class PublicLedger:
         with managed_db(self.get_db) as db:
             db.execute('BEGIN IMMEDIATE')
             revision=db.execute('SELECT revision FROM public_ledger_clock WHERE id=1').fetchone()[0]
+            if db.execute("SELECT 1 FROM public_ledger_versions WHERE year=? AND status='approved'", (year,)).fetchone():
+                raise ValueError('Årsrekneskapen er godkjend og låst. Automatisk publisering kan ikkje aktiverast att.')
             if revision!=int(expected_revision): raise ValueError('Rekneskapen er endra. Sjå førehandsvisinga på nytt før aktivering.')
             db.execute('INSERT INTO public_ledger_settings(year,enabled,actor,updated_at) VALUES (?,1,?,?) ON CONFLICT(year) DO UPDATE SET enabled=1,actor=excluded.actor,updated_at=excluded.updated_at',(year,actor,stamp()))
             return self._capture(db,year,actor)
@@ -233,7 +235,7 @@ class PublicLedger:
         with managed_db(self.get_db) as db:
             db.execute('BEGIN IMMEDIATE')
             revision=db.execute('SELECT revision FROM public_ledger_clock WHERE id=1').fetchone()[0]
-            settings=db.execute('SELECT year FROM public_ledger_settings WHERE enabled=1').fetchall()
+            settings=db.execute("SELECT year FROM public_ledger_settings s WHERE enabled=1 AND NOT EXISTS(SELECT 1 FROM public_ledger_versions v WHERE v.year=s.year AND v.status='approved')").fetchall()
             count=0
             for setting in settings:
                 year=setting[0]
@@ -245,20 +247,61 @@ class PublicLedger:
                 if not old or vid!=old['id']:count+=1
             return count
 
-    def freeze(self,year,status,meeting_year,decision_date,actor,expected_revision):
-        if status not in ('meeting','approved'): raise ValueError('Vel framlegg eller godkjend versjon.')
-        if status=='approved':
-            decision_date=date.fromisoformat(decision_date).isoformat()
-            if decision_date>today().isoformat() or decision_date<f'{year+1}-01-01': raise ValueError('Vedtaksdato må vere etter rapportåret og ikkje i framtida.')
-        else: decision_date=None
+    def freeze(
+        self, year, status, meeting_year, decision_date, actor, expected_revision
+    ):
+        if status != "approved":
+            raise ValueError(
+                "Rekneskapen er førebels fram til godkjenning frå årsmøtet."
+            )
+        decision_date = date.fromisoformat(decision_date).isoformat()
+        if decision_date > today().isoformat() or decision_date < f"{year + 1}-01-01":
+            raise ValueError(
+                "Vedtaksdato må vere etter rapportåret og ikkje i framtida."
+            )
         with managed_db(self.get_db) as db:
-            db.execute('BEGIN IMMEDIATE')
-            revision=db.execute('SELECT revision FROM public_ledger_clock WHERE id=1').fetchone()[0]
-            if revision!=int(expected_revision): raise ValueError('Rekneskapen er endra. Kontroller ny førehandsvising.')
-            if not db.execute('SELECT 1 FROM ledger_years WHERE year=? AND closed=1',(year,)).fetchone(): raise ValueError('Avstem og avslutt rekneskapsåret før ein fast versjon blir lagra.')
+            db.execute("BEGIN IMMEDIATE")
+            revision = db.execute(
+                "SELECT revision FROM public_ledger_clock WHERE id=1"
+            ).fetchone()[0]
+            if revision != int(expected_revision):
+                raise ValueError("Rekneskapen er endra. Kontroller ny førehandsvising.")
+            approved = db.execute(
+                "SELECT id,payload FROM public_ledger_versions WHERE year=? AND status='approved' ORDER BY id DESC LIMIT 1",
+                (year,),
+            ).fetchone()
+            if approved:
+                locked = json.loads(approved["payload"])
+                if (
+                    locked["source_revision"] == revision
+                    and locked["decision_date"] == decision_date
+                    and locked["meeting_year"] == int(meeting_year)
+                ):
+                    return approved["id"]
+                raise ValueError(
+                    "Årsrekneskapen er allereie godkjend og låst. Den godkjende kopien kan ikkje endrast."
+                )
+            if not db.execute(
+                "SELECT 1 FROM ledger_years WHERE year=? AND closed=1", (year,)
+            ).fetchone():
+                raise ValueError(
+                    "Avstem og avslutt rekneskapsåret før ein fast versjon blir lagra."
+                )
             from arsavslutning import closing_checklist
-            if not closing_checklist(db,year)['ready']: raise ValueError('Saldokontrollane er ikkje ferdige. Opne Avstemming og årsslutt og rett punkta som står att.')
-            for row in db.execute('SELECT id,payload FROM public_ledger_versions WHERE year=? AND status=?',(year,status)):
-                old=json.loads(row['payload'])
-                if old['source_revision']==revision and old['decision_date']==decision_date and old['meeting_year']==int(meeting_year): return row['id']
-            return self._capture(db,year,actor,status,int(meeting_year),decision_date)
+
+            if not closing_checklist(db, year)["ready"]:
+                raise ValueError(
+                    "Saldokontrollane er ikkje ferdige. Opne Avstemming og årsslutt og rett punkta som står att."
+                )
+            vid = self._capture(
+                db, year, actor, status, int(meeting_year), decision_date
+            )
+            db.execute(
+                "UPDATE public_ledger_settings SET enabled=0,actor=?,updated_at=? WHERE year=?",
+                (actor, stamp(), year),
+            )
+            db.execute(
+                "UPDATE public_ledger_queue SET status='superseded' WHERE status IN ('pending','failed','sending','stored') AND version_id IN (SELECT id FROM public_ledger_versions WHERE year=? AND status='provisional')",
+                (year,),
+            )
+            return vid

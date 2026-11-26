@@ -148,7 +148,7 @@ def install_ledger(app,get_db,require_admin,db_path):
                     if request.form.get('as_of')!=min(today().isoformat(),f'{year}-12-31'):
                         raise ValueError('Rapportdatoen er endra. Sjå førehandsvisinga på nytt.')
                     if action=='activate': vid=public_service.activate(year,actor,request.form.get('revision'))
-                    else: vid=public_service.freeze(year,request.form.get('status'),request.form.get('meeting_year'),request.form.get('decision_date'),actor,request.form.get('revision'))
+                    else: vid=public_service.freeze(year,'approved',request.form.get('meeting_year'),request.form.get('decision_date'),actor,request.form.get('revision'))
                     from publisering import publish_from_button
                     publish_from_button(app,('ledger','rekneskap-'+str(vid)))
                 elif action=='publish':
@@ -173,6 +173,10 @@ def install_ledger(app,get_db,require_admin,db_path):
             jobs=db.execute('''SELECT v.id,v.status document_status,v.payload,q.status,q.attempts,q.last_error
                 FROM public_ledger_versions v JOIN public_ledger_queue q ON q.version_id=v.id
                 WHERE v.year=? ORDER BY v.id DESC LIMIT 30''',(year,)).fetchall()
+            approved = db.execute("SELECT payload FROM public_ledger_versions WHERE year=? AND status='approved' ORDER BY id DESC LIMIT 1", (year,)).fetchone()
+        if approved:
+            import json
+            preview = json.loads(approved['payload'])
         return render_template('offentleg_rekneskap.html',report=preview,error=error,enabled=bool(enabled and enabled[0]),jobs=jobs,has_public_version=bool(jobs),public_year_allowed=True),status
 
     @app.route('/okonomi/offentleg/versjon/<int:version_id>')

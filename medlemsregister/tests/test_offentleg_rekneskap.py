@@ -66,14 +66,27 @@ class PublicLedgerTests(unittest.TestCase):
         self.ledger.year_state(2026,True,'Avstemt','styret')
         with patch('offentleg_rekneskap.today',return_value=date(2027,2,24)):
             rev=self.public.preview(2026)['source_revision']
-            proposal=self.public.freeze(2026,'meeting',2027,'','styret',rev)
+            provisional=self.public.activate(2026,'styret',rev)
+            with self.assertRaises(ValueError): self.public.freeze(2026,'meeting',2027,'','styret',rev)
             approved=self.public.freeze(2026,'approved',2027,'2027-02-24','styret',rev)
-            self.assertNotEqual(proposal,approved)
             self.assertEqual(self.public.freeze(2026,'approved',2027,'2027-02-24','styret',rev),approved)
             with self.assertRaises(ValueError): self.public.freeze(2026,'approved',2027,'2028-01-01','styret',rev)
         old=self.payload(approved)
+        with managed_db(module.get_db) as db:
+            self.assertEqual(db.execute('SELECT enabled FROM public_ledger_settings WHERE year=2026').fetchone()[0],0)
+            self.assertEqual(db.execute('SELECT status FROM public_ledger_queue WHERE version_id=?',(provisional,)).fetchone()[0],'superseded')
+        fixtures.BoardAuthTests.login(self)
+        response=self.client.get('/okonomi/offentleg/2026')
+        self.assertEqual(response.status_code,200)
+        self.assertIn('Godkjend av årsmøtet 2027-02-24',response.text)
+        self.assertNotIn('Registrer godkjenning og lås',response.text)
+        with self.assertRaises(ValueError): self.public.activate(2026,'styret',rev)
         self.ledger.year_state(2026,False,'Ny post','styret');self.post('correction',amount='1')
         self.assertEqual(self.payload(approved),old)
+        self.assertEqual(self.public.refresh_enabled(),0)
+        with patch('offentleg_rekneskap.today',return_value=date(2027,2,24)):
+            with self.assertRaises(ValueError):
+                self.public.freeze(2026,'approved',2027,'2027-02-24','styret',self.public.preview(2026)['source_revision'])
         with managed_db(module.get_db) as db:
             import sqlite3
             with self.assertRaises(sqlite3.IntegrityError): db.execute('DELETE FROM public_ledger_versions WHERE id=?',(approved,))
