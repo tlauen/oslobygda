@@ -191,6 +191,7 @@
                 </svg>
               </button>
               <div id="medlem-handlingar-${Number(m.id)}" class="aksjonar-meny" hidden>
+                <button type="button" data-id="${m.id}" data-action="edit">Endre opplysningar</button>
                 <button type="button" data-id="${m.id}" data-action="export">Eksporter (GDPR)</button>
                 <button type="button" data-id="${m.id}" data-action="betaling">Registrer betaling</button>
                 <button type="button" data-id="${m.id}" data-action="delete" class="slett">Slett</button>
@@ -215,12 +216,13 @@
 
     function opneAksjonarMeny(knapp, menu, cell) {
       menu.classList.remove("aksjonar-meny--open-up");
+      menu.hidden = false;
       const rect = knapp.getBoundingClientRect();
       const plassUnder = window.innerHeight - rect.bottom;
-      if (plassUnder < 95 && rect.top > 100) {
+      const menuHeight = menu.getBoundingClientRect().height;
+      if (plassUnder < menuHeight + 4 && rect.top > plassUnder) {
         menu.classList.add("aksjonar-meny--open-up");
       }
-      menu.hidden = false;
       knapp.setAttribute("aria-expanded", "true");
       cell.classList.add("open");
     }
@@ -462,7 +464,8 @@
       if (e.target.closest(".aksjonar-meny") && e.target.dataset?.action) {
         e.preventDefault();
         if (!isNaN(id)) {
-          if (e.target.dataset.action === "export") eksporterMedlem(id);
+          if (e.target.dataset.action === "edit") openModal(id);
+          else if (e.target.dataset.action === "export") eksporterMedlem(id);
           else if (e.target.dataset.action === "betaling") openBetalingModal(id);
           else if (e.target.dataset.action === "delete") slettMedlem(id);
         }

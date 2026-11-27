@@ -124,6 +124,11 @@ test('Namnet opnar detaljar; den namngjevne handlingsmenyen verkar også frå ik
   assert.equal(menu.hidden, true);
   d.querySelector('.medlem-lenkje').click();
   assert.equal(d.getElementById('medlem-detalj').open, true);
+  d.getElementById('medlem-detalj-lukk').click();
+  button.click();
+  menu.querySelector('[data-action="edit"]').click();
+  assert.equal(d.getElementById('modal-dekke').classList.contains('er-skjult'), false);
+  assert.equal(d.getElementById('medlem-id').value, '1');
   assert.equal(calls.some(([, options]) => ['POST', 'PUT', 'DELETE'].includes(options.method)), false);
   w.close();
 });
