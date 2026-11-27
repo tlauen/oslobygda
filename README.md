@@ -47,8 +47,7 @@ oppdatert eller at integrasjonar er aktiverte. Følg
 - [Utskrift og PDF](medlemsregister/UTSKRIFT.md)
 - [Backup og kryptert eksport](medlemsregister/BACKUP.md)
 - [Isolert lokal prøving med Nidarosbygda](medlemsregister/NIDAROSBYGDA-TEST.md)
-- [Sluttkontroll](medlemsregister/SLUTTKONTROLL.md) og
-  [kontrollert utrulling](medlemsregister/UTRULLING.md)
+- [Sluttkontroll og kontrollert utrulling](medlemsregister/UTRULLING.md)
 
 Hjelpesidene inne i Bygdelista forklarer den daglege arbeidsrekkjefølgja.
 Styret-sida gir ein nedlastbar nettsidepakke; ho publiserer ikkje automatisk til
@@ -210,12 +209,12 @@ og [årlege satsar og fornying](medlemsregister/FORNYING.md).
 står att før første verkelege kontingentutsending; nytt profilsamtykke frå Vipps
 må òg kontrollerast i ein ny betalingsflyt.
 
-## Eldre filer og valfrie verktøy
+## Valfrie verktøy
 
-`arkiv/brevo-skjema/` inneheld utgåtte skjema. Dei blir ikkje publiserte eller
-brukte av den aktive innmeldinga. Historikken finst i Git.
-`skript/forehandsvising_nyhendebrev.html` er ei manuell skisse med eksempeldata,
-ikkje ei generert førehandsvising av neste utsending.
+Utgåtte Brevo-skjema, gamle kodegjennomgangar og nyhendebrevskissa finst i
+Git-historikken. Gjeldande kontrollpunkt er samla i
+[utrullingsrettleiinga](medlemsregister/UTRULLING.md); personvernoppfølging står i
+[PERSONVERN-DRIFT.md](medlemsregister/PERSONVERN-DRIFT.md).
 `skript/publiser_nye_tilskipingar_til_folkarr_aktivioslo.py` er eit separat
 Playwright-verktøy med `publisering_krav.txt`; ingen workflow køyrer det.
 Det har plattformavhengige skjema og må kontrollerast før eventuell bruk.

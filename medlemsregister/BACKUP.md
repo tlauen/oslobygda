@@ -92,7 +92,7 @@ Last så fila ned att og køyr, i eit miljø med dei same modulane installerte:
 Prøva endrar ikkje aktiv database. Noter dato og resultat. Først etter denne prøva
 kan den eksterne kopien reknast som kontrollert. Den automatiske produksjonsjobben
 utfører opplasting og nedlastingsprøve sjølv; manuell eksport er eit alternativ.
-Sjå også [SLUTTKONTROLL.md](SLUTTKONTROLL.md).
+Sjå også [UTRULLING.md](UTRULLING.md).
 
 ## Automatisk Proton-overføring
 

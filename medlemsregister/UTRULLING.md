@@ -1,4 +1,4 @@
-# Kontrollert utrulling av årsmøte og økonomi
+# Kontrollert utrulling og sluttkontroll
 
 **Ny kodeversjon 26. november 2026:** Denne versjonen har skjemaversjon 2 og
 kølagt sending av eingongskodar. Følg [AUTH-EPOST.md](AUTH-EPOST.md) og set opp
@@ -12,8 +12,8 @@ Personvernendringane og Mi side vart installerte og omlasta 25. november.
 Dei har eiga utrullingsrettleiing i
 [PERSONVERN-DRIFT.md](PERSONVERN-DRIFT.md).
 
-Status 29. oktober 2026: førebuing, ikkje utført produksjonsutrulling.
-Arbeidet ligg på `test/nidarosbygda`; serveroppdateraren hentar berre `main`.
+Serveroppdateraren hentar berre `main`. Kontroller faktisk serverversjon før
+oppdatering; eldre lokale testresultat stadfestar ikkje dagens produksjonsstatus.
 Ingen testdatabase, testkonto, lokal kalender, prøveversjon eller backuppassfrase
 skal overførast til produksjon. `lokal_test.py` skal aldri vere WSGI-inngang.
 
@@ -161,3 +161,31 @@ gammal kode frå før denne versjonskontrollen har ikkje denne sperra. Ikkje
 bruk ein eldre kodebackup som automatisk nedgradering av eit nyare skjema,
 og ikkje gjenopprett ein eldre database over nye betalingar. Feilsøk eller
 planlegg ei konkret tilbakeføring først.
+
+
+## Samla kontroll før aktivering
+
+Denne rettleiinga samlar dei varige kontrollpunkta frå den tidlegare
+sluttkontrollen og dei avslutta kodegjennomgangane. Historiske rapportar og
+prøveresultat finst i Git; dei er ikkje ein ny kontroll av dagens kode eller drift.
+
+- Køyr relevante Python-, JavaScript- og Ruby-testar, formatkontroll og
+  Jekyll-bygg. Prøv endra brukarforløp i isolert miljø med fiktive data.
+- Kontroller dokumentvising og endelege PDF-ar med dei faktiske sakspapira før
+  utsending. Prøv mobilbreidd, tastaturrekkjefølgje og synleg fokus etter malendringar.
+- Kontroller diskplass og at bilag, database og backup ligg utanfor offentlege
+  mapper. Bevar separat nøkkel/passfrase og prøv komplett gjenoppretting,
+  inkludert Proton-rundturen; sjå [BACKUP.md](BACKUP.md).
+- Kontroller kodearbeidar, migrering 2 og faktisk levering av eingongskodar etter
+  [AUTH-EPOST.md](AUTH-EPOST.md). Timeleg vedlikehald erstattar ikkje arbeidaren.
+  Prøv òg retting av e-postadresse før betalingsstart og ny e-poststadfesting.
+- Avstem verkelege opningssaldoar, bank, Vipps og private utlegg før betalingsimport
+  blir aktivert. Unngå dobbeltteljing av kontantar vidareførte via Vipps.
+  Følg [BETALINGSIMPORT.md](BETALINGSIMPORT.md) og [REKNESKAP.md](REKNESKAP.md).
+- Offentleg publisering krev eigen kontroll av tokenrettar, tillatne data og
+  faktisk synlege sider/PDF-ar; sjå [PUBLISERING.md](PUBLISERING.md).
+- Stadfest møtedatoar og reelle tal før faste framlegg; lag godkjende
+  dokumentversjonar etter vedtak. Sjå [ARSDOKUMENT.md](ARSDOKUMENT.md).
+- Leverandørsvar, personvernval og serverkontrollar er samla i
+  [PERSONVERN-DRIFT.md](PERSONVERN-DRIFT.md); Vipps-prøver i [VIPPS.md](VIPPS.md).
+  Oppdater status der når ny kontroll er utført, med dato og faktisk kodeversjon.

@@ -161,7 +161,7 @@ opningssaldoar og tidlegare føringar er gjennomgått.
 
 ## Sluttkontroll og kryptert eksport
 
-Sjå [SLUTTKONTROLL.md](SLUTTKONTROLL.md) før utrulling og
+Sjå [UTRULLING.md](UTRULLING.md) før utrulling og
 [BACKUP.md](BACKUP.md) for dei nye krypterings- og prøvekommandoane.
 Lokale backupsett er framleis ukrypterte; berre særskild eksport blir kryptert.
 Proton-jobben kontrollerer opplasting, nedlasting og gjenoppretting automatisk,
@@ -169,7 +169,7 @@ sjå [PROTON-BACKUP.md](PROTON-BACKUP.md).
 
 ## Oppdatering med årsmøte og økonomi
 
-Bruk den konkrete rekkjefølgja i [SLUTTKONTROLL.md](SLUTTKONTROLL.md). Før Reload
+Bruk den konkrete rekkjefølgja i [UTRULLING.md](UTRULLING.md). Før Reload
 må den oppdaterte versjonen av oppdateringsskriptet ha kopiert kategorinotane frå
 `_data/rekneskapskategoriar.json`, og avhengnadene må vere installerte i eksisterande
 appmiljø. Ta og prøv databasebackup før oppdatering. WSGI initialiserer dei nye
