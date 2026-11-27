@@ -190,11 +190,38 @@
 .bygdelista-kropp #medlemstabell :is(th,td) { min-width:0; }
 .bygdelista-kropp #medlemstabell :is(th,td):last-child { position:static; box-shadow:none; }
 .bygdelista-kropp #medlemstabell .kolonne-skjult { display:none; }
-.bygdelista-kropp :is(.medlem-lenkje,.aksjonar-meny-knapp) { color:var(--ob-forest); background:transparent; border:0; padding:8px 0; text-align:left; justify-content:start; text-decoration:underline; }
+.bygdelista-kropp .medlem-lenkje { color:var(--ob-forest); background:transparent; border:0; padding:8px 0; text-align:left; justify-content:start; text-decoration:underline; }
 .bygdelista-kropp .medlem-lenkje:hover { background:transparent; color:var(--ob-hover); }
 .bygdelista-kropp #medlemstabell .pill { border:0; background:none; padding:0; border-radius:0; font-size:inherit; }
 .bygdelista-kropp #medlemstabell .pill--betalt { color:var(--ob-forest); }
 #medlemstabell .sum-reg { font-size:inherit; color:var(--ob-muted); }
+/* Ei namngjeven handling er lettare å oppdage enn tre lause prikkar. */
+.bygdelista-kropp .aksjonar-meny-knapp {
+  width: auto;
+  height: auto;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--ob-control);
+  border-radius: var(--ob-radius);
+  background: transparent;
+  color: var(--ob-forest);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bygdelista-kropp .aksjonar-meny-knapp:hover {
+  background: var(--ob-ok);
+  color: var(--ob-forest);
+}
+
+.bygdelista-kropp .aksjonar-meny-knapp svg {
+  flex-shrink: 0;
+}
+
+.bygdelista-kropp .aksjonar-meny-knapp[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
 .bygdelista-kropp .aksjonar-meny button { display:block; width:100%; justify-content:start; border:0; border-radius:0; background:var(--ob-paper); color:var(--ob-forest); }
 .bygdelista-kropp .aksjonar-meny .slett { color:var(--ob-error); }
 .medlem-sider { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin:24px 0; }

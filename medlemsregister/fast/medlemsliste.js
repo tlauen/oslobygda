@@ -181,10 +181,16 @@
           </td>
           <td data-col="samtykke">${formaterDato(m.consent_at)}</td>
           <td data-col="aksjonar" class="aksjonar">
-            <a href="#" data-id="${m.id}" data-action="detail">Opne medlem</a>
             <div class="aksjonar-meny-wrap">
-              <button type="button" class="aksjonar-meny-knapp" data-id="${m.id}" aria-label="Fleire handlingar for ${escapeHtml(visningsnamn(m))}" aria-expanded="false"><span class="aksjonar-meny-prikker"><span></span><span></span><span></span></span></button>
-              <div class="aksjonar-meny" hidden>
+              <button type="button" class="aksjonar-meny-knapp" data-id="${Number(m.id)}"
+                aria-label="Handlingar for ${escapeHtml(visningsnamn(m))}"
+                aria-controls="medlem-handlingar-${Number(m.id)}" aria-expanded="false">
+                <span>Handlingar</span>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                  <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div id="medlem-handlingar-${Number(m.id)}" class="aksjonar-meny" hidden>
                 <button type="button" data-id="${m.id}" data-action="export">Eksporter (GDPR)</button>
                 <button type="button" data-id="${m.id}" data-action="betaling">Registrer betaling</button>
                 <button type="button" data-id="${m.id}" data-action="delete" class="slett">Slett</button>
@@ -437,16 +443,17 @@
 
     listeEl.addEventListener("click", (e) => {
       const id = parseInt(e.target.dataset?.id, 10);
-      if (e.target.classList.contains("aksjonar-meny-knapp")) {
+      const menuButton = e.target.closest('.aksjonar-meny-knapp');
+      if (menuButton) {
         e.preventDefault();
         e.stopPropagation();
-        const ramme = e.target.closest(".aksjonar-meny-wrap");
+        const ramme = menuButton.closest(".aksjonar-meny-wrap");
         const menu = ramme?.querySelector(".aksjonar-meny");
         const cell = ramme?.closest("td");
         if (!menu || !cell) return;
         if (menu.hidden) {
           lukkAlleAksjonarMenyer();
-          opneAksjonarMeny(e.target, menu, cell);
+          opneAksjonarMeny(menuButton, menu, cell);
         } else {
           lukkAlleAksjonarMenyer();
         }
@@ -470,6 +477,15 @@
 
     document.addEventListener("click", (e) => {
       if (!e.target.closest(".aksjonar-meny-wrap")) lukkAlleAksjonarMenyer();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      const openButton = listeEl.querySelector('.aksjonar-meny-knapp[aria-expanded="true"]');
+      if (!openButton) return;
+      event.preventDefault();
+      lukkAlleAksjonarMenyer();
+      openButton.focus();
     });
 
     modal.addEventListener("click", (e) => { if (e.target === modal) lukkModal(); });

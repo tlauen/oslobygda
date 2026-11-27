@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="api-prefix" content="{{ url_prefix }}">
-<script src="{{ prefix_url('static', filename='medlemsliste.js',v='20261127-design') }}" defer></script>
+<script src="{{ prefix_url('static', filename='medlemsliste.js',v='20261127-handlingar') }}" defer></script>
 <link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}<link rel="stylesheet" href="{{ prefix_url('shared_fonts', filename='fraunces.css') }}">
 </head>
 <body class="bygdelista-kropp">
@@ -49,7 +49,7 @@
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="adresse" /> Adresse</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="postnr" /> Postnr</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="poststad" /> Poststad</label>
-      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="fødselsdato" /> Fødselsdato</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="fødselsdato" /> Fødd</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="medlemstype" checked /> Medlemstype</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="betalingsstatus" checked /> Betalingsstatus</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="samtykke" /> Samtykke</label>
@@ -69,11 +69,11 @@
             <th scope="col" data-col="adresse">Adresse</th>
             <th scope="col" data-col="postnr">Postnr</th>
             <th scope="col" data-col="poststad">Poststad</th>
-            <th scope="col" data-col="fødselsdato">Fødselsdato</th>
+            <th scope="col" data-col="fødselsdato">Fødd</th>
             <th scope="col" data-col="medlemstype">Medlemstype</th>
             <th scope="col" data-col="betalingsstatus">Betalingsstatus</th>
             <th scope="col" data-col="samtykke">Samtykke</th>
-            <th scope="col" data-col="aksjonar"></th>
+            <th scope="col" data-col="aksjonar"><span class="visuelt-skjult">Handlingar</span></th>
           </tr>
         </thead>
         <tbody id="medlem-liste"></tbody>

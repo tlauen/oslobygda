@@ -103,3 +103,27 @@ test('Årssatsar bruker eitt vanleg skjema; avslutting krev stadfesting og CSRF'
   assert.equal(close.disabled, false);
   w.close();
 });
+
+test('Namnet opnar detaljar; den namngjevne handlingsmenyen verkar også frå ikonet', async () => {
+  const {w, d, calls} = await start([members[0]]);
+  assert.equal(d.querySelectorAll('[data-action="detail"]').length, 1);
+  assert.equal(d.querySelector('th[data-col="fødselsdato"]').textContent, 'Fødd');
+  assert.equal(d.querySelector('.aksjonar-meny-prikker'), null);
+  const button = d.querySelector('.aksjonar-meny-knapp');
+  const menu = d.getElementById(button.getAttribute('aria-controls'));
+  assert.match(button.textContent, /Handlingar/);
+  button.querySelector('path').dispatchEvent(new w.MouseEvent('click', {bubbles: true}));
+  assert.equal(menu.hidden, false);
+  assert.equal(button.getAttribute('aria-expanded'), 'true');
+  d.dispatchEvent(new w.KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+  assert.equal(menu.hidden, true);
+  assert.equal(d.activeElement, button);
+  button.querySelector('span').click();
+  assert.equal(menu.hidden, false);
+  d.body.click();
+  assert.equal(menu.hidden, true);
+  d.querySelector('.medlem-lenkje').click();
+  assert.equal(d.getElementById('medlem-detalj').open, true);
+  assert.equal(calls.some(([, options]) => ['POST', 'PUT', 'DELETE'].includes(options.method)), false);
+  w.close();
+});
