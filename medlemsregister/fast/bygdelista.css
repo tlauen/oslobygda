@@ -39,10 +39,40 @@
 .bygdelista-kropp details { margin:24px 0; padding:0; border:0; border-top:1px solid var(--line); border-radius:0; background:transparent; box-shadow:none; }
 .bygdelista-kropp summary { padding:12px 0; min-height:44px; cursor:pointer; font-weight:600; }
 .bygdelista-kropp .tabell-ramme { overflow-x:auto; border:0; border-radius:0; background:transparent; }
-.bygdelista-kropp table { background:transparent; }
-.bygdelista-kropp :is(th,td) { padding:16px; border-bottom:1px solid var(--line); }
-.bygdelista-kropp :is(.tabell-ramme thead th,thead th) { background:var(--ob-ok); color:var(--ob-forest); font-size:14px; }
-.bygdelista-kropp .tabell-ramme tbody tr:hover>td { background:var(--ob-ok); }
+/* Éin kompakt tabellstil for medlemsliste, innmeldingar og økonomi. */
+.bygdelista-kropp table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  background: transparent;
+  color: var(--ob-ink);
+  font: 400 13px/1.5 var(--ob-sans);
+}
+
+.bygdelista-kropp table :is(th, td) {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ob-line);
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.bygdelista-kropp table thead th {
+  background: var(--ob-ok);
+  color: var(--ob-forest);
+  font-weight: 600;
+}
+
+.bygdelista-kropp table tbody tr:hover > :is(th, td) {
+  background: var(--ob-ok);
+}
+
+.bygdelista-kropp table :is(button, .btn) {
+  min-height: 44px;
+  font-size: inherit;
+}
+
 .bygdelista-kropp :is(.saldo-kort li,.postliste>li) { background:transparent; border:0; border-bottom:1px solid var(--line); border-radius:0; box-shadow:none; padding:16px 0; }
 .bygdelista-kropp :is(.arsmote-status,.rekneskap-hjelp) { border:0; border-radius:0; box-shadow:none; background:var(--ob-info); color:var(--text); padding:24px; }
 .bygdelista-kropp .arsmote-status { background:transparent; padding:0; color:var(--dempa); }
@@ -156,15 +186,14 @@
 .medlem-filterfelt label { display:grid; gap:8px; font-weight:600; }
 .medlem-filterfelt select { min-height:48px; width:100%; border:1px solid var(--ob-control); border-radius:var(--ob-radius); padding:12px; background:var(--ob-white); }
 .bygdelista-kropp #medlemstabell { min-width:0; width:100%; }
-.bygdelista-kropp #medlemstabell :is(th,td) { min-width:0; font-size:16px; }
-.bygdelista-kropp #medlemstabell th { font-size:14px; }
+.bygdelista-kropp #medlemstabell :is(th,td) { min-width:0; }
 .bygdelista-kropp #medlemstabell td:last-child { position:static; box-shadow:none; }
 .bygdelista-kropp #medlemstabell .kolonne-skjult { display:none; }
 .bygdelista-kropp :is(.medlem-lenkje,.aksjonar-meny-knapp) { color:var(--ob-forest); background:transparent; border:0; padding:8px 0; text-align:left; justify-content:start; text-decoration:underline; }
 .bygdelista-kropp .medlem-lenkje:hover { background:transparent; color:var(--ob-hover); }
-.bygdelista-kropp #medlemstabell .pill { border:0; background:none; padding:0; border-radius:0; font-size:16px; }
+.bygdelista-kropp #medlemstabell .pill { border:0; background:none; padding:0; border-radius:0; font-size:inherit; }
 .bygdelista-kropp #medlemstabell .pill--betalt { color:var(--ob-forest); }
-#medlemstabell .sum-reg { font-size:14px; color:var(--ob-muted); }
+#medlemstabell .sum-reg { font-size:inherit; color:var(--ob-muted); }
 .bygdelista-kropp .aksjonar-meny button { display:block; width:100%; justify-content:start; border:0; border-radius:0; background:var(--ob-paper); color:var(--ob-forest); }
 .bygdelista-kropp .aksjonar-meny .slett { color:var(--ob-error); }
 .medlem-sider { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin:24px 0; }
@@ -180,7 +209,7 @@
  #medlemstabell thead { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
  .bygdelista-kropp #medlemstabell tr { display:block; padding:16px 0; border-bottom:1px solid var(--ob-line); }
  .bygdelista-kropp #medlemstabell td { display:block; border:0; padding:4px 0; max-width:none; overflow-wrap:anywhere; white-space:normal; }
- #medlemstabell td:not([data-col="namn"]):not([data-col="epost"]):not([data-col="aksjonar"])::before { content:attr(data-label) ": "; font-size:14px; color:var(--ob-muted); }
+ #medlemstabell td:not([data-col="namn"]):not([data-col="epost"]):not([data-col="aksjonar"])::before { content:attr(data-label) ": "; font-size:inherit; color:var(--ob-muted); }
  #medlemstabell .aksjonar { display:flex; align-items:center; gap:16px; }
  .bygdelista-kropp .tabell-ramme:has(#medlemstabell) { overflow:visible; }
  .bygdelista-kropp #medlemstabell tbody tr:hover>td { background:none; }
