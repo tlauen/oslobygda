@@ -7,14 +7,15 @@
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="api-prefix" content="{{ url_prefix }}">
-<script src="{{ prefix_url('static', filename='medlemsliste.js',v='20261126-steg') }}" defer></script>
+<script src="{{ prefix_url('static', filename='medlemsliste.js',v='20261127-design') }}" defer></script>
 <link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}<link rel="stylesheet" href="{{ prefix_url('shared_fonts', filename='fraunces.css') }}">
 </head>
 <body class="bygdelista-kropp">
+  <a class="arsmote-hopp" href="#hovudinnhald">Hopp til innhald</a>
   <div class="omslag">
     {% include '_bygdelista_topp.html' %}{% include '_bygdelista_undermeny.html' %}
     <header class="toppfelt">
-      <h1>Medlemsliste</h1>
+      <h1 id="hovudinnhald" tabindex="-1">Medlemsliste</h1>
     </header>
 
     <div class="medlemsoversikt-panel" id="medlemsoversikt-panel" aria-live="polite">
@@ -23,20 +24,23 @@
         <p class="medlemsoversikt-ingress">Lastar medlemsoversikt …</p>
       </div>
     </div>
-    <details>
-      <summary>Kontingentinnstillingar</summary>
-      <form id="kontingent-innstillingar" class="medlemsskjema">
-        <label for="superkul-grense">Grense for Superkul (kr)</label>
-        <input id="superkul-grense" type="number" min="0" step="0.01" required disabled>
-        <p>Meir enn grensa samla i gjeldande medlemsår gir Superkul; opp til grensa gir Kul. Registrert innbetaling gir Betalt. Styret blir ikkje endra automatisk. Endring av grensa oppdaterer også eksisterande innbetalingar for gjeldande år.</p>
-        <button type="submit" id="lagre-kontingent" disabled>Lagre grense</button>
-      </form>
-    </details>
-    <p>
+    <p class="medlem-hovudhandlingar">
       <button type="button" class="btn" id="btn-ny">Legg til medlem</button>
       <a href="{{ prefix_url('export_excel') }}" class="btn sekundaer" download>Last ned til Excel</a>
     </p>
 
+    <form id="medlem-sok" class="medlem-sok" role="search">
+      <label for="medlem-soketekst">Søk etter medlem<input id="medlem-soketekst" type="search" placeholder="Namn eller e-post" autocomplete="off"></label>
+      <button type="submit" class="sekundaer">Søk</button>
+    </form>
+    <details class="medlem-filter"><summary>Filter og visingsval</summary>
+      <div class="medlem-filterfelt">
+        <label for="medlem-status">Betalingsstatus<select id="medlem-status"><option value="">Alle betalingsstatusar</option><option>Betalt</option><option>Ikkje betalt</option><option>Frist utløpt</option><option>Gratis</option></select></label>
+        <label for="medlem-type">Medlemstype<select id="medlem-type"><option value="">Alle medlemstypar</option><option>Kul</option><option>Superkul</option><option>Styret</option></select></label>
+        <label for="medlem-sortering">Sorter etter<select id="medlem-sortering"><option value="asc">Namn A–Å</option><option value="desc">Namn Å–A</option></select></label>
+      </div>
+      <button type="button" id="medlem-nullstill" class="sekundaer">Nullstill søk og filter</button>
+      <details><summary>Vis kolonnar</summary>
     <div class="kolonnefilter">
       <span class="kolonnefilter-label">Vis kolonnar:</span>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="namn" checked /> Namn</label>
@@ -45,35 +49,42 @@
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="adresse" /> Adresse</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="postnr" /> Postnr</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="poststad" /> Poststad</label>
-      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="fødselsdato" checked /> Fødselsdato</label>
+      <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="fødselsdato" /> Fødselsdato</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="medlemstype" checked /> Medlemstype</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="betalingsstatus" checked /> Betalingsstatus</label>
       <label class="kolonnefilter-sjekk"><input type="checkbox" data-col="samtykke" /> Samtykke</label>
     </div>
+      </details>
+    </details>
+    <p id="medlem-treff" role="status" aria-live="polite"></p>
+    <p id="medlem-ingen" hidden>Ingen medlemmar funne. Prøv eit anna namn eller nullstill søk og filter.</p>
     <div class="tabell-ramme">
-      <table>
+      <table id="medlemstabell">
+        <caption class="visuelt-skjult">Medlemmar i gjeldande medlemsår</caption>
         <thead>
           <tr>
-            <th data-col="namn">Namn</th>
-            <th data-col="epost">Epost</th>
-            <th data-col="telefon">Telefon</th>
-            <th data-col="adresse">Adresse</th>
-            <th data-col="postnr">Postnr</th>
-            <th data-col="poststad">Poststad</th>
-            <th data-col="fødselsdato">Fødselsdato</th>
-            <th data-col="medlemstype">Medlemstype</th>
-            <th data-col="betalingsstatus">Betalingsstatus</th>
-            <th data-col="samtykke">Samtykke</th>
-            <th data-col="aksjonar"></th>
+            <th scope="col" data-col="namn">Namn</th>
+            <th scope="col" data-col="epost">Epost</th>
+            <th scope="col" data-col="telefon">Telefon</th>
+            <th scope="col" data-col="adresse">Adresse</th>
+            <th scope="col" data-col="postnr">Postnr</th>
+            <th scope="col" data-col="poststad">Poststad</th>
+            <th scope="col" data-col="fødselsdato">Fødselsdato</th>
+            <th scope="col" data-col="medlemstype">Medlemstype</th>
+            <th scope="col" data-col="betalingsstatus">Betalingsstatus</th>
+            <th scope="col" data-col="samtykke">Samtykke</th>
+            <th scope="col" data-col="aksjonar"></th>
           </tr>
         </thead>
         <tbody id="medlem-liste"></tbody>
       </table>
     </div>
+    <nav class="medlem-sider" aria-label="Sider i medlemslista"><button type="button" id="medlem-forre" class="sekundaer">← Førre side</button><span id="medlem-sidetal"></span><button type="button" id="medlem-neste" class="sekundaer">Neste side →</button></nav>
   </div>
 
+  <dialog id="medlem-detalj" aria-labelledby="medlem-detalj-tittel"><div id="medlem-detalj-innhald"></div><button type="button" id="medlem-detalj-lukk" class="sekundaer">Lukk</button></dialog>
   <div id="modal-dekke" class="modal-dekke er-skjult" aria-hidden="true">
-    <div class="modal-vindauge" role="dialog" aria-labelledby="modal-tittel">
+    <div class="modal-vindauge" role="dialog" aria-modal="true" aria-labelledby="modal-tittel">
       <h2 id="modal-tittel">Legg til medlem</h2>
       <form id="medlem-skjema" data-steg="medlem" class="medlemsskjema">
         <p class="skjema-hjelp skjema-brei">Felt merkte med * må fyllast ut. Kontaktopplysningane blir berre viste internt.</p>
@@ -142,7 +153,7 @@
   </div>
 
   <div id="betaling-dekke" class="modal-dekke er-skjult" aria-hidden="true">
-    <div class="modal-vindauge" role="dialog" aria-labelledby="betaling-tittel">
+    <div class="modal-vindauge" role="dialog" aria-modal="true" aria-labelledby="betaling-tittel">
       <h2 id="betaling-tittel">Registrer betaling</h2>
       <form id="betaling-skjema" class="medlemsskjema">
         <p class="skjema-hjelp skjema-brei">Registrer ei betaling medlemmen allereie har gjort. Dette oppdaterer medlemslista; sjølve innkoma må også vere med i rekneskapen.</p>

@@ -2,7 +2,7 @@
   "name": "oslobygda-browser-tests",
   "private": true,
   "scripts": {
-    "test": "node --test test_skjemasteg.cjs"
+    "test": "node --test test_skjemasteg.cjs test_medlemsliste.cjs"
   },
   "devDependencies": {
     "jsdom": "26.1.0",

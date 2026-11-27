@@ -72,6 +72,11 @@ app.jinja_loader = ChoiceLoader(
 )
 
 
+@app.get("/felles/designsystem.css")
+def shared_design_css():
+    return send_from_directory(APP_DIR.parent / "lutar", "designsystem.css")
+
+
 @app.get("/felles/topp.css")
 def shared_header_css():
     return send_from_directory(APP_DIR.parent / "lutar", "topp.css")

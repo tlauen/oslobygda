@@ -1,81 +1,90 @@
-/* Felles visuell profil for medlemsregister og årsmøte/økonomi. */
-.bygdelista-kropp { --bg:#fcf9f3; --text:#12110e; --line:#dedcd4; --panel-strong:#fffefa; --kort-radius:12px; --serif:Georgia,"Times New Roman",serif; }
-.bygdelista-kropp .omslag { max-width:1120px; padding:2.5rem 2rem 5rem; margin:auto; }
-.bygdelista-topp { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; }
-.bygdelista-kropp .arsmote-overline { margin:0 0 .4rem; font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#5e5c55; }
-.bygdelista-kropp .arsmote-merke { margin:0; font:1.8rem/1.15 var(--serif); letter-spacing:-.035em; }
-.bygdelista-kropp .arsmote-intern { padding:.4rem .8rem; border:1px solid #ccdec6; border-radius:100px; background:#e1eddc; font-size:.75rem; }
-.bygdelista-kropp .toppfelt { gap:.75rem; align-items:baseline; margin:1.5rem 0; }
-.bygdelista-kropp .toppfelt h1 { font:450 clamp(2rem,4.2vw,3.25rem)/1.2 var(--serif); letter-spacing:-.035em; flex-basis:100%; }
-.bygdelista-kropp .toppfelt a { color:inherit; font-size:.88rem; text-underline-offset:.2em; }
-.bygdelista-kropp .btn,.bygdelista-kropp button { border-radius:8px; }
-.bygdelista-kropp .btn:not(.sekundaer),.bygdelista-kropp .toppfelt button { background:#a8d8a0; color:#182c18; border:1px solid #88b97f; }
-.bygdelista-kropp details { border:1px solid var(--line); border-radius:12px; padding:1.25rem; background:#fffefa; margin:1rem 0; }
-.bygdelista-kropp summary { font-weight:650; cursor:pointer; }
-.bygdelista-kropp .tabell-ramme { border:1px solid var(--line); border-radius:12px; background:#fffefa; }
-.bygdelista-kropp .tabell-ramme thead th { background:#f5f0df; }
-.bygdelista-kropp .tabell-ramme tbody tr:hover>td { background:#edf3f5; }
-.bygdelista-kropp :is(a,button,input,select,textarea,summary):focus-visible { outline:3px solid #206582; outline-offset:3px; }
-@media(max-width:650px){.bygdelista-kropp .omslag{padding:1.5rem 1rem 3rem}.bygdelista-kropp .toppfelt{gap:.75rem}}
-.bygdelista-undermeny { display:flex; flex-wrap:wrap; gap:.4rem; padding:0 0 1.5rem; margin:0 0 2.5rem; border-bottom:1px solid #dedcd4; }
-.bygdelista-undermeny a { display:block; padding:.6rem 1rem; border:1px solid transparent; border-radius:100px; background:transparent; color:inherit; font-size:.88rem; text-decoration:none; }
-.bygdelista-undermeny a:hover { background:#f2eee5; }
-.bygdelista-undermeny a[aria-current="page"] { background:#e4f0f4; border-color:#8bb8cb; color:#173e50; font-weight:650; }
-.bygdelista-kontroll { display:flex; align-items:center; gap:.75rem; }
+/* Oslobygda · same godkjende grunnlag i alle administrative modular. */
+.bygdelista-kropp {
+ --bg:var(--ob-paper); --text:var(--ob-ink); --dempa:var(--ob-muted);
+ --line:var(--ob-line); --panel-strong:var(--ob-white); --kort-radius:var(--ob-radius);
+ --serif:var(--ob-serif); --error:var(--ob-error);
+ background:var(--bg); color:var(--text); font:16px/1.55 var(--ob-sans);
+}
+.bygdelista-kropp .omslag { box-sizing:border-box; max-width:1440px; padding:32px 32px 64px; margin:auto; min-width:0; }
+.bygdelista-topp { display:flex; align-items:center; justify-content:space-between; gap:24px; padding-bottom:24px; margin-bottom:32px; border-bottom:1px solid var(--line); }
+.bygdelista-kropp .arsmote-overline { margin:0 0 4px; font-size:14px; color:var(--dempa); letter-spacing:0; text-transform:none; }
+.bygdelista-kropp .arsmote-merke { margin:0; color:var(--ob-forest); font:450 24px/1.25 var(--serif); }
+.bygdelista-kropp .arsmote-intern { padding:0; border:0; border-radius:0; background:none; font-size:14px; }
+.bygdelista-kontroll { display:flex; align-items:center; gap:16px; }
 .bygdelista-kropp .bygdelista-kontroll form { display:block; border:0; background:none; box-shadow:none; margin:0; padding:0; }
-.bygdelista-kropp .bygdelista-kontroll button { background:transparent; border:1px solid #dedcd4; color:#12110e; padding:.4rem .75rem; font-size:.8rem; min-height:2.3rem; }
-@media(max-width:650px){.bygdelista-undermeny{gap:.3rem;margin-bottom:1.75rem}.bygdelista-undermeny a{padding:.5rem .7rem;font-size:.8rem}.bygdelista-kontroll{flex-wrap:wrap;justify-content:flex-end}.bygdelista-kontroll .arsmote-intern{display:none}}
-.rekneskap-meny { display:flex; flex-wrap:wrap; gap:.4rem; margin:1rem 0 1.5rem; padding:.6rem; background:#f0ede4; border-radius:12px; }
-.rekneskap-meny a { padding:.55rem .8rem; border-radius:8px; text-decoration:none; color:inherit; font-size:.85rem; }
-.rekneskap-meny a[aria-current="page"] { background:#fffefa; font-weight:700; box-shadow:0 1px 4px #332c1c12; }
-.rekneskap-meny a:hover { background:#e4f0f4; }
-#registrer-post { scroll-margin-top:1rem; }
-
-/* Medlemsadministrasjon: same felt, flater og knappar som økonomiskjemaa. */
-.bygdelista-kropp .medlemsskjema { display:grid; gap:1.25rem; min-width:0; margin:1.25rem 0; padding:2rem; background:#fffefa; border:1px solid var(--line); border-radius:16px; box-shadow:0 6px 30px #332c1c06; }
-.bygdelista-kropp .medlemsskjema .felt { margin:0; min-width:0; }
-.bygdelista-kropp .medlemsskjema label { display:grid; gap:.45rem; margin:0; font-size:.8rem; font-weight:600; }
-.bygdelista-kropp .medlemsskjema :is(input:not([type="hidden"]):not([type="checkbox"]),select,textarea) { display:block; box-sizing:border-box; width:100%; max-width:100%; min-width:0; min-height:2.75rem; padding:.6rem .75rem; font:inherit; font-size:1rem; color:var(--text); background:#fff; border:1px solid #cbc9c0; border-radius:7px; }
-.bygdelista-kropp .medlemsskjema textarea { min-height:8rem; resize:vertical; line-height:1.6; }
-.bygdelista-kropp .medlemsskjema :is(input,select,textarea):hover { border-color:#92978b; }
-.bygdelista-kropp .medlemsskjema label:has(input[type="checkbox"]) { display:flex; align-items:flex-start; gap:.65rem; font-weight:400; font-size:.95rem; }
-.bygdelista-kropp .medlemsskjema input[type="checkbox"] { width:1.2rem; height:1.2rem; flex-shrink:0; margin:.15rem 0 0; accent-color:#315c38; }
-.bygdelista-kropp .medlemsskjema button { justify-self:start; min-height:2.75rem; padding:.65rem 1rem; font:inherit; font-weight:650; cursor:pointer; background:#a8d8a0; color:#182c18; border:1px solid #88b97f; }
-.bygdelista-kropp .medlemsskjema button.sekundaer { background:#fffefa; border-color:#cbc9c0; color:var(--text); }
-.bygdelista-kropp .medlemsskjema button:hover { background:#e1eddc; }
-.bygdelista-kropp .medlemsskjema button:disabled { opacity:.55; cursor:not-allowed; }
-.bygdelista-kropp .medlemsskjema p { margin:0; line-height:1.6; }
-.bygdelista-kropp .medlemsskjema .skjema-hjelp { font-size:.9rem; color:#5e5c55; }
-.bygdelista-kropp .modal-vindauge { box-sizing:border-box; width:calc(100% - 2rem); max-width:720px; padding:2rem; background:#fffefa; border-radius:16px; box-shadow:0 20px 70px #332c1c30; }
-.bygdelista-kropp .modal-vindauge h2 { font:1.7rem/1.2 var(--serif); }
-.bygdelista-kropp .modal-vindauge .medlemsskjema { padding:0; border:0; box-shadow:none; margin-bottom:0; }
-.bygdelista-kropp .medlemsskjema .knappar { margin:0; display:flex; flex-wrap:wrap; gap:.65rem; }
-@media(min-width:700px) {
- .bygdelista-kropp .medlemsskjema { grid-template-columns:repeat(2,minmax(0,1fr)); }
- .bygdelista-kropp .medlemsskjema > :is(p,button,.knappar,.skjema-brei,#betaling-historikk),.bygdelista-kropp .medlemsskjema > label:has(input[type="checkbox"]),.bygdelista-kropp .medlemsskjema > .felt:has(textarea) { grid-column:1/-1; }
+.bygdelista-kropp .toppfelt { gap:16px; align-items:baseline; margin:0 0 24px; padding:0; border:0; }
+.bygdelista-kropp .toppfelt h1 { margin:0; font:450 32px/1.25 var(--serif); letter-spacing:-.025em; flex-basis:100%; }
+.bygdelista-kropp h2 { font:600 22px/1.3 var(--ob-sans); letter-spacing:0; }
+.bygdelista-kropp h3 { font:600 18px/1.35 var(--ob-sans); }
+.bygdelista-kropp a { color:var(--ob-forest); text-underline-offset:.2em; }
+.bygdelista-kropp :is(.btn,button) { box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; max-width:100%; padding:12px 16px; border:1px solid var(--ob-forest); border-radius:var(--ob-radius); background:var(--ob-forest); color:var(--ob-white); font:600 16px/1.4 var(--ob-sans); text-decoration:none; cursor:pointer; }
+.bygdelista-kropp :is(.btn,button):hover { background:var(--ob-hover); color:var(--ob-white); }
+.bygdelista-kropp :is(.btn.sekundaer,button.sekundaer,.bygdelista-kontroll button,.tabell-vising) { border-color:var(--ob-control); background:transparent; color:var(--ob-forest); }
+.bygdelista-kropp :is(.btn.sekundaer,button.sekundaer,.bygdelista-kontroll button,.tabell-vising):hover { background:var(--ob-ok); }
+.bygdelista-kropp :is(button,input,select,textarea):disabled { opacity:.45; cursor:not-allowed; }
+.bygdelista-kropp :is(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline:3px solid var(--ob-focus); outline-offset:3px; }
+.bygdelista-kropp :is(form,.medlemsskjema) { box-sizing:border-box; display:grid; grid-template-columns:minmax(0,1fr); gap:24px; min-width:0; max-width:var(--ob-form); margin:24px 0; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; scroll-margin-top:24px; }
+.bygdelista-kropp :is(form,.medlemsskjema) > * { min-width:0; }
+.bygdelista-kropp :is(form,.medlemsskjema) .felt { margin:0; min-width:0; }
+.bygdelista-kropp :is(form,.medlemsskjema) label { display:grid; gap:8px; margin:0; font-size:16px; font-weight:600; }
+.bygdelista-kropp :is(form,.medlemsskjema) :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea) { box-sizing:border-box; display:block; width:100%; max-width:100%; min-width:0; min-height:48px; padding:12px; border:1px solid var(--ob-control); border-radius:var(--ob-radius); background:var(--ob-white); color:var(--text); font:400 16px/1.5 var(--ob-sans); }
+.bygdelista-kropp :is(form,.medlemsskjema) textarea { min-height:160px; resize:vertical; }
+.bygdelista-kropp :is(form,.medlemsskjema) label:has(:is(input[type="checkbox"],input[type="radio"])) { display:flex; align-items:center; gap:12px; min-height:44px; font-weight:400; }
+.bygdelista-kropp :is(input[type="checkbox"],input[type="radio"]) { width:20px; height:20px; flex-shrink:0; margin:0; accent-color:var(--ob-forest); }
+.bygdelista-kropp :is(form,.medlemsskjema) button { justify-self:start; }
+.bygdelista-kropp form:has(table) { max-width:none; }
+.bygdelista-kropp :is(form,.medlemsskjema) p { margin:0; line-height:1.55; }
+.bygdelista-kropp :is(.skjema-hjelp,.feltforklaring) { font-size:14px; color:var(--dempa); }
+.bygdelista-kropp fieldset { min-width:0; margin:0; padding:16px 0; border:0; border-top:1px solid var(--line); border-radius:0; background:transparent; }
+.bygdelista-kropp details { margin:24px 0; padding:0; border:0; border-top:1px solid var(--line); border-radius:0; background:transparent; box-shadow:none; }
+.bygdelista-kropp summary { padding:12px 0; min-height:44px; cursor:pointer; font-weight:600; }
+.bygdelista-kropp .tabell-ramme { overflow-x:auto; border:0; border-radius:0; background:transparent; }
+.bygdelista-kropp table { background:transparent; }
+.bygdelista-kropp :is(th,td) { padding:16px; border-bottom:1px solid var(--line); }
+.bygdelista-kropp :is(.tabell-ramme thead th,thead th) { background:var(--ob-ok); color:var(--ob-forest); font-size:14px; }
+.bygdelista-kropp .tabell-ramme tbody tr:hover>td { background:var(--ob-ok); }
+.bygdelista-kropp :is(.saldo-kort li,.postliste>li) { background:transparent; border:0; border-bottom:1px solid var(--line); border-radius:0; box-shadow:none; padding:16px 0; }
+.bygdelista-kropp :is(.arsmote-status,.rekneskap-hjelp) { border:0; border-radius:0; box-shadow:none; background:var(--ob-info); color:var(--text); padding:24px; }
+.bygdelista-kropp .arsmote-status { background:transparent; padding:0; color:var(--dempa); }
+.bygdelista-kropp [role="alert"] { background:var(--ob-error-bg); color:var(--ob-error); border:0; border-left:3px solid var(--ob-error); border-radius:0; padding:16px; }
+.bygdelista-kropp .modal-vindauge { box-sizing:border-box; width:calc(100% - 32px); max-width:720px; padding:32px; background:var(--ob-paper); border-radius:var(--ob-radius); box-shadow:0 20px 70px #12110e30; }
+.bygdelista-kropp .modal-vindauge .medlemsskjema { max-width:none; margin-bottom:0; }
+.bygdelista-kropp .medlemsskjema .knappar { margin:0; display:flex; flex-wrap:wrap; gap:16px; }
+.bygdelista-kropp details.bygdelista-navigasjon { border:0; margin:0 0 24px; }
+.bygdelista-navigasjon > summary { font-weight:600; color:var(--ob-forest); }
+.bygdelista-delar,.bygdelista-undermeny { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; background:none; border:0; border-radius:0; width:100%; }
+.bygdelista-delar a,.bygdelista-undermeny a { display:flex; align-items:center; min-height:48px; padding:12px; text-decoration:none; border:0; border-left:3px solid transparent; border-radius:0; box-shadow:none; font-weight:400; }
+.bygdelista-delar a[aria-current="page"],.bygdelista-undermeny a[aria-current="page"] { border-color:var(--ob-forest); color:var(--ob-forest); font-weight:600; background:var(--ob-ok); }
+.bygdelista-undermeny { margin:8px 0 16px; }
+.bygdelista-undermeny a { font-size:14px; }
+.bygdelista-navigasjon a:hover { background:var(--ob-ok); }
+.rekneskap-meny { display:flex; flex-wrap:wrap; gap:8px; margin:24px 0; padding:0 0 16px; background:transparent; border-bottom:1px solid var(--line); border-radius:0; }
+.rekneskap-meny a,.rekneskap-meny .rekneskap-meny-inaktiv { display:block; min-height:44px; padding:12px; border-radius:var(--ob-radius); font-size:14px; text-decoration:none; }
+.rekneskap-meny a[aria-current="page"] { background:var(--ob-ok); font-weight:600; box-shadow:none; }
+.rekneskap-meny-inaktiv { color:var(--dempa); cursor:not-allowed; }
+#registrer-post,#rekneskap-meny,#bilag-meny { scroll-margin-top:24px; }
+@media(min-width:1000px) {
+ .bygdelista-kropp .omslag:has(.bygdelista-navigasjon) { position:relative; padding-left:288px; min-height:880px; }
+ .bygdelista-kropp .omslag:has(.bygdelista-navigasjon) > .bygdelista-topp { margin-left:-256px; }
+ .bygdelista-kropp details.bygdelista-navigasjon { position:absolute; top:144px; left:32px; width:208px; }
+ .bygdelista-navigasjon > summary { display:none; }
+ .bygdelista-delar,.bygdelista-undermeny { flex-direction:column; gap:4px; }
+ .bygdelista-undermeny { padding-left:16px; }
 }
 @media(max-width:699px) {
- .bygdelista-kropp .medlemsskjema,.bygdelista-kropp .modal-vindauge { padding:1.25rem; }
+ .bygdelista-kropp .omslag { padding:24px 24px 48px; }
+ .bygdelista-kropp .toppfelt h1 { font-size:28px; }
+ .bygdelista-kropp .modal-vindauge { padding:24px; }
+ .bygdelista-kontroll .arsmote-intern { display:none; }
 }
+.skjema-retur-melding { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:200; box-sizing:border-box; width:max-content; max-width:calc(100% - 32px); padding:16px 24px; border:1px solid var(--ob-line); border-radius:var(--ob-radius); background:var(--ob-ok); color:var(--ob-forest); display:flex; align-items:center; gap:16px; }
+[data-minutes-form] [data-decision]{display:grid;gap:12px}
+.protokoll-undersak{margin:16px 0}
+[data-minutes-form] textarea[readonly]{background:var(--ob-ok);color:var(--ob-forest)}
+
 .styre-redigering { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.5rem; }
 .styre-redigering article { padding:1.25rem; border:1px solid var(--line); border-radius:12px; background:#fffefa; }
 .styre-redigering img { max-width:100%; }
-
-.bygdelista-kropp .medlemsskjema > a.btn { justify-self:start; width:fit-content; max-width:100%; text-align:center; }
-.bygdelista-kropp form { scroll-margin-top:1.5rem; }
-.skjema-retur-melding { position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); z-index:200; box-sizing:border-box; width:max-content; max-width:calc(100% - 2rem); padding:1rem 1.25rem; border:1px solid #8bb8cb; border-radius:12px; background:#e4f0f4; color:#173e50; box-shadow:0 6px 30px #332c1c25; display:flex; align-items:center; gap:1rem; font:1rem/1.5 system-ui; }
-.skjema-retur-melding span { max-width:65ch; }
-.skjema-retur-melding button { background:transparent; border:1px solid #8bb8cb; border-radius:6px; padding:.4rem .65rem; cursor:pointer; }
-
-#rekneskap-meny,#bilag-meny { scroll-margin-top:1rem; }
-
-.rekneskap-meny .rekneskap-meny-inaktiv { display:block; padding:.55rem .8rem; border-radius:8px; font-size:.85rem; color:#69665f; background:#e8e5dd; cursor:not-allowed; }
-.rekneskap-meny-inaktiv small { font:inherit; }
-.rekneskap-meny-inaktiv:focus-visible { outline:3px solid #206582; outline-offset:3px; }
-
-[data-minutes-form] [data-decision]{display:grid;gap:.65rem}
-.protokoll-undersak{margin:1rem 0}
-[data-minutes-form] textarea[readonly]{background:#edf3e9;color:#3e5839}
 
 .galleri-redigering { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr)); gap:2.5rem 1.75rem; margin:2rem 0; }
 .galleri-redigering__kort { min-width:0; }
@@ -102,7 +111,7 @@
   border-radius:0;
   background:transparent;
   box-shadow:none;
-  max-width:54rem;
+  max-width:var(--ob-form);
   margin:2rem 0;
 }
 .bygdelista-kropp .tekstredigering details,
@@ -120,7 +129,7 @@
 .bygdelista-kropp .tekstredigering .felt + .felt { margin-top:1.25rem; }
 .bygdelista-kropp .tekstredigering label { margin-bottom:.5rem; }
 .bygdelista-kropp .tekstredigering textarea { min-height:20rem; }
-.bygdelista-kropp details.tekstredigering-verktoy { max-width:54rem; margin-top:2.5rem; }
+.bygdelista-kropp details.tekstredigering-verktoy { max-width:var(--ob-form); margin-top:2.5rem; }
 
 .bygdelista-kropp .medieskjema input[type="file"] { border:0; padding:0; background:transparent; font-size:.9rem; }
 .medieskjema input[type="file"]::file-selector-button { border:1px solid var(--line); border-radius:4px; padding:.6rem .8rem; margin-right:.75rem; background:#eeeae2; color:inherit; cursor:pointer; font:inherit; }
@@ -137,3 +146,55 @@
   background:transparent;
   box-shadow:none;
 }
+
+/* Medlemslista: samanlikn i tabell, les éin medlem om gongen på mobil. */
+.visuelt-skjult { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.bygdelista-kropp .medlemsoversikt-panel { padding:0; margin:24px 0; border:0; background:none; box-shadow:none; }
+.medlemsoversikt-tittel { margin:0 0 8px; font-size:16px; font-weight:400; color:var(--ob-muted); }
+.bygdelista-kropp form.medlem-sok { display:flex; flex-wrap:wrap; align-items:end; max-width:none; gap:16px; }
+.medlem-sok label { flex:1 1 260px; }
+.medlem-filterfelt { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:24px; margin:16px 0 24px; }
+.medlem-filterfelt label { display:grid; gap:8px; font-weight:600; }
+.medlem-filterfelt select { min-height:48px; width:100%; border:1px solid var(--ob-control); border-radius:var(--ob-radius); padding:12px; background:var(--ob-white); }
+.bygdelista-kropp #medlemstabell { min-width:0; width:100%; }
+.bygdelista-kropp #medlemstabell :is(th,td) { min-width:0; font-size:16px; }
+.bygdelista-kropp #medlemstabell th { font-size:14px; }
+.bygdelista-kropp #medlemstabell td:last-child { position:static; box-shadow:none; }
+.bygdelista-kropp #medlemstabell .kolonne-skjult { display:none; }
+.bygdelista-kropp :is(.medlem-lenkje,.aksjonar-meny-knapp) { color:var(--ob-forest); background:transparent; border:0; padding:8px 0; text-align:left; justify-content:start; text-decoration:underline; }
+.bygdelista-kropp .medlem-lenkje:hover { background:transparent; color:var(--ob-hover); }
+.bygdelista-kropp #medlemstabell .pill { border:0; background:none; padding:0; border-radius:0; font-size:16px; }
+.bygdelista-kropp #medlemstabell .pill--betalt { color:var(--ob-forest); }
+#medlemstabell .sum-reg { font-size:14px; color:var(--ob-muted); }
+.bygdelista-kropp .aksjonar-meny button { display:block; width:100%; justify-content:start; border:0; border-radius:0; background:var(--ob-paper); color:var(--ob-forest); }
+.bygdelista-kropp .aksjonar-meny .slett { color:var(--ob-error); }
+.medlem-sider { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin:24px 0; }
+#medlem-detalj { box-sizing:border-box; width:calc(100% - 32px); max-width:720px; max-height:calc(100dvh - 32px); padding:32px; border:1px solid var(--ob-line); border-radius:var(--ob-radius); background:var(--ob-paper); color:var(--ob-ink); }
+#medlem-detalj::backdrop { background:#12110e80; }
+#medlem-detalj h2 { font:450 28px/1.25 var(--ob-serif); }
+#medlem-detalj .knappar { display:flex; flex-wrap:wrap; gap:16px; }
+.medlem-detaljar > div { padding:16px 0; border-bottom:1px solid var(--ob-line); }
+.medlem-detaljar dt { font-size:14px; color:var(--ob-muted); }
+.medlem-detaljar dd { margin:8px 0 0; overflow-wrap:anywhere; }
+@media(max-width:760px) {
+ .bygdelista-kropp #medlemstabell,.bygdelista-kropp #medlemstabell tbody { display:block; }
+ #medlemstabell thead { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+ .bygdelista-kropp #medlemstabell tr { display:block; padding:16px 0; border-bottom:1px solid var(--ob-line); }
+ .bygdelista-kropp #medlemstabell td { display:block; border:0; padding:4px 0; max-width:none; overflow-wrap:anywhere; white-space:normal; }
+ #medlemstabell td:not([data-col="namn"]):not([data-col="epost"]):not([data-col="aksjonar"])::before { content:attr(data-label) ": "; font-size:14px; color:var(--ob-muted); }
+ #medlemstabell .aksjonar { display:flex; align-items:center; gap:16px; }
+ .bygdelista-kropp .tabell-ramme:has(#medlemstabell) { overflow:visible; }
+ .bygdelista-kropp #medlemstabell tbody tr:hover>td { background:none; }
+ .medlem-sok button { flex:1; }
+ #medlem-detalj { padding:24px; }
+}
+
+.rekneskap-nokkeltal { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px; margin:32px 0; padding:24px 0; border-block:1px solid var(--ob-line); }
+.rekneskap-nokkeltal dt { font-size:14px; color:var(--ob-muted); }
+.rekneskap-nokkeltal dd { margin:8px 0 0; font-size:26px; font-weight:600; font-variant-numeric:tabular-nums; }
+@media(max-width:699px) { .rekneskap-nokkeltal { grid-template-columns:1fr; gap:24px; } }
+
+.medlem-hovudhandlingar { display:flex; flex-wrap:wrap; gap:16px; }
+.arsmote-hopp { position:absolute; top:-100px; left:16px; padding:12px; background:var(--ob-white); z-index:200; }
+.arsmote-hopp:focus { top:16px; }
+@media(max-width:699px) { .medlem-hovudhandlingar > * { width:100%; } }

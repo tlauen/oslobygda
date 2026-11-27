@@ -88,9 +88,9 @@
 .pobb-galleri a:focus-visible{outline:3px solid #206582;outline-offset:4px}
 @media(max-width:560px){.pobb-galleri__rutenett{grid-template-columns:1fr;grid-template-rows:none;gap:24px}.pobb-galleri__kolonne{display:flex;flex-direction:column;gap:16px;grid-row:auto}.pobb-galleri__folg{padding:20px}}
 
-.pobb-kalenderknapp{display:inline-flex;align-items:center;gap:.55rem;padding:.6rem .9rem;border-radius:.5rem;background:#24618a;color:#fff;font-weight:650;text-decoration:none}
-.pobb-kalenderknapp:hover{text-decoration:underline}
-.pobb-kalenderknapp:focus-visible{outline:3px solid #24618a;outline-offset:3px}
+.pobb-kalenderknapp{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 16px;border:1px solid var(--ob-forest);border-radius:var(--ob-radius);background:var(--ob-forest);color:var(--ob-white);font:600 16px/1.4 var(--ob-sans);text-decoration:none}
+.pobb-kalenderknapp:hover{background:var(--ob-hover)}
+.pobb-kalenderknapp:focus-visible{outline:3px solid var(--ob-focus);outline-offset:3px}
 
 .pobb-kalenderknapp__ikon{flex-shrink:0}
 

@@ -83,46 +83,118 @@
             else if (r.status === 401) msg = "Du er ikkje innlogga. Logg inn på nytt.";
           } catch (_) {}
           setStatus(msg, true);
-          return [];
+          return null;
         }
         const data = await r.json();
         setStatus("");
         return data;
       } catch (e) {
         setStatus("Feil ved lasting: " + e.message, true);
-        return [];
+        return null;
       }
     }
 
+    let alleMedlemmar = [];
+    let side = 1;
+    const sidestorleik = 25;
+    const medlemSok = document.getElementById('medlem-soketekst');
+    const statusFilter = document.getElementById('medlem-status');
+    const typeFilter = document.getElementById('medlem-type');
+    const sortering = document.getElementById('medlem-sortering');
+    const collator = new Intl.Collator('nn', {sensitivity:'base', numeric:true});
+    const normaliser = value => String(value || '').normalize('NFKC').toLocaleLowerCase('nn').trim();
+
     function renderListe(medlemmar) {
+      if (!Array.isArray(medlemmar)) return;
+      alleMedlemmar = medlemmar;
+      visMedlemsutval();
+    }
+    function visMedlemsutval() {
+      const query = normaliser(medlemSok.value);
+      const result = alleMedlemmar.filter(m =>
+        (!query || normaliser(visningsnamn(m) + ' ' + (m.email || '')).includes(query)) &&
+        (!statusFilter.value || normaliser(m.payment_status) === normaliser(statusFilter.value)) &&
+        (!typeFilter.value || medlemstypeVisningsnamn(m.membership_type) === typeFilter.value)
+      ).sort((a, b) => (sortering.value === 'desc' ? -1 : 1) * collator.compare(visningsnamn(a), visningsnamn(b)) || Number(a.id) - Number(b.id));
+      const sider = Math.max(1, Math.ceil(result.length / sidestorleik));
+      side = Math.min(side, sider);
+      const start = (side - 1) * sidestorleik;
+      tegnMedlemsrader(result.slice(start, start + sidestorleik));
+      document.getElementById('medlem-treff').textContent = result.length
+        ? `Viser ${start + 1}–${Math.min(start + sidestorleik, result.length)} av ${result.length} medlemmar` : 'Ingen treff';
+      document.getElementById('medlem-ingen').hidden = result.length !== 0;
+      document.getElementById('medlem-forre').disabled = side === 1;
+      document.getElementById('medlem-neste').disabled = side === sider;
+      document.getElementById('medlem-sidetal').textContent = `Side ${side} av ${sider}`;
+    }
+    function oppdaterUtval() { side = 1; visMedlemsutval(); }
+    document.getElementById('medlem-sok').addEventListener('submit', event => { event.preventDefault(); oppdaterUtval(); });
+    medlemSok.addEventListener('input', oppdaterUtval);
+    for (const control of [statusFilter, typeFilter, sortering]) control.addEventListener('change', oppdaterUtval);
+    document.getElementById('medlem-nullstill').addEventListener('click', () => {
+      medlemSok.value = ''; statusFilter.value = ''; typeFilter.value = ''; sortering.value = 'asc';
+      oppdaterUtval(); medlemSok.focus();
+    });
+    for (const [id, delta] of [['medlem-forre', -1], ['medlem-neste', 1]]) document.getElementById(id).addEventListener('click', () => {
+      side += delta; visMedlemsutval(); document.getElementById('medlem-treff').scrollIntoView({block:'nearest'});
+    });
+
+    const detalj = document.getElementById('medlem-detalj');
+    function opneMedlem(id) {
+      const m = alleMedlemmar.find(m => Number(m.id) === id);
+      if (!m) return;
+      document.getElementById('medlem-detalj-innhald').innerHTML = `
+        <h2 id="medlem-detalj-tittel">${escapeHtml(visningsnamn(m))}</h2>
+        <p>${escapeHtml(medlemstypeVisningsnamn(m.membership_type))} · ${escapeHtml(m.payment_status)}</p>
+        <div class="knappar"><button type="button" data-member-edit="${id}">Endre opplysningar</button><button type="button" class="sekundaer" data-member-payment="${id}">Registrer betaling</button></div>
+        <h3>Kontaktopplysningar</h3><dl class="medlem-detaljar">
+          ${[['E-post',m.email],['Telefon',m.phone],['Adresse',[m.adresse,m.postnummer,m.poststad].filter(Boolean).join(', ')]].map(([label,value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value || 'Ikkje registrert')}</dd></div>`).join('')}
+        </dl><details><summary>Fødselsdato og samtykke</summary><dl class="medlem-detaljar"><div><dt>Fødselsdato</dt><dd>${escapeHtml(formaterDato(m.birth_date))}</dd></div><div><dt>Samtykke registrert</dt><dd>${escapeHtml(formaterDato(m.consent_at))}</dd></div></dl></details>
+        <h3>Medlemskap og betalingar</h3><p>Registrert i gjeldande medlemsår: ${formatNokFromOre(m.total_paid_ore)}.</p><p>Vel «Registrer betaling» for å sjå betalingshistorikken.</p>`;
+      detalj.showModal();
+    }
+    document.getElementById('medlem-detalj-lukk').addEventListener('click', () => detalj.close());
+    detalj.addEventListener('click', event => {
+      const edit = event.target.closest('[data-member-edit]');
+      const payment = event.target.closest('[data-member-payment]');
+      if (edit || payment) {
+        detalj.close();
+        if (edit) openModal(Number(edit.dataset.memberEdit));
+        else openBetalingModal(Number(payment.dataset.memberPayment));
+      }
+    });
+
+    function tegnMedlemsrader(medlemmar) {
       listeEl.innerHTML = medlemmar.map(m => `
         <tr>
-          <td data-col="namn">${escapeHtml(visningsnamn(m))}</td>
+          <td data-col="namn"><button type="button" class="medlem-lenkje" data-action="detail" data-id="${Number(m.id)}">${escapeHtml(visningsnamn(m))}</button></td>
           <td data-col="epost">${escapeHtml(m.email)}</td>
           <td data-col="telefon">${escapeHtml(m.phone || "–")}</td>
           <td data-col="adresse">${escapeHtml(m.adresse || "–")}</td>
           <td data-col="postnr">${escapeHtml(m.postnummer || "–")}</td>
           <td data-col="poststad">${escapeHtml(m.poststad || "–")}</td>
-          <td data-col="fødselsdato">${m.birth_date ? formaterDato(m.birth_date) : "–"}</td>
+          <td data-col="fødselsdato">${escapeHtml(formaterDato(m.birth_date))}</td>
           <td data-col="medlemstype"><span class="pill">${escapeHtml(medlemstypeVisningsnamn(m.membership_type))}</span></td>
           <td data-col="betalingsstatus">
-            <span class="${pillClassForPaymentStatus(m.payment_status)} pill--toggle" data-id="${m.id}" data-action="toggle-payment" data-status="${escapeHtml(m.payment_status)}" title="Klikk for å bytte betalingsstatus">${escapeHtml(m.payment_status)}</span>
+            <span class="${pillClassForPaymentStatus(m.payment_status)}">${escapeHtml(m.payment_status)}</span>
             <div class="sum-reg">${formatNokFromOre(m.total_paid_ore)}</div>
           </td>
           <td data-col="samtykke">${formaterDato(m.consent_at)}</td>
           <td data-col="aksjonar" class="aksjonar">
-            <a href="#" data-id="${m.id}" data-action="edit">Endre</a>
+            <a href="#" data-id="${m.id}" data-action="detail">Opne medlem</a>
             <div class="aksjonar-meny-wrap">
-              <button type="button" class="aksjonar-meny-knapp" data-id="${m.id}" aria-label="Meny" aria-expanded="false"><span class="aksjonar-meny-prikker"><span></span><span></span><span></span></span></button>
-              <div class="aksjonar-meny" role="menu" hidden>
-                <button type="button" role="menuitem" data-id="${m.id}" data-action="export">Eksporter (GDPR)</button>
-                <button type="button" role="menuitem" data-id="${m.id}" data-action="betaling">Registrer betaling</button>
-                <button type="button" role="menuitem" data-id="${m.id}" data-action="delete" class="slett">Slett</button>
+              <button type="button" class="aksjonar-meny-knapp" data-id="${m.id}" aria-label="Fleire handlingar for ${escapeHtml(visningsnamn(m))}" aria-expanded="false"><span class="aksjonar-meny-prikker"><span></span><span></span><span></span></span></button>
+              <div class="aksjonar-meny" hidden>
+                <button type="button" data-id="${m.id}" data-action="export">Eksporter (GDPR)</button>
+                <button type="button" data-id="${m.id}" data-action="betaling">Registrer betaling</button>
+                <button type="button" data-id="${m.id}" data-action="delete" class="slett">Slett</button>
               </div>
             </div>
           </td>
         </tr>
       `).join("");
+      const labels = Object.fromEntries([...document.querySelectorAll('#medlemstabell th[data-col]')].map(th => [th.dataset.col, th.textContent.trim()]));
+      listeEl.querySelectorAll('td[data-col]').forEach(cell => { cell.dataset.label = labels[cell.dataset.col] || 'Handlingar'; });
       brukKolonnefilter();
     }
 
@@ -152,41 +224,6 @@
       const div = document.createElement("div");
       div.textContent = s;
       return div.innerHTML;
-    }
-
-    function lukkMedlemsar(ar) {
-      if (!confirm("Dette lagrar sammendrag for medlemsår " + ar + " i arkiv, set neste år til " + (ar + 1) + ", og oppdaterer betalingsstatus etter betalingar og gratisvedtak for det nye året. Hugs å ta database-backup. Vil du fortsette?")) return;
-      const s = window.prompt("Skriv årstalet " + ar + " for å stadfeste (same tal som står ovanfor).");
-      if (String(s) !== String(ar)) {
-        setStatus("Avbroten – ingen endringar.");
-        return;
-      }
-      (async () => {
-        const btn = document.getElementById("btn-lukk-medlemsar");
-        if (btn) btn.disabled = true;
-        try {
-          const r = await fetch(API + "/api/medlemsar/lukk", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bekreft_ar: ar })
-          });
-          const data = await r.json().catch(() => ({}));
-          if (!r.ok) {
-            setStatus(data.error || "Feil ved lukking av medlemsår", true);
-            if (btn) btn.disabled = false;
-            return;
-          }
-          setStatus(data.message);
-          await lastOversikt();
-          const medlemmar = await hentMedlemmar();
-          renderListe(medlemmar);
-        } catch (e) {
-          setStatus(e.message, true);
-        }
-        const b2 = document.getElementById("btn-lukk-medlemsar");
-        if (b2) b2.disabled = false;
-      })();
     }
 
     async function lastOversikt() {
@@ -219,23 +256,16 @@
               return "<li><strong>" + a.ar + "</strong>: " + bel + " kr <span class=\"medlemsoversikt-dempa\">(" + a.antall_medlemer_med_betaling + " medlemmar med innbetaling)</span></li>";
             }).join("") + "</ul>";
         }
-        el.innerHTML =
-          "<h2 class=\"medlemsoversikt-tittel\">Medlemsoversikt</h2>" +
-          "<h3 class=\"medlemsoversikt-seksjon\">Aldersfordeling</h3>" +
-          "<p class=\"medlemsoversikt-tal\">" + alderLinje + "</p>" +
-          "<h3 class=\"medlemsoversikt-seksjon\">Innbetaling</h3>" +
-          "<p class=\"medlemsoversikt-tal\"><strong>Gjeldande medlemsår: " + ar + "</strong> · " +
-          "<strong>Totalt innbetalt hittil i " + ar + ":</strong> " + tot + " kr " +
-          "<span class=\"medlemsoversikt-dempa\">(" + n + " medlemmar med innbetaling)</span></p>" +
-          arkivHtml +
-          "<p class=\"medlemsoversikt-nyttar\"><button type=\"button\" class=\"btn sekundaer\" id=\"btn-lukk-medlemsar\">Lukk medlemsår " + ar + " og start " + (ar + 1) + " …</button></p>";
-        document.getElementById("btn-lukk-medlemsar").addEventListener("click", () => lukkMedlemsar(ar));
+        el.innerHTML = `<p class="medlemsoversikt-tittel">Medlemsår ${ar} · ${mTot} medlemmar</p><details><summary>Statistikk og tidlegare år</summary><p>${alderLinje}</p><p>Totalt innbetalt: ${tot} kr · ${n} medlemmar med innbetaling.</p>${arkivHtml}</details>`;
       } catch (e) {
         el.innerHTML = "<p class=\"feil\">" + escapeHtml(e.message) + "</p>";
       }
     }
 
+    let modalRetur = null;
+    let betalingRetur = null;
     function openModal(id) {
+      modalRetur = document.activeElement;
       skjema.dispatchEvent(new CustomEvent("skjemasteg:start"));
       const tittel = document.getElementById("modal-tittel");
       document.getElementById("medlem-id").value = id || "";
@@ -279,6 +309,7 @@
     function lukkModal() {
       modal.style.display = "none";
       modal.setAttribute("aria-hidden", "true");
+      if (modalRetur?.isConnected) modalRetur.focus();
     }
 
     document.getElementById('betaling-historikk').addEventListener('click', async (event) => {
@@ -348,6 +379,7 @@
     }
 
     function openBetalingModal(id) {
+      betalingRetur = document.activeElement;
       document.getElementById("betaling-medlem-id").value = String(id);
       document.getElementById("betaling-belop").value = "";
       document.getElementById("betaling-dato").value = "";
@@ -362,6 +394,7 @@
     function lukkBetalingModal() {
       betalingModal.style.display = "none";
       betalingModal.setAttribute("aria-hidden", "true");
+      if (betalingRetur?.isConnected) betalingRetur.focus();
     }
 
     skjema.addEventListener("submit", async (e) => {
@@ -403,15 +436,6 @@
     document.getElementById("btn-ny").addEventListener("click", () => openModal(null));
 
     listeEl.addEventListener("click", (e) => {
-      const toggleEl = e.target.closest("[data-action=\"toggle-payment\"]");
-      if (toggleEl) {
-        e.preventDefault();
-        const id = parseInt(toggleEl.dataset.id, 10);
-        const current = (toggleEl.dataset.status || "").trim().toLowerCase();
-        if (!isNaN(id)) toggleBetalingsstatus(id, current);
-        return;
-      }
-
       const id = parseInt(e.target.dataset?.id, 10);
       if (e.target.classList.contains("aksjonar-meny-knapp")) {
         e.preventDefault();
@@ -438,9 +462,9 @@
         lukkAlleAksjonarMenyer();
         return;
       }
-      if (e.target.dataset?.action === "edit") {
+      if (e.target.dataset?.action === "detail") {
         e.preventDefault();
-        if (!isNaN(id)) openModal(id);
+        if (!isNaN(id)) opneMedlem(id);
       }
     });
 
@@ -450,6 +474,18 @@
 
     modal.addEventListener("click", (e) => { if (e.target === modal) lukkModal(); });
     betalingModal.addEventListener("click", (e) => { if (e.target === betalingModal) lukkBetalingModal(); });
+
+    document.addEventListener('keydown', event => {
+      const overlay = modal.style.display === 'flex' ? modal : betalingModal.style.display === 'flex' ? betalingModal : null;
+      if (!overlay) return;
+      if (event.key === 'Escape') { event.preventDefault(); overlay === modal ? lukkModal() : lukkBetalingModal(); }
+      if (event.key === 'Tab') {
+        const focusable = [...overlay.querySelectorAll('input,select,textarea,button,a[href],[tabindex="0"]')].filter(el => !el.disabled && !el.closest('[hidden]') && el.getClientRects().length);
+        const first = focusable[0], last = focusable.at(-1);
+        if (first && event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (last && !event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    });
 
     async function eksporterMedlem(id) {
       try {
@@ -508,25 +544,6 @@
     });
 
 
-    async function toggleBetalingsstatus(id, currentStatus) {
-      const nyStatus = currentStatus === "betalt" ? "ikkje betalt" : "betalt";
-      try {
-        const r = await fetch(API + "/api/members/" + id, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ payment_status: nyStatus })
-        });
-        const data = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(data.error || "Kunne ikkje oppdatere betalingsstatus");
-        setStatus("Betalingsstatus oppdatert.");
-        const medlemmar = await hentMedlemmar();
-        renderListe(medlemmar);
-      } catch (e) {
-        setStatus(e.message || "Kunne ikkje oppdatere betalingsstatus.", true);
-      }
-    }
-
     const KOLONNE_STORAGE_KEY = "bygdelista-kolonner";
     function brukKolonnefilter() {
       document.querySelectorAll(".kolonnefilter input[data-col]").forEach(cb => {
@@ -557,37 +574,9 @@
       cb.addEventListener("change", brukKolonnefilter);
     });
 
-    async function lastKontingentinnstillingar() {
-      try {
-        const r = await fetch(API + '/api/innstillingar/kontingent');
-        if (!r.ok) throw new Error('Kunne ikkje hente kontingentinnstillingar.');
-        const data = await r.json();
-        document.getElementById('superkul-grense').value = (data.superkul_grense_ore / 100).toFixed(2);
-        document.getElementById('superkul-grense').disabled = false;
-        document.getElementById('lagre-kontingent').disabled = false;
-      } catch (error) { setStatus(error.message, true); }
-    }
-    document.getElementById('kontingent-innstillingar').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const button = document.getElementById('lagre-kontingent');
-      button.disabled = true;
-      try {
-        const r = await fetch(API + '/api/innstillingar/kontingent', {
-          method: 'PUT', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({superkul_grense_nok: document.getElementById('superkul-grense').value})
-        });
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error || 'Kunne ikkje lagre grensa.');
-        renderListe(await hentMedlemmar());
-        setStatus('Grensa er lagra og medlemstypane er oppdaterte.');
-      } catch (error) { setStatus(error.message, true); }
-      finally { button.disabled = false; }
-    });
-
     (async () => {
-      lastKontingentinnstillingar();
+      lastKolonnefilter();
       lastOversikt();
       const medlemmar = await hentMedlemmar();
       renderListe(medlemmar);
-      lastKolonnefilter();
     })();

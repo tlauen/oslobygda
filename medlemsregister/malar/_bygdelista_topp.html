@@ -1,8 +1,5 @@
 <header class="bygdelista-topp"><div><p class="arsmote-overline">Oslobygda kulturlag</p><p class="arsmote-merke">Bygdelista</p></div><div class="bygdelista-kontroll"><span class="arsmote-intern">For styret</span><form method="post" action="{{ prefix_url('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Logg ut</button></form></div></header>
-{% import '_bygdelista_menydata.html' as navigation with context %}
-<nav class="bygdelista-delar" aria-label="Delar av Bygdelista">{% for key,label,endpoint,items in navigation.modules %}<a href="{{ prefix_url(endpoint) }}"{% if navigation.active.key==key %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
-
-<link rel="stylesheet" href="{{ prefix_url('static',filename='skjemasteg.css',v='20261126') }}">
+<link rel="stylesheet" href="{{ prefix_url('static',filename='skjemasteg.css',v='20261127-design') }}">
 <script defer src="{{ prefix_url('static',filename='skjemasteg.js',v='20261126') }}"></script>
 <script defer src="{{ prefix_url('static',filename='skjema-retur.js',v='20261126-steg') }}"></script>
 

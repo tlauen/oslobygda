@@ -30,8 +30,17 @@
       {% endmacro %}
       {% if ledger_part=='oversikt' %}<p class="arsmote-ingress">Før innkome og utgifter, ta vare på bilaga og følg med på økonomien. Publisering og betalingsimport blir styrte frå eigne sider.</p>{% endif %}
       {% if ledger_part=='oversikt' %}
-        <aside class="rekneskap-hjelp">
-          <strong>Slik kjem du i gang</strong>
+        <p><a class="btn" href="{{ prefix_url('ledger_index',year=year,del='registrer') }}">Registrer post</a></p>
+        <dl class="rekneskap-nokkeltal" aria-label="Saldoar ved utgangen av valt år">
+          <div><dt>Bank per 31. desember</dt><dd>{{ ending.get('bank',0)|kroner }}</dd></div>
+          <div><dt>Private utlegg til gode</dt><dd>{{ (-ending.get('private',0))|kroner }}</dd></div>
+          <div><dt>Resultat i {{ year }}</dt><dd>{{ result|kroner }}</dd></div>
+        </dl>
+        <h2>Siste postar</h2>
+        {% with journals=journals[:5] %}{% include '_bokforte_postar.html' %}{% endwith %}
+        <p><a href="{{ prefix_url('ledger_index',year=year,del='postar') }}">Sjå alle bokførte postar</a></p>
+        <details class="rekneskap-hjelp">
+          <summary>Slik kjem du i gang</summary>
           <ol>
             <li>Registrer kva laget hadde og skulda ved starten av året, under «inngåande balanse».</li>
             <li>Last opp kvittering eller faktura under «Bilag».</li>
@@ -39,7 +48,7 @@
             <li>Samanlikn tala med bank og Vipps under «Avstem saldo».</li>
           </ol>
           <p>Ein <strong>post</strong> er ei registrert hending, til dømes eit kjøp. Eit <strong>bilag</strong> er dokumentasjonen som forklarer hendinga. Opplasting av eit bilag bokfører ikkje utgifta.</p>
-        </aside>
+        </details>
       {% endif %}
       {% if error %}
         <p role="alert" class="feil">{{ error }}</p>

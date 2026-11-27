@@ -1,0 +1,20 @@
+/* Oslobygda · godkjent designgrunnlag i Penpot. Felles for Jekyll og Flask. */
+:root {
+  --ob-paper:#fcf9f3; --ob-white:#fff; --ob-ink:#12110e; --ob-muted:#5e5c55;
+  --ob-line:#dedcd4; --ob-control:#77766e; --ob-forest:#1f4937; --ob-hover:#153426;
+  --ob-green:#a8d8a0; --ob-info:#fbedc0; --ob-focus:#206582;
+  --ob-error:#a12622; --ob-error-bg:#fdede9; --ob-ok:#e8f1e7;
+  --ob-radius:6px; --ob-field:48px; --ob-form:640px;
+  --ob-serif:"Fraunces",ui-serif,Georgia,"Times New Roman",serif;
+  --ob-sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ob-space-1:4px; --ob-space-2:8px; --ob-space-3:12px; --ob-space-4:16px;
+  --ob-space-6:24px; --ob-space-8:32px; --ob-space-12:48px; --ob-space-16:64px;
+}
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible {
+  outline:3px solid var(--ob-focus); outline-offset:3px;
+}
+:where(button,input,select,textarea) { font:inherit; }
+:where(button,summary,a) { touch-action:manipulation; }
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+}

@@ -79,6 +79,25 @@ Jekyll les malar frå `_utforming/` og komponentar frå `_tillegg/`, slik det er
 sett i `_config.yml`. `medlemsregister/`, `skript/` og `arkiv/` er ekskluderte
 frå nettsidebygget. `_site/` er generert utdata og skal ikkje redigerast.
 
+### Felles designsystem
+
+Det godkjende [Penpot-designsystemet](https://design.penpot.app/?screen=workspace&file-id=e7ca6b81-c0d3-8029-8009-01c396a6647c&page-id=e7ca6b81-c0d3-8029-8009-01c396a6647d)
+bruker papirbakgrunn, Fraunces, mørk grøne hovudknappar, gule infoboksar og
+kalenderkort som pastellfarga post-it-lappar. Framsida held på bilete, logo og
+kontingentmerket i skråstilt Fraunces. Foten har høgrestilt kontakt på datamaskin
+og midtstilt innhald på mobil.
+
+`lutar/designsystem.css` definerer felles verdiar. Jekyll lastar denne frå
+standardmalen; Flask leverer same fil under `/felles/designsystem.css`.
+`bygdelista.css` set saman administrative arbeidsflater, felt, status og
+navigasjon. `skjemasteg.css` gir presentasjonen til dei eksisterande stegskjemaa.
+Bruk desse kjeldene ved nye komponentar. Kontingentinnstillingar og avslutting
+av medlemsår ligg under **Økonomi → Kontingentår og fornying**.
+
+Kontroller nettlesarlogikken med `cd skript && npm test` i tillegg til
+Python-testane. Medlemslista har søk, status-/typefilter, namnesortering,
+sideinndeling og detaljvising. Lokal prøving skal bruke fiktive medlemsdata.
+
 ### Kalender
 
 Utan høveleg bilete: set `bilete: ""` eller vel «Tekstplakat utan bilete» i

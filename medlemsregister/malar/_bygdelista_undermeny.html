@@ -1,2 +1,7 @@
 {% import '_bygdelista_menydata.html' as navigation with context %}
+<details class="bygdelista-navigasjon" open>
+<summary>Meny</summary>
+<nav class="bygdelista-delar" aria-label="Delar av Bygdelista">{% for key,label,endpoint,items in navigation.modules %}<a href="{{ prefix_url(endpoint) }}"{% if navigation.active.key==key %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
 <nav class="bygdelista-undermeny" aria-label="{{ navigation.section }}">{% for endpoint,label,family in navigation.menu %}<a href="{{ prefix_url(endpoint) }}"{% if request.endpoint in family %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
+</details>
+<script defer src="{{ prefix_url('static',filename='bygdelista-nav.js') }}"></script>

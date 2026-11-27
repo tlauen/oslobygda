@@ -2,12 +2,12 @@
 .felles-kolofon__innhald{max-width:980px;margin:0 auto;padding:28px 20px 32px}
 .felles-kolofon__oversikt{display:flex;justify-content:space-between;gap:24px;text-align:left;align-items:baseline;margin-bottom:24px}
 .felles-kolofon strong{color:#12110e}.felles-kolofon p{margin:6px 0}
-.felles-kolofon address{font-style:normal;display:flex;flex-direction:column;gap:4px;scroll-margin-top:110px}
+.felles-kolofon address{text-align:right;align-items:flex-end;font-style:normal;display:flex;flex-direction:column;gap:4px;scroll-margin-top:110px}
 .felles-kolofon address span{font-size:13px}
 .felles-kolofon a{color:inherit;text-underline-offset:.2em}.felles-kolofon a:focus-visible{outline:3px solid #206582;outline-offset:4px}
 .felles-kolofon .felles-kolofon__lenkjer{font-size:13px;margin:0;line-height:1.9}
 .felles-kolofon__logo{margin:34px 0 12px}.felles-kolofon__logo img{display:inline-block;width:160px;height:160px;opacity:.85}
-@media(max-width:600px){.felles-kolofon__oversikt{flex-direction:column;gap:18px}.felles-kolofon__lenkjer a{display:inline-block}}
+@media(max-width:600px){.felles-kolofon__oversikt{flex-direction:column;gap:18px;text-align:center;align-items:center}.felles-kolofon address{text-align:center;align-items:center}.felles-kolofon__lenkjer a{display:inline-block}}
 
 .ordforklaring{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:help;text-decoration:underline dotted;text-underline-offset:.22em;text-decoration-thickness:1px}
 .ordforklaring:hover{color:#12110e}.ordforklaring:focus-visible,.ordforklaring-lukk:focus-visible{outline:3px solid #206582;outline-offset:4px}

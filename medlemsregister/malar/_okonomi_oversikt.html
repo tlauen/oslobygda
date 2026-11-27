@@ -1,4 +1,5 @@
 {% if ledger_part=='oversikt' %}
+<details{% if request.args.get('opning')=='1' %} open{% endif %}><summary>Balanse og inngåande saldoar</summary>
   <h2>Balanse per 31. desember {{ year }}</h2>
   <p class="feltforklaring">Oversikta viser kva laget eig og skuldar ut frå alle bokførte postar i året, også eventuelle fordelingar seinare i året. Dette er ikkje nødvendigvis saldoen i banken i dag.</p>
   <div class="tabell-rull" tabindex="0" role="region" aria-label="Intern balanse">
@@ -87,4 +88,5 @@
       <button>{{ 'Korriger full opningsbalanse' if opening_exists else 'Stadfest opningssaldoar' }}</button>
     </form>
   </details>
+</details>
 {% endif %}

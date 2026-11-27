@@ -33,37 +33,19 @@
 
   padding: 0;
 
-  border-radius: var(--kort-radius) !important;
+  border-radius: 0 !important;
   overflow: hidden;
-  border: 1px solid var(--line);
-  background: var(--panel);
-
-  transition: transform .15s ease, box-shadow .15s ease;
-
-  box-shadow:
-    0 2px 0 rgba(18,17,14,.06),
-    0 10px 24px rgba(0,0,0,.10);
+  border: 0;
+  background: var(--kort1);
 }
 
-.kalenderkort:hover{
-  transform: translateY(-4px);
-  box-shadow:
-    0 4px 0 rgba(18,17,14,.08),
-    0 16px 34px rgba(0,0,0,.16);
-}
-
-/* aksentstripe */
-.kalenderkort::before{
-  content:"";
-  display:block;
-  height: 6px;
-  opacity: .9;
-  background: linear-gradient(
-    90deg,
-    var(--accent) 0%,
-    var(--accent2) 50%,
-    var(--accent3) 100%
-  );
+.kalenderkort:hover::before { opacity: .10; }
+.kalenderkort::before {
+  content: "";
+  display: block;
+  height: 16px;
+  background: var(--text);
+  opacity: .05;
 }
 
 .kalenderkort__bilete-lenkje{
@@ -87,7 +69,7 @@
 }
 
 .kalenderkort__innhald{
-  padding: .85rem 1rem 1rem;
+  padding: 1.5rem;
 }
 
 .kalenderkort__dato{
@@ -98,7 +80,7 @@
 
 .kalenderkort__tittel{
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.75rem;
   font-family: var(--serif);
   line-height: 1.2;
 }
@@ -126,8 +108,7 @@
 }
 
 .kalenderkort--tidlegare{
-  opacity: .75;
-  filter: grayscale(.15);
+  /* Statusen er òg skriven i tekst; tidlegare kort held lesbar kontrast. */
 }
 
 /* standard-palett */
@@ -153,12 +134,10 @@
 /* Kompakt kalenderabonnement, lukka til lesaren opnar det. */
 .kalenderabonnement-infoboks {
   margin: 1.25rem 0 2rem;
-  border: 1px solid #9bbdd4;
-  border-left: .35rem solid #24618a;
-  border-radius: .75rem;
-  background: #e7f2fa;
-  color: #173d58;
-  box-shadow: 0 3px 10px rgba(23, 61, 88, .08);
+  border: 0;
+  border-radius: 0;
+  background: var(--ob-info);
+  color: var(--ob-ink);
 
   > summary {
     display: flex;
@@ -177,13 +156,15 @@
   > summary::after { content: "+"; font-size: 1.4rem; font-weight: 400; }
   &[open] > summary::after { content: "−"; }
   > summary:hover { background: rgba(36, 97, 138, .07); }
-  &[open] > summary { border-bottom: 1px solid #bcd3e3; }
+  &[open] > summary { border-bottom: 1px solid #ded5ae; }
 
   .knapp {
     display: inline-block;
-    padding: .6rem .9rem;
-    border-radius: .5rem;
-    background: #24618a;
+    padding: .75rem 1rem;
+    min-height: 48px;
+    box-sizing: border-box;
+    border-radius: var(--ob-radius);
+    background: var(--ob-forest);
     color: #fff;
     font-weight: 650;
     text-decoration: none;
@@ -201,8 +182,8 @@
   justify-content: center;
   flex: 0 0 1.8rem;
   height: 1.8rem;
-  background: #24618a;
-  color: #fff;
+  background: var(--ob-forest);
+  color: var(--ob-info);
   border-radius: 50%;
   font-family: Georgia, serif;
   font-style: italic;
