@@ -55,7 +55,7 @@
   font-size: inherit;
   line-height: inherit;
   vertical-align: top;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .bygdelista-kropp table thead th {
