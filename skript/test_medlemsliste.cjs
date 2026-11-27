@@ -127,7 +127,9 @@ test('Namnet opnar detaljar; den namngjevne handlingsmenyen verkar også frå ik
   d.getElementById('medlem-detalj-lukk').click();
   button.click();
   menu.querySelector('[data-action="edit"]').click();
-  assert.equal(d.getElementById('modal-dekke').classList.contains('er-skjult'), false);
+  await tick();
+  assert.equal(d.getElementById('modal-dekke').getAttribute('aria-hidden'), 'false');
+  assert.equal(d.getElementById('modal-dekke').style.display, 'flex');
   assert.equal(d.getElementById('medlem-id').value, '1');
   assert.equal(calls.some(([, options]) => ['POST', 'PUT', 'DELETE'].includes(options.method)), false);
   w.close();
