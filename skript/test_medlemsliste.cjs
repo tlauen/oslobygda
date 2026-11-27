@@ -112,9 +112,14 @@ test('Namnet opnar detaljar; den namngjevne handlingsmenyen verkar også frå ik
   const button = d.querySelector('.aksjonar-meny-knapp');
   const menu = d.getElementById(button.getAttribute('aria-controls'));
   assert.match(button.textContent, /Handlingar/);
+  button.getBoundingClientRect = () => ({top: 700, bottom: 744, right: 980});
+  menu.getBoundingClientRect = () => ({width: 180, height: 188});
   button.querySelector('path').dispatchEvent(new w.MouseEvent('click', {bubbles: true}));
   assert.equal(menu.hidden, false);
   assert.equal(button.getAttribute('aria-expanded'), 'true');
+  assert.ok(parseFloat(menu.style.top) + 188 < 700, 'Menyen må få plass over knappen nær botnen');
+  assert.ok(parseFloat(menu.style.left) >= 8);
+  assert.ok(parseFloat(menu.style.left) + 180 <= w.innerWidth - 8);
   d.dispatchEvent(new w.KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
   assert.equal(menu.hidden, true);
   assert.equal(d.activeElement, button);

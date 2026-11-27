@@ -218,11 +218,13 @@
       menu.classList.remove("aksjonar-meny--open-up");
       menu.hidden = false;
       const rect = knapp.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
       const plassUnder = window.innerHeight - rect.bottom;
-      const menuHeight = menu.getBoundingClientRect().height;
-      if (plassUnder < menuHeight + 4 && rect.top > plassUnder) {
-        menu.classList.add("aksjonar-meny--open-up");
-      }
+      const below = plassUnder >= menuRect.height + 4 || rect.top < menuRect.height + 4;
+      const top = below ? rect.bottom + 4 : rect.top - menuRect.height - 4;
+      // Fast plassering held menyen utanfor tabellramma si klipping.
+      menu.style.left = Math.max(8, Math.min(rect.right - menuRect.width, window.innerWidth - menuRect.width - 8)) + 'px';
+      menu.style.top = Math.max(8, Math.min(top, window.innerHeight - menuRect.height - 8)) + 'px';
       knapp.setAttribute("aria-expanded", "true");
       cell.classList.add("open");
     }
@@ -490,6 +492,11 @@
       lukkAlleAksjonarMenyer();
       openButton.focus();
     });
+
+    document.addEventListener('scroll', event => {
+      if (!event.target.closest?.('.aksjonar-meny')) lukkAlleAksjonarMenyer();
+    }, true);
+    window.addEventListener('resize', lukkAlleAksjonarMenyer);
 
     modal.addEventListener("click", (e) => { if (e.target === modal) lukkModal(); });
     betalingModal.addEventListener("click", (e) => { if (e.target === betalingModal) lukkBetalingModal(); });
