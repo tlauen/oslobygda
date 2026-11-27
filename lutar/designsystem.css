@@ -1,20 +1,91 @@
 /* Oslobygda · godkjent designgrunnlag i Penpot. Felles for Jekyll og Flask. */
 :root {
-  --ob-paper:#fcf9f3; --ob-white:#fff; --ob-ink:#12110e; --ob-muted:#5e5c55;
-  --ob-line:#dedcd4; --ob-control:#77766e; --ob-forest:#1f4937; --ob-hover:#153426;
-  --ob-green:#a8d8a0; --ob-info:#fbedc0; --ob-focus:#206582;
-  --ob-error:#a12622; --ob-error-bg:#fdede9; --ob-ok:#e8f1e7;
-  --ob-radius:6px; --ob-field:48px; --ob-form:640px;
+  --ob-paper:#fcf9f3;
+  --ob-white:#fff;
+  --ob-ink:#12110e;
+  --ob-muted:#5e5c55;
+  --ob-line:#dedcd4;
+  --ob-control:#77766e;
+  --ob-forest:#1f4937;
+  --ob-hover:#153426;
+  --ob-green:#a8d8a0;
+  --ob-info:#fbedc0;
+  --ob-focus:#206582;
+  --ob-error:#a12622;
+  --ob-error-bg:#fdede9;
+  --ob-ok:#e8f1e7;
+  --ob-radius:6px;
+  --ob-field:48px;
+  --ob-form:640px;
   --ob-serif:"Fraunces",ui-serif,Georgia,"Times New Roman",serif;
   --ob-sans:system-ui,-apple-system,"Segoe UI",sans-serif;
-  --ob-space-1:4px; --ob-space-2:8px; --ob-space-3:12px; --ob-space-4:16px;
-  --ob-space-6:24px; --ob-space-8:32px; --ob-space-12:48px; --ob-space-16:64px;
+  --ob-space-1:4px;
+  --ob-space-2:8px;
+  --ob-space-3:12px;
+  --ob-space-4:16px;
+  --ob-space-6:24px;
+  --ob-space-8:32px;
+  --ob-space-12:48px;
+  --ob-space-16:64px;
 }
+
 :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible {
-  outline:3px solid var(--ob-focus); outline-offset:3px;
+  outline:3px solid var(--ob-focus);
+  outline-offset:3px;
 }
-:where(button,input,select,textarea) { font:inherit; }
-:where(button,summary,a) { touch-action:manipulation; }
+
+:where(button,input,select,textarea) {
+  font:inherit;
+}
+
+:where(button,summary,a) {
+  touch-action:manipulation;
+}
+
 @media(prefers-reduced-motion:reduce) {
-  *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; animation:none!important; }
+  *,*::before,*::after {
+    scroll-behavior:auto!important;
+    transition:none!important;
+    animation:none!important;
+  }
+}
+
+/* Felles knappar i medlemsflyten og dei offentlege dokumenta. */
+.ob-button, .button, .arsmelding-tilbake, .toolbar button, .tabell-vising {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--ob-field);
+  padding: 12px 16px;
+  border: 1px solid var(--ob-control);
+  border-radius: var(--ob-radius);
+  background: transparent;
+  color: var(--ob-forest);
+  font: 600 16px/1.4 var(--ob-sans);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ob-button:hover, .button:hover, .arsmelding-tilbake:hover, .toolbar button:hover, .tabell-vising:hover {
+  background: var(--ob-ok);
+  text-decoration: none;
+}
+
+.button-primary, .toolbar button {
+  border-color: var(--ob-forest);
+  background: var(--ob-forest);
+  color: var(--ob-white);
+}
+
+.button-primary:hover, .toolbar button:hover {
+  border-color: var(--ob-hover);
+  background: var(--ob-hover);
+}
+
+.ob-button:disabled, .button:disabled, .tabell-vising:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }

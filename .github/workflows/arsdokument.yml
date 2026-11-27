@@ -14,6 +14,8 @@ on:
       - 'medlemsregister/malar/_arsmelding_vising.html'
       - 'medlemsregister/fast/arsmote-utskrift.css'
       - 'lutar/arsmelding-tilskipingar.css'
+      - 'lutar/designsystem.css'
+      - 'lutar/fonts/**'
       - 'skript/bygg_arsdokument.py'
       - '.github/workflows/arsdokument.yml'
   workflow_dispatch:

@@ -1,4 +1,5 @@
 """Éin offentleg dokumentmal for nett, intern førehandvising og PDF-bygg."""
+from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -52,5 +53,16 @@ def render_document(payload):
     html=env.get_template('arsmote_utskrift.html').render(kind=payload['kind'],report=payload,title=payload.get('title',f'Rekneskap {payload["report_year"]}'),structured_report=structured(payload))
     import re
     html=re.sub(r'<link rel="stylesheet" href="">','',html)
-    styles=(ROOT/'fast/arsmote-utskrift.css').read_text()+'\n'+(ROOT.parent/'lutar/arsmelding-tilskipingar.css').read_text()
-    return html.replace('</head>','<!-- arsmote-utskrift.css + arsmelding-tilskipingar.css --><style>'+styles+'</style></head>')
+    style_paths = (
+        ROOT.parent / 'lutar/designsystem.css',
+        ROOT / 'fast/arsmote-utskrift.css',
+        ROOT.parent / 'lutar/arsmelding-tilskipingar.css',
+    )
+    styles = '\n'.join(path.read_text() for path in style_paths)
+    # Sjølvstendige dokument skal ha same skjermfont utan nettavhengnad.
+    font = b64encode((ROOT.parent / 'lutar/fonts/fraunces-latin.woff2').read_bytes()).decode('ascii')
+    styles += (
+        '\n@font-face { font-family: Fraunces; font-style: normal; '
+        'font-weight: 450; src: url(data:font/woff2;base64,' + font + ') format("woff2"); }'
+    )
+    return html.replace('</head>','<!-- designsystem.css + arsmote-utskrift.css + arsmelding-tilskipingar.css --><style>'+styles+'</style></head>')
