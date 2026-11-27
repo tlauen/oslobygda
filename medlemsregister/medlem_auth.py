@@ -91,20 +91,20 @@ def send_code(email, code, purpose):
     )
     message.add_alternative(
         '<!doctype html>\n<html lang="nn"><body style="'
-        'font-family:Arial,sans-serif;font-size:16px;line-height:1.5;'
+        "font-family:Arial,sans-serif;font-size:16px;line-height:1.5;"
         'color:#182f27;background-color:#fffdf7;padding:24px;">\n'
-        '<p>Oslobygda kulturlag</p>\n'
+        "<p>Oslobygda kulturlag</p>\n"
         '<h1 style="font-size:22px;">Koden din</h1>\n'
         '<p style="margin:24px 0;"><strong style="font-size:32px;'
         'font-family:monospace;white-space:nowrap;">'
-        f'{escape(str(code))}</strong></p>\n'
-        f'<p>{escape(instruction)}</p>\n'
-        '<p>Koden gjeld i 10 minutt og kan berre brukast éin gong.</p>\n'
-        '<p>Me sender ingen innloggingslenkje. Ikkje del koden med andre, '
-        'heller ikkje nokon som seier dei er frå laget.</p>\n'
-        '<p>Dersom du ikkje bad om dette, kan du sjå bort frå meldinga.</p>\n'
-        '<p>Helsing Oslobygda kulturlag</p>\n'
-        '</body></html>',
+        f"{escape(str(code))}</strong></p>\n"
+        f"<p>{escape(instruction)}</p>\n"
+        "<p>Koden gjeld i 10 minutt og kan berre brukast éin gong.</p>\n"
+        "<p>Me sender ingen innloggingslenkje. Ikkje del koden med andre, "
+        "heller ikkje nokon som seier dei er frå laget.</p>\n"
+        "<p>Dersom du ikkje bad om dette, kan du sjå bort frå meldinga.</p>\n"
+        "<p>Helsing Oslobygda kulturlag</p>\n"
+        "</body></html>",
         subtype="html",
     )
     send_message(message)
