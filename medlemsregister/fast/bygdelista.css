@@ -59,6 +59,7 @@
 }
 
 .bygdelista-kropp table thead th {
+  overflow-wrap: normal;
   background: var(--ob-ok);
   color: var(--ob-forest);
   font-weight: 600;
