@@ -22,17 +22,19 @@ class MemberHelpTests(unittest.TestCase):
         from html.parser import HTMLParser
         class Navigation(HTMLParser):
             def __init__(self):
-                super().__init__(); self.kind=None; self.links={}; self.current={}
+                super().__init__(); self.kind=None; self.stack=[]; self.links={}; self.current={}; self.order=[]
             def handle_starttag(self,tag,attrs):
                 attrs=dict(attrs)
                 if tag=='nav':
+                    self.stack.append(self.kind)
                     self.kind=attrs.get('class'); self.links.setdefault(self.kind,[])
                 if tag=='a' and self.kind:
                     self.links[self.kind].append(attrs.get('href'))
+                    self.order.append((self.kind,attrs.get('href')))
                     if attrs.get('aria-current')=='page':
                         self.current.setdefault(self.kind,[]).append(attrs.get('href'))
             def handle_endtag(self,tag):
-                if tag=='nav': self.kind=None
+                if tag=='nav': self.kind=self.stack.pop()
         help_pages=[('/medlemsliste/hjelp','/'),('/okonomi/hjelp','/okonomi'),('/arsmote/hjelp','/arsmote'),('/nettsida/hjelp','/tilskipingar')]
         for path,_ in help_pages:
             self.assertEqual(self.client.get(path).status_code,302)
@@ -46,6 +48,12 @@ class MemberHelpTests(unittest.TestCase):
                 self.assertEqual(nav.current['bygdelista-delar'],[module_path])
                 self.assertEqual(nav.current['bygdelista-undermeny'],[path])
                 self.assertEqual(len(nav.links['bygdelista-delar']),4)
+                parent_index=nav.order.index(('bygdelista-delar',module_path))
+                submenu=nav.links['bygdelista-undermeny']
+                self.assertEqual(
+                    nav.order[parent_index+1:parent_index+1+len(submenu)],
+                    [('bygdelista-undermeny',href) for href in submenu],
+                )
                 self.assertEqual(self.client.post(path,data={'csrf_token':self.token()}).status_code,405)
         for endpoint,module_path in [('annual_fees','/okonomi'),('board_editor','/tilskipingar'),('event_editor','/tilskipingar')]:
             with fixtures.module.app.test_request_context('/'):

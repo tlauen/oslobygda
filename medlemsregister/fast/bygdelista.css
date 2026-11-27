@@ -52,10 +52,11 @@
 .bygdelista-kropp .medlemsskjema .knappar { margin:0; display:flex; flex-wrap:wrap; gap:16px; }
 .bygdelista-kropp details.bygdelista-navigasjon { border:0; margin:0 0 24px; }
 .bygdelista-navigasjon > summary { font-weight:600; color:var(--ob-forest); }
-.bygdelista-delar,.bygdelista-undermeny { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; background:none; border:0; border-radius:0; width:100%; }
+.bygdelista-delar,.bygdelista-undermeny { display:flex; flex-direction:column; gap:4px; margin:0; padding:0; background:none; border:0; border-radius:0; width:100%; }
 .bygdelista-delar a,.bygdelista-undermeny a { display:flex; align-items:center; min-height:48px; padding:12px; text-decoration:none; border:0; border-left:3px solid transparent; border-radius:0; box-shadow:none; font-weight:400; }
 .bygdelista-delar a[aria-current="page"],.bygdelista-undermeny a[aria-current="page"] { border-color:var(--ob-forest); color:var(--ob-forest); font-weight:600; background:var(--ob-ok); }
-.bygdelista-undermeny { margin:8px 0 16px; }
+.bygdelista-menygruppe { min-width:0; }
+.bygdelista-undermeny { box-sizing:border-box; margin:4px 0 12px; padding-left:16px; }
 .bygdelista-undermeny a { font-size:14px; }
 .bygdelista-navigasjon a:hover { background:var(--ob-ok); }
 .rekneskap-meny { display:flex; flex-wrap:wrap; gap:8px; margin:24px 0; padding:0 0 16px; background:transparent; border-bottom:1px solid var(--line); border-radius:0; }
@@ -68,8 +69,6 @@
  .bygdelista-kropp .omslag:has(.bygdelista-navigasjon) > .bygdelista-topp { margin-left:-256px; }
  .bygdelista-kropp details.bygdelista-navigasjon { position:absolute; top:144px; left:32px; width:208px; }
  .bygdelista-navigasjon > summary { display:none; }
- .bygdelista-delar,.bygdelista-undermeny { flex-direction:column; gap:4px; }
- .bygdelista-undermeny { padding-left:16px; }
 }
 @media(max-width:699px) {
  .bygdelista-kropp .omslag { padding:24px 24px 48px; }
