@@ -8,7 +8,7 @@ const script = fs.readFileSync(path.join(root, 'medlemsregister/fast/medlemslist
 const html = fs.readFileSync(path.join(root, 'medlemsregister/malar/index.html'), 'utf8').replace(/{%[\s\S]*?%}|{{[\s\S]*?}}/g, '');
 const members = Array.from({length:31}, (_,i) => ({id:i+1, fornamn:`Medlem ${String(i+1).padStart(2,'0')}`, etternamn:'Test', email:`member${i+1}@example.test`, membership_type:i%2?'kul':'vanleg', payment_status:i%2?'betalt':'ikkje betalt', total_paid_ore:0}));
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
-async function start(data=members, fail=false) {
+async function start(data=members, fail=false, savedPageSize) {
   const dom = new JSDOM(html, {url:'https://example.test/', runScripts:'outside-only'});
   const {window:w} = dom;
   w.Request = Request; w.Headers = Headers;
@@ -16,6 +16,7 @@ async function start(data=members, fail=false) {
   w.HTMLDialogElement.prototype.showModal = function() { this.open = true; };
   w.HTMLDialogElement.prototype.close = function() { this.open = false; };
   w.localStorage.setItem('bygdelista-kolonner',JSON.stringify({epost:false}));
+  if (savedPageSize !== undefined) w.localStorage.setItem('bygdelista-sidestorleik', savedPageSize);
   const calls=[];
   w.fetch = async (url, options={}) => {
     calls.push([url,options]);
@@ -27,6 +28,10 @@ async function start(data=members, fail=false) {
 }
 test('Søk, filter, sortering og sideinndeling verkar saman på heile medlemsutvalet', async () => {
   const {w,d} = await start();
+  assert.equal(d.querySelectorAll('#medlem-liste tr').length,31);
+  const size = d.getElementById('medlem-sidestorleik');
+  size.value = '25';
+  size.dispatchEvent(new w.Event('change'));
   assert.equal(d.querySelectorAll('#medlem-liste tr').length,25);
   assert.equal(d.getElementById('medlem-sidetal').textContent,'Side 1 av 2');
   d.getElementById('medlem-neste').click();
@@ -138,4 +143,42 @@ test('Namnet opnar detaljar; den namngjevne handlingsmenyen verkar også frå ik
   assert.equal(d.getElementById('medlem-id').value, '1');
   assert.equal(calls.some(([, options]) => ['POST', 'PUT', 'DELETE'].includes(options.method)), false);
   w.close();
+});
+
+test('Standard viser alle under 50 og 25 frå 50; eigne val blir hugsa', async () => {
+  const dataset = count => Array.from({length: count}, (_, index) => ({
+    ...members[index % members.length],
+    id: index + 1,
+    fornamn: `Medlem ${String(index + 1).padStart(2, '0')}`,
+  }));
+  for (const [count, expected] of [[0, 0], [49, 49], [50, 25], [51, 25]]) {
+    const {w, d} = await start(dataset(count));
+    assert.equal(d.querySelectorAll('#medlem-liste tr').length, expected);
+    assert.equal(d.getElementById('medlem-sidestorleik').value, 'auto');
+    assert.equal(d.getElementById('medlem-sidetal').textContent, count === 50 ? 'Side 1 av 2' : count > 50 ? 'Side 1 av 3' : 'Side 1 av 1');
+    // 50 medlemmar gir nøyaktig to sider, utan ei tom ekstraside.
+    if (count === 50) assert.equal(d.getElementById('medlem-sidetal').textContent, 'Side 1 av 2');
+    w.close();
+  }
+  const {w, d} = await start(dataset(51));
+  d.getElementById('medlem-neste').click();
+  const size = d.getElementById('medlem-sidestorleik');
+  size.value = '50';
+  size.dispatchEvent(new w.Event('change'));
+  assert.equal(d.querySelectorAll('#medlem-liste tr').length, 50);
+  assert.equal(d.getElementById('medlem-sidetal').textContent, 'Side 1 av 2');
+  assert.equal(w.localStorage.getItem('bygdelista-sidestorleik'), '50');
+  size.value = 'all';
+  size.dispatchEvent(new w.Event('change'));
+  assert.equal(d.querySelectorAll('#medlem-liste tr').length, 51);
+  assert.equal(d.getElementById('medlem-neste').disabled, true);
+  assert.equal(w.localStorage.getItem('bygdelista-sidestorleik'), 'all');
+  w.close();
+  const restored = await start(members, false, '25');
+  assert.equal(restored.d.querySelectorAll('#medlem-liste tr').length, 25);
+  restored.w.close();
+  const invalid = await start(members, false, '0');
+  assert.equal(invalid.d.querySelectorAll('#medlem-liste tr').length, 31);
+  assert.equal(invalid.d.getElementById('medlem-sidestorleik').value, 'auto');
+  invalid.w.close();
 });

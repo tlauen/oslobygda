@@ -278,3 +278,34 @@
 .bygdelista-kropp .arsmelding-lagringsstatus :is(h2, h3) {
   margin-top: 0;
 }
+
+/* Visingsval står ved treffoversikta og endrar berre sideinndelinga. */
+.medlem-listevising {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin: 16px 0;
+}
+
+.medlem-listevising > p {
+  margin: 0;
+}
+
+.medlem-sideval {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.medlem-sideval select {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--ob-control);
+  border-radius: var(--ob-radius);
+  background: var(--ob-white);
+  color: var(--ob-ink);
+  font: inherit;
+}

@@ -96,7 +96,15 @@
 
     let alleMedlemmar = [];
     let side = 1;
-    const sidestorleik = 25;
+    const sideval = document.getElementById('medlem-sidestorleik');
+    const sidevalKey = 'bygdelista-sidestorleik';
+    const gyldigeSideval = new Set(['auto', '25', '50', '100', 'all']);
+    try {
+      const lagraSideval = localStorage.getItem(sidevalKey);
+      sideval.value = gyldigeSideval.has(lagraSideval) ? lagraSideval : 'auto';
+    } catch (_) {
+      sideval.value = 'auto';
+    }
     const medlemSok = document.getElementById('medlem-soketekst');
     const statusFilter = document.getElementById('medlem-status');
     const typeFilter = document.getElementById('medlem-type');
@@ -116,6 +124,10 @@
         (!statusFilter.value || normaliser(m.payment_status) === normaliser(statusFilter.value)) &&
         (!typeFilter.value || medlemstypeVisningsnamn(m.membership_type) === typeFilter.value)
       ).sort((a, b) => (sortering.value === 'desc' ? -1 : 1) * collator.compare(visningsnamn(a), visningsnamn(b)) || Number(a.id) - Number(b.id));
+      const standardAlle = alleMedlemmar.length < 50;
+      sideval.querySelector('[value="auto"]').textContent = `Standard (${standardAlle ? 'alle' : '25'})`;
+      const visAlle = sideval.value === 'all' || (sideval.value === 'auto' && standardAlle);
+      const sidestorleik = visAlle ? Math.max(1, result.length) : Number(sideval.value === 'auto' ? 25 : sideval.value);
       const sider = Math.max(1, Math.ceil(result.length / sidestorleik));
       side = Math.min(side, sider);
       const start = (side - 1) * sidestorleik;
@@ -128,6 +140,15 @@
       document.getElementById('medlem-sidetal').textContent = `Side ${side} av ${sider}`;
     }
     function oppdaterUtval() { side = 1; visMedlemsutval(); }
+    sideval.addEventListener('change', () => {
+      if (!gyldigeSideval.has(sideval.value)) sideval.value = 'auto';
+      try {
+        localStorage.setItem(sidevalKey, sideval.value);
+      } catch (_) {
+        // Visingsvalet skal verke sjølv om nettlesaren ikkje kan lagre det.
+      }
+      oppdaterUtval();
+    });
     document.getElementById('medlem-sok').addEventListener('submit', event => { event.preventDefault(); oppdaterUtval(); });
     medlemSok.addEventListener('input', oppdaterUtval);
     for (const control of [statusFilter, typeFilter, sortering]) control.addEventListener('change', oppdaterUtval);

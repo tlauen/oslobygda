@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="api-prefix" content="{{ url_prefix }}">
-<script src="{{ prefix_url('static', filename='medlemsliste.js',v='20261127-handlingar') }}" defer></script>
+<script src="{{ prefix_url('static', filename='medlemsliste.js',v='20261127-sidestorleik') }}" defer></script>
 <link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}<link rel="stylesheet" href="{{ prefix_url('shared_fonts', filename='fraunces.css') }}">
 </head>
 <body class="bygdelista-kropp">
@@ -56,7 +56,18 @@
     </div>
       </details>
     </details>
-    <p id="medlem-treff" role="status" aria-live="polite"></p>
+    <div class="medlem-listevising">
+      <p id="medlem-treff" role="status" aria-live="polite"></p>
+      <label class="medlem-sideval" for="medlem-sidestorleik">Vis per side
+        <select id="medlem-sidestorleik" title="Standard viser alle under 50 medlemmar, elles 25 per side.">
+          <option value="auto">Standard</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="all">Alle</option>
+        </select>
+      </label>
+    </div>
     <p id="medlem-ingen" hidden>Ingen medlemmar funne. Prøv eit anna namn eller nullstill søk og filter.</p>
     <div class="tabell-ramme">
       <table id="medlemstabell">
