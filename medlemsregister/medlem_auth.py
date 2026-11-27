@@ -5,6 +5,7 @@ from betalingsstatus import Ordrestatus, Vippsstatus
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from email.utils import formatdate
+from html import escape
 import hashlib
 import hmac
 import re
@@ -84,9 +85,27 @@ def send_code(email, code, purpose):
         else "Skriv koden i det tilsvarande feltet på Mi side for å stadfeste e-postbytet."
     )
     message.set_content(
-        f"Koden din er: {code}\n\n{instruction}\nKoden gjeld i 10 minutt og kan berre brukast éin gong.\n\n"
+        f"Koden din er:\n\n{code}\n\n{instruction}\nKoden gjeld i 10 minutt og kan berre brukast éin gong.\n\n"
         "Me sender ingen innloggingslenkje. Ikkje del koden med andre, heller ikkje nokon som seier dei er frå laget.\n"
         "Dersom du ikkje bad om dette, kan du sjå bort frå meldinga.\n\nHelsing Oslobygda kulturlag"
+    )
+    message.add_alternative(
+        '<!doctype html>\n<html lang="nn"><body style="'
+        'font-family:Arial,sans-serif;font-size:16px;line-height:1.5;'
+        'color:#182f27;background-color:#fffdf7;padding:24px;">\n'
+        '<p>Oslobygda kulturlag</p>\n'
+        '<h1 style="font-size:22px;">Koden din</h1>\n'
+        '<p style="margin:24px 0;"><strong style="font-size:32px;'
+        'font-family:monospace;white-space:nowrap;">'
+        f'{escape(str(code))}</strong></p>\n'
+        f'<p>{escape(instruction)}</p>\n'
+        '<p>Koden gjeld i 10 minutt og kan berre brukast éin gong.</p>\n'
+        '<p>Me sender ingen innloggingslenkje. Ikkje del koden med andre, '
+        'heller ikkje nokon som seier dei er frå laget.</p>\n'
+        '<p>Dersom du ikkje bad om dette, kan du sjå bort frå meldinga.</p>\n'
+        '<p>Helsing Oslobygda kulturlag</p>\n'
+        '</body></html>',
+        subtype="html",
     )
     send_message(message)
 
