@@ -1,7 +1,52 @@
-<!doctype html><html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ public.title }} – fast versjon</title><link rel="stylesheet" href="{{ prefix_url('static',filename='stil.css') }}"><link rel="stylesheet" href="{{ prefix_url('static',filename='arsmote.css') }}"><link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}"><link rel="stylesheet" href="{{ prefix_url('shared_annual_events_css') }}">{% include '_favicon.html' %}</head><body class="arsmote-kropp bygdelista-kropp"><main class="omslag">{% include '_arsmote_nav.html' %}
-<a href="{{ prefix_url('annual_document',doc_id=version.document_id) }}">Til arbeidsutkastet</a>{% with document_url=prefix_url('annual_print',kind='arsmelding',version_id=version.id),document_title=public.title %}{% include '_dokument_ramme.html' %}{% endwith %}
-<h2>Førehandsvising for offentleg publisering</h2><p>Innhaldet ovanfor er teksten som blir lagd i kø. Intern brukarhistorikk følgjer ikkje med. Kontroller at teksten kan vere offentleg.</p>
-{% for message in get_flashed_messages(category_filter=['publisering']) %}<p role="status">{{ message }}</p>{% endfor %}
-{% if queued %}<p>Publiseringsstatus: {{ {'pending':'Ventar på sending','sending':'Sending pågår','stored':'Sendt til GitHub – ventar på nettsidebygg','visible':'Stadfesta synleg på nettsida','failed':'Sending feila'}.get(queued.status,queued.status) }}.</p>{% if queued.last_error %}<p role="alert">{{ queued.last_error }}</p>{% endif %}{% endif %}
-{% if not queued or queued.status!='visible' %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label><input type="checkbox" name="confirmed" value="yes" required> Eg har kontrollert at teksten kan publiserast offentleg.</label><button>{{ 'Kontroller publisering / prøv igjen' if queued else 'Publiser årsmeldinga' }}</button></form>{% endif %}
-</main></body></html>
+<!doctype html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ public.title }} – fast versjon</title>
+  <link rel="stylesheet" href="{{ prefix_url('static',filename='stil.css') }}">
+  <link rel="stylesheet" href="{{ prefix_url('static',filename='arsmote.css') }}">
+  <link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">
+  <link rel="stylesheet" href="{{ prefix_url('shared_annual_events_css') }}">
+  {% include '_favicon.html' %}
+</head>
+<body class="arsmote-kropp bygdelista-kropp">
+<main class="omslag">
+  {% include '_arsmote_nav.html' %}
+  <p><a href="{{ prefix_url('annual_document',doc_id=version.document_id) }}">Tilbake til arbeidsutkastet</a></p>
+  <h1>{{ public.title }} – versjon {{ version.id }}</h1>
+  <section class="arsmelding-lagringsstatus" aria-labelledby="publiseringsstatus">
+    <h2 id="publiseringsstatus">Publiseringsstatus</h2>
+    {% for message in get_flashed_messages(category_filter=['publisering']) %}
+      <p role="status">{{ message }}</p>
+    {% endfor %}
+    <p><strong>{{ publication_labels[queued.status if queued else none] }}</strong></p>
+    <p>Dette er ein fast kopi laga {{ version.created_at|lesbart_tidspunkt }} frå revisjon {{ version.source_revision }}.
+      Redigering i arbeidsutkastet endrar ikkje denne kopien.</p>
+    {% if queued and queued.last_error %}<p role="alert" class="feil">{{ queued.last_error }}</p>{% endif %}
+    {% if queued and queued.status == 'visible' %}
+      <p>Innhaldet er stadfesta i den offentlege eksporten.
+        <a href="https://oslobygda.no/om/arsmeldingar/{{ public.report_year }}/" target="_blank" rel="noopener">Opne årsmeldinga på nettsida</a> for å kontrollere visinga.
+        Nettsida prioriterer ei godkjend årsmelding framfor eit førebels framlegg.</p>
+    {% else %}
+      {% if queued and queued.status == 'stored' %}
+        <p>Innhaldet er sendt. Nettside og PDF blir bygde etterpå. Vent litt og kontroller publiseringa med knappen under.</p>
+      {% elif queued and queued.status == 'failed' %}
+        <p>Den faste kopien er teken vare på. Rett årsaka ovanfor og prøv publiseringa igjen.</p>
+      {% elif not queued %}
+        <p>Kopien er berre lagra internt. Kontroller teksten nedanfor før du publiserer.</p>
+      {% endif %}
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label><input type="checkbox" name="confirmed" value="yes" required> Eg har kontrollert at teksten kan publiserast offentleg.</label>
+        <button>{{ 'Kontroller publisering / prøv igjen' if queued else 'Publiser denne kopien' }}</button>
+      </form>
+    {% endif %}
+  </section>
+  <h2>Innhaldet i denne kopien</h2>
+  {% with document_url=prefix_url('annual_print',kind='arsmelding',version_id=version.id), document_title=public.title %}
+    {% include '_dokument_ramme.html' %}
+  {% endwith %}
+</main>
+</body>
+</html>

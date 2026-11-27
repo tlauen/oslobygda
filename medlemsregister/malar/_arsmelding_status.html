@@ -1,0 +1,32 @@
+<section class="arsmelding-lagringsstatus" aria-labelledby="arsmelding-status-tittel">
+  <h3 id="arsmelding-status-tittel">Lagring og publisering</h3>
+  <p><strong>Arbeidsutkast:</strong> lagra {{ doc.updated_at|lesbart_tidspunkt }} av {{ doc.updated_by }}. Revisjon {{ doc.revision }}.</p>
+  {% if publication.latest %}
+    {% set latest = publication.latest %}
+    <p><strong>Siste faste kopi:</strong>
+      <a href="{{ prefix_url('annual_version', version_id=latest.id) }}">Versjon {{ latest.id }}</a>,
+      {{ 'godkjend av årsmøtet' if latest.status == 'approved' else 'framlegg til årsmøtet' }},
+      laga {{ latest.created_at|lesbart_tidspunkt }}.
+    </p>
+    <p><strong>Publisering av denne kopien:</strong> {{ publication_labels[latest.publication_status] }}.</p>
+    {% if latest.last_error %}<p class="feil" role="alert">{{ latest.last_error }}</p>{% endif %}
+    {% if publication.draft_changed %}
+      <p>Arbeidsutkastet har endringar som ikkje er med i den siste faste kopien. Lagre og publiser på nytt når endringane skal ut.</p>
+    {% else %}
+      <p>Det lagra utkastet samsvarer med den siste faste kopien.</p>
+    {% endif %}
+    <p><a class="btn sekundaer" href="{{ prefix_url('annual_version', version_id=latest.id) }}">Sjå kopi og kontroller publisering</a></p>
+  {% else %}
+    <p><strong>Publisering:</strong> Ingen fast kopi er laga eller send til nettsida enno.</p>
+  {% endif %}
+  {% if publication.confirmed %}
+    <p>Sist stadfesta levert til nettsida: versjon {{ publication.confirmed.id }}.
+      <a href="https://oslobygda.no/om/arsmeldingar/{{ doc.report_year }}/" target="_blank" rel="noopener">Opne årsmeldinga på nettsida</a>.
+      Nettsida prioriterer ei godkjend årsmelding framfor eit førebels framlegg.
+    </p>
+  {% endif %}
+  <p>1. Rediger og <strong>lagre utkast</strong>. 2. Kontroller førehandsvisinga.
+    3. Vel <strong>Lagre og publiser framlegg</strong> når teksten skal på nettsida.
+    Etter årsmøtet bruker du publisering av godkjend årsmelding med vedtaksdato.
+  </p>
+</section>

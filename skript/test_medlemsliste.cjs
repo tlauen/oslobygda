@@ -60,20 +60,46 @@ test('API-feil blir viste som feil, ikkje som ei tom medlemsliste', async () => 
   w.close();
 });
 
-test('Kontingentinnstillingar blir lagra frå økonomisida med CSRF og feilhandtering', async () => {
-  const source=fs.readFileSync(path.join(root,'medlemsregister/malar/kontingent.html'),'utf8').replace(/{%[\s\S]*?%}|{{[\s\S]*?}}/g,'');
-  const dom=new JSDOM(source,{url:'https://example.test/kontingent',runScripts:'outside-only'});
-  const {window:w}=dom;const d=w.document;d.querySelector('meta[name="csrf-token"]').content='test-csrf';
-  const calls=[];
-  w.fetch=async (url,options)=>{calls.push([url,options]);return {ok:true,json:async()=>String(url).endsWith('medlemsoversikt')?{medlemsbetalingsar:2026}:{superkul_grense_ore:500}};};
-  w.eval(fs.readFileSync(path.join(root,'medlemsregister/fast/kontingent-innstillingar.js'),'utf8'));
-  await tick();await tick();
-  const field=d.getElementById('superkul-grense');assert.equal(field.value,'5.00');assert.equal(field.disabled,false);
-  field.value='10';d.getElementById('kontingent-innstillingar').dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
-  const write=calls.find(([,o])=>o.method==='PUT');assert.ok(write);assert.equal(write[1].headers['X-CSRF-Token'],'test-csrf');
-  assert.equal(JSON.parse(write[1].body).superkul_grense_nok,'10');assert.match(d.getElementById('kontingent-status').textContent,/lagra/);
-  w.fetch=async()=>({ok:false,json:async()=>({error:'Satsen er låst'})});
-  d.getElementById('kontingent-innstillingar').dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
-  assert.match(d.getElementById('kontingent-status').textContent,/Satsen er låst/);assert.equal(d.getElementById('lagre-kontingent').disabled,false);
+test('Årssatsar bruker eitt vanleg skjema; avslutting krev stadfesting og CSRF', async () => {
+  const source = fs.readFileSync(path.join(root, 'medlemsregister/malar/kontingent.html'), 'utf8')
+    .replace(/{%[\s\S]*?%}|{{[\s\S]*?}}/g, '');
+  const dom = new JSDOM(source, {url: 'https://example.test/kontingent', runScripts: 'outside-only'});
+  const {window: w} = dom;
+  const d = w.document;
+  d.querySelector('meta[name="csrf-token"]').content = 'test-csrf';
+  const calls = [];
+  let year = 2026;
+  w.fetch = async (url, options) => {
+    calls.push([url, options]);
+    if (options.method === 'POST') year = 2027;
+    return {ok: true, json: async () => ({medlemsbetalingsar: year, message: 'Medlemsåret er avslutta.'})};
+  };
+  w.eval(fs.readFileSync(path.join(root, 'medlemsregister/fast/kontingent-innstillingar.js'), 'utf8'));
+  await tick();
+  await tick();
+  const close = d.getElementById('btn-lukk-medlemsar');
+  assert.equal(close.disabled, false);
+  d.getElementById('kontingent-innstillingar').dispatchEvent(new w.Event('submit', {cancelable: true}));
+  assert.equal(calls.filter(([, options]) => options.method).length, 0);
+  w.confirm = () => false;
+  close.click();
+  await tick();
+  assert.equal(calls.filter(([, options]) => options.method).length, 0);
+  w.confirm = () => true;
+  w.prompt = () => '2026';
+  close.click();
+  await tick();
+  await tick();
+  const write = calls.find(([, options]) => options.method === 'POST');
+  assert.equal(write[1].headers['X-CSRF-Token'], 'test-csrf');
+  assert.deepEqual(JSON.parse(write[1].body), {bekreft_ar: 2026});
+  assert.match(close.textContent, /2027/);
+  assert.equal(close.disabled, false);
+  w.prompt = () => '2027';
+  w.fetch = async () => ({ok: false, json: async () => ({error: 'Året kunne ikkje avsluttast'})});
+  close.click();
+  await tick();
+  assert.match(d.getElementById('kontingent-status').textContent, /kunne ikkje avsluttast/);
+  assert.equal(close.disabled, false);
   w.close();
 });

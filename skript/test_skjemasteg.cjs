@@ -188,3 +188,27 @@ if (rendered['/okonomi?year=2026&del=kontroll']) {
     window.close();
   });
 }
+
+test('Årsmeldinga viser ulagrede endringar og vernar dei ved andre handlingar', {skip: !rendered['/arsmote/1']}, async () => {
+  const instance = await dom(rendered['/arsmote/1']);
+  const w = instance.window;
+  const d = w.document;
+  for (const inline of d.querySelectorAll('script:not([src])')) w.eval(inline.textContent);
+  const editor = d.getElementById('report-form');
+  const title = editor.querySelector('[name="title"]');
+  input(w, title, 'Endra tittel som ikkje er lagra');
+  assert.match(d.getElementById('arsmelding-endringsstatus').textContent, /ikkje er lagra/);
+  const leaving = new w.Event('beforeunload', {cancelable: true});
+  w.dispatchEvent(leaving);
+  assert.equal(leaving.defaultPrevented, true);
+  w.confirm = () => false;
+  const other = [...d.forms].find(form => form !== editor);
+  const switching = new w.Event('submit', {bubbles: true, cancelable: true});
+  other.dispatchEvent(switching);
+  assert.equal(switching.defaultPrevented, true);
+  assert.equal(title.value, 'Endra tittel som ikkje er lagra');
+  const saving = new w.Event('submit', {bubbles: true, cancelable: true});
+  editor.dispatchEvent(saving);
+  assert.equal(saving.defaultPrevented, false);
+  w.close();
+});

@@ -1,5 +1,11 @@
 # Offentleg rekneskap og årsdokument – steg 6
 
+Styret kan publisere ei årsmelding frå redigeraren med **Lagre og publiser framlegg**,
+eller frå ein fast kopi. Desse knappane prøver å sende berre den valde kopien;
+lagring av utkast og vanleg sidevising startar inga overføring. Etter sending viser
+kopisida resultatet og tilbyr kontroll eller nytt forsøk. Sjå
+[ARSDOKUMENT.md](ARSDOKUMENT.md) for den daglege arbeidsflyten.
+
 ## Kva styret gjer
 
 Frå intern rekneskap: opne **Førehandsvis offentleg rekneskap og kontroller publisering**.

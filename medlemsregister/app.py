@@ -533,7 +533,9 @@ app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
 from kontingent import install_renewals
-install_renewals(app,get_db,require_admin)
+install_renewals(
+    app, get_db, require_admin, _get_medlemsbetalingsar, _oppdater_alle_fra_innbetalingar
+)
 from offentleg_kontingent import install_public_rates
 install_public_rates(app, get_db)
 from personvern_vedlikehald import install_retention

@@ -266,7 +266,7 @@ class Renewals:
         return state
 
 
-def install_renewals(app, get_db, require_admin):
+def install_renewals(app, get_db, require_admin, get_membership_year, refresh_members):
     links = Renewals(get_db)
     app.extensions["renewals"] = links
 
@@ -298,6 +298,8 @@ def install_renewals(app, get_db, require_admin):
                     with managed_db(get_db, commit_on_success=False) as db:
                         db.execute("BEGIN IMMEDIATE")
                         save_period(db, request.form)
+                        if int(request.form["year"]) == get_membership_year(db):
+                            refresh_members(db)
                         db.commit()
                     message = "Kontingentåret er lagra."
                 elif action in ("link", "send"):
@@ -335,8 +337,46 @@ def install_renewals(app, get_db, require_admin):
                     "SELECT id,full_name FROM members WHERE privacy_deleted=0 ORDER BY full_name"
                 )
             ]
+        try:
+            selected_year = int(request.args.get("year", today().year))
+            if request.method == "POST" and request.form.get("action") == "save":
+                selected_year = int(request.form.get("year", selected_year))
+            if not 2026 <= selected_year <= 2100:
+                raise ValueError()
+        except (TypeError, ValueError):
+            abort(400)
+        selected_policy = next(
+            (p for p in policies if p["year"] == selected_year), None
+        )
+        values = {
+            "minimum": ""
+            if not selected_policy or selected_policy["minimum_ore"] is None
+            else f"{selected_policy['minimum_ore'] / 100:.2f}",
+            "threshold": ""
+            if not selected_policy or selected_policy["superkul_ore"] is None
+            else f"{selected_policy['superkul_ore'] / 100:.2f}",
+            "opens_on": selected_policy["opens_on"]
+            if selected_policy
+            else f"{selected_year}-01-01",
+            "approved": bool(selected_policy and selected_policy["approved"]),
+            "approved_on": selected_policy["approved_on"] if selected_policy else "",
+        }
+        if error and request.form.get("action") == "save":
+            values.update({key: request.form.get(key, "") for key in values})
+            values["approved"] = request.form.get("approved") == "1"
+        with managed_db(get_db, commit_on_success=False) as db:
+            locked = bool(
+                db.execute(
+                    "SELECT 1 FROM signup_orders WHERE for_year=? AND environment='production' AND create_attempted=1 LIMIT 1",
+                    (selected_year,),
+                ).fetchone()
+            )
         return render_template(
             "kontingent.html",
+            selected_year=selected_year,
+            vipps_environment=os.environ.get("VIPPS_SIGNUP_MODE", "disabled"),
+            values=values,
+            locked=locked,
             policies=policies,
             members=members,
             error=error,

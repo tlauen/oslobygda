@@ -197,3 +197,16 @@
 .arsmote-hopp { position:absolute; top:-100px; left:16px; padding:12px; background:var(--ob-white); z-index:200; }
 .arsmote-hopp:focus { top:16px; }
 @media(max-width:699px) { .medlem-hovudhandlingar > * { width:100%; } }
+
+/* Lagring og levering er ulike steg og skal vere synlege ved redigering. */
+.bygdelista-kropp .arsmelding-lagringsstatus {
+  margin: 24px 0;
+  padding: 24px;
+  border-left: 4px solid var(--ob-forest);
+  border-radius: var(--ob-radius);
+  background: var(--ob-info);
+}
+
+.bygdelista-kropp .arsmelding-lagringsstatus :is(h2, h3) {
+  margin-top: 0;
+}

@@ -292,6 +292,41 @@ class Documents:
                 (version_id, payload, digest(payload), actor, stamp()))
 
 
+
+PUBLICATION_LABELS = {
+    None: "Ikkje sendt til nettsida",
+    "pending": "Ventar på sending",
+    "sending": "Sending pågår",
+    "stored": "Sendt – ventar på nettsidebygg",
+    "visible": "Publisering stadfesta",
+    "failed": "Publisering feila",
+}
+
+
+def publication_state(db, doc):
+    """Les lagring og leveringsstatus utan å starte publisering på sidevising."""
+    versions = db.execute(
+        """SELECT v.id, v.document_id, v.source_revision, v.status,
+            v.content_hash, v.created_at, v.decision_date,
+            q.status AS publication_status, q.last_error
+        FROM annual_versions v
+        LEFT JOIN annual_publication_queue q ON q.version_id=v.id
+        WHERE v.document_id=? ORDER BY v.id DESC""",
+        (doc["id"],),
+    ).fetchall()
+    latest = versions[0] if versions else None
+    confirmed = next((v for v in versions if v["publication_status"] == "visible"), None)
+    snapshot = canonical({key: doc[key] for key in (
+        "kind", "report_year", "meeting_year", "title", "body", "report_json"
+    )})
+    return {
+        "versions": versions,
+        "latest": latest,
+        "confirmed": confirmed,
+        "draft_changed": bool(latest and digest(snapshot) != latest["content_hash"]),
+    }
+
+
 def install_documents(app, get_db, require_admin):
     service = Documents(get_db)
     app.extensions['annual_documents'] = service
@@ -310,7 +345,11 @@ def install_documents(app, get_db, require_admin):
                 error, status = str(exc), 400
         with managed_db(get_db) as db:
             docs = db.execute('SELECT * FROM annual_documents ORDER BY report_year DESC,kind').fetchall()
-        return render_template('arsdokument.html', docs=docs, doc=None, error=error, year=today().year), status
+            publication_by_doc = {doc['id']: publication_state(db, doc) for doc in docs}
+        return render_template(
+            'arsdokument.html', docs=docs, doc=None, error=error, year=today().year,
+            publication_by_doc=publication_by_doc, publication_labels=PUBLICATION_LABELS,
+        ), status
 
     @app.route('/arsmote/<int:doc_id>', methods=['GET','POST'])
     @require_admin
@@ -345,6 +384,7 @@ def install_documents(app, get_db, require_admin):
                     from publisering import publish_from_button
 
                     publish_from_button(app, ("annual", vid))
+                    return redirect(app.jinja_env.globals['prefix_url']('annual_version', version_id=vid))
                 elif action == "save":
                     service.save(
                         doc_id,
@@ -383,8 +423,15 @@ def install_documents(app, get_db, require_admin):
                         from publisering import publish_from_button
 
                         publish_from_button(app, ("annual", vid))
+                        return redirect(app.jinja_env.globals['prefix_url']('annual_version', version_id=vid))
                 else:
                     raise ValueError("Ugyldig handling.")
+                message = (
+                    "Den faste kopien er lagra internt. Nettsida er ikkje endra."
+                    if action == "freeze"
+                    else "Arbeidsutkastet er lagra. Nettsida er ikkje endra."
+                )
+                flash(message, "lagring")
                 return redirect(app.jinja_env.globals['prefix_url']('annual_document', doc_id=doc_id))
             except (ValueError, CalendarError) as exc:
                 error = str(exc)
@@ -393,9 +440,11 @@ def install_documents(app, get_db, require_admin):
             doc = db.execute('SELECT * FROM annual_documents WHERE id=?', (doc_id,)).fetchone()
             if not doc:
                 abort(404)
-            versions = db.execute('SELECT * FROM annual_versions WHERE document_id=? ORDER BY id DESC', (doc_id,)).fetchall()
+            publication = publication_state(db, doc)
+            versions = publication['versions']
         return render_template('arsdokument.html', doc=doc, versions=versions, error=error,
-                               submitted=request.form if status != 200 else {}, report=report_from(doc), activity_statuses=STATUSES,conflict=status==409), status
+                               submitted=request.form if status != 200 else {}, report=report_from(doc), activity_statuses=STATUSES, conflict=status==409, publication=publication,
+                               publication_labels=PUBLICATION_LABELS), status
 
     @app.get('/arsmote/styrebilete/<filename>')
     @require_admin
@@ -431,4 +480,8 @@ def install_documents(app, get_db, require_admin):
             return redirect(app.jinja_env.globals['prefix_url']('annual_version', version_id=version_id))
         with managed_db(get_db) as db:
             queued = db.execute('SELECT status,last_error FROM annual_publication_queue WHERE version_id=?', (version_id,)).fetchone()
-        return render_template('arsversjon.html', version=row, public=public_payload(row), queued=queued, report=json.loads(json.loads(row['snapshot']).get('report_json','{}')))
+        return render_template(
+            'arsversjon.html', version=row, public=public_payload(row), queued=queued,
+            publication_labels=PUBLICATION_LABELS,
+            report=json.loads(json.loads(row['snapshot']).get('report_json','{}')),
+        )

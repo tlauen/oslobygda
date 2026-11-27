@@ -1,20 +1,87 @@
-<!doctype html><html lang="nn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kontingentår – Bygdelista</title><link rel="stylesheet" href="{{ prefix_url('static',filename='stil.css') }}"><link rel="stylesheet" href="{{ prefix_url('static',filename='bygdelista.css') }}">{% include '_favicon.html' %}<meta name="csrf-token" content="{{ csrf_token() }}"><meta name="api-prefix" content="{{ url_prefix }}"><script defer src="{{ prefix_url('static',filename='kontingent-innstillingar.js') }}"></script></head><body class="bygdelista-kropp"><main class="omslag">{% include '_bygdelista_topp.html' %}{% include '_bygdelista_undermeny.html' %}<header class="toppfelt"><h1>Kontingentår og fornying</h1></header>
-{% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}{% if message %}<p role="status">{{ message }}</p>{% endif %}
-<p>2027 skal opnast etter årsmøtet i 2027. Frå 2028 kan årsmøtet vedta satsane året før, med opning 1. januar. Det er aldri mogleg å betale før kalenderåret byrjar.</p>
-{% for p in policies %}<p><strong>{{ p.year }}</strong>: {{ p.minimum_ore/100 if p.minimum_ore is not none else 'Ikkje vedteke' }} kr minimum; Superkul over {{ p.superkul_ore/100 if p.superkul_ore is not none else '—' }} kr. Opnar {{ p.opens_on }}. {{ 'Vedteke '+p.approved_on if p.approved else 'Stengt – manglar vedtak' }}.</p>{% endfor %}
-<p id="kontingent-status" role="status" aria-live="polite"></p>    <details>
-      <summary>Kontingentinnstillingar</summary>
-      <form id="kontingent-innstillingar" class="medlemsskjema">
-        <label for="superkul-grense">Grense for Superkul (kr)</label>
-        <input id="superkul-grense" type="number" min="0" step="0.01" required disabled>
-        <p>Meir enn grensa samla i gjeldande medlemsår gir Superkul; opp til grensa gir Kul. Registrert innbetaling gir Betalt. Styret blir ikkje endra automatisk. Endring av grensa oppdaterer også eksisterande innbetalingar for gjeldande år.</p>
-        <button type="submit" id="lagre-kontingent" disabled>Lagre grense</button>
-      </form>
-    </details>
-<details><summary>Avslutt medlemsåret</summary><p>Dette avsluttar medlemsåret, ikkje rekneskapsåret. Kontroller betalingane og ta verifisert backup først.</p><button type="button" id="btn-lukk-medlemsar" class="sekundaer" disabled>Lukk medlemsår</button></details><h2>Legg inn eller oppdater eit år</h2><form method="post" class="innmelding-skjema medlemsskjema" data-steg="kontingent"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="save">
-{% for name,label,type,value in [('year','Kontingentår','number',year+1),('minimum','Minimumssats (kr)','number',''),('threshold','Superkul ved meir enn (kr)','number',''),('opens_on','Opningsdato','date',''),('approved_on','Dato for årsmøtevedtak','date','')] %}<div class="felt"><label>{{ label }}<input name="{{ name }}" type="{{ type }}" value="{{ value }}" {% if name in ('minimum','threshold') %}step="0.01" min="1"{% endif %} required></label></div>{% endfor %}
-<label><input type="checkbox" name="approved" value="1"> Satsane er vedtekne av årsmøtet</label><p>Satsar blir låste etter at ei produksjonsbetaling er starta. Kontroller beløpa før opning.</p><button>Lagre kontingentåret</button></form>
-<h2>Påminning om fornying</h2><p>Vel ein medlem og år. «Send påminning» sender berre til denne medlemmen og ber dei gå til Oslobygda-nettsida og velje Mi side. E-posten inneheld inga personleg betalingslenkje. Betalte og gratis medlemskap blir hoppa over. Ingen masseutsending blir utført.</p>
-<form method="post" class="medlemsskjema"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Medlem <select name="member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select></label><label>År <input name="year" type="number" value="{{ year }}" required></label><button name="action" value="link">Lag testlenkje</button><button name="action" value="send">Send påminning</button></form>
-{% if test_url %}<p><a href="{{ test_url }}" rel="noreferrer">Opne personleg testlenkje</a></p>{% endif %}
-</main></body></html>
+<!doctype html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kontingentår – Bygdelista</title>
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='stil.css') }}">
+  <link rel="stylesheet" href="{{ prefix_url('static', filename='bygdelista.css') }}">
+  {% include '_favicon.html' %}
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="api-prefix" content="{{ url_prefix }}">
+  <script defer src="{{ prefix_url('static', filename='kontingent-innstillingar.js', v='20261127-samla') }}"></script>
+</head>
+<body class="bygdelista-kropp">
+<main class="omslag">
+  {% include '_bygdelista_topp.html' %}
+  {% include '_bygdelista_undermeny.html' %}
+  <header class="toppfelt"><h1>Kontingentår og fornying</h1></header>
+  {% if error %}<p class="feil" role="alert">{{ error }}</p>{% endif %}
+  {% if message %}<p role="status">{{ message }}</p>{% endif %}
+
+  <h2>Kontingentsatsar</h2>
+  <p>Vel året du vil sjå eller endre. Minimumssatsen og Superkul-grensa blir lagra samla for kvart år og brukte både ved betaling og i medlemslista.</p>
+  <form method="get" class="medlemsskjema">
+    <label for="vel-kontingentar">Kontingentår</label>
+    <input id="vel-kontingentar" name="year" type="number" min="2026" max="2100" value="{{ selected_year }}" required>
+    <button class="sekundaer">Opne året</button>
+  </form>
+  <p>Registrerte år:
+    {% for policy in policies %}
+      <a href="{{ prefix_url('annual_fees', year=policy.year) }}" {% if policy.year == selected_year %}aria-current="page"{% endif %}>{{ policy.year }}</a>{% if not loop.last %} · {% endif %}
+    {% endfor %}
+  </p>
+
+  <h3>Innstillingar for {{ selected_year }}</h3>
+  {% if locked %}
+    <p>Satsane er låste fordi det er starta reelle betalingar for {{ selected_year }}. Dei kan ikkje endrast her.</p>
+  {% endif %}
+  <form method="post" id="kontingent-innstillingar" class="medlemsskjema">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="save">
+    <input type="hidden" name="year" value="{{ selected_year }}">
+    <div class="felt">
+      <label for="minimumssats">Minimumssats (kr)</label>
+      <input id="minimumssats" name="minimum" type="number" min="1" step="0.01" value="{{ values.minimum }}" required {% if locked %}readonly{% endif %}>
+    </div>
+    <div class="felt">
+      <label for="superkul-grense">Superkul ved meir enn (kr)</label>
+      <input id="superkul-grense" name="threshold" type="number" min="1" step="0.01" value="{{ values.threshold }}" required {% if locked %}readonly{% endif %}>
+      <p class="feltforklaring">Meir enn denne grensa i samla innbetaling for året gir Superkul. Endrar du grensa for gjeldande medlemsår, blir medlemstypane oppdaterte. Styremedlemmar held på typen sin.</p>
+    </div>
+    <label for="opningsdato">Opningsdato</label>
+    <input id="opningsdato" name="opens_on" type="date" value="{{ values.opens_on }}" required>
+    <label>
+      <input type="checkbox" name="approved" value="1" {% if values.approved %}checked{% endif %}>
+      Satsane er vedtekne av årsmøtet
+    </label>
+    <label for="vedtaksdato">Dato for årsmøtevedtak</label>
+    <input id="vedtaksdato" name="approved_on" type="date" value="{{ values.approved_on }}">
+    <p>2027 skal opnast etter årsmøtet i 2027. Frå 2028 kan satsane vedtakast året før. Betaling opnar aldri før kalenderåret byrjar og satsane er vedtekne.</p>
+    <button type="submit">Lagre innstillingane for {{ selected_year }}</button>
+  </form>
+
+  <h2>Påminning om fornying</h2>
+  <p>Send påminning til éin medlem om å gå til Mi side. Betalte og gratis medlemskap blir hoppa over. Dette endrar ikkje satsane.</p>
+  <form method="post" class="medlemsskjema">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Medlem
+      <select name="member_id">
+        {% for member in members %}<option value="{{ member.id }}">{{ member.full_name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Medlemsår <input name="year" type="number" value="{{ selected_year }}" required></label>
+    <button name="action" value="send">Send påminning</button>
+    {% if vipps_environment == 'test' %}<button name="action" value="link" class="sekundaer">Lag testlenkje</button>{% endif %}
+  </form>
+  {% if test_url %}<p><a href="{{ test_url }}" rel="noreferrer">Opne personleg testlenkje</a></p>{% endif %}
+
+  <details>
+    <summary>Avslutt medlemsåret</summary>
+    <p>Dette avsluttar medlemsåret, ikkje rekneskapsåret. Kontroller betalingane og ta verifisert backup først.</p>
+    <p id="kontingent-status" role="status" aria-live="polite"></p>
+    <button type="button" id="btn-lukk-medlemsar" class="sekundaer" disabled>Lukk medlemsår</button>
+  </details>
+</main>
+</body>
+</html>
