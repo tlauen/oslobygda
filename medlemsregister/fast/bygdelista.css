@@ -188,7 +188,7 @@
 .medlem-filterfelt select { min-height:48px; width:100%; border:1px solid var(--ob-control); border-radius:var(--ob-radius); padding:12px; background:var(--ob-white); }
 .bygdelista-kropp #medlemstabell { min-width:0; width:100%; }
 .bygdelista-kropp #medlemstabell :is(th,td) { min-width:0; }
-.bygdelista-kropp #medlemstabell td:last-child { position:static; box-shadow:none; }
+.bygdelista-kropp #medlemstabell :is(th,td):last-child { position:static; box-shadow:none; }
 .bygdelista-kropp #medlemstabell .kolonne-skjult { display:none; }
 .bygdelista-kropp :is(.medlem-lenkje,.aksjonar-meny-knapp) { color:var(--ob-forest); background:transparent; border:0; padding:8px 0; text-align:left; justify-content:start; text-decoration:underline; }
 .bygdelista-kropp .medlem-lenkje:hover { background:transparent; color:var(--ob-hover); }
